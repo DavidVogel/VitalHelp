@@ -1,0 +1,340 @@
+\doxysection{effects\+\_\+modulation\+\_\+handler.\+cpp}
+\hypertarget{effects__modulation__handler_8cpp_source}{}\label{effects__modulation__handler_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/effects\_engine/effects\_modulation\_handler.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/effects\_engine/effects\_modulation\_handler.cpp}}
+\mbox{\hyperlink{effects__modulation__handler_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{effects__modulation__handler_8h}{effects\_modulation\_handler.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{envelope_8h}{envelope.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{filters__module_8h}{filters\_module.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{line__map_8h}{line\_map.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{operators_8h}{operators.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{portamento__slope_8h}{portamento\_slope.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{random__lfo__module_8h}{random\_lfo\_module.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{envelope__module_8h}{envelope\_module.h}}"{}}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{lfo__module_8h}{lfo\_module.h}}"{}}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{trigger__random_8h}{trigger\_random.h}}"{}}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{value__switch_8h}{value\_switch.h}}"{}}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{modulation__connection__processor_8h}{modulation\_connection\_processor.h}}"{}}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00023\ \ \ \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_aaa45a246686c3fc592bf6663f00d392d}{EffectsModulationHandler::EffectsModulationHandler}}(\mbox{\hyperlink{structvital_1_1_output}{Output}}*\ beats\_per\_second)}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ :\ \mbox{\hyperlink{classvital_1_1_voice_handler}{VoiceHandler}}(0,\ 1,\ true),}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ beats\_per\_second\_(beats\_per\_second),}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ note\_from\_reference\_(nullptr),}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ midi\_offset\_output\_(nullptr),}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ bent\_midi\_(nullptr),}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ current\_midi\_note\_(nullptr),}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ filters\_module\_(nullptr),}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ lfos\_(),}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ envelopes\_(),}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ lfo\_sources\_(),}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ random\_(nullptr),}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ random\_lfos\_(),}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ note\_mapping\_(nullptr),}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ velocity\_mapping\_(nullptr),}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ aftertouch\_mapping\_(nullptr),}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ slide\_mapping\_(nullptr),}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ lift\_mapping\_(nullptr),}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ mod\_wheel\_mapping\_(nullptr),}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ pitch\_wheel\_mapping\_(nullptr),}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ stereo\_(nullptr),}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ note\_percentage\_(nullptr)\ \{}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ note\_from\_reference\_\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{classvital_1_1cr_1_1_add}{cr::Add}}();}
+\DoxyCodeLine{00047\ \ \ \ \ midi\_offset\_output\_\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_ac6d558d9f34643e9b79cec8cf8fd4299}{registerOutput}}(note\_from\_reference\_-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}());}
+\DoxyCodeLine{00048\ \ \ \}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00056\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_aa43af5cc3a7d4501b8f98dbc93c01efc}{EffectsModulationHandler::init}}()\ \{}
+\DoxyCodeLine{00057\ \ \ \ \ createArticulation();}
+\DoxyCodeLine{00058\ \ \ \ \ createModulators();}
+\DoxyCodeLine{00059\ \ \ \ \ createFilters(note\_from\_reference\_-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}());}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{comment}{//\ Setup\ macro\ controls}}
+\DoxyCodeLine{00062\ \ \ \ \ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ macros[\mbox{\hyperlink{namespacevital_adad4ff0a7bac9530c4840d320351a265}{kNumMacros}}];}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_adad4ff0a7bac9530c4840d320351a265}{kNumMacros}};\ ++i)}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ macros[i]\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_ae5eccb22cca0d1f82d4c2273a91b0cad}{createMonoModControl}}(\textcolor{stringliteral}{"{}macro\_control\_"{}}\ +\ std::to\_string(i\ +\ 1));}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{comment}{//\ Initialize\ all\ possible\ modulation\ connections}}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_abcbdb48fbd4d9f98b90cae346ee22044}{vital::kMaxModulationConnections}};\ ++i)\ \{}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_modulation_connection_processor}{ModulationConnectionProcessor}}*\ processor\ =}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ modulation\_bank\_.\mbox{\hyperlink{classvital_1_1_modulation_connection_bank_a12e4e9852ad8f0828340b74c0af06a83}{atIndex}}(i)-\/>\mbox{\hyperlink{structvital_1_1_modulation_connection_a3e60937dc576522f7c477da963dda169}{modulation\_processor}}.get();}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \ \ \ \ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a976723d6f281467f174826548bacfad0}{reset}}(),\ \mbox{\hyperlink{classvital_1_1_modulation_connection_processor_adb044083dd7b3a36b0b03ce83e3b646ea354c6374825385c8791eef0cbbb04be8}{ModulationConnectionProcessor::kReset}});}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \textcolor{comment}{//\ Setup\ modulation\ amount\ controls}}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ std::string\ number\ =\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ std::string\ amount\_name\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_amount"{}};}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ modulation\_amount\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_a170876a577ad1f0f7bd4b1cbb581b1aa}{createPolyModControl}}(amount\_name);}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(modulation\_amount,\ \mbox{\hyperlink{classvital_1_1_modulation_connection_processor_adb044083dd7b3a36b0b03ce83e3b646ea83ca80c8553949341e7b53d70bb55721}{ModulationConnectionProcessor::kModulationAmount}});}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ processor-\/>\mbox{\hyperlink{classvital_1_1_modulation_connection_processor_a6fae60fd88df00ad4bf56b967a57ee46}{initializeBaseValue}}(\mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>controls[amount\_name]);}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_value}{Value}}*\ modulation\_power\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_a3829cadfd1dfc7802119541ca1753d69}{createBaseControl}}(\textcolor{stringliteral}{"{}modulation\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_power"{}});}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(modulation\_power,\ \mbox{\hyperlink{classvital_1_1_modulation_connection_processor_adb044083dd7b3a36b0b03ce83e3b646ea92eac5c793bf49dfa23045a37375f427}{ModulationConnectionProcessor::kModulationPower}});}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}{addProcessor}}(processor);}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac711ab2fcf3df34bc0ab9bf0c67f2b13}{addSubmodule}}(processor);}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ processor-\/>\mbox{\hyperlink{classvital_1_1_synth_module_ad4f615773fab56c5a41aa4229bd26089}{enable}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00086\ \ \ \ \ \}}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{comment}{//\ Initialize\ voice\ handling}}
+\DoxyCodeLine{00089\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a4356352dc3f7b72cdd071d8a7d813651}{VoiceHandler::init}}();}
+\DoxyCodeLine{00090\ \ \ \ \ setupPolyModulationReadouts();}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{comment}{//\ Register\ macros\ as\ mod\ sources}}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_adad4ff0a7bac9530c4840d320351a265}{kNumMacros}};\ ++i)\ \{}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ std::string\ name\ =\ \textcolor{stringliteral}{"{}macro\_control\_"{}}\ +\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>mod\_sources[name]\ =\ macros[i];}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(name,\ macros[i]);}
+\DoxyCodeLine{00097\ \ \ \ \ \}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{comment}{//\ Register\ random\ LFOs\ as\ mod\ sources}}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a685d103a6454a0b6e8e370cb574c21b5}{kNumRandomLfos}};\ ++i)\ \{}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ std::string\ name\ =\ \textcolor{stringliteral}{"{}random\_"{}}\ +\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>mod\_sources[name]\ =\ random\_lfos\_[i]-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}();}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(name,\ random\_lfos\_[i]-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}());}
+\DoxyCodeLine{00104\ \ \ \ \ \}}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{comment}{//\ Add\ random\ and\ stereo\ mod\ sources}}
+\DoxyCodeLine{00107\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>mod\_sources[\textcolor{stringliteral}{"{}random"{}}]\ =\ random\_-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}();}
+\DoxyCodeLine{00108\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>mod\_sources[\textcolor{stringliteral}{"{}stereo"{}}]\ =\ stereo\_-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}();}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(\textcolor{stringliteral}{"{}random"{}},\ random\_-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}());}
+\DoxyCodeLine{00111\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(\textcolor{stringliteral}{"{}stereo"{}},\ stereo\_-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}());}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{comment}{//\ Create\ status\ outputs\ for\ each\ modulation\ connection}}
+\DoxyCodeLine{00114\ \ \ \ \ std::string\ modulation\_source\_prefix\ =\ \textcolor{stringliteral}{"{}modulation\_source\_"{}};}
+\DoxyCodeLine{00115\ \ \ \ \ std::string\ modulation\_amount\_prefix\ =\ \textcolor{stringliteral}{"{}modulation\_amount\_"{}};}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_abcbdb48fbd4d9f98b90cae346ee22044}{vital::kMaxModulationConnections}};\ ++i)\ \{}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_modulation_connection_processor}{ModulationConnectionProcessor}}*\ processor\ =}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \ \ modulation\_bank\_.\mbox{\hyperlink{classvital_1_1_modulation_connection_bank_a12e4e9852ad8f0828340b74c0af06a83}{atIndex}}(i)-\/>\mbox{\hyperlink{structvital_1_1_modulation_connection_a3e60937dc576522f7c477da963dda169}{modulation\_processor}}.get();}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ std::string\ number\ =\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ source\_output\ =\ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_modulation_connection_processor_a415b8c73b042c81b1550d172c7dd6ed6ad0254beefbfc1eb7a36bc20442f87204}{ModulationConnectionProcessor::kModulationSource}});}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ pre\_scale\_output\ =\ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_modulation_connection_processor_a415b8c73b042c81b1550d172c7dd6ed6a47598f66aca0c05a772b1ec4c7837db6}{ModulationConnectionProcessor::kModulationPreScale}});}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(modulation\_source\_prefix\ +\ number,\ source\_output);}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(modulation\_amount\_prefix\ +\ number,\ pre\_scale\_output);}
+\DoxyCodeLine{00124\ \ \ \ \ \}}
+\DoxyCodeLine{00125\ \ \ \}}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00130\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_a4e68356c6b113989babd1185c6b62613}{EffectsModulationHandler::prepareDestroy}}()\ \{}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_abcbdb48fbd4d9f98b90cae346ee22044}{vital::kMaxModulationConnections}};\ ++i)\ \{}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_modulation_connection_processor}{ModulationConnectionProcessor}}*\ processor\ =\ modulation\_bank\_.\mbox{\hyperlink{classvital_1_1_modulation_connection_bank_a12e4e9852ad8f0828340b74c0af06a83}{atIndex}}(i)-\/>\mbox{\hyperlink{structvital_1_1_modulation_connection_a3e60937dc576522f7c477da963dda169}{modulation\_processor}}.get();}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a609a240662e8d02977b3d78398489b91}{removeProcessor}}(processor);}
+\DoxyCodeLine{00134\ \ \ \ \ \}}
+\DoxyCodeLine{00135\ \ \ \}}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00140\ \ \ \textcolor{keywordtype}{void}\ EffectsModulationHandler::createModulators()\ \{}
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{comment}{//\ Create\ LFO\ modules}}
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_aba56646bec643d6d416700b782ed978b}{kNumLfos}};\ ++i)\ \{}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ lfo\_sources\_[i].\mbox{\hyperlink{class_line_generator_a26f4edc20d552c83d2c892733c6f2f55}{setLoop}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ lfo\_sources\_[i].\mbox{\hyperlink{class_line_generator_ab4193765104ac51ea7d87e1d7fdb9739}{initTriangle}}();}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ std::string\ prefix\ =\ \textcolor{stringliteral}{"{}lfo\_"{}}\ +\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_lfo_module}{LfoModule}}*\ lfo\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{classvital_1_1_lfo_module}{LfoModule}}(prefix,\ \&lfo\_sources\_[i],\ beats\_per\_second\_);}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac711ab2fcf3df34bc0ab9bf0c67f2b13}{addSubmodule}}(lfo);}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}{addProcessor}}(lfo);}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ lfos\_[i]\ =\ lfo;}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \ \ \ \ \ \ lfo-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a0b383ada4224e84985c24a6d933dc727}{retrigger}}(),\ \mbox{\hyperlink{classvital_1_1_lfo_module_abb73c06ccf9842ff617cc8c012a92a65abc7ab1a8da245d8b6b224275365332ba}{LfoModule::kNoteTrigger}});}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ lfo-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a846e5c9914a34e31aad4d802fbd1b03e}{note\_count}}(),\ \mbox{\hyperlink{classvital_1_1_lfo_module_abb73c06ccf9842ff617cc8c012a92a65a8a39c7e309d660137a76d6ba374e5918}{LfoModule::kNoteCount}});}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ lfo-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(bent\_midi\_,\ \mbox{\hyperlink{classvital_1_1_lfo_module_abb73c06ccf9842ff617cc8c012a92a65a70c9d6f5ffd1a65f5c10305a09534095}{LfoModule::kMidi}});}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>mod\_sources[prefix]\ =\ lfo-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_lfo_module_ac14d1b1ec1ff9b830fce8cbafd79000da55c4b5adbdb9feae815f634518ba0f82}{LfoModule::kValue}});}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(prefix,\ lfo-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_lfo_module_ac14d1b1ec1ff9b830fce8cbafd79000da55c4b5adbdb9feae815f634518ba0f82}{LfoModule::kValue}}));}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(prefix\ +\ \textcolor{stringliteral}{"{}\_phase"{}},\ lfo-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_lfo_module_ac14d1b1ec1ff9b830fce8cbafd79000da44b10b7a32e73272b58aa225c6f3ae3d}{LfoModule::kOscPhase}}));}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(prefix\ +\ \textcolor{stringliteral}{"{}\_frequency"{}},\ lfo-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_lfo_module_ac14d1b1ec1ff9b830fce8cbafd79000dac073f451e2ed568f5e443fe86d3ae5fd}{LfoModule::kOscFrequency}}));}
+\DoxyCodeLine{00159\ \ \ \ \ \}}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{comment}{//\ Create\ envelope\ modules}}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a9acbf7e6b849148921f335c101e02fe6}{kNumEnvelopes}};\ ++i)\ \{}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ std::string\ prefix\ =\ \textcolor{stringliteral}{"{}env\_"{}}\ +\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ EnvelopeModule*\ envelope\ =\ \textcolor{keyword}{new}\ EnvelopeModule(prefix);}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ envelope-\/>plug(\mbox{\hyperlink{classvital_1_1_voice_handler_a0b383ada4224e84985c24a6d933dc727}{retrigger}}(),\ \mbox{\hyperlink{classvital_1_1_envelope_module_a90830783e6541db19206c6dd7a28ab0ea701f0c32407fffd1de88ce1a04604bd9}{EnvelopeModule::kTrigger}});}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac711ab2fcf3df34bc0ab9bf0c67f2b13}{addSubmodule}}(envelope);}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}{addProcessor}}(envelope);}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ envelopes\_[i]\ =\ envelope;}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>mod\_sources[prefix]\ =\ envelope-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}();}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(prefix,\ envelope-\/>output(\mbox{\hyperlink{classvital_1_1_envelope_module_aaa6e275b6af3671def968075b12c37fda1c0bf82948e75e43145883c87918c73f}{EnvelopeModule::kValue}}));}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(prefix\ +\ \textcolor{stringliteral}{"{}\_phase"{}},\ envelope-\/>output(\mbox{\hyperlink{classvital_1_1_envelope_module_aaa6e275b6af3671def968075b12c37fda23a3b74a6045390079789678e70d3ac9}{EnvelopeModule::kPhase}}));}
+\DoxyCodeLine{00173\ \ \ \ \ \}}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{comment}{//\ Create\ a\ random\ trigger\ generator}}
+\DoxyCodeLine{00176\ \ \ \ \ random\_\ =\ \textcolor{keyword}{new}\ TriggerRandom();}
+\DoxyCodeLine{00177\ \ \ \ \ random\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a0b383ada4224e84985c24a6d933dc727}{retrigger}}());}
+\DoxyCodeLine{00178\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}{addProcessor}}(random\_);}
+\DoxyCodeLine{00179\ }
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{comment}{//\ Create\ random\ LFO\ modules}}
+\DoxyCodeLine{00181\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a685d103a6454a0b6e8e370cb574c21b5}{kNumRandomLfos}};\ ++i)\ \{}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ std::string\ name\ =\ \textcolor{stringliteral}{"{}random\_"{}}\ +\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ random\_lfos\_[i]\ =\ \textcolor{keyword}{new}\ RandomLfoModule(name,\ beats\_per\_second\_);}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ random\_lfos\_[i]-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a0b383ada4224e84985c24a6d933dc727}{retrigger}}(),\ \mbox{\hyperlink{classvital_1_1_random_lfo_module_ad4c338567f74f0c119d1258edd60b899a083e97a4fef1d3803462917c0e60676f}{RandomLfoModule::kNoteTrigger}});}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ random\_lfos\_[i]-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(bent\_midi\_,\ \mbox{\hyperlink{classvital_1_1_random_lfo_module_ad4c338567f74f0c119d1258edd60b899a0c2abdf4bbea15f223dda8456b72dd01}{RandomLfoModule::kMidi}});}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac711ab2fcf3df34bc0ab9bf0c67f2b13}{addSubmodule}}(random\_lfos\_[i]);}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}{addProcessor}}(random\_lfos\_[i]);}
+\DoxyCodeLine{00188\ \ \ \ \ \}}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \ \ \ \ \textcolor{comment}{//\ Stereo\ factor}}
+\DoxyCodeLine{00191\ \ \ \ \ stereo\_\ =\ \textcolor{keyword}{new}\ cr::Value(\mbox{\hyperlink{namespacevital_1_1constants_abd69815839bf08a7aec6bf015c9aa8cf}{constants::kLeftOne}});}
+\DoxyCodeLine{00192\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa8cb1c88d309cc966904ef3af4f6cd51}{addIdleProcessor}}(stereo\_);}
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \ \ \ \ \textcolor{comment}{//\ Add\ standard\ mod\ sources}}
+\DoxyCodeLine{00195\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>mod\_sources[\textcolor{stringliteral}{"{}note"{}}]\ =\ note\_percentage\_-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}();}
+\DoxyCodeLine{00196\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>mod\_sources[\textcolor{stringliteral}{"{}note\_in\_octave"{}}]\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_af3fd762c49f8027e66573046529622c8}{note\_in\_octave}}();}
+\DoxyCodeLine{00197\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>mod\_sources[\textcolor{stringliteral}{"{}aftertouch"{}}]\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}}();}
+\DoxyCodeLine{00198\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>mod\_sources[\textcolor{stringliteral}{"{}velocity"{}}]\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_a0864b01c35b14dd08f928d9a860c88a0}{velocity}}();}
+\DoxyCodeLine{00199\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>mod\_sources[\textcolor{stringliteral}{"{}slide"{}}]\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_a462430bd8e71f5fe0a3930c5172052b5}{slide}}();}
+\DoxyCodeLine{00200\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>mod\_sources[\textcolor{stringliteral}{"{}lift"{}}]\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_ad144feadb03921b4e7e1efef2c7fa0e9}{lift}}();}
+\DoxyCodeLine{00201\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>mod\_sources[\textcolor{stringliteral}{"{}mod\_wheel"{}}]\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_a70bc08150629cec99717dc0a46c777e6}{mod\_wheel}}();}
+\DoxyCodeLine{00202\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>mod\_sources[\textcolor{stringliteral}{"{}pitch\_wheel"{}}]\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_a92a74775e0aa6b32f59b9476617d6deb}{pitch\_wheel\_percent}}();}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \ \ \ \ \textcolor{comment}{//\ Create\ status\ outputs\ for\ these\ mod\ sources}}
+\DoxyCodeLine{00205\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(\textcolor{stringliteral}{"{}note"{}},\ note\_percentage\_-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}());}
+\DoxyCodeLine{00206\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(\textcolor{stringliteral}{"{}note\_in\_octave"{}},\ \mbox{\hyperlink{classvital_1_1_voice_handler_af3fd762c49f8027e66573046529622c8}{note\_in\_octave}}());}
+\DoxyCodeLine{00207\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(\textcolor{stringliteral}{"{}aftertouch"{}},\ \mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}}());}
+\DoxyCodeLine{00208\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(\textcolor{stringliteral}{"{}velocity"{}},\ \mbox{\hyperlink{classvital_1_1_voice_handler_a0864b01c35b14dd08f928d9a860c88a0}{velocity}}());}
+\DoxyCodeLine{00209\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(\textcolor{stringliteral}{"{}slide"{}},\ \mbox{\hyperlink{classvital_1_1_voice_handler_a462430bd8e71f5fe0a3930c5172052b5}{slide}}());}
+\DoxyCodeLine{00210\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(\textcolor{stringliteral}{"{}lift"{}},\ \mbox{\hyperlink{classvital_1_1_voice_handler_ad144feadb03921b4e7e1efef2c7fa0e9}{lift}}());}
+\DoxyCodeLine{00211\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(\textcolor{stringliteral}{"{}mod\_wheel"{}},\ \mbox{\hyperlink{classvital_1_1_voice_handler_a70bc08150629cec99717dc0a46c777e6}{mod\_wheel}}());}
+\DoxyCodeLine{00212\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{createStatusOutput}}(\textcolor{stringliteral}{"{}pitch\_wheel"{}},\ \mbox{\hyperlink{classvital_1_1_voice_handler_a92a74775e0aa6b32f59b9476617d6deb}{pitch\_wheel\_percent}}());}
+\DoxyCodeLine{00213\ \ \ \}}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00220\ \ \ \textcolor{keywordtype}{void}\ EffectsModulationHandler::createFilters(Output*\ keytrack)\ \{}
+\DoxyCodeLine{00221\ \ \ \ \ filters\_module\_\ =\ \textcolor{keyword}{new}\ FiltersModule();}
+\DoxyCodeLine{00222\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac711ab2fcf3df34bc0ab9bf0c67f2b13}{addSubmodule}}(filters\_module\_);}
+\DoxyCodeLine{00223\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}{addProcessor}}(filters\_module\_);}
+\DoxyCodeLine{00224\ }
+\DoxyCodeLine{00225\ \ \ \ \ filters\_module\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a976723d6f281467f174826548bacfad0}{reset}}(),\ \mbox{\hyperlink{classvital_1_1_filters_module_ae0ab17627ee646507e75928251331f3ea0606ddf2e84fd2bf2731a9f780a7fb19}{FiltersModule::kReset}});}
+\DoxyCodeLine{00226\ \ \ \ \ filters\_module\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(keytrack,\ \mbox{\hyperlink{classvital_1_1_filters_module_ae0ab17627ee646507e75928251331f3ea705ad20574ad2013b8a435a04a03578e}{FiltersModule::kKeytrack}});}
+\DoxyCodeLine{00227\ \ \ \ \ filters\_module\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(bent\_midi\_,\ \mbox{\hyperlink{classvital_1_1_filters_module_ae0ab17627ee646507e75928251331f3ea16c11f7e14d8283c20f8c0c4d780310a}{FiltersModule::kMidi}});}
+\DoxyCodeLine{00228\ \ \ \}}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00233\ \ \ \textcolor{keywordtype}{void}\ EffectsModulationHandler::createArticulation()\ \{}
+\DoxyCodeLine{00234\ \ \ \ \ \textcolor{comment}{//\ Velocity\ tracking}}
+\DoxyCodeLine{00235\ \ \ \ \ Output*\ velocity\_track\_amount\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_a170876a577ad1f0f7bd4b1cbb581b1aa}{createPolyModControl}}(\textcolor{stringliteral}{"{}velocity\_track"{}});}
+\DoxyCodeLine{00236\ \ \ \ \ cr::Interpolate*\ velocity\_track\_mult\ =\ \textcolor{keyword}{new}\ cr::Interpolate();}
+\DoxyCodeLine{00237\ \ \ \ \ velocity\_track\_mult-\/>plug(\&\mbox{\hyperlink{namespacevital_1_1constants_afd9b3158b0cc852dce89394efe828e1b}{constants::kValueOne}},\ \mbox{\hyperlink{classvital_1_1_interpolate_add257094ad0641a8d9e916483ca9934aaa2176883d6211fc937022b11b77d764e}{Interpolate::kFrom}});}
+\DoxyCodeLine{00238\ \ \ \ \ velocity\_track\_mult-\/>plug(\mbox{\hyperlink{classvital_1_1_voice_handler_a0864b01c35b14dd08f928d9a860c88a0}{velocity}}(),\ \mbox{\hyperlink{classvital_1_1_interpolate_add257094ad0641a8d9e916483ca9934aa76337bb9de6999067bfe9b6aeb9ca6d7}{Interpolate::kTo}});}
+\DoxyCodeLine{00239\ \ \ \ \ velocity\_track\_mult-\/>plug(velocity\_track\_amount,\ \mbox{\hyperlink{classvital_1_1_interpolate_add257094ad0641a8d9e916483ca9934aad9bafddfbe1de01e012d44876422332b}{Interpolate::kFractional}});}
+\DoxyCodeLine{00240\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}{addProcessor}}(velocity\_track\_mult);}
+\DoxyCodeLine{00241\ }
+\DoxyCodeLine{00242\ \ \ \ \ \textcolor{comment}{//\ Portamento\ controls}}
+\DoxyCodeLine{00243\ \ \ \ \ Output*\ portamento\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_a170876a577ad1f0f7bd4b1cbb581b1aa}{createPolyModControl}}(\textcolor{stringliteral}{"{}portamento\_time"{}});}
+\DoxyCodeLine{00244\ \ \ \ \ Output*\ portamento\_slope\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_a170876a577ad1f0f7bd4b1cbb581b1aa}{createPolyModControl}}(\textcolor{stringliteral}{"{}portamento\_slope"{}});}
+\DoxyCodeLine{00245\ \ \ \ \ Value*\ portamento\_force\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_a3829cadfd1dfc7802119541ca1753d69}{createBaseControl}}(\textcolor{stringliteral}{"{}portamento\_force"{}});}
+\DoxyCodeLine{00246\ \ \ \ \ Value*\ portamento\_scale\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_a3829cadfd1dfc7802119541ca1753d69}{createBaseControl}}(\textcolor{stringliteral}{"{}portamento\_scale"{}});}
+\DoxyCodeLine{00247\ }
+\DoxyCodeLine{00248\ \ \ \ \ current\_midi\_note\_\ =\ \textcolor{keyword}{new}\ PortamentoSlope();}
+\DoxyCodeLine{00249\ \ \ \ \ current\_midi\_note\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\mbox{\hyperlink{classvital_1_1_voice_handler_ad6359772bd2bc8452c3a2c22b654751e}{last\_note}}(),\ \mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3ea73b8832943bd5d6674b9646168982432}{PortamentoSlope::kSource}});}
+\DoxyCodeLine{00250\ \ \ \ \ current\_midi\_note\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}}(),\ \mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3eab022925b2d1139861490910d33bab148}{PortamentoSlope::kTarget}});}
+\DoxyCodeLine{00251\ \ \ \ \ current\_midi\_note\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(portamento\_force,\ \mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3eaffc5904e038bd0bd8ceca9938f68c46c}{PortamentoSlope::kPortamentoForce}});}
+\DoxyCodeLine{00252\ \ \ \ \ current\_midi\_note\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(portamento\_scale,\ \mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3ea2fbe9daa954f8e791142b0114a8fba7d}{PortamentoSlope::kPortamentoScale}});}
+\DoxyCodeLine{00253\ \ \ \ \ current\_midi\_note\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(portamento,\ \mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3ea22f0f946c0b0803fb0603f9754abec90}{PortamentoSlope::kRunSeconds}});}
+\DoxyCodeLine{00254\ \ \ \ \ current\_midi\_note\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(portamento\_slope,\ \mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3ea73790ee93bae5ea1127a97da26fdb761}{PortamentoSlope::kSlopePower}});}
+\DoxyCodeLine{00255\ \ \ \ \ current\_midi\_note\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a5bab229a723b7e9320270adbdafe5470}{voice\_event}}(),\ \mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3ea9a60aee91c4683d8007f4e7ff9802acf}{PortamentoSlope::kReset}});}
+\DoxyCodeLine{00256\ \ \ \ \ current\_midi\_note\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a3c664ee950ff76142332c898ab8149dc}{note\_pressed}}(),\ \mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3ea71c8faae1a26e351bef053234bed8db2}{PortamentoSlope::kNumNotesPressed}});}
+\DoxyCodeLine{00257\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aeefea73f352fe89dba038f4b7436dbac}{setVoiceMidi}}(current\_midi\_note\_-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}());}
+\DoxyCodeLine{00258\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}{addProcessor}}(current\_midi\_note\_);}
+\DoxyCodeLine{00259\ }
+\DoxyCodeLine{00260\ \ \ \ \ \textcolor{comment}{//\ Pitch\ bend}}
+\DoxyCodeLine{00261\ \ \ \ \ Output*\ pitch\_bend\_range\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_a170876a577ad1f0f7bd4b1cbb581b1aa}{createPolyModControl}}(\textcolor{stringliteral}{"{}pitch\_bend\_range"{}});}
+\DoxyCodeLine{00262\ \ \ \ \ Output*\ voice\_tune\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_a170876a577ad1f0f7bd4b1cbb581b1aa}{createPolyModControl}}(\textcolor{stringliteral}{"{}voice\_tune"{}});}
+\DoxyCodeLine{00263\ \ \ \ \ cr::Multiply*\ pitch\_bend\ =\ \textcolor{keyword}{new}\ cr::Multiply();}
+\DoxyCodeLine{00264\ \ \ \ \ pitch\_bend-\/>plug(\mbox{\hyperlink{classvital_1_1_voice_handler_a226348dca73703b71c33951215eda2a8}{pitch\_wheel}}(),\ 0);}
+\DoxyCodeLine{00265\ \ \ \ \ pitch\_bend-\/>plug(pitch\_bend\_range,\ 1);}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00267\ \ \ \ \ bent\_midi\_\ =\ \textcolor{keyword}{new}\ cr::VariableAdd();}
+\DoxyCodeLine{00268\ \ \ \ \ bent\_midi\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a330bb54cfa578d50210e265455283c47}{plugNext}}(current\_midi\_note\_);}
+\DoxyCodeLine{00269\ \ \ \ \ bent\_midi\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a330bb54cfa578d50210e265455283c47}{plugNext}}(pitch\_bend);}
+\DoxyCodeLine{00270\ \ \ \ \ bent\_midi\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a330bb54cfa578d50210e265455283c47}{plugNext}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a265a67b52cf6b80a0a14dd20b18f61a6}{local\_pitch\_bend}}());}
+\DoxyCodeLine{00271\ \ \ \ \ bent\_midi\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a330bb54cfa578d50210e265455283c47}{plugNext}}(voice\_tune);}
+\DoxyCodeLine{00272\ }
+\DoxyCodeLine{00273\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ cr::Value\ max\_midi\_invert(1.0f\ /\ (\mbox{\hyperlink{namespacevital_a7be9efa423f42230b10924b0f69b3b03}{kMidiSize}}\ -\/\ 1));}
+\DoxyCodeLine{00274\ \ \ \ \ note\_percentage\_\ =\ \textcolor{keyword}{new}\ cr::Multiply();}
+\DoxyCodeLine{00275\ \ \ \ \ note\_percentage\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&max\_midi\_invert,\ 0);}
+\DoxyCodeLine{00276\ \ \ \ \ note\_percentage\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(bent\_midi\_,\ 1);}
+\DoxyCodeLine{00277\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}{addProcessor}}(note\_percentage\_);}
+\DoxyCodeLine{00278\ }
+\DoxyCodeLine{00279\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ cr::Value\ reference\_adjust(-\/\mbox{\hyperlink{namespacevital_a9395be5629fb21059bd6a337ca1f2cd0}{kMidiTrackCenter}});}
+\DoxyCodeLine{00280\ \ \ \ \ note\_from\_reference\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&reference\_adjust,\ 0);}
+\DoxyCodeLine{00281\ \ \ \ \ note\_from\_reference\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(bent\_midi\_,\ 1);}
+\DoxyCodeLine{00282\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}{addProcessor}}(note\_from\_reference\_);}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00284\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}{addProcessor}}(pitch\_bend);}
+\DoxyCodeLine{00285\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}{addProcessor}}(bent\_midi\_);}
+\DoxyCodeLine{00286\ \ \ \}}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00293\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_af7a098978c3a57d927f651ea5d0a7885}{EffectsModulationHandler::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00294\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_a976723d6f281467f174826548bacfad0}{reset}}()-\/>\mbox{\hyperlink{structvital_1_1_output_ab5d8c509c6b262ea89dbbfafbc24673b}{trigger\_mask}};}
+\DoxyCodeLine{00295\ \ \ \ \ \textcolor{keywordflow}{if}\ (reset\_mask.\mbox{\hyperlink{structvital_1_1poly__int_a2fab54be2efa9a05ed842b91e4bad62d}{anyMask}}())}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a2b6195a578e16b6ad1490a8a1d20b1cc}{resetFeedbacks}}(reset\_mask);}
+\DoxyCodeLine{00297\ }
+\DoxyCodeLine{00298\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a6c379397d5efcd674dcf5e5f3511444a}{VoiceHandler::process}}(num\_samples);}
+\DoxyCodeLine{00299\ \ \ \ \ note\_retriggered\_.\mbox{\hyperlink{structvital_1_1_output_a60830e1cea540817709295d17510ce27}{clearTrigger}}();}
+\DoxyCodeLine{00300\ }
+\DoxyCodeLine{00301\ \ \ \ \ \textcolor{comment}{//\ If\ no\ notes\ are\ active,\ clear\ status\ outputs}}
+\DoxyCodeLine{00302\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_voice_handler_a4b764cef0010cc39069eda5a21217a0a}{getNumActiveVoices}}()\ ==\ 0)\ \{}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ status\_source\ :\ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>status\_outputs)}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \ \ status\_source.second-\/>clear();}
+\DoxyCodeLine{00305\ \ \ \ \ \}}
+\DoxyCodeLine{00306\ \ \ \ \ \textcolor{comment}{//\ Otherwise,\ update\ active\ connections}}
+\DoxyCodeLine{00307\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ voice\_mask\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_af9dad893ef3471a4f17d5abbf00d39df}{getCurrentVoiceMask}}();}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_abcbdb48fbd4d9f98b90cae346ee22044}{vital::kMaxModulationConnections}};\ ++i)\ \{}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_modulation_connection_processor}{ModulationConnectionProcessor}}*\ processor\ =\ modulation\_bank\_.\mbox{\hyperlink{classvital_1_1_modulation_connection_bank_a12e4e9852ad8f0828340b74c0af06a83}{atIndex}}(i)-\/>\mbox{\hyperlink{structvital_1_1_modulation_connection_a3e60937dc576522f7c477da963dda169}{modulation\_processor}}.get();}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (processor-\/>\mbox{\hyperlink{classvital_1_1_processor_a74b147c92221c428c49a767fdc8364dd}{enabled}}())\ \{}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ buffer\ =\ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ masked\_value\ =\ buffer[0]\ \&\ voice\_mask;}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \ \ \ \ buffer[0]\ =\ masked\_value\ +\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(masked\_value);}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ status\_source\ :\ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\_}}-\/>status\_outputs)}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ status\_source.second-\/>update(voice\_mask);}
+\DoxyCodeLine{00319\ \ \ \ \ \}}
+\DoxyCodeLine{00320\ \ \ \}}
+\DoxyCodeLine{00321\ }
+\DoxyCodeLine{00333\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_af65ffd61d42db7fa02470b7cfaf76aac}{EffectsModulationHandler::noteOn}}(\textcolor{keywordtype}{int}\ note,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ velocity,\ \textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ channel)\ \{}
+\DoxyCodeLine{00334\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_voice_handler_a2479ebc5f317538af4b0b22f79593a9d}{getNumPressedNotes}}()\ <\ \mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}}()\ ||\ !\mbox{\hyperlink{classvital_1_1_voice_handler_a8aacdc084da8809bd2becc881902da5c}{legato}}())}
+\DoxyCodeLine{00335\ \ \ \ \ \ \ note\_retriggered\_.\mbox{\hyperlink{structvital_1_1_output_a16f8b90753a7d427090e088f82b011de}{trigger}}(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}},\ \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}},\ sample);}
+\DoxyCodeLine{00336\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a2b1d804067ab284731a3ed878fd09657}{VoiceHandler::noteOn}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}},\ \mbox{\hyperlink{classvital_1_1_voice_handler_a0864b01c35b14dd08f928d9a860c88a0}{velocity}},\ sample,\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}});}
+\DoxyCodeLine{00337\ \ \ \}}
+\DoxyCodeLine{00338\ }
+\DoxyCodeLine{00350\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_aced57b2ed9b092a3e3872086cd6db1f3}{EffectsModulationHandler::noteOff}}(\textcolor{keywordtype}{int}\ note,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ lift,\ \textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ channel)\ \{}
+\DoxyCodeLine{00351\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_voice_handler_a2479ebc5f317538af4b0b22f79593a9d}{getNumPressedNotes}}()\ >\ \mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}}()\ \&\&\ \mbox{\hyperlink{classvital_1_1_voice_handler_a53e3a45424bf758ea60616bc381b1b0e}{isNotePlaying}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}})\ \&\&\ !\mbox{\hyperlink{classvital_1_1_voice_handler_a8aacdc084da8809bd2becc881902da5c}{legato}}())}
+\DoxyCodeLine{00352\ \ \ \ \ \ \ note\_retriggered\_.\mbox{\hyperlink{structvital_1_1_output_a16f8b90753a7d427090e088f82b011de}{trigger}}(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}},\ \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}},\ sample);}
+\DoxyCodeLine{00353\ }
+\DoxyCodeLine{00354\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a797a35d52f58f52d08e2e74fd109e033}{VoiceHandler::noteOff}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}},\ \mbox{\hyperlink{classvital_1_1_voice_handler_ad144feadb03921b4e7e1efef2c7fa0e9}{lift}},\ sample,\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}});}
+\DoxyCodeLine{00355\ \ \ \}}
+\DoxyCodeLine{00356\ }
+\DoxyCodeLine{00362\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_a3110144707096e9dbb6b7e2d7e54ce4a}{EffectsModulationHandler::correctToTime}}(\textcolor{keywordtype}{double}\ seconds)\ \{}
+\DoxyCodeLine{00363\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_aba56646bec643d6d416700b782ed978b}{kNumLfos}};\ ++i)}
+\DoxyCodeLine{00364\ \ \ \ \ \ \ lfos\_[i]-\/>\mbox{\hyperlink{classvital_1_1_effects_modulation_handler_a3110144707096e9dbb6b7e2d7e54ce4a}{correctToTime}}(seconds);}
+\DoxyCodeLine{00365\ \ \ \}}
+\DoxyCodeLine{00366\ }
+\DoxyCodeLine{00370\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_a3464c6c36c736b312170d2e664170de4}{EffectsModulationHandler::disableUnnecessaryModSources}}()\ \{}
+\DoxyCodeLine{00371\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_aba56646bec643d6d416700b782ed978b}{kNumLfos}};\ ++i)}
+\DoxyCodeLine{00372\ \ \ \ \ \ \ lfos\_[i]-\/>\mbox{\hyperlink{classvital_1_1_synth_module_ad4f615773fab56c5a41aa4229bd26089}{enable}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00373\ }
+\DoxyCodeLine{00374\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <\ \mbox{\hyperlink{namespacevital_a9acbf7e6b849148921f335c101e02fe6}{kNumEnvelopes}};\ ++i)}
+\DoxyCodeLine{00375\ \ \ \ \ \ \ envelopes\_[i]-\/>\mbox{\hyperlink{classvital_1_1_synth_module_ad4f615773fab56c5a41aa4229bd26089}{enable}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00376\ }
+\DoxyCodeLine{00377\ \ \ \ \ random\_-\/>\mbox{\hyperlink{classvital_1_1_processor_ab5a6caa5b2e9cdfba5cf770363034d98}{enable}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00378\ \ \ \}}
+\DoxyCodeLine{00379\ }
+\DoxyCodeLine{00385\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_a9fd92845e81fbfc7eea70282b929185c}{EffectsModulationHandler::disableModSource}}(\textcolor{keyword}{const}\ std::string\&\ source)\ \{}
+\DoxyCodeLine{00386\ \ \ \ \ \textcolor{keywordflow}{if}\ (source\ !=\ \textcolor{stringliteral}{"{}env\_1"{}})}
+\DoxyCodeLine{00387\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_aa91319dc5d300584b4897e1a0c53afe8}{getModulationSource}}(source)-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}-\/>\mbox{\hyperlink{classvital_1_1_processor_ab5a6caa5b2e9cdfba5cf770363034d98}{enable}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00388\ \ \ \}}
+\DoxyCodeLine{00389\ }
+\DoxyCodeLine{00393\ \ \ \textcolor{keywordtype}{void}\ EffectsModulationHandler::setupPolyModulationReadouts()\ \{}
+\DoxyCodeLine{00394\ \ \ \ \ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{output\_map}}\&\ poly\_mods\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_a9878e8bee7632526ee410d6e39b78b31}{SynthModule::getPolyModulations}}();}
+\DoxyCodeLine{00395\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ mod\ :\ poly\_mods)}
+\DoxyCodeLine{00396\ \ \ \ \ \ \ poly\_readouts\_[mod.first]\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_ac6d558d9f34643e9b79cec8cf8fd4299}{registerOutput}}(mod.second);}
+\DoxyCodeLine{00397\ \ \ \}}
+\DoxyCodeLine{00398\ }
+\DoxyCodeLine{00404\ \ \ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{output\_map}}\&\ \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_a79046267758a675186d08dac3676a048}{EffectsModulationHandler::getPolyModulations}}()\ \{}
+\DoxyCodeLine{00405\ \ \ \ \ \textcolor{keywordflow}{return}\ poly\_readouts\_;}
+\DoxyCodeLine{00406\ \ \ \}}
+\DoxyCodeLine{00407\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

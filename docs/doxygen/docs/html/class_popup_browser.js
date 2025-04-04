@@ -1,0 +1,26 @@
+var class_popup_browser =
+[
+    [ "PopupBrowser", "class_popup_browser.html#a248b3caed404c41d273b05d0d9744bc8", null ],
+    [ "~PopupBrowser", "class_popup_browser.html#a6955b3d585e994831b7e6593ba25bdbe", null ],
+    [ "allSelected", "class_popup_browser.html#ac110183d22e51abb5a7fd9ba66c2efd6", null ],
+    [ "buttonClicked", "class_popup_browser.html#af1f89713aaece3d3c00ec05d35b37e81", null ],
+    [ "checkNoContent", "class_popup_browser.html#afc91772dd46fcdc1b85974ba5345d8b1", null ],
+    [ "checkStoreButton", "class_popup_browser.html#aec6f80b3224deefd61ed3a808ebb3acd", null ],
+    [ "closingAreaClicked", "class_popup_browser.html#a6ad850bbbf65ccfcfc69d39036a7001e", null ],
+    [ "doubleClickedSelected", "class_popup_browser.html#a0b38f3961ef4621287aac4005c3575c4", null ],
+    [ "favoritesSelected", "class_popup_browser.html#a72929821ec5a05b1c16c7cb2649e0765", null ],
+    [ "filterPresets", "class_popup_browser.html#a57bb199945068aa9569135ad7e3d19e1", null ],
+    [ "keyPressed", "class_popup_browser.html#ade9e9e0ebcf1c4b55a175585f3c2db1d", null ],
+    [ "keyStateChanged", "class_popup_browser.html#a41f260ccb60325b180e2d1dc90f1c56e", null ],
+    [ "loadPresets", "class_popup_browser.html#a2a9fa480073cd1a0969651008df50857", null ],
+    [ "newSelection", "class_popup_browser.html#a6d387d7fe88c46ff7910fb1f81f646fd", null ],
+    [ "paintBackground", "class_popup_browser.html#afed08baec77b6cdadc7f90d485b8d9ee", null ],
+    [ "paintBackgroundShadow", "class_popup_browser.html#a0cb1eeaa2e8358af15de77e5abc60b1e", null ],
+    [ "resized", "class_popup_browser.html#afceaddc0f71ff7a37a0da4572810d3af", null ],
+    [ "setBrowserBounds", "class_popup_browser.html#a89dd085ddcb9fa20736ac6dc05a3a5b3", null ],
+    [ "setIgnoreBounds", "class_popup_browser.html#aa735d6f8a69382103ad15cb31b9bec79", null ],
+    [ "setOwner", "class_popup_browser.html#a805c0c243ec504f18ac32d66fac71a81", null ],
+    [ "textEditorEscapeKeyPressed", "class_popup_browser.html#aa167737960722315671ea2d3e7852260", null ],
+    [ "textEditorTextChanged", "class_popup_browser.html#ae326c7a4b0a189ca2822d0131d232fe3", null ],
+    [ "visibilityChanged", "class_popup_browser.html#a4ee5cfa44f243d9af62b014116885126", null ]
+];

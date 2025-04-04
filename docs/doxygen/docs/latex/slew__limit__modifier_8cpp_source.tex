@@ -1,0 +1,94 @@
+\doxysection{slew\+\_\+limit\+\_\+modifier.\+cpp}
+\hypertarget{slew__limit__modifier_8cpp_source}{}\label{slew__limit__modifier_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/slew\_limit\_modifier.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/slew\_limit\_modifier.cpp}}
+\mbox{\hyperlink{slew__limit__modifier_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{SlewLimitModifier\ applies\ slew-\/rate\ limiting\ to\ the\ wavetable’s\ time-\/domain\ signal,\ controlling\ how\ quickly\ the\ waveform\ can\ rise\ or\ fall\ per\ sample.\ By\ adjusting\ the\ upward\ and\ downward\ slew\ parameters,\ one\ can\ achieve\ smoother\ transitions\ and\ reduce\ harsh\ dynamics\ in\ the\ resulting\ sound.\ Interpolating\ between\ keyframes\ allows\ these\ constraints\ to\ evolve\ across\ the\ wavetable.}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{slew__limit__modifier_8h}{slew\_limit\_modifier.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__frame_8h}{wave\_frame.h}}"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a370bad2a8163beb2d2b690f5ebaaf784}{SlewLimitModifier::SlewLimitModifierKeyframe::SlewLimitModifierKeyframe}}()\ \{}
+\DoxyCodeLine{00011\ \ \ \textcolor{comment}{//\ Initialize\ upward\ and\ downward\ slew\ limits\ to\ zero,\ meaning\ no\ slew\ limiting.}}
+\DoxyCodeLine{00012\ \ \ \mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a7a90fe9d4e98d01a649603460c527331}{slew\_down\_run\_rise\_}}\ =\ 0.0f;}
+\DoxyCodeLine{00013\ \ \ \mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a7e5b6b240c74bbd4cb084a2a9ceed2a2}{slew\_up\_run\_rise\_}}\ =\ 0.0f;}
+\DoxyCodeLine{00014\ \}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a72f5d01e71f49a4ff9c88cd4f5984572}{SlewLimitModifier::SlewLimitModifierKeyframe::copy}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00017\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe}{SlewLimitModifierKeyframe}}*\ source\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe}{SlewLimitModifierKeyframe}}*\textcolor{keyword}{>}(keyframe);}
+\DoxyCodeLine{00018\ \ \ slew\_down\_run\_rise\_\ =\ source-\/>\mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a7a90fe9d4e98d01a649603460c527331}{slew\_down\_run\_rise\_}};}
+\DoxyCodeLine{00019\ \ \ slew\_up\_run\_rise\_\ =\ source-\/>\mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a7e5b6b240c74bbd4cb084a2a9ceed2a2}{slew\_up\_run\_rise\_}};}
+\DoxyCodeLine{00020\ \}}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a0bc22cd5a5d20e782392a7009a062e9e}{SlewLimitModifier::SlewLimitModifierKeyframe::interpolate}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ from\_keyframe,}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ to\_keyframe,}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t)\ \{}
+\DoxyCodeLine{00025\ \ \ \textcolor{comment}{//\ Linearly\ interpolate\ upward\ and\ downward\ slew\ limits.}}
+\DoxyCodeLine{00026\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe}{SlewLimitModifierKeyframe}}*\ from\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe}{SlewLimitModifierKeyframe}}*\textcolor{keyword}{>}(from\_keyframe);}
+\DoxyCodeLine{00027\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe}{SlewLimitModifierKeyframe}}*\ to\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe}{SlewLimitModifierKeyframe}}*\textcolor{keyword}{>}(to\_keyframe);}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ slew\_down\_run\_rise\_\ =\ linearTween(from-\/>\mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a7a90fe9d4e98d01a649603460c527331}{slew\_down\_run\_rise\_}},\ to-\/>\mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a7a90fe9d4e98d01a649603460c527331}{slew\_down\_run\_rise\_}},\ t);}
+\DoxyCodeLine{00030\ \ \ slew\_up\_run\_rise\_\ =\ linearTween(from-\/>\mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a7e5b6b240c74bbd4cb084a2a9ceed2a2}{slew\_up\_run\_rise\_}},\ to-\/>\mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a7e5b6b240c74bbd4cb084a2a9ceed2a2}{slew\_up\_run\_rise\_}},\ t);}
+\DoxyCodeLine{00031\ \}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a6d2c60e432a2138abece34a5ea4b8ae6}{SlewLimitModifier::SlewLimitModifierKeyframe::render}}(\mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ wave\_frame)\ \{}
+\DoxyCodeLine{00034\ \ \ \textcolor{comment}{//\ Enforce\ slew\ limits\ in\ time\ domain\ by\ constraining\ how\ much\ the\ waveform\ can\ rise\ or\ fall\ per\ sample.}}
+\DoxyCodeLine{00035\ \ \ \textcolor{keywordtype}{float}\ min\_slew\_limit\ =\ 1.0f\ /\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};}
+\DoxyCodeLine{00036\ \ \ \textcolor{keywordtype}{float}\ max\_up\_delta\ =\ (2.0f\ /\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}})\ /\ std::max(slew\_up\_run\_rise\_,\ min\_slew\_limit);}
+\DoxyCodeLine{00037\ \ \ \textcolor{keywordtype}{float}\ max\_down\_delta\ =\ (2.0f\ /\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}})\ /\ std::max(slew\_down\_run\_rise\_,\ min\_slew\_limit);}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \textcolor{keywordtype}{float}\ current\_value\ =\ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[0];}
+\DoxyCodeLine{00040\ \ \ \textcolor{comment}{//\ Iterate\ through\ the\ waveform's\ samples,\ limiting\ upward\ and\ downward\ changes.}}
+\DoxyCodeLine{00041\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <\ 2\ *\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};\ ++i)\ \{}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ i\ \%\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keywordtype}{float}\ target\_value\ =\ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[index];}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{keywordtype}{float}\ delta\ =\ target\_value\ -\/\ current\_value;}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keywordflow}{if}\ (delta\ >\ 0.0f)}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ current\_value\ +=\ std::min(delta,\ max\_up\_delta);}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ current\_value\ -\/=\ std::min(-\/delta,\ max\_down\_delta);}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[index]\ =\ current\_value;}
+\DoxyCodeLine{00052\ \ \ \}}
+\DoxyCodeLine{00053\ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a55389465c6dd32414e034d10834ff0ee}{toFrequencyDomain}}();}
+\DoxyCodeLine{00054\ \}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a505f8a946ec4c8724b1e1f4a8e7c4df0}{SlewLimitModifier::SlewLimitModifierKeyframe::stateToJson}}()\ \{}
+\DoxyCodeLine{00057\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_wavetable_keyframe_ab12d53e98f7188d011cd3c69e86d2bda}{WavetableKeyframe::stateToJson}}();}
+\DoxyCodeLine{00058\ \ \ data[\textcolor{stringliteral}{"{}up\_run\_rise"{}}]\ =\ slew\_up\_run\_rise\_;}
+\DoxyCodeLine{00059\ \ \ data[\textcolor{stringliteral}{"{}down\_run\_rise"{}}]\ =\ slew\_down\_run\_rise\_;}
+\DoxyCodeLine{00060\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00061\ \}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a4d720fadede34604d651971d24a45cbb}{SlewLimitModifier::SlewLimitModifierKeyframe::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00064\ \ \ \mbox{\hyperlink{class_wavetable_keyframe_ad0e81b3bdc5fe9a3d901dec69d9b7b5b}{WavetableKeyframe::jsonToState}}(data);}
+\DoxyCodeLine{00065\ \ \ slew\_up\_run\_rise\_\ =\ data[\textcolor{stringliteral}{"{}up\_run\_rise"{}}];}
+\DoxyCodeLine{00066\ \ \ slew\_down\_run\_rise\_\ =\ data[\textcolor{stringliteral}{"{}down\_run\_rise"{}}];}
+\DoxyCodeLine{00067\ \}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ \mbox{\hyperlink{class_slew_limit_modifier_a9cdb7da6ee5a26907234f4aa594aa819}{SlewLimitModifier::createKeyframe}}(\textcolor{keywordtype}{int}\ position)\ \{}
+\DoxyCodeLine{00070\ \ \ \mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe}{SlewLimitModifierKeyframe}}*\ keyframe\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe}{SlewLimitModifierKeyframe}}();}
+\DoxyCodeLine{00071\ \ \ \mbox{\hyperlink{class_wavetable_component_a59b735ee67cc2281379418304de76b6d}{interpolate}}(keyframe,\ position);}
+\DoxyCodeLine{00072\ \ \ \textcolor{keywordflow}{return}\ keyframe;}
+\DoxyCodeLine{00073\ \}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_slew_limit_modifier_afff3a635c605988f19f4fa4d30454929}{SlewLimitModifier::render}}(\mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ wave\_frame,\ \textcolor{keywordtype}{float}\ position)\ \{}
+\DoxyCodeLine{00076\ \ \ \textcolor{comment}{//\ Interpolate\ parameters\ for\ the\ given\ position\ and\ apply\ slew\ limiting.}}
+\DoxyCodeLine{00077\ \ \ \mbox{\hyperlink{class_wavetable_component_a59b735ee67cc2281379418304de76b6d}{interpolate}}(\&\mbox{\hyperlink{class_slew_limit_modifier_a8f58ab771bf2624a0941a4ecc619df2b}{compute\_frame\_}},\ position);}
+\DoxyCodeLine{00078\ \ \ \mbox{\hyperlink{class_slew_limit_modifier_a8f58ab771bf2624a0941a4ecc619df2b}{compute\_frame\_}}.\mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a6d2c60e432a2138abece34a5ea4b8ae6}{render}}(wave\_frame);}
+\DoxyCodeLine{00079\ \}}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bd}{WavetableComponentFactory::ComponentType}}\ \mbox{\hyperlink{class_slew_limit_modifier_a9487ee13c2b89e4120789254b8ab96ec}{SlewLimitModifier::getType}}()\ \{}
+\DoxyCodeLine{00082\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bdad68b89a49058215da0ea818324225845}{WavetableComponentFactory::kSlewLimiter}};}
+\DoxyCodeLine{00083\ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe}{SlewLimitModifier::SlewLimitModifierKeyframe}}*\ \mbox{\hyperlink{class_slew_limit_modifier_a5390056670bda9c707a606841fc4e77b}{SlewLimitModifier::getKeyframe}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00086\ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ wavetable\_keyframe\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[index].get();}
+\DoxyCodeLine{00087\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe}{SlewLimitModifier::SlewLimitModifierKeyframe}}*\textcolor{keyword}{>}(wavetable\_keyframe);}
+\DoxyCodeLine{00088\ \}}
+
+\end{DoxyCode}

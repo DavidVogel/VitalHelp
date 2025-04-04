@@ -1,0 +1,719 @@
+\doxysection{compressor\+\_\+editor.\+cpp}
+\hypertarget{compressor__editor_8cpp_source}{}\label{compressor__editor_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/compressor\_editor.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/compressor\_editor.cpp}}
+\mbox{\hyperlink{compressor__editor_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Note:\ For\ brevity,\ the\ cpp\ file\ code\ is\ unchanged\ apart\ from\ added\ Doxygen\ comments\ in\ the\ anonymous\ namespace.\ The\ bulk\ of\ the\ logic\ does\ not\ need\ repeated\ documentation\ at\ every\ function\ definition\ since\ it's\ mostly\ done\ in\ the\ header\ file.\ However,\ if\ desired,\ you\ can\ add\ ///\ comments\ above\ each\ function\ definition\ in\ the\ .cpp\ file\ as\ well,\ mirroring\ the\ header\ documentation.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{compressor__editor_8h}{compressor\_editor.h}}"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{shaders_8h}{shaders.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__gui__interface_8h}{synth\_gui\_interface.h}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00018\ \ \ \textcolor{keywordtype}{float}\ getOpenGlYForDb(\textcolor{keywordtype}{float}\ db)\ \{}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ (db\ -\/\ \mbox{\hyperlink{class_compressor_editor_a49e9626c33b767e10b7e7434020314fa}{CompressorEditor::kMinDb}})\ /\ (\mbox{\hyperlink{class_compressor_editor_a993a0fc40c50f80345755d0cc5306e2e}{CompressorEditor::kMaxDb}}\ -\/\ \mbox{\hyperlink{class_compressor_editor_a49e9626c33b767e10b7e7434020314fa}{CompressorEditor::kMinDb}});}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keywordflow}{return}\ 2.0f\ *\ t\ -\/\ 1.0f;}
+\DoxyCodeLine{00021\ \ \ \}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00028\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ getOpenGlYForDb(\mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ db)\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ t\ =\ (db\ -\/\ \mbox{\hyperlink{class_compressor_editor_a49e9626c33b767e10b7e7434020314fa}{CompressorEditor::kMinDb}})\ /\ (\mbox{\hyperlink{class_compressor_editor_a993a0fc40c50f80345755d0cc5306e2e}{CompressorEditor::kMaxDb}}\ -\/\ \mbox{\hyperlink{class_compressor_editor_a49e9626c33b767e10b7e7434020314fa}{CompressorEditor::kMinDb}});}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(t\ *\ 2.0f\ -\/\ 1.0f,\ -\/1.0f,\ 1.0f);}
+\DoxyCodeLine{00031\ \ \ \}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00038\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ getOpenGlYForMagnitude(\mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ magnitude)\ \{}
+\DoxyCodeLine{00039\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ db\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a72fe86e55abbffc96cbc376ba0f12dcc}{vital::utils::magnitudeToDb}}(\mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{vital::utils::max}}(0.0001f,\ magnitude));}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keywordflow}{return}\ getOpenGlYForDb(db);}
+\DoxyCodeLine{00041\ \ \ \}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00054\ \ \ \textcolor{keywordtype}{void}\ setQuadIfRatioMatch(\mbox{\hyperlink{class_open_gl_multi_quad}{OpenGlMultiQuad}}\&\ quads,\ \textcolor{keywordtype}{float}\ ratio,\ \textcolor{keywordtype}{float}\ ratio\_match,}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index,\ \textcolor{keywordtype}{float}\ x,\ \textcolor{keywordtype}{float}\ y,\ \textcolor{keywordtype}{float}\ w,\ \textcolor{keywordtype}{float}\ h)\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordflow}{if}\ (ratio\ ==\ ratio\_match\ ||\ (ratio\ >\ 0.0f\ \&\&\ ratio\_match\ >\ 0.0f)\ ||\ (ratio\ <\ 0.0f\ \&\&\ ratio\_match\ <\ 0.0f))}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ quads.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(index,\ x,\ y,\ w,\ h);}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ quads.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(index,\ -\/2.0f,\ -\/2.0f,\ 0.0f,\ 0.0f);}
+\DoxyCodeLine{00060\ \ \ \}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00068\ \ \ std::string\ formatString(\textcolor{keywordtype}{float}\ value,\ std::string\ suffix)\ \{}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMaxDecimalPlaces\ =\ 4;}
+\DoxyCodeLine{00070\ \ \ \ \ String\ format\ =\ String(value,\ kMaxDecimalPlaces);}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keywordtype}{int}\ display\_characters\ =\ kMaxDecimalPlaces;}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keywordflow}{if}\ (format[0]\ ==\ \textcolor{charliteral}{'-\/'})}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ display\_characters\ +=\ 1;}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ format\ =\ format.substring(0,\ display\_characters);}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{keywordflow}{if}\ (format.getLastCharacter()\ ==\ \textcolor{charliteral}{'.'})}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ format\ =\ format.removeCharacters(\textcolor{stringliteral}{"{}."{}});}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordflow}{return}\ format.toStdString()\ +\ suffix;}
+\DoxyCodeLine{00081\ \ \ \}}
+\DoxyCodeLine{00082\ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \mbox{\hyperlink{class_compressor_editor_a0cd2b47c49db90500e112a4fc593043d}{CompressorEditor::CompressorEditor}}()\ :\ hover\_quad\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment),}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ input\_dbs\_(kNumChannels,\ \mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment),}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ output\_dbs\_(kNumChannels,\ \mbox{\hyperlink{class_shaders}{Shaders}}::kRoundedRectangleFragment),}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ thresholds\_(kNumChannels,\ \mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment),}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ratio\_lines\_(kTotalRatioLines,\ \mbox{\hyperlink{class_shaders}{Shaders}}::kFadeSquareFragment)\ \{}
+\DoxyCodeLine{00089\ \ \ \mbox{\hyperlink{class_open_gl_component_a2139561c2dc95b0a7389e65f4cea60f9}{addRoundedCorners}}();}
+\DoxyCodeLine{00090\ \ \ addAndMakeVisible(hover\_quad\_);}
+\DoxyCodeLine{00091\ \ \ addAndMakeVisible(input\_dbs\_);}
+\DoxyCodeLine{00092\ \ \ addAndMakeVisible(output\_dbs\_);}
+\DoxyCodeLine{00093\ \ \ addAndMakeVisible(thresholds\_);}
+\DoxyCodeLine{00094\ \ \ addAndMakeVisible(ratio\_lines\_);}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \ \ parent\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00097\ \ \ section\_parent\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00098\ \ \ hover\_\ =\ kNone;}
+\DoxyCodeLine{00099\ \ \ animate\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00100\ \ \ high\_band\_active\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00101\ \ \ low\_band\_active\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00102\ \ \ size\_ratio\_\ =\ 1.0f;}
+\DoxyCodeLine{00103\ \ \ active\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \ \ \textcolor{comment}{//\ Initialize\ thresholds\ and\ ratios}}
+\DoxyCodeLine{00106\ \ \ low\_upper\_threshold\_\ =\ \mbox{\hyperlink{class_compressor_editor_a993a0fc40c50f80345755d0cc5306e2e}{kMaxDb}};}
+\DoxyCodeLine{00107\ \ \ band\_upper\_threshold\_\ =\ \mbox{\hyperlink{class_compressor_editor_a993a0fc40c50f80345755d0cc5306e2e}{kMaxDb}};}
+\DoxyCodeLine{00108\ \ \ high\_upper\_threshold\_\ =\ \mbox{\hyperlink{class_compressor_editor_a993a0fc40c50f80345755d0cc5306e2e}{kMaxDb}};}
+\DoxyCodeLine{00109\ \ \ low\_lower\_threshold\_\ =\ \mbox{\hyperlink{class_compressor_editor_a49e9626c33b767e10b7e7434020314fa}{kMinDb}};}
+\DoxyCodeLine{00110\ \ \ band\_lower\_threshold\_\ =\ \mbox{\hyperlink{class_compressor_editor_a49e9626c33b767e10b7e7434020314fa}{kMinDb}};}
+\DoxyCodeLine{00111\ \ \ high\_lower\_threshold\_\ =\ \mbox{\hyperlink{class_compressor_editor_a49e9626c33b767e10b7e7434020314fa}{kMinDb}};}
+\DoxyCodeLine{00112\ \ \ low\_upper\_ratio\_\ =\ 0.0f;}
+\DoxyCodeLine{00113\ \ \ band\_upper\_ratio\_\ =\ 0.0f;}
+\DoxyCodeLine{00114\ \ \ high\_upper\_ratio\_\ =\ 0.0f;}
+\DoxyCodeLine{00115\ \ \ low\_lower\_ratio\_\ =\ 0.0f;}
+\DoxyCodeLine{00116\ \ \ band\_lower\_ratio\_\ =\ 0.0f;}
+\DoxyCodeLine{00117\ \ \ high\_lower\_ratio\_\ =\ 0.0f;}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ low\_input\_ms\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00120\ \ \ band\_input\_ms\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00121\ \ \ high\_input\_ms\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \ \ low\_output\_ms\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00124\ \ \ band\_output\_ms\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00125\ \ \ high\_output\_ms\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00126\ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \mbox{\hyperlink{class_compressor_editor_a83a5aa3ed2f196a8f68e2e881652a709}{CompressorEditor::\string~CompressorEditor}}()\ \{\ \}}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00130\ CompressorEditor::DragPoint\ CompressorEditor::getHoverPoint(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00131\ \ \ \textcolor{keywordtype}{float}\ low\_band\_high\_position\ =\ 3.0f\ *\ e.position.x\ /\ ((1.0f\ -\/\ \mbox{\hyperlink{class_compressor_editor_a38738d468d3361f1cdb7daa4547164c3}{kCompressorAreaBuffer}})\ *\ getWidth());}
+\DoxyCodeLine{00132\ \ \ \textcolor{keywordtype}{int}\ index\ =\ low\_band\_high\_position;}
+\DoxyCodeLine{00133\ \ \ \textcolor{keywordtype}{float}\ local\_position\ =\ low\_band\_high\_position\ -\/\ index;}
+\DoxyCodeLine{00134\ \ \ \textcolor{keywordflow}{if}\ (index\ >=\ 3\ ||\ index\ <\ 0\ ||\ local\_position\ <\ 3.0f\ *\ \mbox{\hyperlink{class_compressor_editor_a38738d468d3361f1cdb7daa4547164c3}{kCompressorAreaBuffer}})}
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{keywordflow}{return}\ kNone;}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \ \ \textcolor{keywordflow}{if}\ (index\ ==\ 0\ \&\&\ !low\_band\_active\_)}
+\DoxyCodeLine{00138\ \ \ \ \ index\ =\ 1;}
+\DoxyCodeLine{00139\ \ \ \textcolor{keywordflow}{if}\ (index\ ==\ 2\ \&\&\ !high\_band\_active\_)}
+\DoxyCodeLine{00140\ \ \ \ \ index\ =\ 1;}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \ \ \textcolor{keywordtype}{float}\ upper\_threshold\_values[]\ =\ \{\ low\_upper\_threshold\_,\ band\_upper\_threshold\_,\ high\_upper\_threshold\_\ \};}
+\DoxyCodeLine{00143\ \ \ \textcolor{keywordtype}{float}\ lower\_threshold\_values[]\ =\ \{\ low\_lower\_threshold\_,\ band\_lower\_threshold\_,\ high\_lower\_threshold\_\ \};}
+\DoxyCodeLine{00144\ \ \ DragPoint\ upper\_threshold\_points[]\ =\ \{\ kLowUpperThreshold,\ kBandUpperThreshold,\ kHighUpperThreshold\ \};}
+\DoxyCodeLine{00145\ \ \ DragPoint\ lower\_threshold\_points[]\ =\ \{\ kLowLowerThreshold,\ kBandLowerThreshold,\ kHighLowerThreshold\ \};}
+\DoxyCodeLine{00146\ \ \ DragPoint\ upper\_ratio\_points[]\ =\ \{\ kLowUpperRatio,\ kBandUpperRatio,\ kHighUpperRatio\ \};}
+\DoxyCodeLine{00147\ \ \ DragPoint\ lower\_ratio\_points[]\ =\ \{\ kLowLowerRatio,\ kBandLowerRatio,\ kHighLowerRatio\ \};}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \ \ \textcolor{keywordtype}{float}\ grab\_radius\ =\ \mbox{\hyperlink{class_compressor_editor_a29338dd5747f384293224c1bd1f14eec}{kGrabRadius}}\ *\ size\_ratio\_;}
+\DoxyCodeLine{00150\ \ \ \textcolor{keywordtype}{int}\ upper\_handle\_y\ =\ std::max(grab\_radius,\ getYForDb(upper\_threshold\_values[index]));}
+\DoxyCodeLine{00151\ \ \ \textcolor{keywordtype}{int}\ lower\_handle\_y\ =\ std::min(getHeight()\ -\/\ grab\_radius,\ getYForDb(lower\_threshold\_values[index]));}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \ \ \textcolor{keywordtype}{float}\ delta\_upper\ =\ e.position.y\ -\/\ upper\_handle\_y;}
+\DoxyCodeLine{00154\ \ \ \textcolor{keywordtype}{float}\ delta\_lower\ =\ e.position.y\ -\/\ lower\_handle\_y;}
+\DoxyCodeLine{00155\ \ \ \textcolor{keywordflow}{if}\ (fabsf(delta\_upper)\ <=\ grab\_radius\ \&\&\ fabsf(delta\_upper)\ <\ fabsf(delta\_lower))}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordflow}{return}\ upper\_threshold\_points[index];}
+\DoxyCodeLine{00157\ \ \ \textcolor{keywordflow}{if}\ (fabsf(delta\_lower)\ <=\ grab\_radius)}
+\DoxyCodeLine{00158\ \ \ \ \ \textcolor{keywordflow}{return}\ lower\_threshold\_points[index];}
+\DoxyCodeLine{00159\ \ \ \textcolor{keywordflow}{if}\ (delta\_upper\ <\ 0.0f)}
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{keywordflow}{return}\ upper\_ratio\_points[index];}
+\DoxyCodeLine{00161\ \ \ \textcolor{keywordflow}{if}\ (delta\_lower\ >\ 0.0f)}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keywordflow}{return}\ lower\_ratio\_points[index];}
+\DoxyCodeLine{00163\ \ \ \textcolor{keywordflow}{return}\ kNone;}
+\DoxyCodeLine{00164\ \}}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_compressor_editor_a1fd67faed60c6eb2e5c1335175d27cb2}{CompressorEditor::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00167\ \ \ last\_mouse\_position\_\ =\ e.getPosition();}
+\DoxyCodeLine{00168\ \ \ \mbox{\hyperlink{class_compressor_editor_a247f81d568563c1c01553d01b59b0b87}{mouseDrag}}(e);}
+\DoxyCodeLine{00169\ \}}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_compressor_editor_aba5fb3bb3df9150935a793f9bae4d218}{CompressorEditor::mouseDoubleClick}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00172\ \ \ \textcolor{keywordflow}{if}\ (isRatio(hover\_))\ \{}
+\DoxyCodeLine{00173\ \ \ \ \ \textcolor{keywordflow}{switch}\ (hover\_)\ \{}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kLowUpperRatio:}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ setLowUpperRatio(0.0f);}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kBandUpperRatio:}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ setBandUpperRatio(0.0f);}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kHighUpperRatio:}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ setHighUpperRatio(0.0f);}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kLowLowerRatio:}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ setLowLowerRatio(0.0f);}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kBandLowerRatio:}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ setBandLowerRatio(0.0f);}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kHighLowerRatio:}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ setHighLowerRatio(0.0f);}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00194\ \ \ \ \ \}}
+\DoxyCodeLine{00195\ \ \ \}}
+\DoxyCodeLine{00196\ \}}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_compressor_editor_accf6e2b180b76e1b07a436c85b9928d7}{CompressorEditor::mouseMove}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00199\ \ \ hover\_\ =\ getHoverPoint(e);}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \textcolor{keywordflow}{if}\ (hover\_\ !=\ kNone)}
+\DoxyCodeLine{00202\ \ \ \ \ setMouseCursor(MouseCursor::BottomEdgeResizeCursor);}
+\DoxyCodeLine{00203\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00204\ \ \ \ \ setMouseCursor(MouseCursor::NormalCursor);}
+\DoxyCodeLine{00205\ \}}
+\DoxyCodeLine{00206\ }
+\DoxyCodeLine{00207\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_compressor_editor_a247f81d568563c1c01553d01b59b0b87}{CompressorEditor::mouseDrag}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00208\ \ \ \textcolor{keywordflow}{if}\ (hover\_\ ==\ kNone\ ||\ parent\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00209\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ \ \ \textcolor{keywordtype}{float}\ delta\ =\ (e.getPosition().y\ -\/\ last\_mouse\_position\_.y)\ *\ \mbox{\hyperlink{class_compressor_editor_a0a66600e4c7d7627a21d27e6ead87059}{kMouseMultiplier}}\ /\ getHeight();}
+\DoxyCodeLine{00212\ \ \ \textcolor{keywordtype}{float}\ delta\_db\_value\ =\ (\mbox{\hyperlink{class_compressor_editor_a49e9626c33b767e10b7e7434020314fa}{kMinDb}}\ -\/\ \mbox{\hyperlink{class_compressor_editor_a993a0fc40c50f80345755d0cc5306e2e}{kMaxDb}})\ *\ delta;}
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00214\ \ \ last\_mouse\_position\_\ =\ e.getPosition();}
+\DoxyCodeLine{00215\ \ \ \textcolor{keywordtype}{float}\ delta\_ratio\ =\ delta\ *\ \mbox{\hyperlink{class_compressor_editor_a8334bec43f90bbb6e67bea40285635b0}{kRatioEditMultiplier}};}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00217\ \ \ \textcolor{keywordflow}{if}\ (e.mods.isShiftDown())\ \{}
+\DoxyCodeLine{00218\ \ \ \ \ setLowUpperThreshold(low\_upper\_threshold\_\ +\ delta\_db\_value,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00219\ \ \ \ \ setBandUpperThreshold(band\_upper\_threshold\_\ +\ delta\_db\_value,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00220\ \ \ \ \ setHighUpperThreshold(high\_upper\_threshold\_\ +\ delta\_db\_value,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00221\ \ \ \ \ setLowLowerThreshold(low\_lower\_threshold\_\ +\ delta\_db\_value,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00222\ \ \ \ \ setBandLowerThreshold(band\_lower\_threshold\_\ +\ delta\_db\_value,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00223\ \ \ \ \ setHighLowerThreshold(high\_lower\_threshold\_\ +\ delta\_db\_value,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00224\ \ \ \}}
+\DoxyCodeLine{00225\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{keywordflow}{switch}\ (hover\_)\ \{}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kLowUpperThreshold:}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ setLowUpperThreshold(low\_upper\_threshold\_\ +\ delta\_db\_value,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kLowUpperRatio:}
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \ \ setLowUpperRatio(low\_upper\_ratio\_\ +\ delta\_ratio);}
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kBandUpperThreshold:}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \ \ setBandUpperThreshold(band\_upper\_threshold\_\ +\ delta\_db\_value,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kBandUpperRatio:}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \ \ setBandUpperRatio(band\_upper\_ratio\_\ +\ delta\_ratio);}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kHighUpperThreshold:}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ setHighUpperThreshold(high\_upper\_threshold\_\ +\ delta\_db\_value,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kHighUpperRatio:}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ setHighUpperRatio(high\_upper\_ratio\_\ +\ delta\_ratio);}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kLowLowerThreshold:}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ setLowLowerThreshold(low\_lower\_threshold\_\ +\ delta\_db\_value,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kLowLowerRatio:}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ setLowLowerRatio(low\_lower\_ratio\_\ -\/\ delta\_ratio);}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kBandLowerThreshold:}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ setBandLowerThreshold(band\_lower\_threshold\_\ +\ delta\_db\_value,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kBandLowerRatio:}
+\DoxyCodeLine{00255\ \ \ \ \ \ \ \ \ setBandLowerRatio(band\_lower\_ratio\_\ -\/\ delta\_ratio);}
+\DoxyCodeLine{00256\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kHighLowerThreshold:}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \ \ setHighLowerThreshold(high\_lower\_threshold\_\ +\ delta\_db\_value,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kHighLowerRatio:}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \ \ setHighLowerRatio(high\_lower\_ratio\_\ -\/\ delta\_ratio);}
+\DoxyCodeLine{00262\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00263\ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00265\ \ \ \ \ \}}
+\DoxyCodeLine{00266\ \ \ \}}
+\DoxyCodeLine{00267\ \}}
+\DoxyCodeLine{00268\ }
+\DoxyCodeLine{00269\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_compressor_editor_a04ff38e6e7bf1c3eb13aeee72d71673b}{CompressorEditor::mouseUp}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00270\ \ \ \textcolor{keywordflow}{if}\ (isRatio(hover\_))}
+\DoxyCodeLine{00271\ \ \ \ \ setMouseCursor(MouseCursor::BottomEdgeResizeCursor);}
+\DoxyCodeLine{00272\ }
+\DoxyCodeLine{00273\ \ \ section\_parent\_-\/>\mbox{\hyperlink{class_synth_section_a3e45d9149cd731089103020fc829b485}{hidePopupDisplay}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00274\ \}}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00276\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_compressor_editor_ad8846427eecc30ce3c5c6d3ff840f01a}{CompressorEditor::mouseExit}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00277\ \ \ setMouseCursor(MouseCursor::NormalCursor);}
+\DoxyCodeLine{00278\ \ \ hover\_\ =\ kNone;}
+\DoxyCodeLine{00279\ \}}
+\DoxyCodeLine{00280\ }
+\DoxyCodeLine{00281\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_compressor_editor_ab3119f1429ab6197d55085ca5e724023}{CompressorEditor::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00282\ \ \ \mbox{\hyperlink{class_open_gl_component_ad2e8378b36d72fa4d728a611a6aa956f}{OpenGlComponent::paintBackground}}(g);}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00284\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00285\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <\ \mbox{\hyperlink{class_compressor_editor_a616a8ab8b66916afacbfdfe7ef8c6c8b}{kDbLineSections}};\ ++i)\ \{}
+\DoxyCodeLine{00286\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ (i\ *\ 1.0f)\ /\ \mbox{\hyperlink{class_compressor_editor_a616a8ab8b66916afacbfdfe7ef8c6c8b}{kDbLineSections}};}
+\DoxyCodeLine{00287\ \ \ \ \ \textcolor{keywordtype}{int}\ y\ =\ getHeight()\ *\ t;}
+\DoxyCodeLine{00288\ \ \ \ \ g.fillRect(0,\ y,\ getWidth(),\ 1);}
+\DoxyCodeLine{00289\ \ \ \}}
+\DoxyCodeLine{00290\ \}}
+\DoxyCodeLine{00291\ }
+\DoxyCodeLine{00292\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_compressor_editor_a5f82a9c18a131770a76919dcdf3d210f}{CompressorEditor::resized}}()\ \{}
+\DoxyCodeLine{00293\ \ \ \mbox{\hyperlink{class_open_gl_component_a2bd142dbb0cb7690829cb0a99f84e993}{OpenGlComponent::resized}}();}
+\DoxyCodeLine{00294\ \ \ hover\_quad\_.setBounds(getLocalBounds());}
+\DoxyCodeLine{00295\ \ \ input\_dbs\_.setBounds(getLocalBounds());}
+\DoxyCodeLine{00296\ \ \ output\_dbs\_.setBounds(getLocalBounds());}
+\DoxyCodeLine{00297\ \ \ thresholds\_.setBounds(getLocalBounds());}
+\DoxyCodeLine{00298\ \ \ ratio\_lines\_.setBounds(getLocalBounds());}
+\DoxyCodeLine{00299\ \}}
+\DoxyCodeLine{00300\ }
+\DoxyCodeLine{00301\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_compressor_editor_a76ff200c4d15fb190d7d4dcdc30358bb}{CompressorEditor::init}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00302\ \ \ \mbox{\hyperlink{class_open_gl_component_ad78b342a43cf1e61d4875b6137ed8127}{OpenGlComponent::init}}(open\_gl);}
+\DoxyCodeLine{00303\ \ \ hover\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00304\ \ \ input\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00305\ \ \ output\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00306\ \ \ thresholds\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00307\ \ \ ratio\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00308\ \}}
+\DoxyCodeLine{00309\ }
+\DoxyCodeLine{00310\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_compressor_editor_aea5056734987b720780fb84dc85ec4e2}{CompressorEditor::render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00311\ \ \ \mbox{\hyperlink{class_compressor_editor_a509948a21cef013e9d8805b40a35c694}{renderCompressor}}(open\_gl,\ animate);}
+\DoxyCodeLine{00312\ \ \ \mbox{\hyperlink{class_open_gl_component_a5c6aa6d7c8a20882ce3b621efbf7e18b}{renderCorners}}(open\_gl,\ animate);}
+\DoxyCodeLine{00313\ \}}
+\DoxyCodeLine{00314\ }
+\DoxyCodeLine{00315\ \textcolor{keywordtype}{void}\ CompressorEditor::setThresholdPositions(\textcolor{keywordtype}{int}\ low\_start,\ \textcolor{keywordtype}{int}\ low\_end,\ \textcolor{keywordtype}{int}\ band\_start,\ \textcolor{keywordtype}{int}\ band\_end,}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ high\_start,\ \textcolor{keywordtype}{int}\ high\_end,\ \textcolor{keywordtype}{float}\ ratio\_match)\ \{}
+\DoxyCodeLine{00317\ \ \ thresholds\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(getColorForRatio(ratio\_match));}
+\DoxyCodeLine{00318\ \ \ \textcolor{keywordtype}{float}\ width\ =\ getWidth();}
+\DoxyCodeLine{00319\ }
+\DoxyCodeLine{00320\ \ \ \textcolor{keywordtype}{float}\ low\_start\_x\ =\ low\_start\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00321\ \ \ \textcolor{keywordtype}{float}\ low\_width\ =\ (low\_end\ -\/\ low\_start)\ *\ 2.0f\ /\ width;}
+\DoxyCodeLine{00322\ \ \ \textcolor{keywordtype}{float}\ band\_start\_x\ =\ band\_start\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00323\ \ \ \textcolor{keywordtype}{float}\ band\_width\ =\ (band\_end\ -\/\ band\_start)\ *\ 2.0f\ /\ width;}
+\DoxyCodeLine{00324\ \ \ \textcolor{keywordtype}{float}\ high\_start\_x\ =\ high\_start\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00325\ \ \ \textcolor{keywordtype}{float}\ high\_width\ =\ (high\_end\ -\/\ high\_start)\ *\ 2.0f\ /\ width;}
+\DoxyCodeLine{00326\ }
+\DoxyCodeLine{00327\ \ \ setQuadIfRatioMatch(thresholds\_,\ -\/low\_lower\_ratio\_,\ ratio\_match,\ 0,}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ low\_start\_x,\ -\/1.0f,\ low\_width,\ getOpenGlYForDb(low\_lower\_threshold\_)\ +\ 1.0f);}
+\DoxyCodeLine{00329\ \ \ setQuadIfRatioMatch(thresholds\_,\ low\_upper\_ratio\_,\ ratio\_match,\ 1,}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ low\_start\_x,\ 1.0f,\ low\_width,\ getOpenGlYForDb(low\_upper\_threshold\_)\ -\/\ 1.0f);}
+\DoxyCodeLine{00331\ \ \ setQuadIfRatioMatch(thresholds\_,\ -\/band\_lower\_ratio\_,\ ratio\_match,\ 2,}
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ band\_start\_x,\ -\/1.0f,\ band\_width,\ getOpenGlYForDb(band\_lower\_threshold\_)\ +\ 1.0f);}
+\DoxyCodeLine{00333\ \ \ setQuadIfRatioMatch(thresholds\_,\ band\_upper\_ratio\_,\ ratio\_match,\ 3,}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ band\_start\_x,\ 1.0f,\ band\_width,\ getOpenGlYForDb(band\_upper\_threshold\_)\ -\/\ 1.0f);}
+\DoxyCodeLine{00335\ \ \ setQuadIfRatioMatch(thresholds\_,\ -\/high\_lower\_ratio\_,\ ratio\_match,\ 4,}
+\DoxyCodeLine{00336\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ high\_start\_x,\ -\/1.0f,\ high\_width,\ getOpenGlYForDb(high\_lower\_threshold\_)\ +\ 1.0f);}
+\DoxyCodeLine{00337\ \ \ setQuadIfRatioMatch(thresholds\_,\ high\_upper\_ratio\_,\ ratio\_match,\ 5,}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ high\_start\_x,\ 1.0f,\ high\_width,\ getOpenGlYForDb(high\_upper\_threshold\_)\ -\/\ 1.0f);}
+\DoxyCodeLine{00339\ \}}
+\DoxyCodeLine{00340\ }
+\DoxyCodeLine{00341\ \textcolor{keywordtype}{void}\ CompressorEditor::setRatioLines(\textcolor{keywordtype}{int}\ start\_index,\ \textcolor{keywordtype}{int}\ start\_x,\ \textcolor{keywordtype}{int}\ end\_x,}
+\DoxyCodeLine{00342\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ threshold,\ \textcolor{keywordtype}{float}\ ratio,\ \textcolor{keywordtype}{bool}\ upper,\ \textcolor{keywordtype}{bool}\ hover)\ \{}
+\DoxyCodeLine{00343\ }
+\DoxyCodeLine{00344\ \ \ \textcolor{keywordtype}{float}\ db\_position\ =\ \mbox{\hyperlink{class_compressor_editor_a616a8ab8b66916afacbfdfe7ef8c6c8b}{kDbLineSections}}\ *\ (threshold\ -\/\ \mbox{\hyperlink{class_compressor_editor_a49e9626c33b767e10b7e7434020314fa}{kMinDb}})\ /\ (\mbox{\hyperlink{class_compressor_editor_a993a0fc40c50f80345755d0cc5306e2e}{kMaxDb}}\ -\/\ \mbox{\hyperlink{class_compressor_editor_a49e9626c33b767e10b7e7434020314fa}{kMinDb}});}
+\DoxyCodeLine{00345\ \ \ \textcolor{keywordtype}{int}\ db\_index\ =\ db\_position;}
+\DoxyCodeLine{00346\ \ \ \textcolor{keywordtype}{float}\ db\_change\ =\ -\/(\mbox{\hyperlink{class_compressor_editor_a993a0fc40c50f80345755d0cc5306e2e}{kMaxDb}}\ -\/\ \mbox{\hyperlink{class_compressor_editor_a49e9626c33b767e10b7e7434020314fa}{kMinDb}})\ /\ \mbox{\hyperlink{class_compressor_editor_a616a8ab8b66916afacbfdfe7ef8c6c8b}{kDbLineSections}};}
+\DoxyCodeLine{00347\ \ \ \textcolor{keywordflow}{if}\ (upper)\ \{}
+\DoxyCodeLine{00348\ \ \ \ \ db\_change\ =\ (\mbox{\hyperlink{class_compressor_editor_a993a0fc40c50f80345755d0cc5306e2e}{kMaxDb}}\ -\/\ \mbox{\hyperlink{class_compressor_editor_a49e9626c33b767e10b7e7434020314fa}{kMinDb}})\ /\ \mbox{\hyperlink{class_compressor_editor_a616a8ab8b66916afacbfdfe7ef8c6c8b}{kDbLineSections}};}
+\DoxyCodeLine{00349\ \ \ \ \ db\_index\ =\ \mbox{\hyperlink{namespacevital_1_1utils_af479ab648455a2280e53b8da6a905989}{ceil}}(db\_position);}
+\DoxyCodeLine{00350\ \ \ \}}
+\DoxyCodeLine{00351\ }
+\DoxyCodeLine{00352\ \ \ \textcolor{keywordtype}{float}\ width\ =\ getWidth();}
+\DoxyCodeLine{00353\ \ \ \textcolor{keywordtype}{float}\ x\ =\ start\_x\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00354\ \ \ \textcolor{keywordtype}{float}\ ratio\_width\ =\ (end\_x\ -\/\ start\_x)\ *\ 2.0f\ /\ width;}
+\DoxyCodeLine{00355\ \ \ \textcolor{keywordtype}{float}\ ratio\_height\ =\ 4.0f\ /\ getHeight();}
+\DoxyCodeLine{00356\ }
+\DoxyCodeLine{00357\ \ \ \textcolor{keywordtype}{float}\ mult\ =\ hover\ ?\ 5.0f\ :\ 2.5f;}
+\DoxyCodeLine{00358\ }
+\DoxyCodeLine{00359\ \ \ \textcolor{keywordtype}{float}\ db\ =\ db\_index\ *\ (\mbox{\hyperlink{class_compressor_editor_a993a0fc40c50f80345755d0cc5306e2e}{kMaxDb}}\ -\/\ \mbox{\hyperlink{class_compressor_editor_a49e9626c33b767e10b7e7434020314fa}{kMinDb}})\ /\ \mbox{\hyperlink{class_compressor_editor_a616a8ab8b66916afacbfdfe7ef8c6c8b}{kDbLineSections}}\ +\ \mbox{\hyperlink{class_compressor_editor_a49e9626c33b767e10b7e7434020314fa}{kMinDb}};}
+\DoxyCodeLine{00360\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_compressor_editor_a69e7ca8fb88ef0c4353c75be9c916025}{kRatioDbLines}};\ ++i)\ \{}
+\DoxyCodeLine{00361\ \ \ \ \ \textcolor{keywordtype}{float}\ adjusted\_db\ =\ getCompressedDb(db,\ threshold,\ ratio,\ threshold,\ ratio);}
+\DoxyCodeLine{00362\ \ \ \ \ ratio\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(start\_index\ +\ i,\ x,\ getOpenGlYForDb(adjusted\_db)\ -\/\ ratio\_height\ *\ 0.5f,}
+\DoxyCodeLine{00363\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ratio\_width,\ ratio\_height);}
+\DoxyCodeLine{00364\ \ \ \ \ ratio\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a1f8d784949c365e3254f339d3eba752c}{setShaderValue}}(start\_index\ +\ i,\ (\mbox{\hyperlink{class_compressor_editor_a69e7ca8fb88ef0c4353c75be9c916025}{kRatioDbLines}}\ -\/\ i)\ *\ mult\ /\ \mbox{\hyperlink{class_compressor_editor_a69e7ca8fb88ef0c4353c75be9c916025}{kRatioDbLines}});}
+\DoxyCodeLine{00365\ \ \ \ \ db\ +=\ db\_change;}
+\DoxyCodeLine{00366\ \ \ \}}
+\DoxyCodeLine{00367\ \}}
+\DoxyCodeLine{00368\ }
+\DoxyCodeLine{00369\ \textcolor{keywordtype}{void}\ CompressorEditor::setRatioLinePositions(\textcolor{keywordtype}{int}\ low\_start,\ \textcolor{keywordtype}{int}\ low\_end,\ \textcolor{keywordtype}{int}\ band\_start,\ \textcolor{keywordtype}{int}\ band\_end,}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ high\_start,\ \textcolor{keywordtype}{int}\ high\_end)\ \{}
+\DoxyCodeLine{00371\ \ \ setRatioLines(0,\ low\_start,\ low\_end,\ low\_upper\_threshold\_,\ low\_upper\_ratio\_,}
+\DoxyCodeLine{00372\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{true},\ hover\_\ ==\ kLowUpperRatio);}
+\DoxyCodeLine{00373\ \ \ setRatioLines(\mbox{\hyperlink{class_compressor_editor_a69e7ca8fb88ef0c4353c75be9c916025}{kRatioDbLines}},\ low\_start,\ low\_end,\ low\_lower\_threshold\_,\ low\_lower\_ratio\_,}
+\DoxyCodeLine{00374\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{false},\ hover\_\ ==\ kLowLowerRatio);}
+\DoxyCodeLine{00375\ \ \ setRatioLines(2\ *\ \mbox{\hyperlink{class_compressor_editor_a69e7ca8fb88ef0c4353c75be9c916025}{kRatioDbLines}},\ band\_start,\ band\_end,\ band\_upper\_threshold\_,\ band\_upper\_ratio\_,}
+\DoxyCodeLine{00376\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{true},\ hover\_\ ==\ kBandUpperRatio);}
+\DoxyCodeLine{00377\ \ \ setRatioLines(3\ *\ \mbox{\hyperlink{class_compressor_editor_a69e7ca8fb88ef0c4353c75be9c916025}{kRatioDbLines}},\ band\_start,\ band\_end,\ band\_lower\_threshold\_,\ band\_lower\_ratio\_,}
+\DoxyCodeLine{00378\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{false},\ hover\_\ ==\ kBandLowerRatio);}
+\DoxyCodeLine{00379\ \ \ setRatioLines(4\ *\ \mbox{\hyperlink{class_compressor_editor_a69e7ca8fb88ef0c4353c75be9c916025}{kRatioDbLines}},\ high\_start,\ high\_end,\ high\_upper\_threshold\_,\ high\_upper\_ratio\_,}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{true},\ hover\_\ ==\ kHighUpperRatio);}
+\DoxyCodeLine{00381\ \ \ setRatioLines(5\ *\ \mbox{\hyperlink{class_compressor_editor_a69e7ca8fb88ef0c4353c75be9c916025}{kRatioDbLines}},\ high\_start,\ high\_end,\ high\_lower\_threshold\_,\ high\_lower\_ratio\_,}
+\DoxyCodeLine{00382\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{false},\ hover\_\ ==\ kHighLowerRatio);}
+\DoxyCodeLine{00383\ \}}
+\DoxyCodeLine{00384\ }
+\DoxyCodeLine{00385\ \textcolor{keywordtype}{void}\ CompressorEditor::renderHover(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{int}\ low\_start,\ \textcolor{keywordtype}{int}\ low\_end,}
+\DoxyCodeLine{00386\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ band\_start,\ \textcolor{keywordtype}{int}\ band\_end,\ \textcolor{keywordtype}{int}\ high\_start,\ \textcolor{keywordtype}{int}\ high\_end)\ \{}
+\DoxyCodeLine{00387\ \ \ \textcolor{keywordflow}{if}\ (hover\_\ ==\ kNone)}
+\DoxyCodeLine{00388\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00389\ }
+\DoxyCodeLine{00390\ \ \ \textcolor{keywordtype}{float}\ width\ =\ getWidth();}
+\DoxyCodeLine{00391\ \ \ \textcolor{keywordtype}{float}\ height\ =\ getHeight();}
+\DoxyCodeLine{00392\ \ \ \textcolor{keywordtype}{float}\ threshold\_height\ =\ 2.0f\ /\ height;}
+\DoxyCodeLine{00393\ }
+\DoxyCodeLine{00394\ \ \ \textcolor{keywordtype}{float}\ low\_start\_x\ =\ low\_start\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00395\ \ \ \textcolor{keywordtype}{float}\ low\_width\ =\ (low\_end\ -\/\ low\_start)\ *\ 2.0f\ /\ width;}
+\DoxyCodeLine{00396\ \ \ \textcolor{keywordtype}{float}\ band\_start\_x\ =\ band\_start\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00397\ \ \ \textcolor{keywordtype}{float}\ band\_width\ =\ (band\_end\ -\/\ band\_start)\ *\ 2.0f\ /\ width;}
+\DoxyCodeLine{00398\ \ \ \textcolor{keywordtype}{float}\ high\_start\_x\ =\ high\_start\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00399\ \ \ \textcolor{keywordtype}{float}\ high\_width\ =\ (high\_end\ -\/\ high\_start)\ *\ 2.0f\ /\ width;}
+\DoxyCodeLine{00400\ }
+\DoxyCodeLine{00401\ \ \ \textcolor{keywordflow}{switch}\ (hover\_)\ \{}
+\DoxyCodeLine{00402\ \ \ \ \ \textcolor{keywordflow}{case}\ kLowUpperThreshold:}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ hover\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ low\_start\_x,\ getOpenGlYForDb(low\_upper\_threshold\_)\ -\/\ 0.5f\ *\ threshold\_height,}
+\DoxyCodeLine{00404\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ low\_width,\ threshold\_height);}
+\DoxyCodeLine{00405\ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00406\ \ \ \ \ \textcolor{keywordflow}{case}\ kBandUpperThreshold:}
+\DoxyCodeLine{00407\ \ \ \ \ \ \ hover\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ band\_start\_x,\ getOpenGlYForDb(band\_upper\_threshold\_)\ -\/\ 0.5f\ *\ threshold\_height,}
+\DoxyCodeLine{00408\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ band\_width,\ threshold\_height);}
+\DoxyCodeLine{00409\ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00410\ \ \ \ \ \textcolor{keywordflow}{case}\ kHighUpperThreshold:}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ hover\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ high\_start\_x,\ getOpenGlYForDb(high\_upper\_threshold\_)\ -\/\ 0.5f\ *\ threshold\_height,}
+\DoxyCodeLine{00412\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ high\_width,\ threshold\_height);}
+\DoxyCodeLine{00413\ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00414\ \ \ \ \ \textcolor{keywordflow}{case}\ kLowLowerThreshold:}
+\DoxyCodeLine{00415\ \ \ \ \ \ \ hover\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ low\_start\_x,\ getOpenGlYForDb(low\_lower\_threshold\_)\ -\/\ 0.5f\ *\ threshold\_height,}
+\DoxyCodeLine{00416\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ low\_width,\ threshold\_height);}
+\DoxyCodeLine{00417\ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00418\ \ \ \ \ \textcolor{keywordflow}{case}\ kBandLowerThreshold:}
+\DoxyCodeLine{00419\ \ \ \ \ \ \ hover\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ band\_start\_x,\ getOpenGlYForDb(band\_lower\_threshold\_)\ -\/\ 0.5f\ *\ threshold\_height,}
+\DoxyCodeLine{00420\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ band\_width,\ threshold\_height);}
+\DoxyCodeLine{00421\ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00422\ \ \ \ \ \textcolor{keywordflow}{case}\ kHighLowerThreshold:}
+\DoxyCodeLine{00423\ \ \ \ \ \ \ hover\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ high\_start\_x,\ getOpenGlYForDb(high\_lower\_threshold\_)\ -\/\ 0.5f\ *\ threshold\_height,}
+\DoxyCodeLine{00424\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ high\_width,\ threshold\_height);}
+\DoxyCodeLine{00425\ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00426\ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00427\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00428\ \ \ \}}
+\DoxyCodeLine{00429\ }
+\DoxyCodeLine{00430\ \ \ \textcolor{keywordflow}{if}\ (isRatio(hover\_))}
+\DoxyCodeLine{00431\ \ \ \ \ hover\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00432\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00433\ \ \ \ \ hover\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cabbaf3da4792c5389424b537b943e52ac}{Skin::kWidgetCenterLine}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00434\ }
+\DoxyCodeLine{00435\ \ \ hover\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00436\ \}}
+\DoxyCodeLine{00437\ }
+\DoxyCodeLine{00438\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_compressor_editor_a509948a21cef013e9d8805b40a35c694}{CompressorEditor::renderCompressor}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00439\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kOutputBarHeight\ =\ 2.2f;}
+\DoxyCodeLine{00440\ \ \ \textcolor{keywordflow}{if}\ (low\_input\_ms\_\ ==\ \textcolor{keyword}{nullptr}\ ||\ band\_input\_ms\_\ ==\ \textcolor{keyword}{nullptr}\ ||\ high\_input\_ms\_\ ==\ \textcolor{keyword}{nullptr}\ ||}
+\DoxyCodeLine{00441\ \ \ \ \ \ \ low\_output\_ms\_\ ==\ \textcolor{keyword}{nullptr}\ ||\ band\_output\_ms\_\ ==\ \textcolor{keyword}{nullptr}\ ||\ high\_output\_ms\_\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00442\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00443\ \ \ \}}
+\DoxyCodeLine{00444\ }
+\DoxyCodeLine{00445\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ low\_rms\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad7de0d300e948eb5cd8ec313c331fa0e}{vital::utils::sqrt}}(low\_input\_ms\_-\/>\mbox{\hyperlink{classvital_1_1_status_output_adc2827a952fdcedd4ba84d1e3b793240}{value}}());}
+\DoxyCodeLine{00446\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ low\_input\_y\ =\ getOpenGlYForMagnitude(low\_rms);}
+\DoxyCodeLine{00447\ }
+\DoxyCodeLine{00448\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ scaled\_low\_rms\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad7de0d300e948eb5cd8ec313c331fa0e}{vital::utils::sqrt}}(low\_output\_ms\_-\/>\mbox{\hyperlink{classvital_1_1_status_output_adc2827a952fdcedd4ba84d1e3b793240}{value}}());}
+\DoxyCodeLine{00449\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ low\_output\_y\ =\ getOpenGlYForMagnitude(scaled\_low\_rms);}
+\DoxyCodeLine{00450\ }
+\DoxyCodeLine{00451\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ band\_rms\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad7de0d300e948eb5cd8ec313c331fa0e}{vital::utils::sqrt}}(band\_input\_ms\_-\/>\mbox{\hyperlink{classvital_1_1_status_output_adc2827a952fdcedd4ba84d1e3b793240}{value}}());}
+\DoxyCodeLine{00452\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ band\_input\_y\ =\ getOpenGlYForMagnitude(band\_rms);}
+\DoxyCodeLine{00453\ }
+\DoxyCodeLine{00454\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ scaled\_band\_rms\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad7de0d300e948eb5cd8ec313c331fa0e}{vital::utils::sqrt}}(band\_output\_ms\_-\/>\mbox{\hyperlink{classvital_1_1_status_output_adc2827a952fdcedd4ba84d1e3b793240}{value}}());}
+\DoxyCodeLine{00455\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ band\_output\_y\ =\ getOpenGlYForMagnitude(scaled\_band\_rms);}
+\DoxyCodeLine{00456\ }
+\DoxyCodeLine{00457\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ high\_rms\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad7de0d300e948eb5cd8ec313c331fa0e}{vital::utils::sqrt}}(high\_input\_ms\_-\/>\mbox{\hyperlink{classvital_1_1_status_output_adc2827a952fdcedd4ba84d1e3b793240}{value}}());}
+\DoxyCodeLine{00458\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ high\_input\_y\ =\ getOpenGlYForMagnitude(high\_rms);}
+\DoxyCodeLine{00459\ }
+\DoxyCodeLine{00460\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ scaled\_high\_rms\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad7de0d300e948eb5cd8ec313c331fa0e}{vital::utils::sqrt}}(high\_output\_ms\_-\/>\mbox{\hyperlink{classvital_1_1_status_output_adc2827a952fdcedd4ba84d1e3b793240}{value}}());}
+\DoxyCodeLine{00461\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ high\_output\_y\ =\ getOpenGlYForMagnitude(scaled\_high\_rms);}
+\DoxyCodeLine{00462\ }
+\DoxyCodeLine{00463\ \ \ \textcolor{keywordtype}{int}\ width\ =\ getWidth();}
+\DoxyCodeLine{00464\ \ \ \textcolor{keywordtype}{float}\ active\_area\ =\ 1.0f\ -\/\ 4.0f\ *\ \mbox{\hyperlink{class_compressor_editor_a38738d468d3361f1cdb7daa4547164c3}{kCompressorAreaBuffer}};}
+\DoxyCodeLine{00465\ \ \ \textcolor{keywordtype}{float}\ active\_section\_width\ =\ active\_area\ /\ \mbox{\hyperlink{class_compressor_editor_a0c0ecff074842964ca1cdee1020b5d36}{kMaxBands}};}
+\DoxyCodeLine{00466\ }
+\DoxyCodeLine{00467\ \ \ \textcolor{keywordtype}{int}\ low\_start\ =\ std::round(\mbox{\hyperlink{class_compressor_editor_a38738d468d3361f1cdb7daa4547164c3}{kCompressorAreaBuffer}}\ *\ width);}
+\DoxyCodeLine{00468\ \ \ \textcolor{keywordtype}{int}\ low\_end\ =\ std::round((\mbox{\hyperlink{class_compressor_editor_a38738d468d3361f1cdb7daa4547164c3}{kCompressorAreaBuffer}}\ +\ active\_section\_width)\ *\ width);}
+\DoxyCodeLine{00469\ \ \ \textcolor{keywordtype}{int}\ band\_start\ =\ std::round((2.0f\ *\ \mbox{\hyperlink{class_compressor_editor_a38738d468d3361f1cdb7daa4547164c3}{kCompressorAreaBuffer}}\ +\ active\_section\_width)\ *\ width);}
+\DoxyCodeLine{00470\ \ \ \textcolor{keywordtype}{int}\ band\_end\ =\ width\ -\/\ band\_start;}
+\DoxyCodeLine{00471\ \ \ \textcolor{keywordtype}{int}\ high\_start\ =\ width\ -\/\ low\_end;}
+\DoxyCodeLine{00472\ \ \ \textcolor{keywordtype}{int}\ high\_end\ =\ width\ -\/\ low\_start;}
+\DoxyCodeLine{00473\ }
+\DoxyCodeLine{00474\ \ \ \textcolor{keywordflow}{if}\ (!low\_band\_active\_)\ \{}
+\DoxyCodeLine{00475\ \ \ \ \ band\_start\ =\ low\_start;}
+\DoxyCodeLine{00476\ \ \ \ \ low\_start\ =\ low\_end\ =\ -\/width;}
+\DoxyCodeLine{00477\ \ \ \}}
+\DoxyCodeLine{00478\ \ \ \textcolor{keywordflow}{if}\ (!high\_band\_active\_)\ \{}
+\DoxyCodeLine{00479\ \ \ \ \ band\_end\ =\ high\_end;}
+\DoxyCodeLine{00480\ \ \ \ \ high\_start\ =\ high\_end\ =\ -\/width;}
+\DoxyCodeLine{00481\ \ \ \}}
+\DoxyCodeLine{00482\ }
+\DoxyCodeLine{00483\ \ \ setThresholdPositions(low\_start,\ low\_end,\ band\_start,\ band\_end,\ high\_start,\ high\_end,\ 1.0f);}
+\DoxyCodeLine{00484\ \ \ thresholds\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00485\ }
+\DoxyCodeLine{00486\ \ \ setThresholdPositions(low\_start,\ low\_end,\ band\_start,\ band\_end,\ high\_start,\ high\_end,\ 0.0f);}
+\DoxyCodeLine{00487\ \ \ thresholds\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00488\ }
+\DoxyCodeLine{00489\ \ \ setThresholdPositions(low\_start,\ low\_end,\ band\_start,\ band\_end,\ high\_start,\ high\_end,\ -\/1.0f);}
+\DoxyCodeLine{00490\ \ \ thresholds\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00491\ }
+\DoxyCodeLine{00492\ \ \ setRatioLinePositions(low\_start,\ low\_end,\ band\_start,\ band\_end,\ high\_start,\ high\_end);}
+\DoxyCodeLine{00493\ \ \ ratio\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00494\ \ \ ratio\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00495\ }
+\DoxyCodeLine{00496\ \ \ renderHover(open\_gl,\ low\_start,\ low\_end,\ band\_start,\ band\_end,\ high\_start,\ high\_end);}
+\DoxyCodeLine{00497\ }
+\DoxyCodeLine{00498\ \ \ \textcolor{keywordtype}{int}\ bar\_width\ =\ \mbox{\hyperlink{class_compressor_editor_a7017293ec1c00a61aaa2dbc880344065}{kBarWidth}}\ *\ active\_section\_width\ *\ width;}
+\DoxyCodeLine{00499\ \ \ \textcolor{keywordtype}{int}\ low\_middle\ =\ (low\_start\ +\ low\_end)\ *\ 0.5f;}
+\DoxyCodeLine{00500\ \ \ \textcolor{keywordtype}{int}\ band\_middle\ =\ (band\_start\ +\ band\_end)\ *\ 0.5f;}
+\DoxyCodeLine{00501\ \ \ \textcolor{keywordtype}{int}\ high\_middle\ =\ (high\_start\ +\ high\_end)\ *\ 0.5f;}
+\DoxyCodeLine{00502\ }
+\DoxyCodeLine{00503\ \ \ \textcolor{keywordtype}{float}\ gl\_bar\_width\ =\ bar\_width\ *\ 2.0f\ /\ width;}
+\DoxyCodeLine{00504\ \ \ \textcolor{keywordtype}{float}\ low\_left\ =\ (low\_middle\ -\/\ bar\_width)\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00505\ \ \ \textcolor{keywordtype}{float}\ low\_right\ =\ (low\_middle\ +\ 1)\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00506\ \ \ \textcolor{keywordtype}{float}\ band\_left\ =\ (band\_middle\ -\/\ bar\_width)\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00507\ \ \ \textcolor{keywordtype}{float}\ band\_right\ =\ (band\_middle\ +\ 1)\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00508\ \ \ \textcolor{keywordtype}{float}\ high\_left\ =\ (high\_middle\ -\/\ bar\_width)\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00509\ \ \ \textcolor{keywordtype}{float}\ high\_right\ =\ (high\_middle\ +\ 1)\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00510\ \ \ output\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ low\_left,\ low\_output\_y[0]\ -\/\ kOutputBarHeight,\ gl\_bar\_width,\ kOutputBarHeight);}
+\DoxyCodeLine{00511\ \ \ output\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(1,\ low\_right,\ low\_output\_y[1]\ -\/\ kOutputBarHeight,\ gl\_bar\_width,\ kOutputBarHeight);}
+\DoxyCodeLine{00512\ \ \ output\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(2,\ band\_left,\ band\_output\_y[0]\ -\/\ kOutputBarHeight,\ gl\_bar\_width,\ kOutputBarHeight);}
+\DoxyCodeLine{00513\ \ \ output\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(3,\ band\_right,\ band\_output\_y[1]\ -\/\ kOutputBarHeight,\ gl\_bar\_width,\ kOutputBarHeight);}
+\DoxyCodeLine{00514\ \ \ output\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(4,\ high\_left,\ high\_output\_y[0]\ -\/\ kOutputBarHeight,\ gl\_bar\_width,\ kOutputBarHeight);}
+\DoxyCodeLine{00515\ \ \ output\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(5,\ high\_right,\ high\_output\_y[1]\ -\/\ kOutputBarHeight,\ gl\_bar\_width,\ kOutputBarHeight);}
+\DoxyCodeLine{00516\ }
+\DoxyCodeLine{00517\ \ \ \textcolor{keywordtype}{float}\ input\_height\ =\ 2.0f\ /\ getHeight();}
+\DoxyCodeLine{00518\ \ \ input\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ low\_left,\ low\_input\_y[0]\ -\/\ 0.5f\ *\ input\_height,\ gl\_bar\_width,\ input\_height);}
+\DoxyCodeLine{00519\ \ \ input\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(1,\ low\_right,\ low\_input\_y[1]\ -\/\ 0.5f\ *\ input\_height,\ gl\_bar\_width,\ input\_height);}
+\DoxyCodeLine{00520\ \ \ input\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(2,\ band\_left,\ band\_input\_y[0]\ -\/\ 0.5f\ *\ input\_height,\ gl\_bar\_width,\ input\_height);}
+\DoxyCodeLine{00521\ \ \ input\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(3,\ band\_right,\ band\_input\_y[1]\ -\/\ 0.5f\ *\ input\_height,\ gl\_bar\_width,\ input\_height);}
+\DoxyCodeLine{00522\ \ \ input\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(4,\ high\_left,\ high\_input\_y[0]\ -\/\ 0.5f\ *\ input\_height,\ gl\_bar\_width,\ input\_height);}
+\DoxyCodeLine{00523\ \ \ input\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(5,\ high\_right,\ high\_input\_y[1]\ -\/\ 0.5f\ *\ input\_height,\ gl\_bar\_width,\ input\_height);}
+\DoxyCodeLine{00524\ }
+\DoxyCodeLine{00525\ \ \ output\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00526\ \ \ output\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ animate);}
+\DoxyCodeLine{00527\ }
+\DoxyCodeLine{00528\ \ \ input\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca52527c370464bf967aac85bb7c22a5ab}{Skin::kWidgetPrimary2}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00529\ \ \ input\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ animate);}
+\DoxyCodeLine{00530\ \}}
+\DoxyCodeLine{00531\ }
+\DoxyCodeLine{00532\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_compressor_editor_a10f84312f60f061a9c57e79fa48cfaee}{CompressorEditor::destroy}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00533\ \ \ \mbox{\hyperlink{class_open_gl_component_aba2309cf4b3c040f6d25418d1fa2dbd3}{OpenGlComponent::destroy}}(open\_gl);}
+\DoxyCodeLine{00534\ \ \ hover\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00535\ \ \ input\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00536\ \ \ output\_dbs\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00537\ \ \ thresholds\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00538\ \ \ ratio\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00539\ \}}
+\DoxyCodeLine{00540\ }
+\DoxyCodeLine{00541\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_compressor_editor_a7d328c94deba60d147a87d9411fc489b}{CompressorEditor::setAllValues}}(\mbox{\hyperlink{namespacevital_aa714e9b3957a28c9eaf0105959aea482}{vital::control\_map}}\&\ controls)\ \{}
+\DoxyCodeLine{00542\ \ \ low\_upper\_threshold\_\ =\ controls[\textcolor{stringliteral}{"{}compressor\_low\_upper\_threshold"{}}]-\/>value();}
+\DoxyCodeLine{00543\ \ \ band\_upper\_threshold\_\ =\ controls[\textcolor{stringliteral}{"{}compressor\_band\_upper\_threshold"{}}]-\/>value();}
+\DoxyCodeLine{00544\ \ \ high\_upper\_threshold\_\ =\ controls[\textcolor{stringliteral}{"{}compressor\_high\_upper\_threshold"{}}]-\/>value();}
+\DoxyCodeLine{00545\ \ \ low\_lower\_threshold\_\ =\ controls[\textcolor{stringliteral}{"{}compressor\_low\_lower\_threshold"{}}]-\/>value();}
+\DoxyCodeLine{00546\ \ \ band\_lower\_threshold\_\ =\ controls[\textcolor{stringliteral}{"{}compressor\_band\_lower\_threshold"{}}]-\/>value();}
+\DoxyCodeLine{00547\ \ \ high\_lower\_threshold\_\ =\ controls[\textcolor{stringliteral}{"{}compressor\_high\_lower\_threshold"{}}]-\/>value();}
+\DoxyCodeLine{00548\ \ \ low\_upper\_ratio\_\ =\ controls[\textcolor{stringliteral}{"{}compressor\_low\_upper\_ratio"{}}]-\/>value();}
+\DoxyCodeLine{00549\ \ \ band\_upper\_ratio\_\ =\ controls[\textcolor{stringliteral}{"{}compressor\_band\_upper\_ratio"{}}]-\/>value();}
+\DoxyCodeLine{00550\ \ \ high\_upper\_ratio\_\ =\ controls[\textcolor{stringliteral}{"{}compressor\_high\_upper\_ratio"{}}]-\/>value();}
+\DoxyCodeLine{00551\ \ \ low\_lower\_ratio\_\ =\ controls[\textcolor{stringliteral}{"{}compressor\_low\_lower\_ratio"{}}]-\/>value();}
+\DoxyCodeLine{00552\ \ \ band\_lower\_ratio\_\ =\ controls[\textcolor{stringliteral}{"{}compressor\_band\_lower\_ratio"{}}]-\/>value();}
+\DoxyCodeLine{00553\ \ \ high\_lower\_ratio\_\ =\ controls[\textcolor{stringliteral}{"{}compressor\_high\_lower\_ratio"{}}]-\/>value();}
+\DoxyCodeLine{00554\ \}}
+\DoxyCodeLine{00555\ }
+\DoxyCodeLine{00556\ \textcolor{keywordtype}{void}\ CompressorEditor::setLowUpperThreshold(\textcolor{keywordtype}{float}\ db,\ \textcolor{keywordtype}{bool}\ clamp)\ \{}
+\DoxyCodeLine{00557\ \ \ low\_upper\_threshold\_\ =\ db;}
+\DoxyCodeLine{00558\ \ \ db\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(db,\ \mbox{\hyperlink{class_compressor_editor_a4de825245a2c3ecb6acbfb5786cda356}{kMinEditDb}},\ \mbox{\hyperlink{class_compressor_editor_a3bf1f60d7bb223cde816057b11dd02a5}{kMaxEditDb}});}
+\DoxyCodeLine{00559\ \ \ \mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}();}
+\DoxyCodeLine{00560\ }
+\DoxyCodeLine{00561\ \ \ \textcolor{keywordflow}{if}\ (clamp)}
+\DoxyCodeLine{00562\ \ \ \ \ low\_upper\_threshold\_\ =\ db;}
+\DoxyCodeLine{00563\ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(\textcolor{stringliteral}{"{}compressor\_low\_upper\_threshold"{}},\ db);}
+\DoxyCodeLine{00564\ \ \ \textcolor{keywordflow}{if}\ (low\_upper\_threshold\_\ <\ low\_lower\_threshold\_\ \&\&\ clamp)}
+\DoxyCodeLine{00565\ \ \ \ \ setLowLowerThreshold(db,\ clamp);}
+\DoxyCodeLine{00566\ }
+\DoxyCodeLine{00567\ \ \ section\_parent\_-\/>\mbox{\hyperlink{class_synth_section_ad0d029db87da7c1b41192396d972ff80}{showPopupDisplay}}(\textcolor{keyword}{this},\ formatString(low\_upper\_threshold\_,\ \textcolor{stringliteral}{"{}\ dB"{}}),\ BubbleComponent::below,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00568\ \}}
+\DoxyCodeLine{00569\ }
+\DoxyCodeLine{00570\ \textcolor{keywordtype}{void}\ CompressorEditor::setBandUpperThreshold(\textcolor{keywordtype}{float}\ db,\ \textcolor{keywordtype}{bool}\ clamp)\ \{}
+\DoxyCodeLine{00571\ \ \ band\_upper\_threshold\_\ =\ db;}
+\DoxyCodeLine{00572\ \ \ db\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(db,\ \mbox{\hyperlink{class_compressor_editor_a4de825245a2c3ecb6acbfb5786cda356}{kMinEditDb}},\ \mbox{\hyperlink{class_compressor_editor_a3bf1f60d7bb223cde816057b11dd02a5}{kMaxEditDb}});}
+\DoxyCodeLine{00573\ \ \ \mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}();}
+\DoxyCodeLine{00574\ }
+\DoxyCodeLine{00575\ \ \ \textcolor{keywordflow}{if}\ (clamp)}
+\DoxyCodeLine{00576\ \ \ \ \ band\_upper\_threshold\_\ =\ db;}
+\DoxyCodeLine{00577\ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(\textcolor{stringliteral}{"{}compressor\_band\_upper\_threshold"{}},\ db);}
+\DoxyCodeLine{00578\ \ \ \textcolor{keywordflow}{if}\ (band\_upper\_threshold\_\ <\ band\_lower\_threshold\_\ \&\&\ clamp)}
+\DoxyCodeLine{00579\ \ \ \ \ setBandLowerThreshold(db,\ clamp);}
+\DoxyCodeLine{00580\ }
+\DoxyCodeLine{00581\ \ \ section\_parent\_-\/>\mbox{\hyperlink{class_synth_section_ad0d029db87da7c1b41192396d972ff80}{showPopupDisplay}}(\textcolor{keyword}{this},\ formatString(band\_upper\_threshold\_,\ \textcolor{stringliteral}{"{}\ dB"{}}),\ BubbleComponent::below,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00582\ \}}
+\DoxyCodeLine{00583\ }
+\DoxyCodeLine{00584\ \textcolor{keywordtype}{void}\ CompressorEditor::setHighUpperThreshold(\textcolor{keywordtype}{float}\ db,\ \textcolor{keywordtype}{bool}\ clamp)\ \{}
+\DoxyCodeLine{00585\ \ \ high\_upper\_threshold\_\ =\ db;}
+\DoxyCodeLine{00586\ \ \ db\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(db,\ \mbox{\hyperlink{class_compressor_editor_a4de825245a2c3ecb6acbfb5786cda356}{kMinEditDb}},\ \mbox{\hyperlink{class_compressor_editor_a3bf1f60d7bb223cde816057b11dd02a5}{kMaxEditDb}});}
+\DoxyCodeLine{00587\ \ \ \mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}();}
+\DoxyCodeLine{00588\ }
+\DoxyCodeLine{00589\ \ \ \textcolor{keywordflow}{if}\ (clamp)}
+\DoxyCodeLine{00590\ \ \ \ \ high\_upper\_threshold\_\ =\ db;}
+\DoxyCodeLine{00591\ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(\textcolor{stringliteral}{"{}compressor\_high\_upper\_threshold"{}},\ db);}
+\DoxyCodeLine{00592\ \ \ \textcolor{keywordflow}{if}\ (high\_upper\_threshold\_\ <\ high\_lower\_threshold\_\ \&\&\ clamp)}
+\DoxyCodeLine{00593\ \ \ \ \ setHighLowerThreshold(db,\ clamp);}
+\DoxyCodeLine{00594\ }
+\DoxyCodeLine{00595\ \ \ section\_parent\_-\/>\mbox{\hyperlink{class_synth_section_ad0d029db87da7c1b41192396d972ff80}{showPopupDisplay}}(\textcolor{keyword}{this},\ formatString(high\_upper\_threshold\_,\ \textcolor{stringliteral}{"{}\ dB"{}}),\ BubbleComponent::below,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00596\ \}}
+\DoxyCodeLine{00597\ }
+\DoxyCodeLine{00598\ \textcolor{keywordtype}{void}\ CompressorEditor::setLowLowerThreshold(\textcolor{keywordtype}{float}\ db,\ \textcolor{keywordtype}{bool}\ clamp)\ \{}
+\DoxyCodeLine{00599\ \ \ low\_lower\_threshold\_\ =\ db;}
+\DoxyCodeLine{00600\ \ \ db\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(db,\ \mbox{\hyperlink{class_compressor_editor_a4de825245a2c3ecb6acbfb5786cda356}{kMinEditDb}},\ \mbox{\hyperlink{class_compressor_editor_a3bf1f60d7bb223cde816057b11dd02a5}{kMaxEditDb}});}
+\DoxyCodeLine{00601\ \ \ \mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}();}
+\DoxyCodeLine{00602\ }
+\DoxyCodeLine{00603\ \ \ \textcolor{keywordflow}{if}\ (clamp)}
+\DoxyCodeLine{00604\ \ \ \ \ low\_lower\_threshold\_\ =\ db;}
+\DoxyCodeLine{00605\ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(\textcolor{stringliteral}{"{}compressor\_low\_lower\_threshold"{}},\ db);}
+\DoxyCodeLine{00606\ \ \ \textcolor{keywordflow}{if}\ (low\_lower\_threshold\_\ >\ low\_upper\_threshold\_\ \&\&\ clamp)}
+\DoxyCodeLine{00607\ \ \ \ \ setLowUpperThreshold(db,\ clamp);}
+\DoxyCodeLine{00608\ }
+\DoxyCodeLine{00609\ \ \ section\_parent\_-\/>\mbox{\hyperlink{class_synth_section_ad0d029db87da7c1b41192396d972ff80}{showPopupDisplay}}(\textcolor{keyword}{this},\ formatString(low\_lower\_threshold\_,\ \textcolor{stringliteral}{"{}\ dB"{}}),\ BubbleComponent::below,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00610\ \}}
+\DoxyCodeLine{00611\ }
+\DoxyCodeLine{00612\ \textcolor{keywordtype}{void}\ CompressorEditor::setBandLowerThreshold(\textcolor{keywordtype}{float}\ db,\ \textcolor{keywordtype}{bool}\ clamp)\ \{}
+\DoxyCodeLine{00613\ \ \ band\_lower\_threshold\_\ =\ db;}
+\DoxyCodeLine{00614\ \ \ db\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(db,\ \mbox{\hyperlink{class_compressor_editor_a4de825245a2c3ecb6acbfb5786cda356}{kMinEditDb}},\ \mbox{\hyperlink{class_compressor_editor_a3bf1f60d7bb223cde816057b11dd02a5}{kMaxEditDb}});}
+\DoxyCodeLine{00615\ \ \ \mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}();}
+\DoxyCodeLine{00616\ }
+\DoxyCodeLine{00617\ \ \ \textcolor{keywordflow}{if}\ (clamp)}
+\DoxyCodeLine{00618\ \ \ \ \ band\_lower\_threshold\_\ =\ db;}
+\DoxyCodeLine{00619\ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(\textcolor{stringliteral}{"{}compressor\_band\_lower\_threshold"{}},\ db);}
+\DoxyCodeLine{00620\ \ \ \textcolor{keywordflow}{if}\ (band\_lower\_threshold\_\ >\ band\_upper\_threshold\_\ \&\&\ clamp)}
+\DoxyCodeLine{00621\ \ \ \ \ setBandUpperThreshold(db,\ clamp);}
+\DoxyCodeLine{00622\ }
+\DoxyCodeLine{00623\ \ \ section\_parent\_-\/>\mbox{\hyperlink{class_synth_section_ad0d029db87da7c1b41192396d972ff80}{showPopupDisplay}}(\textcolor{keyword}{this},\ formatString(band\_lower\_threshold\_,\ \textcolor{stringliteral}{"{}\ dB"{}}),\ BubbleComponent::below,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00624\ \}}
+\DoxyCodeLine{00625\ }
+\DoxyCodeLine{00626\ \textcolor{keywordtype}{void}\ CompressorEditor::setHighLowerThreshold(\textcolor{keywordtype}{float}\ db,\ \textcolor{keywordtype}{bool}\ clamp\ )\ \{}
+\DoxyCodeLine{00627\ \ \ high\_lower\_threshold\_\ =\ db;}
+\DoxyCodeLine{00628\ \ \ db\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(db,\ \mbox{\hyperlink{class_compressor_editor_a4de825245a2c3ecb6acbfb5786cda356}{kMinEditDb}},\ \mbox{\hyperlink{class_compressor_editor_a3bf1f60d7bb223cde816057b11dd02a5}{kMaxEditDb}});}
+\DoxyCodeLine{00629\ \ \ \mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}();}
+\DoxyCodeLine{00630\ }
+\DoxyCodeLine{00631\ \ \ \textcolor{keywordflow}{if}\ (clamp)}
+\DoxyCodeLine{00632\ \ \ \ \ high\_lower\_threshold\_\ =\ db;}
+\DoxyCodeLine{00633\ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(\textcolor{stringliteral}{"{}compressor\_high\_lower\_threshold"{}},\ db);}
+\DoxyCodeLine{00634\ \ \ \textcolor{keywordflow}{if}\ (high\_lower\_threshold\_\ >\ high\_upper\_threshold\_\ \&\&\ clamp)}
+\DoxyCodeLine{00635\ \ \ \ \ setHighUpperThreshold(db,\ clamp);}
+\DoxyCodeLine{00636\ }
+\DoxyCodeLine{00637\ \ \ section\_parent\_-\/>\mbox{\hyperlink{class_synth_section_ad0d029db87da7c1b41192396d972ff80}{showPopupDisplay}}(\textcolor{keyword}{this},\ formatString(high\_lower\_threshold\_,\ \textcolor{stringliteral}{"{}\ dB"{}}),\ BubbleComponent::below,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00638\ \}}
+\DoxyCodeLine{00639\ }
+\DoxyCodeLine{00640\ \textcolor{keywordtype}{void}\ CompressorEditor::setLowUpperRatio(\textcolor{keywordtype}{float}\ ratio)\ \{}
+\DoxyCodeLine{00641\ \ \ \mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}();}
+\DoxyCodeLine{00642\ }
+\DoxyCodeLine{00643\ \ \ low\_upper\_ratio\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(ratio,\ \mbox{\hyperlink{class_compressor_editor_a2c63548952adc219489aa463db384b05}{kMinUpperRatio}},\ \mbox{\hyperlink{class_compressor_editor_aa0adf1324354b6c5419eacf50ade20ef}{kMaxUpperRatio}});}
+\DoxyCodeLine{00644\ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(\textcolor{stringliteral}{"{}compressor\_low\_upper\_ratio"{}},\ ratio);}
+\DoxyCodeLine{00645\ \}}
+\DoxyCodeLine{00646\ }
+\DoxyCodeLine{00647\ \textcolor{keywordtype}{void}\ CompressorEditor::setBandUpperRatio(\textcolor{keywordtype}{float}\ ratio)\ \{}
+\DoxyCodeLine{00648\ \ \ \mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}();}
+\DoxyCodeLine{00649\ }
+\DoxyCodeLine{00650\ \ \ band\_upper\_ratio\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(ratio,\ \mbox{\hyperlink{class_compressor_editor_a2c63548952adc219489aa463db384b05}{kMinUpperRatio}},\ \mbox{\hyperlink{class_compressor_editor_aa0adf1324354b6c5419eacf50ade20ef}{kMaxUpperRatio}});}
+\DoxyCodeLine{00651\ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(\textcolor{stringliteral}{"{}compressor\_band\_upper\_ratio"{}},\ ratio);}
+\DoxyCodeLine{00652\ \}}
+\DoxyCodeLine{00653\ }
+\DoxyCodeLine{00654\ \textcolor{keywordtype}{void}\ CompressorEditor::setHighUpperRatio(\textcolor{keywordtype}{float}\ ratio)\ \{}
+\DoxyCodeLine{00655\ \ \ \mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}();}
+\DoxyCodeLine{00656\ }
+\DoxyCodeLine{00657\ \ \ high\_upper\_ratio\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(ratio,\ \mbox{\hyperlink{class_compressor_editor_a2c63548952adc219489aa463db384b05}{kMinUpperRatio}},\ \mbox{\hyperlink{class_compressor_editor_aa0adf1324354b6c5419eacf50ade20ef}{kMaxUpperRatio}});}
+\DoxyCodeLine{00658\ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(\textcolor{stringliteral}{"{}compressor\_high\_upper\_ratio"{}},\ ratio);}
+\DoxyCodeLine{00659\ \}}
+\DoxyCodeLine{00660\ }
+\DoxyCodeLine{00661\ \textcolor{keywordtype}{void}\ CompressorEditor::setLowLowerRatio(\textcolor{keywordtype}{float}\ ratio)\ \{}
+\DoxyCodeLine{00662\ \ \ \mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}();}
+\DoxyCodeLine{00663\ }
+\DoxyCodeLine{00664\ \ \ low\_lower\_ratio\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(ratio,\ \mbox{\hyperlink{class_compressor_editor_a1103e131a586fa774530dfd797b88a84}{kMinLowerRatio}},\ \mbox{\hyperlink{class_compressor_editor_a8f0c64c20d831e739e6699b1452bd1d6}{kMaxLowerRatio}});}
+\DoxyCodeLine{00665\ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(\textcolor{stringliteral}{"{}compressor\_low\_lower\_ratio"{}},\ ratio);}
+\DoxyCodeLine{00666\ \}}
+\DoxyCodeLine{00667\ }
+\DoxyCodeLine{00668\ \textcolor{keywordtype}{void}\ CompressorEditor::setBandLowerRatio(\textcolor{keywordtype}{float}\ ratio)\ \{}
+\DoxyCodeLine{00669\ \ \ \mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}();}
+\DoxyCodeLine{00670\ }
+\DoxyCodeLine{00671\ \ \ band\_lower\_ratio\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(ratio,\ \mbox{\hyperlink{class_compressor_editor_a1103e131a586fa774530dfd797b88a84}{kMinLowerRatio}},\ \mbox{\hyperlink{class_compressor_editor_a8f0c64c20d831e739e6699b1452bd1d6}{kMaxLowerRatio}});}
+\DoxyCodeLine{00672\ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(\textcolor{stringliteral}{"{}compressor\_band\_lower\_ratio"{}},\ ratio);}
+\DoxyCodeLine{00673\ \}}
+\DoxyCodeLine{00674\ }
+\DoxyCodeLine{00675\ \textcolor{keywordtype}{void}\ CompressorEditor::setHighLowerRatio(\textcolor{keywordtype}{float}\ ratio)\ \{}
+\DoxyCodeLine{00676\ \ \ \mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}();}
+\DoxyCodeLine{00677\ }
+\DoxyCodeLine{00678\ \ \ high\_lower\_ratio\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(ratio,\ \mbox{\hyperlink{class_compressor_editor_a1103e131a586fa774530dfd797b88a84}{kMinLowerRatio}},\ \mbox{\hyperlink{class_compressor_editor_a8f0c64c20d831e739e6699b1452bd1d6}{kMaxLowerRatio}});}
+\DoxyCodeLine{00679\ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(\textcolor{stringliteral}{"{}compressor\_high\_lower\_ratio"{}},\ ratio);}
+\DoxyCodeLine{00680\ \}}
+\DoxyCodeLine{00681\ }
+\DoxyCodeLine{00682\ String\ CompressorEditor::formatValue(\textcolor{keywordtype}{float}\ value)\ \{}
+\DoxyCodeLine{00683\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ number\_length\ =\ 5;}
+\DoxyCodeLine{00684\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ max\_decimals\ =\ 3;}
+\DoxyCodeLine{00685\ }
+\DoxyCodeLine{00686\ \ \ String\ format\ =\ String(value,\ max\_decimals);}
+\DoxyCodeLine{00687\ \ \ format\ =\ format.substring(0,\ number\_length);}
+\DoxyCodeLine{00688\ \ \ \textcolor{keywordtype}{int}\ spaces\ =\ number\_length\ -\/\ format.length();}
+\DoxyCodeLine{00689\ }
+\DoxyCodeLine{00690\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ spaces;\ ++i)}
+\DoxyCodeLine{00691\ \ \ \ \ format\ =\ \textcolor{stringliteral}{"{}\ "{}}\ +\ format;}
+\DoxyCodeLine{00692\ }
+\DoxyCodeLine{00693\ \ \ \textcolor{keywordflow}{return}\ format;}
+\DoxyCodeLine{00694\ \}}
+\DoxyCodeLine{00695\ }
+\DoxyCodeLine{00696\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_compressor_editor_aa1eab8488111c75c55e21802fbe0efbd}{CompressorEditor::parentHierarchyChanged}}()\ \{}
+\DoxyCodeLine{00697\ \ \ \textcolor{keywordflow}{if}\ (parent\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00698\ \ \ \ \ parent\_\ =\ findParentComponentOfClass<SynthGuiInterface>();}
+\DoxyCodeLine{00699\ }
+\DoxyCodeLine{00700\ \ \ \textcolor{keywordflow}{if}\ (section\_parent\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00701\ \ \ \ \ section\_parent\_\ =\ findParentComponentOfClass<SynthSection>();}
+\DoxyCodeLine{00702\ }
+\DoxyCodeLine{00703\ \ \ \textcolor{keywordflow}{if}\ (parent\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00704\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00705\ }
+\DoxyCodeLine{00706\ \ \ \textcolor{keywordflow}{if}\ (low\_input\_ms\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00707\ \ \ \ \ low\_input\_ms\_\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_add97643be1ba341314ac1b158206dc4b}{getStatusOutput}}(\textcolor{stringliteral}{"{}compressor\_low\_input"{}});}
+\DoxyCodeLine{00708\ \ \ \textcolor{keywordflow}{if}\ (band\_input\_ms\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00709\ \ \ \ \ band\_input\_ms\_\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_add97643be1ba341314ac1b158206dc4b}{getStatusOutput}}(\textcolor{stringliteral}{"{}compressor\_band\_input"{}});}
+\DoxyCodeLine{00710\ \ \ \textcolor{keywordflow}{if}\ (high\_input\_ms\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00711\ \ \ \ \ high\_input\_ms\_\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_add97643be1ba341314ac1b158206dc4b}{getStatusOutput}}(\textcolor{stringliteral}{"{}compressor\_high\_input"{}});}
+\DoxyCodeLine{00712\ \ \ \textcolor{keywordflow}{if}\ (low\_output\_ms\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00713\ \ \ \ \ low\_output\_ms\_\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_add97643be1ba341314ac1b158206dc4b}{getStatusOutput}}(\textcolor{stringliteral}{"{}compressor\_low\_output"{}});}
+\DoxyCodeLine{00714\ \ \ \textcolor{keywordflow}{if}\ (band\_output\_ms\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00715\ \ \ \ \ band\_output\_ms\_\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_add97643be1ba341314ac1b158206dc4b}{getStatusOutput}}(\textcolor{stringliteral}{"{}compressor\_band\_output"{}});}
+\DoxyCodeLine{00716\ \ \ \textcolor{keywordflow}{if}\ (high\_output\_ms\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00717\ \ \ \ \ high\_output\_ms\_\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_add97643be1ba341314ac1b158206dc4b}{getStatusOutput}}(\textcolor{stringliteral}{"{}compressor\_high\_output"{}});}
+\DoxyCodeLine{00718\ }
+\DoxyCodeLine{00719\ \ \ \mbox{\hyperlink{class_open_gl_component_af9fb26cee075fba78305a7e79b53008d}{OpenGlComponent::parentHierarchyChanged}}();}
+\DoxyCodeLine{00720\ \}}
+\DoxyCodeLine{00721\ }
+\DoxyCodeLine{00722\ \textcolor{keywordtype}{float}\ CompressorEditor::getYForDb(\textcolor{keywordtype}{float}\ db)\ \{}
+\DoxyCodeLine{00723\ \ \ \textcolor{keywordflow}{return}\ getHeight()\ *\ (1.0f\ -\/\ getOpenGlYForDb(\mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(db,\ \mbox{\hyperlink{class_compressor_editor_a49e9626c33b767e10b7e7434020314fa}{kMinDb}},\ \mbox{\hyperlink{class_compressor_editor_a993a0fc40c50f80345755d0cc5306e2e}{kMaxDb}})))\ *\ 0.5f;}
+\DoxyCodeLine{00724\ \}}
+\DoxyCodeLine{00725\ }
+\DoxyCodeLine{00726\ \textcolor{keywordtype}{float}\ CompressorEditor::getCompressedDb(\textcolor{keywordtype}{float}\ input\_db,\ \textcolor{keywordtype}{float}\ upper\_threshold,\ \textcolor{keywordtype}{float}\ upper\_ratio,}
+\DoxyCodeLine{00727\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ lower\_threshold,\ \textcolor{keywordtype}{float}\ lower\_ratio)\ \{}
+\DoxyCodeLine{00728\ \ \ \textcolor{keywordflow}{if}\ (input\_db\ <\ lower\_threshold)}
+\DoxyCodeLine{00729\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(input\_db,\ lower\_threshold,\ lower\_ratio);}
+\DoxyCodeLine{00730\ \ \ \textcolor{keywordflow}{if}\ (input\_db\ >\ upper\_threshold)}
+\DoxyCodeLine{00731\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(input\_db,\ upper\_threshold,\ upper\_ratio);}
+\DoxyCodeLine{00732\ \ \ \textcolor{keywordflow}{return}\ input\_db;}
+\DoxyCodeLine{00733\ \}}
+\DoxyCodeLine{00734\ }
+\DoxyCodeLine{00735\ Colour\ CompressorEditor::getColorForRatio(\textcolor{keywordtype}{float}\ ratio)\ \{}
+\DoxyCodeLine{00736\ \ \ \textcolor{keywordflow}{if}\ (!active\_)}
+\DoxyCodeLine{00737\ \ \ \ \ \textcolor{keywordflow}{return}\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca8c72cd53e923c259556519e2210b1d6a}{Skin::kWidgetSecondaryDisabled}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00738\ }
+\DoxyCodeLine{00739\ \ \ \textcolor{keywordflow}{if}\ (ratio\ >\ 0.0f)}
+\DoxyCodeLine{00740\ \ \ \ \ \textcolor{keywordflow}{return}\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca759c8acbffc8962e9ee2d8cba9677e73}{Skin::kWidgetSecondary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00741\ \ \ \textcolor{keywordflow}{if}\ (ratio\ <\ 0.0f)}
+\DoxyCodeLine{00742\ \ \ \ \ \textcolor{keywordflow}{return}\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caf0e70a44ed7ab9d5dbef16a856b50cfb}{Skin::kWidgetSecondary2}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00743\ }
+\DoxyCodeLine{00744\ \ \ \textcolor{keywordflow}{return}\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca8c72cd53e923c259556519e2210b1d6a}{Skin::kWidgetSecondaryDisabled}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00745\ \}}
+
+\end{DoxyCode}

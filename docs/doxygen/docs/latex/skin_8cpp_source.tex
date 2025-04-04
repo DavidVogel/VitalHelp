@@ -1,0 +1,744 @@
+\doxysection{skin.\+cpp}
+\hypertarget{skin_8cpp_source}{}\label{skin_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/look\_and\_feel/skin.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/look\_and\_feel/skin.cpp}}
+\mbox{\hyperlink{skin_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{default__look__and__feel_8h}{default\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{full__interface_8h}{full\_interface.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__section_8h}{synth\_section.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable__3d_8h}{wavetable\_3d.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00009\ \ \ \textcolor{keyword}{const}\ std::string\ kOverrideNames[\mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a3f52238a2720148630d1d0f96627e622}{Skin::kNumSectionOverrides}}]\ =\ \{}
+\DoxyCodeLine{00010\ \ \ \ \ \textcolor{stringliteral}{"{}All"{}},}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{stringliteral}{"{}Logo"{}},}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{stringliteral}{"{}Header"{}},}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{stringliteral}{"{}Overlays"{}},}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{stringliteral}{"{}Oscillator"{}},}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{stringliteral}{"{}Sample"{}},}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{stringliteral}{"{}Sub"{}},}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{stringliteral}{"{}Filter"{}},}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{stringliteral}{"{}Envelope"{}},}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{stringliteral}{"{}Lfo"{}},}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{stringliteral}{"{}RandomLfo"{}},}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{stringliteral}{"{}Voice"{}},}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{stringliteral}{"{}Macro"{}},}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{stringliteral}{"{}Keyboard"{}},}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{stringliteral}{"{}All\ Effects"{}},}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{stringliteral}{"{}Chorus"{}},}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{stringliteral}{"{}Compressor"{}},}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{stringliteral}{"{}Delay"{}},}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{stringliteral}{"{}Distortion"{}},}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{stringliteral}{"{}Equalizer"{}},}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{stringliteral}{"{}Effects\ Filter"{}},}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{stringliteral}{"{}Flanger"{}},}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{stringliteral}{"{}Phaser"{}},}
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{stringliteral}{"{}Reverb"{}},}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{stringliteral}{"{}Modulation\ Drag\ Drop"{}},}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{stringliteral}{"{}Modulation\ Matrix"{}},}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{stringliteral}{"{}Preset\ Browser"{}},}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{stringliteral}{"{}Popup\ Browser"{}},}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{stringliteral}{"{}Advanced"{}},}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{stringliteral}{"{}Wavetable\ Editor"{}},}
+\DoxyCodeLine{00040\ \ \ \};}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \textcolor{keyword}{const}\ std::string\ kValueNames[\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab435ef853309bf1e637dbc1a9525ea9a}{Skin::kNumSkinValueIds}}]\ =\ \{}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{stringliteral}{"{}Body\ Rounding"{}},}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{stringliteral}{"{}Label\ Height"{}},}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{stringliteral}{"{}Label\ Background\ Height"{}},}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{stringliteral}{"{}Label\ Rounding"{}},}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{stringliteral}{"{}Label\ Offset"{}},}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{stringliteral}{"{}Text\ Component\ Label\ Offset"{}},}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{stringliteral}{"{}Rotary\ Option\ X\ Offset"{}},}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{stringliteral}{"{}Rotary\ Option\ Y\ Offset"{}},}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{stringliteral}{"{}Rotary\ Option\ Width"{}},}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{stringliteral}{"{}Title\ Width"{}},}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{stringliteral}{"{}Padding"{}},}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{stringliteral}{"{}Large\ Padding"{}},}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{stringliteral}{"{}Slider\ Width"{}},}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{stringliteral}{"{}Text\ Component\ Height"{}},}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{stringliteral}{"{}Text\ Component\ Offset"{}},}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{stringliteral}{"{}Text\ Component\ Font\ Size"{}},}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{stringliteral}{"{}Text\ Button\ Height"{}},}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{stringliteral}{"{}Button\ Font\ Size"{}},}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{stringliteral}{"{}Knob\ Arc\ Size"{}},}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{stringliteral}{"{}Knob\ Arc\ Thickness"{}},}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{stringliteral}{"{}Knob\ Body\ Size"{}},}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{stringliteral}{"{}Knob\ Handle\ Length"{}},}
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{stringliteral}{"{}Knob\ Mod\ Amount\ Arc\ Size"{}},}
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{stringliteral}{"{}Knob\ Mod\ Amount\ Arc\ Thickness"{}},}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{stringliteral}{"{}Knob\ Mod\ Meter\ Arc\ Size"{}},}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{stringliteral}{"{}Knob\ Mod\ Meter\ Arc\ Thickness"{}},}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{stringliteral}{"{}Knob\ Offset"{}},}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{stringliteral}{"{}Knob\ Section\ Height"{}},}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{stringliteral}{"{}Knob\ Shadow\ Width"{}},}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{stringliteral}{"{}Knob\ Shadow\ Offset"{}},}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{stringliteral}{"{}Modulation\ Button\ Width"{}},}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{stringliteral}{"{}Modulation\ Font\ Size"{}},}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Margin"{}},}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Rounded\ Corner"{}},}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Line\ Width"{}},}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Line\ Boost"{}},}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Fill\ Center"{}},}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Fill\ Fade"{}},}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Fill\ Boost"{}},}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{stringliteral}{"{}Wavetable\ Horizontal\ Angle"{}},}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{stringliteral}{"{}Wavetable\ Vertical\ Angle"{}},}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{stringliteral}{"{}Wavetable\ Draw\ Width"{}},}
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{stringliteral}{"{}Wavetable\ Draw\ Height"{}},}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{stringliteral}{"{}Wavetable\ Y\ Offset"{}},}
+\DoxyCodeLine{00087\ \ \ \};}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \ \ \textcolor{keyword}{const}\ std::string\ kColorNames[\mbox{\hyperlink{class_skin_a50c1568c389566dfd4529c84976777e3}{Skin::kNumColors}}]\ =\ \{}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{stringliteral}{"{}Background"{}},}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{stringliteral}{"{}Body"{}},}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{stringliteral}{"{}Body\ Heading\ Background"{}},}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{stringliteral}{"{}Heading\ Text"{}},}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{stringliteral}{"{}Preset\ Text"{}},}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{stringliteral}{"{}Body\ Text"{}},}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{stringliteral}{"{}Border"{}},}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{stringliteral}{"{}Label\ Background"{}},}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{stringliteral}{"{}Label\ Connection"{}},}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{stringliteral}{"{}Power\ Button\ On"{}},}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{stringliteral}{"{}Power\ Button\ Off"{}},}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{stringliteral}{"{}Overlay\ Screen"{}},}
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{stringliteral}{"{}Lighten\ Screen"{}},}
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{stringliteral}{"{}Shadow"{}},}
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{stringliteral}{"{}Popup\ Selector\ Background"{}},}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{stringliteral}{"{}Popup\ Background"{}},}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{stringliteral}{"{}Popup\ Border"{}},}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{stringliteral}{"{}Text\ Component\ Background"{}},}
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{stringliteral}{"{}Text\ Component\ Text"{}},}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{stringliteral}{"{}Rotary\ Arc"{}},}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{stringliteral}{"{}Rotary\ Arc\ Disabled"{}},}
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{stringliteral}{"{}Rotary\ Arc\ Unselected"{}},}
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{stringliteral}{"{}Rotary\ Arc\ Unselected\ Disabled"{}},}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{stringliteral}{"{}Rotary\ Hand"{}},}
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{stringliteral}{"{}Rotary\ Body"{}},}
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{stringliteral}{"{}Rotary\ Body\ Border"{}},}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{stringliteral}{"{}Linear\ Slider"{}},}
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{stringliteral}{"{}Linear\ Slider\ Disabled"{}},}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{stringliteral}{"{}Linear\ Slider\ Unselected"{}},}
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{stringliteral}{"{}Linear\ Slider\ Thumb"{}},}
+\DoxyCodeLine{00124\ \ \ \ \ \textcolor{stringliteral}{"{}Linear\ Slider\ Thumb\ Disabled"{}},}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Center\ Line"{}},}
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Primary\ 1"{}},}
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Primary\ 2"{}},}
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Primary\ Disabled"{}},}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Secondary\ 1"{}},}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Secondary\ 2"{}},}
+\DoxyCodeLine{00132\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Secondary\ Disabled"{}},}
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Accent\ 1"{}},}
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Accent\ 2"{}},}
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{stringliteral}{"{}Widget\ Background"{}},}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \ \ \ \ \textcolor{stringliteral}{"{}Modulation\ Meter"{}},}
+\DoxyCodeLine{00138\ \ \ \ \ \textcolor{stringliteral}{"{}Modulation\ Meter\ Left"{}},}
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{stringliteral}{"{}Modulation\ Meter\ Right"{}},}
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{stringliteral}{"{}Modulation\ Meter\ Control"{}},}
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{stringliteral}{"{}Modulation\ Button\ Selected"{}},}
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{stringliteral}{"{}Modulation\ Button\ Dragging"{}},}
+\DoxyCodeLine{00143\ \ \ \ \ \textcolor{stringliteral}{"{}Modulation\ Button\ Unselected"{}},}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{stringliteral}{"{}Icon\ Selector\ Icon"{}},}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{stringliteral}{"{}Icon\ Button\ Off"{}},}
+\DoxyCodeLine{00148\ \ \ \ \ \textcolor{stringliteral}{"{}Icon\ Button\ Off\ Hover"{}},}
+\DoxyCodeLine{00149\ \ \ \ \ \textcolor{stringliteral}{"{}Icon\ Button\ Off\ Pressed"{}},}
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{stringliteral}{"{}Icon\ Button\ On"{}},}
+\DoxyCodeLine{00151\ \ \ \ \ \textcolor{stringliteral}{"{}Icon\ Button\ On\ Hover"{}},}
+\DoxyCodeLine{00152\ \ \ \ \ \textcolor{stringliteral}{"{}Icon\ Button\ On\ Pressed"{}},}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \ \ \ \ \textcolor{stringliteral}{"{}UI\ Button"{}},}
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{stringliteral}{"{}UI\ Button\ Text"{}},}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{stringliteral}{"{}UI\ Button\ Hover"{}},}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{stringliteral}{"{}UI\ Button\ Press"{}},}
+\DoxyCodeLine{00158\ \ \ \ \ \textcolor{stringliteral}{"{}UI\ Action\ Button"{}},}
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{stringliteral}{"{}UI\ Action\ Button\ Hover"{}},}
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{stringliteral}{"{}UI\ Action\ Button\ Press"{}},}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{stringliteral}{"{}Text\ Editor\ Background"{}},}
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{stringliteral}{"{}Text\ Editor\ Border"{}},}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{stringliteral}{"{}Text\ Editor\ Caret"{}},}
+\DoxyCodeLine{00165\ \ \ \ \ \textcolor{stringliteral}{"{}Text\ Editor\ Selection"{}}}
+\DoxyCodeLine{00166\ \ \ \};}
+\DoxyCodeLine{00167\ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_skin_a9ce18118f19d0503a1581ec8521b7c9b}{Skin::shouldScaleValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{ValueId}}\ value\_id)\ \{}
+\DoxyCodeLine{00170\ \ \ \textcolor{keywordflow}{return}\ value\_id\ !=\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a5268c3e135a7b246af15add8577ea3ac}{kWidgetFillFade}}\ \&\&\ value\_id\ !=\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180aa1c1e074ba7cbe057c9a24baa1ad84fa}{kWidgetFillBoost}}\ \&\&}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \ value\_id\ !=\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a9c9397bfae636bb4478a9f360d91bba0}{kWidgetLineBoost}}\ \&\&\ value\_id\ !=\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a9b0b673fbbb9b7fc07300c07444e13eb}{kKnobHandleLength}}\ \&\&}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ \ value\_id\ !=\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a4ecdcf3e37141374ba73b7841aa397f3}{kWidgetFillCenter}}\ \&\&\ value\_id\ !=\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180aae4464522d7130bed0302c89d7729b77}{kFrequencyDisplay}}\ \&\&}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \ value\_id\ !=\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a8f4040321af5c25d38b96cc5e1e298a6}{kWavetableHorizontalAngle}}\ \&\&\ value\_id\ !=\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3e0521c0233d656a8f6c6e7865484769}{kWavetableVerticalAngle}};}
+\DoxyCodeLine{00174\ \}}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \mbox{\hyperlink{class_skin_a01a28ac85e5dbc92467c959dd101e4a9}{Skin::Skin}}()\ \{}
+\DoxyCodeLine{00177\ \ \ File\ default\_skin\ =\ \mbox{\hyperlink{class_load_save_acd1080b550e9553f2537f39cf85ef4bf}{LoadSave::getDefaultSkin}}();}
+\DoxyCodeLine{00178\ \ \ \textcolor{keywordflow}{if}\ (default\_skin.exists())\ \{}
+\DoxyCodeLine{00179\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{class_skin_a3d259f69033da0ccea92ea21ecf4cfbe}{loadFromFile}}(default\_skin))}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_ab86f317b54e717a89488a4562879a19c}{loadDefaultSkin}}();}
+\DoxyCodeLine{00181\ \ \ \}}
+\DoxyCodeLine{00182\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00183\ \ \ \ \ \mbox{\hyperlink{class_skin_ab86f317b54e717a89488a4562879a19c}{loadDefaultSkin}}();}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00185\ \ \ \mbox{\hyperlink{class_skin_ac152f8b7968df6f281d9e66b6b61f93d}{copyValuesToLookAndFeel}}(\mbox{\hyperlink{class_default_look_and_feel_a0a6bb51331c18a334fe5b8e633d75eb9}{DefaultLookAndFeel::instance}}());}
+\DoxyCodeLine{00186\ \}}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_af1f87616051907ceb045f8b0db046120}{Skin::clearSkin}}()\ \{}
+\DoxyCodeLine{00189\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a3f52238a2720148630d1d0f96627e622}{kNumSectionOverrides}};\ ++i)}
+\DoxyCodeLine{00190\ \ \ \ \ \mbox{\hyperlink{class_skin_acb9468137f7a31ff671ea434ace0104c}{color\_overrides\_}}[i].clear();}
+\DoxyCodeLine{00191\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a3f52238a2720148630d1d0f96627e622}{kNumSectionOverrides}};\ ++i)}
+\DoxyCodeLine{00192\ \ \ \ \ \mbox{\hyperlink{class_skin_a6cbd67b9d64760cb6d097c557145de90}{value\_overrides\_}}[i].clear();}
+\DoxyCodeLine{00193\ \}}
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00195\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_ab86f317b54e717a89488a4562879a19c}{Skin::loadDefaultSkin}}()\ \{}
+\DoxyCodeLine{00196\ \ \ MemoryInputStream\ skin((\textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*)BinaryData::default\_vitalskin,\ BinaryData::default\_vitalskinSize,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00197\ \ \ std::string\ skin\_string\ =\ skin.readEntireStreamAsString().toStdString();}
+\DoxyCodeLine{00198\ }
+\DoxyCodeLine{00199\ \ \ \textcolor{keywordflow}{try}\ \{}
+\DoxyCodeLine{00200\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ json::parse(skin\_string,\ \textcolor{keyword}{nullptr},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00201\ \ \ \ \ \mbox{\hyperlink{class_skin_a5d0acec39e23947af3132471a45e8799}{jsonToState}}(data);}
+\DoxyCodeLine{00202\ \ \ \}}
+\DoxyCodeLine{00203\ \ \ \textcolor{keywordflow}{catch}\ (\textcolor{keyword}{const}\ json::exception\&\ e)\ \{}
+\DoxyCodeLine{00204\ \ \ \}}
+\DoxyCodeLine{00205\ \}}
+\DoxyCodeLine{00206\ }
+\DoxyCodeLine{00207\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_ab7b423fd352baecfbc7550595b29f380}{Skin::setComponentColors}}(Component*\ component)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00208\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_a50c1568c389566dfd4529c84976777e3}{Skin::kNumColors}};\ ++i)\ \{}
+\DoxyCodeLine{00209\ \ \ \ \ \textcolor{keywordtype}{int}\ color\_id\ =\ i\ +\ \mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4b5b88f7d08ed6a7fdd03876d83f3369}{Skin::kInitialColor}};}
+\DoxyCodeLine{00210\ \ \ \ \ Colour\ color\ =\ \mbox{\hyperlink{class_skin_a8f1d6ccc8f9b34953d37b848b7af0507}{getColor}}(\textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127c}{Skin::ColorId}}\textcolor{keyword}{>}(color\_id));}
+\DoxyCodeLine{00211\ \ \ \ \ component-\/>setColour(color\_id,\ color);}
+\DoxyCodeLine{00212\ \ \ \}}
+\DoxyCodeLine{00213\ \}}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00215\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_ab7b423fd352baecfbc7550595b29f380}{Skin::setComponentColors}}(Component*\ component,\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96}{SectionOverride}}\ section\_override,\ \textcolor{keywordtype}{bool}\ top\_level)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00216\ \ \ \textcolor{keywordflow}{if}\ (top\_level)\ \{}
+\DoxyCodeLine{00217\ \ \ \ \ \mbox{\hyperlink{class_skin_ab7b423fd352baecfbc7550595b29f380}{setComponentColors}}(component);}
+\DoxyCodeLine{00218\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00219\ \ \ \}}
+\DoxyCodeLine{00220\ }
+\DoxyCodeLine{00221\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ \mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4b5b88f7d08ed6a7fdd03876d83f3369}{kInitialColor}};\ i\ <\ \mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca31b7c934a00ae607986105d728e6f89a}{kFinalColor}};\ ++i)}
+\DoxyCodeLine{00222\ \ \ \ \ component-\/>removeColour(i);}
+\DoxyCodeLine{00223\ }
+\DoxyCodeLine{00224\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ color\ :\ \mbox{\hyperlink{class_skin_acb9468137f7a31ff671ea434ace0104c}{color\_overrides\_}}[section\_override])}
+\DoxyCodeLine{00225\ \ \ \ \ component-\/>setColour(color.first,\ color.second);}
+\DoxyCodeLine{00226\ \}}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00228\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_aa1b41fc426158dce6ec419c259bc29e4}{Skin::setComponentValues}}(\mbox{\hyperlink{class_synth_section}{SynthSection}}*\ component)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00229\ \ \ std::map<ValueId,\ float>\ values;}
+\DoxyCodeLine{00230\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab435ef853309bf1e637dbc1a9525ea9a}{kNumSkinValueIds}};\ ++i)}
+\DoxyCodeLine{00231\ \ \ \ \ values[(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{ValueId}})i]\ =\ \mbox{\hyperlink{class_skin_afa959e88d216f63d2bbf81c54f794548}{values\_}}[i];}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00233\ \ \ component-\/>\mbox{\hyperlink{class_synth_section_a321e84f19d1ed459f007027254ad8e16}{setSkinValues}}(values);}
+\DoxyCodeLine{00234\ \}}
+\DoxyCodeLine{00235\ }
+\DoxyCodeLine{00236\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_aa1b41fc426158dce6ec419c259bc29e4}{Skin::setComponentValues}}(\mbox{\hyperlink{class_synth_section}{SynthSection}}*\ component,\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96}{SectionOverride}}\ section\_override,\ \textcolor{keywordtype}{bool}\ top\_level)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00237\ \ \ \textcolor{keywordflow}{if}\ (top\_level)\ \{}
+\DoxyCodeLine{00238\ \ \ \ \ \mbox{\hyperlink{class_skin_aa1b41fc426158dce6ec419c259bc29e4}{setComponentValues}}(component);}
+\DoxyCodeLine{00239\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00240\ \ \ \}}
+\DoxyCodeLine{00241\ \ \ component-\/>\mbox{\hyperlink{class_synth_section_a321e84f19d1ed459f007027254ad8e16}{setSkinValues}}(\mbox{\hyperlink{class_skin_a6cbd67b9d64760cb6d097c557145de90}{value\_overrides\_}}[section\_override]);}
+\DoxyCodeLine{00242\ \}}
+\DoxyCodeLine{00243\ }
+\DoxyCodeLine{00244\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_skin_a218487566b8ac28544b93e62e916c636}{Skin::overridesColor}}(\textcolor{keywordtype}{int}\ section,\ \mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127c}{ColorId}}\ color\_id)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00245\ \ \ \textcolor{keywordflow}{if}\ (section\ ==\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a28d4b7ef55689c14ce68e45f5da02089}{kNone}})}
+\DoxyCodeLine{00246\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00247\ }
+\DoxyCodeLine{00248\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_skin_acb9468137f7a31ff671ea434ace0104c}{color\_overrides\_}}[section].count(color\_id)\ >\ 0;}
+\DoxyCodeLine{00249\ \}}
+\DoxyCodeLine{00250\ }
+\DoxyCodeLine{00251\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_skin_a183b13ae09d580bfcf0ffc3b82c25c6e}{Skin::overridesValue}}(\textcolor{keywordtype}{int}\ section,\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{ValueId}}\ value\_id)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00252\ \ \ \textcolor{keywordflow}{if}\ (section\ ==\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a28d4b7ef55689c14ce68e45f5da02089}{kNone}})}
+\DoxyCodeLine{00253\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00254\ }
+\DoxyCodeLine{00255\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_skin_a6cbd67b9d64760cb6d097c557145de90}{value\_overrides\_}}[section].count(value\_id)\ >\ 0;}
+\DoxyCodeLine{00256\ \}}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00258\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_ac152f8b7968df6f281d9e66b6b61f93d}{Skin::copyValuesToLookAndFeel}}(LookAndFeel*\ look\_and\_feel)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00259\ \ \ look\_and\_feel-\/>setColour(PopupMenu::backgroundColourId,\ \mbox{\hyperlink{class_skin_a8f1d6ccc8f9b34953d37b848b7af0507}{getColor}}(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cafd437932a2a9c7e0e38f4dda0511b625}{Skin::kPopupBackground}}));}
+\DoxyCodeLine{00260\ \ \ look\_and\_feel-\/>setColour(PopupMenu::textColourId,\ \mbox{\hyperlink{class_skin_a8f1d6ccc8f9b34953d37b848b7af0507}{getColor}}(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}}));}
+\DoxyCodeLine{00261\ \ \ look\_and\_feel-\/>setColour(TooltipWindow::textColourId,\ \mbox{\hyperlink{class_skin_a8f1d6ccc8f9b34953d37b848b7af0507}{getColor}}(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}}));}
+\DoxyCodeLine{00262\ }
+\DoxyCodeLine{00263\ \ \ look\_and\_feel-\/>setColour(BubbleComponent::backgroundColourId,\ \mbox{\hyperlink{class_skin_a8f1d6ccc8f9b34953d37b848b7af0507}{getColor}}(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cafd437932a2a9c7e0e38f4dda0511b625}{Skin::kPopupBackground}}));}
+\DoxyCodeLine{00264\ \ \ look\_and\_feel-\/>setColour(BubbleComponent::outlineColourId,\ \mbox{\hyperlink{class_skin_a8f1d6ccc8f9b34953d37b848b7af0507}{getColor}}(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca40f69a7bcbd96c231bc0dd874bbe3c8f}{Skin::kPopupBorder}}));}
+\DoxyCodeLine{00265\ }
+\DoxyCodeLine{00266\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ \mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4b5b88f7d08ed6a7fdd03876d83f3369}{kInitialColor}};\ i\ <\ \mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca31b7c934a00ae607986105d728e6f89a}{kFinalColor}};\ ++i)}
+\DoxyCodeLine{00267\ \ \ \ \ look\_and\_feel-\/>setColour(i,\ \mbox{\hyperlink{class_skin_a8f1d6ccc8f9b34953d37b848b7af0507}{getColor}}(\textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127c}{Skin::ColorId}}\textcolor{keyword}{>}(i)));}
+\DoxyCodeLine{00268\ \}}
+\DoxyCodeLine{00269\ }
+\DoxyCodeLine{00270\ Colour\ \mbox{\hyperlink{class_skin_a8f1d6ccc8f9b34953d37b848b7af0507}{Skin::getColor}}(\textcolor{keywordtype}{int}\ section,\ \mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127c}{ColorId}}\ color\_id)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00271\ \ \ \textcolor{keywordflow}{if}\ (section\ ==\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a28d4b7ef55689c14ce68e45f5da02089}{kNone}})}
+\DoxyCodeLine{00272\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_skin_a027d7ca7f12ff82a4e6c3101ef0c7679}{getColor}}(color\_id);}
+\DoxyCodeLine{00273\ }
+\DoxyCodeLine{00274\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_skin_acb9468137f7a31ff671ea434ace0104c}{color\_overrides\_}}[section].count(color\_id))}
+\DoxyCodeLine{00275\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_skin_acb9468137f7a31ff671ea434ace0104c}{color\_overrides\_}}[section].at(color\_id);}
+\DoxyCodeLine{00276\ }
+\DoxyCodeLine{00277\ \ \ \textcolor{keywordflow}{return}\ Colours::black;}
+\DoxyCodeLine{00278\ \}}
+\DoxyCodeLine{00279\ }
+\DoxyCodeLine{00280\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_skin_a5013aba72d29c7a744f62c925e26f3e1}{Skin::getValue}}(\textcolor{keywordtype}{int}\ section,\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{ValueId}}\ value\_id)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00281\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_skin_a6cbd67b9d64760cb6d097c557145de90}{value\_overrides\_}}[section].count(value\_id))}
+\DoxyCodeLine{00282\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_skin_a6cbd67b9d64760cb6d097c557145de90}{value\_overrides\_}}[section].at(value\_id);}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00284\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_skin_a5013aba72d29c7a744f62c925e26f3e1}{getValue}}(value\_id);}
+\DoxyCodeLine{00285\ \}}
+\DoxyCodeLine{00286\ }
+\DoxyCodeLine{00287\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_a574af6ab7c61347177d6720fbe7f3994}{Skin::addOverrideColor}}(\textcolor{keywordtype}{int}\ section,\ \mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127c}{ColorId}}\ color\_id,\ Colour\ color)\ \{}
+\DoxyCodeLine{00288\ \ \ \textcolor{keywordflow}{if}\ (section\ ==\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a28d4b7ef55689c14ce68e45f5da02089}{kNone}})}
+\DoxyCodeLine{00289\ \ \ \ \ \mbox{\hyperlink{class_skin_aa648b39e08e7d919e491e7c373083078}{setColor}}(color\_id,\ color);}
+\DoxyCodeLine{00290\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00291\ \ \ \ \ \mbox{\hyperlink{class_skin_acb9468137f7a31ff671ea434ace0104c}{color\_overrides\_}}[section][color\_id]\ =\ color;}
+\DoxyCodeLine{00292\ \}}
+\DoxyCodeLine{00293\ }
+\DoxyCodeLine{00294\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_a659098f9fd8451b9df52d80f75d5bc66}{Skin::removeOverrideColor}}(\textcolor{keywordtype}{int}\ section,\ \mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127c}{ColorId}}\ color\_id)\ \{}
+\DoxyCodeLine{00295\ \ \ \textcolor{keywordflow}{if}\ (section\ !=\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a28d4b7ef55689c14ce68e45f5da02089}{kNone}})}
+\DoxyCodeLine{00296\ \ \ \ \ \mbox{\hyperlink{class_skin_acb9468137f7a31ff671ea434ace0104c}{color\_overrides\_}}[section].erase(color\_id);}
+\DoxyCodeLine{00297\ \}}
+\DoxyCodeLine{00298\ }
+\DoxyCodeLine{00299\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_a490aaab48c21b26245a636f938129881}{Skin::addOverrideValue}}(\textcolor{keywordtype}{int}\ section,\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{ValueId}}\ value\_id,\ \textcolor{keywordtype}{float}\ value)\ \{}
+\DoxyCodeLine{00300\ \ \ \textcolor{keywordflow}{if}\ (section\ ==\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a28d4b7ef55689c14ce68e45f5da02089}{kNone}})}
+\DoxyCodeLine{00301\ \ \ \ \ \mbox{\hyperlink{class_skin_a5e73287b029fbf65694daf1d10ecd7f2}{setValue}}(value\_id,\ value);}
+\DoxyCodeLine{00302\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00303\ \ \ \ \ \mbox{\hyperlink{class_skin_a6cbd67b9d64760cb6d097c557145de90}{value\_overrides\_}}[section][value\_id]\ =\ value;}
+\DoxyCodeLine{00304\ \}}
+\DoxyCodeLine{00305\ }
+\DoxyCodeLine{00306\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_a834fbe7fd845aa60c9b4ceaec2ddd134}{Skin::removeOverrideValue}}(\textcolor{keywordtype}{int}\ section,\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{ValueId}}\ color\_id)\ \{}
+\DoxyCodeLine{00307\ \ \ \textcolor{keywordflow}{if}\ (section\ !=\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a28d4b7ef55689c14ce68e45f5da02089}{kNone}})}
+\DoxyCodeLine{00308\ \ \ \ \ \mbox{\hyperlink{class_skin_a6cbd67b9d64760cb6d097c557145de90}{value\_overrides\_}}[section].erase(color\_id);}
+\DoxyCodeLine{00309\ \}}
+\DoxyCodeLine{00310\ }
+\DoxyCodeLine{00311\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_skin_a639dcac53e82bd3b3bead7950e6f2eaa}{Skin::stateToJson}}()\ \{}
+\DoxyCodeLine{00312\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data;}
+\DoxyCodeLine{00313\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_a50c1568c389566dfd4529c84976777e3}{kNumColors}};\ ++i)}
+\DoxyCodeLine{00314\ \ \ \ \ data[kColorNames[i]]\ =\ \mbox{\hyperlink{class_skin_a1977ca767f9c103546542667a3e769de}{colors\_}}[i].toString().toStdString();}
+\DoxyCodeLine{00315\ }
+\DoxyCodeLine{00316\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab435ef853309bf1e637dbc1a9525ea9a}{kNumSkinValueIds}};\ ++i)}
+\DoxyCodeLine{00317\ \ \ \ \ data[kValueNames[i]]\ =\ \mbox{\hyperlink{class_skin_afa959e88d216f63d2bbf81c54f794548}{values\_}}[i];}
+\DoxyCodeLine{00318\ }
+\DoxyCodeLine{00319\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ overrides;}
+\DoxyCodeLine{00320\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ override\_index\ =\ 0;\ override\_index\ <\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a3f52238a2720148630d1d0f96627e622}{kNumSectionOverrides}};\ ++override\_index)\ \{}
+\DoxyCodeLine{00321\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ override\_section;}
+\DoxyCodeLine{00322\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ color\ :\ \mbox{\hyperlink{class_skin_acb9468137f7a31ff671ea434ace0104c}{color\_overrides\_}}[override\_index])\ \{}
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ color.first\ -\/\ \mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4b5b88f7d08ed6a7fdd03876d83f3369}{Skin::kInitialColor}};}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ override\_section[kColorNames[index]]\ =\ color.second.toString().toStdString();}
+\DoxyCodeLine{00325\ \ \ \ \ \}}
+\DoxyCodeLine{00326\ }
+\DoxyCodeLine{00327\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ value\ :\ \mbox{\hyperlink{class_skin_a6cbd67b9d64760cb6d097c557145de90}{value\_overrides\_}}[override\_index])\ \{}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ value.first;}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ override\_section[kValueNames[index]]\ =\ value.second;}
+\DoxyCodeLine{00330\ \ \ \ \ \}}
+\DoxyCodeLine{00331\ }
+\DoxyCodeLine{00332\ \ \ \ \ overrides[kOverrideNames[override\_index]]\ =\ override\_section;}
+\DoxyCodeLine{00333\ \ \ \}}
+\DoxyCodeLine{00334\ }
+\DoxyCodeLine{00335\ \ \ data[\textcolor{stringliteral}{"{}overrides"{}}]\ =\ overrides;}
+\DoxyCodeLine{00336\ \ \ data[\textcolor{stringliteral}{"{}synth\_version"{}}]\ =\ ProjectInfo::versionNumber;}
+\DoxyCodeLine{00337\ }
+\DoxyCodeLine{00338\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00339\ \}}
+\DoxyCodeLine{00340\ }
+\DoxyCodeLine{00341\ String\ \mbox{\hyperlink{class_skin_aadab9155bd3039d16c60c7c1ed442f1d}{Skin::stateToString}}()\ \{}
+\DoxyCodeLine{00342\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_skin_a639dcac53e82bd3b3bead7950e6f2eaa}{stateToJson}}().dump();}
+\DoxyCodeLine{00343\ \}}
+\DoxyCodeLine{00344\ }
+\DoxyCodeLine{00345\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_ac7a9d734b148de648e4345251da3c337}{Skin::saveToFile}}(File\ destination)\ \{}
+\DoxyCodeLine{00346\ \ \ destination.replaceWithText(\mbox{\hyperlink{class_skin_aadab9155bd3039d16c60c7c1ed442f1d}{stateToString}}());}
+\DoxyCodeLine{00347\ \}}
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00349\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_skin_a2a1d533875f2c3073bb438c57f73094e}{Skin::updateJson}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00350\ \ \ \textcolor{keywordtype}{int}\ version\ =\ 0;}
+\DoxyCodeLine{00351\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}synth\_version"{}}))}
+\DoxyCodeLine{00352\ \ \ \ \ version\ =\ data[\textcolor{stringliteral}{"{}synth\_version"{}}];}
+\DoxyCodeLine{00353\ }
+\DoxyCodeLine{00354\ \ \ \textcolor{keywordflow}{if}\ (version\ <\ 0x608)\ \{}
+\DoxyCodeLine{00355\ \ \ \ \ data[\textcolor{stringliteral}{"{}Knob\ Arc\ Size"{}}]\ =\ data[\textcolor{stringliteral}{"{}Knob\ Size"{}}];}
+\DoxyCodeLine{00356\ \ \ \ \ data[\textcolor{stringliteral}{"{}Knob\ Arc\ Thickness"{}}]\ =\ data[\textcolor{stringliteral}{"{}Knob\ Thickness"{}}];}
+\DoxyCodeLine{00357\ \ \ \ \ data[\textcolor{stringliteral}{"{}Knob\ Handle\ Length"{}}]\ =\ data[\textcolor{stringliteral}{"{}Knob\ Handle\ Radial\ Amount"{}}];}
+\DoxyCodeLine{00358\ \ \ \ \ data[\textcolor{stringliteral}{"{}Knob\ Mod\ Amount\ Arc\ Size"{}}]\ =\ data[\textcolor{stringliteral}{"{}Knob\ Mod\ Amount\ Size"{}}];}
+\DoxyCodeLine{00359\ \ \ \ \ data[\textcolor{stringliteral}{"{}Knob\ Mod\ Amount\ Arc\ Thickness"{}}]\ =\ data[\textcolor{stringliteral}{"{}Knob\ Mod\ Amount\ Thickness"{}}];}
+\DoxyCodeLine{00360\ \ \ \ \ data[\textcolor{stringliteral}{"{}Knob\ Mod\ Meter\ Arc\ Size"{}}]\ =\ data[\textcolor{stringliteral}{"{}Knob\ Mod\ Meter\ Size"{}}];}
+\DoxyCodeLine{00361\ \ \ \ \ data[\textcolor{stringliteral}{"{}Knob\ Mod\ Meter\ Arc\ Thickness"{}}]\ =\ data[\textcolor{stringliteral}{"{}Knob\ Mod\ Meter\ Thickness"{}}];}
+\DoxyCodeLine{00362\ \ \ \}}
+\DoxyCodeLine{00363\ }
+\DoxyCodeLine{00364\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}Widget\ Fill\ Boost"{}})\ ==\ 0)}
+\DoxyCodeLine{00365\ \ \ \ \ data[\textcolor{stringliteral}{"{}Widget\ Fill\ Boost"{}}]\ =\ 1.6f;}
+\DoxyCodeLine{00366\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}Widget\ Line\ Boost"{}})\ ==\ 0)}
+\DoxyCodeLine{00367\ \ \ \ \ data[\textcolor{stringliteral}{"{}Widget\ Line\ Boost"{}}]\ =\ 1.0f;}
+\DoxyCodeLine{00368\ }
+\DoxyCodeLine{00369\ \ \ \textcolor{keywordflow}{if}\ (version\ <\ 0x609)}
+\DoxyCodeLine{00370\ \ \ \ \ data[\textcolor{stringliteral}{"{}Modulation\ Meter"{}}]\ =\ Colours::white.toString().toStdString();}
+\DoxyCodeLine{00371\ }
+\DoxyCodeLine{00372\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00373\ \}}
+\DoxyCodeLine{00374\ }
+\DoxyCodeLine{00375\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_a5d0acec39e23947af3132471a45e8799}{Skin::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00376\ \ \ \mbox{\hyperlink{class_skin_af1f87616051907ceb045f8b0db046120}{clearSkin}}();}
+\DoxyCodeLine{00377\ \ \ data\ =\ \mbox{\hyperlink{class_skin_a2a1d533875f2c3073bb438c57f73094e}{updateJson}}(data);}
+\DoxyCodeLine{00378\ }
+\DoxyCodeLine{00379\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}overrides"{}}))\ \{}
+\DoxyCodeLine{00380\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ overrides\ =\ data[\textcolor{stringliteral}{"{}overrides"{}}];}
+\DoxyCodeLine{00381\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ override\_index\ =\ 0;\ override\_index\ <\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a3f52238a2720148630d1d0f96627e622}{kNumSectionOverrides}};\ ++override\_index)\ \{}
+\DoxyCodeLine{00382\ \ \ \ \ \ \ std::string\ name\ =\ kOverrideNames[override\_index];}
+\DoxyCodeLine{00383\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_acb9468137f7a31ff671ea434ace0104c}{color\_overrides\_}}[override\_index].clear();}
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_a6cbd67b9d64760cb6d097c557145de90}{value\_overrides\_}}[override\_index].clear();}
+\DoxyCodeLine{00385\ }
+\DoxyCodeLine{00386\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (overrides.count(name)\ ==\ 0)}
+\DoxyCodeLine{00387\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00388\ }
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ override\_section\ =\ overrides[name];}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_a50c1568c389566dfd4529c84976777e3}{kNumColors}};\ ++i)\ \{}
+\DoxyCodeLine{00391\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (override\_section.count(kColorNames[i]))\ \{}
+\DoxyCodeLine{00392\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127c}{ColorId}}\ color\_id\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127c}{Skin::ColorId}}\textcolor{keyword}{>}(i\ +\ \mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4b5b88f7d08ed6a7fdd03876d83f3369}{Skin::kInitialColor}});}
+\DoxyCodeLine{00393\ }
+\DoxyCodeLine{00394\ \ \ \ \ \ \ \ \ \ \ std::string\ color\_string\ =\ override\_section[kColorNames[i]];}
+\DoxyCodeLine{00395\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_acb9468137f7a31ff671ea434ace0104c}{color\_overrides\_}}[override\_index][color\_id]\ =\ Colour::fromString(color\_string);}
+\DoxyCodeLine{00396\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00397\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00398\ }
+\DoxyCodeLine{00399\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab435ef853309bf1e637dbc1a9525ea9a}{kNumSkinValueIds}};\ ++i)\ \{}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (override\_section.count(kValueNames[i]))\ \{}
+\DoxyCodeLine{00401\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{Skin::ValueId}}\ value\_id\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{Skin::ValueId}}\textcolor{keyword}{>}(i);}
+\DoxyCodeLine{00402\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ value\ =\ override\_section[kValueNames[i]];}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_a6cbd67b9d64760cb6d097c557145de90}{value\_overrides\_}}[override\_index][value\_id]\ =\ value;}
+\DoxyCodeLine{00404\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00405\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00406\ \ \ \ \ \}}
+\DoxyCodeLine{00407\ \ \ \}}
+\DoxyCodeLine{00408\ }
+\DoxyCodeLine{00409\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_a50c1568c389566dfd4529c84976777e3}{kNumColors}};\ ++i)\ \{}
+\DoxyCodeLine{00410\ \ \ \ \ \textcolor{keywordflow}{if}\ (data.count(kColorNames[i]))\ \{}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ std::string\ color\_string\ =\ data[kColorNames[i]];}
+\DoxyCodeLine{00412\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_a1977ca767f9c103546542667a3e769de}{colors\_}}[i]\ =\ Colour::fromString(color\_string);}
+\DoxyCodeLine{00413\ \ \ \ \ \}}
+\DoxyCodeLine{00414\ \ \ \}}
+\DoxyCodeLine{00415\ }
+\DoxyCodeLine{00416\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab435ef853309bf1e637dbc1a9525ea9a}{kNumSkinValueIds}};\ ++i)\ \{}
+\DoxyCodeLine{00417\ \ \ \ \ \textcolor{keywordflow}{if}\ (data.count(kValueNames[i]))}
+\DoxyCodeLine{00418\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_afa959e88d216f63d2bbf81c54f794548}{values\_}}[i]\ =\ data[kValueNames[i]];}
+\DoxyCodeLine{00419\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00420\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_afa959e88d216f63d2bbf81c54f794548}{values\_}}[i]\ =\ 0.0f;}
+\DoxyCodeLine{00421\ \ \ \}}
+\DoxyCodeLine{00422\ \}}
+\DoxyCodeLine{00423\ }
+\DoxyCodeLine{00424\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_skin_a12eaeb7d5f1cf5722198b94e5d31f203}{Skin::stringToState}}(String\ skin\_string)\ \{}
+\DoxyCodeLine{00425\ \ \ \textcolor{keywordflow}{try}\ \{}
+\DoxyCodeLine{00426\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ json::parse(skin\_string.toStdString(),\ \textcolor{keyword}{nullptr},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00427\ \ \ \ \ \mbox{\hyperlink{class_skin_a5d0acec39e23947af3132471a45e8799}{jsonToState}}(data);}
+\DoxyCodeLine{00428\ \ \ \}}
+\DoxyCodeLine{00429\ \ \ \textcolor{keywordflow}{catch}\ (\textcolor{keyword}{const}\ json::exception\&\ e)\ \{}
+\DoxyCodeLine{00430\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00431\ \ \ \}}
+\DoxyCodeLine{00432\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00433\ \}}
+\DoxyCodeLine{00434\ }
+\DoxyCodeLine{00435\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_skin_a3d259f69033da0ccea92ea21ecf4cfbe}{Skin::loadFromFile}}(File\ source)\ \{}
+\DoxyCodeLine{00436\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_skin_a12eaeb7d5f1cf5722198b94e5d31f203}{stringToState}}(source.loadFileAsString());}
+\DoxyCodeLine{00437\ \}}
+\DoxyCodeLine{00438\ }
+\DoxyCodeLine{00439\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_skin_color_picker}{SkinColorPicker}}\ :\ \textcolor{keyword}{public}\ Component,\ \textcolor{keyword}{public}\ Button::Listener,\ \textcolor{keyword}{public}\ Slider::Listener,\ \textcolor{keyword}{public}\ ChangeListener\ \{}
+\DoxyCodeLine{00440\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00441\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_skin_color_picker_ab6f91a0194adb90d587360f595b7fd60}{kLoadSaveHeight}}\ =\ 20;}
+\DoxyCodeLine{00442\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}}\ =\ 30;}
+\DoxyCodeLine{00443\ }
+\DoxyCodeLine{00444\ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ac62ee87aa1a38ea58244c35b79ec5ed2}{SkinColorPicker}}(String\ name,\ \mbox{\hyperlink{class_skin}{Skin}}*\ skin,\ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ full\_interface)\ :}
+\DoxyCodeLine{00445\ \ \ \ \ \ \ \ \ Component(name),\ \mbox{\hyperlink{class_skin_color_picker_a2c0ee6a0e6a834eb97746fa5e562231f}{load\_button\_}}(\textcolor{stringliteral}{"{}Load"{}}),\ \mbox{\hyperlink{class_skin_color_picker_aa4a23e69725ab1e99bb5bf9a1bfe5d98}{save\_button\_}}(\textcolor{stringliteral}{"{}Save"{}}),}
+\DoxyCodeLine{00446\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ad9a3b62af4a6c453c3d9bcdc2afef4f4}{override\_index\_}}(0),\ \mbox{\hyperlink{class_skin_color_picker_adcd0069558186f0bc3000005020b03d4}{editing\_index\_}}(0),\ \mbox{\hyperlink{class_skin_color_picker_aaa5b66c683e1bb9760783000ba7c6b0b}{skin\_}}(skin),\ \mbox{\hyperlink{class_skin_color_picker_a8ad270d73b9189a8a1670f6e8376e5bf}{full\_interface\_}}(full\_interface)\ \{}
+\DoxyCodeLine{00447\ \ \ \ \ \ \ addAndMakeVisible(\&\mbox{\hyperlink{class_skin_color_picker_a2c0ee6a0e6a834eb97746fa5e562231f}{load\_button\_}});}
+\DoxyCodeLine{00448\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a2c0ee6a0e6a834eb97746fa5e562231f}{load\_button\_}}.addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00449\ \ \ \ \ \ \ addAndMakeVisible(\&\mbox{\hyperlink{class_skin_color_picker_aa4a23e69725ab1e99bb5bf9a1bfe5d98}{save\_button\_}});}
+\DoxyCodeLine{00450\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aa4a23e69725ab1e99bb5bf9a1bfe5d98}{save\_button\_}}.addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00451\ }
+\DoxyCodeLine{00452\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a3f52238a2720148630d1d0f96627e622}{Skin::kNumSectionOverrides}};\ ++i)}
+\DoxyCodeLine{00453\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a772ac5e6f74e6c76cbc2ada25877aed7}{addOverrideSection}}(i);}
+\DoxyCodeLine{00454\ }
+\DoxyCodeLine{00455\ \ \ \ \ \ \ addAndMakeVisible(\mbox{\hyperlink{class_skin_color_picker_aad21d50da32ba9f84bd5ec8098d46e44}{viewport\_}});}
+\DoxyCodeLine{00456\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ad1e448c79bb26b78eed37b4ce9e73236}{container\_}}\ =\ \textcolor{keyword}{new}\ Component(\textcolor{stringliteral}{"{}Container"{}});}
+\DoxyCodeLine{00457\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aad21d50da32ba9f84bd5ec8098d46e44}{viewport\_}}.setViewedComponent(\mbox{\hyperlink{class_skin_color_picker_ad1e448c79bb26b78eed37b4ce9e73236}{container\_}});}
+\DoxyCodeLine{00458\ }
+\DoxyCodeLine{00459\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_a50c1568c389566dfd4529c84976777e3}{Skin::kNumColors}};\ ++i)}
+\DoxyCodeLine{00460\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a5073774e73c82a5861ce9a7e262ba600}{addColor}}(i);}
+\DoxyCodeLine{00461\ }
+\DoxyCodeLine{00462\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab435ef853309bf1e637dbc1a9525ea9a}{Skin::kNumSkinValueIds}};\ ++i)}
+\DoxyCodeLine{00463\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_af1a41a73ef8447b26e4a92d9b82c391e}{addValueSlider}}(i);}
+\DoxyCodeLine{00464\ }
+\DoxyCodeLine{00465\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a636e5123f6a9acfdfc78979e806d304f}{setSliderValues}}();}
+\DoxyCodeLine{00466\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_acdc1486b45f6625dc54bd9ab26abc9fd}{setOverride}}(\mbox{\hyperlink{class_skin_color_picker_ad9a3b62af4a6c453c3d9bcdc2afef4f4}{override\_index\_}});}
+\DoxyCodeLine{00467\ \ \ \ \ \}}
+\DoxyCodeLine{00468\ }
+\DoxyCodeLine{00469\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_color_picker_a636e5123f6a9acfdfc78979e806d304f}{setSliderValues}}()\ \{}
+\DoxyCodeLine{00470\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab435ef853309bf1e637dbc1a9525ea9a}{Skin::kNumSkinValueIds}};\ ++i)\ \{}
+\DoxyCodeLine{00471\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ value\ =\ \mbox{\hyperlink{class_skin_color_picker_aaa5b66c683e1bb9760783000ba7c6b0b}{skin\_}}-\/>\mbox{\hyperlink{class_skin_a5013aba72d29c7a744f62c925e26f3e1}{getValue}}(\textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{Skin::ValueId}}\textcolor{keyword}{>}(i));}
+\DoxyCodeLine{00472\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}}[i]-\/>setValue(value,\ NotificationType::dontSendNotification);}
+\DoxyCodeLine{00473\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00474\ \ \ \ \ \}}
+\DoxyCodeLine{00475\ }
+\DoxyCodeLine{00476\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_color_picker_a772ac5e6f74e6c76cbc2ada25877aed7}{addOverrideSection}}(\textcolor{keywordtype}{int}\ override\_index)\ \{}
+\DoxyCodeLine{00477\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ab48b21882d507610e4a7cdb60c5410d3}{override\_buttons\_}}.push\_back(std::make\_unique<TextButton>(kOverrideNames[override\_index]));}
+\DoxyCodeLine{00478\ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ index\ =\ \mbox{\hyperlink{class_skin_color_picker_ab48b21882d507610e4a7cdb60c5410d3}{override\_buttons\_}}.size()\ -\/\ 1;}
+\DoxyCodeLine{00479\ \ \ \ \ \ \ addAndMakeVisible(\mbox{\hyperlink{class_skin_color_picker_ab48b21882d507610e4a7cdb60c5410d3}{override\_buttons\_}}[index].get());}
+\DoxyCodeLine{00480\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ab48b21882d507610e4a7cdb60c5410d3}{override\_buttons\_}}[index]-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00481\ \ \ \ \ \}}
+\DoxyCodeLine{00482\ }
+\DoxyCodeLine{00483\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_color_picker_a5073774e73c82a5861ce9a7e262ba600}{addColor}}(\textcolor{keywordtype}{int}\ color\_index)\ \{}
+\DoxyCodeLine{00484\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a8e920c25d6a4a2fa1681c8cdfcf39dae}{color\_buttons\_}}.push\_back(std::make\_unique<TextButton>(kColorNames[color\_index]));}
+\DoxyCodeLine{00485\ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ index\ =\ \mbox{\hyperlink{class_skin_color_picker_a8e920c25d6a4a2fa1681c8cdfcf39dae}{color\_buttons\_}}.size()\ -\/\ 1;}
+\DoxyCodeLine{00486\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ad1e448c79bb26b78eed37b4ce9e73236}{container\_}}-\/>addAndMakeVisible(\mbox{\hyperlink{class_skin_color_picker_a8e920c25d6a4a2fa1681c8cdfcf39dae}{color\_buttons\_}}[index].get());}
+\DoxyCodeLine{00487\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a8e920c25d6a4a2fa1681c8cdfcf39dae}{color\_buttons\_}}[index]-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00488\ }
+\DoxyCodeLine{00489\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ab7f00c37656a986750914cc9d6f611a3}{override\_toggle\_buttons\_}}.push\_back(std::make\_unique<ToggleButton>(kColorNames[color\_index]\ +\ \textcolor{stringliteral}{"{}\ Override"{}}));}
+\DoxyCodeLine{00490\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ad1e448c79bb26b78eed37b4ce9e73236}{container\_}}-\/>addAndMakeVisible(\mbox{\hyperlink{class_skin_color_picker_ab7f00c37656a986750914cc9d6f611a3}{override\_toggle\_buttons\_}}[index].get());}
+\DoxyCodeLine{00491\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ab7f00c37656a986750914cc9d6f611a3}{override\_toggle\_buttons\_}}[index]-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00492\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ab7f00c37656a986750914cc9d6f611a3}{override\_toggle\_buttons\_}}[index]-\/>setColour(ToggleButton::tickColourId,\ Colours::black);}
+\DoxyCodeLine{00493\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ab7f00c37656a986750914cc9d6f611a3}{override\_toggle\_buttons\_}}[index]-\/>setColour(ToggleButton::tickDisabledColourId,\ Colours::black);}
+\DoxyCodeLine{00494\ \ \ \ \ \}}
+\DoxyCodeLine{00495\ }
+\DoxyCodeLine{00496\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_color_picker_af1a41a73ef8447b26e4a92d9b82c391e}{addValueSlider}}(\textcolor{keywordtype}{int}\ value\_index)\ \{}
+\DoxyCodeLine{00497\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}}.push\_back(std::make\_unique<Slider>(kValueNames[value\_index]));}
+\DoxyCodeLine{00498\ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ index\ =\ \mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}}.size()\ -\/\ 1;}
+\DoxyCodeLine{00499\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ad1e448c79bb26b78eed37b4ce9e73236}{container\_}}-\/>addAndMakeVisible(\mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}}[index].get());}
+\DoxyCodeLine{00500\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}}[index]-\/>setRange(-\/10000.0f,\ 10000.0f);}
+\DoxyCodeLine{00501\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}}[index]-\/>setValue(0.0f);}
+\DoxyCodeLine{00502\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}}[index]-\/>setScrollWheelEnabled(\textcolor{keyword}{false});}
+\DoxyCodeLine{00503\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}}[index]-\/>setSliderStyle(Slider::IncDecButtons);}
+\DoxyCodeLine{00504\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}}[index]-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00505\ }
+\DoxyCodeLine{00506\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}}.push\_back(std::make\_unique<ToggleButton>(kValueNames[value\_index]\ +\ \textcolor{stringliteral}{"{}\ Override"{}}));}
+\DoxyCodeLine{00507\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ad1e448c79bb26b78eed37b4ce9e73236}{container\_}}-\/>addAndMakeVisible(\mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}}[index].get());}
+\DoxyCodeLine{00508\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}}[index]-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00509\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}}[index]-\/>setColour(ToggleButton::tickColourId,\ Colours::black);}
+\DoxyCodeLine{00510\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}}[index]-\/>setColour(ToggleButton::tickDisabledColourId,\ Colours::black);}
+\DoxyCodeLine{00511\ \ \ \ \ \}}
+\DoxyCodeLine{00512\ }
+\DoxyCodeLine{00513\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_color_picker_acbc4eabe37d3a51f94e682e0b4bfe20d}{paint}}(Graphics\&\ g)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00514\ \ \ \ \ \ \ g.fillCheckerBoard(getLocalBounds().toFloat(),\ 20.0f,\ 20.0f,\ Colours::grey,\ Colours::white);}
+\DoxyCodeLine{00515\ }
+\DoxyCodeLine{00516\ \ \ \ \ \ \ g.setColour(Colour(0xff444444));}
+\DoxyCodeLine{00517\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ x\ =\ getWidth()\ /\ 3\ +\ \mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}};}
+\DoxyCodeLine{00518\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ text\_x\ =\ 2\ *\ getWidth()\ /\ 3;}
+\DoxyCodeLine{00519\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ y\ =\ -\/\mbox{\hyperlink{class_skin_color_picker_aad21d50da32ba9f84bd5ec8098d46e44}{viewport\_}}.getViewPositionY();}
+\DoxyCodeLine{00520\ \ \ \ \ \ \ g.fillRect(x,\ y,\ 2\ *\ getWidth()\ /\ 3,\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab435ef853309bf1e637dbc1a9525ea9a}{Skin::kNumSkinValueIds}}\ *\ \mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}});}
+\DoxyCodeLine{00521\ }
+\DoxyCodeLine{00522\ \ \ \ \ \ \ g.setColour(Colours::white);}
+\DoxyCodeLine{00523\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ width\ =\ getWidth()\ /\ 2;}
+\DoxyCodeLine{00524\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab435ef853309bf1e637dbc1a9525ea9a}{Skin::kNumSkinValueIds}};\ ++i)\ \{}
+\DoxyCodeLine{00525\ \ \ \ \ \ \ \ \ g.drawText(kValueNames[i],\ text\_x,\ y,\ width,\ \mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}},\ Justification::centredLeft);}
+\DoxyCodeLine{00526\ \ \ \ \ \ \ \ \ y\ +=\ \mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}};}
+\DoxyCodeLine{00527\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00528\ \ \ \ \ \}}
+\DoxyCodeLine{00529\ }
+\DoxyCodeLine{00530\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_color_picker_a212cb156b268174ff5f6241ad691e245}{resized}}()\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00531\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a2c0ee6a0e6a834eb97746fa5e562231f}{load\_button\_}}.setBounds(0,\ 0,\ getWidth()\ /\ 6,\ \mbox{\hyperlink{class_skin_color_picker_ab6f91a0194adb90d587360f595b7fd60}{kLoadSaveHeight}});}
+\DoxyCodeLine{00532\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aa4a23e69725ab1e99bb5bf9a1bfe5d98}{save\_button\_}}.setBounds(getWidth()\ /\ 6,\ 0,\ getWidth()\ /\ 6,\ \mbox{\hyperlink{class_skin_color_picker_ab6f91a0194adb90d587360f595b7fd60}{kLoadSaveHeight}});}
+\DoxyCodeLine{00533\ }
+\DoxyCodeLine{00534\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ overrides\_y\ =\ \mbox{\hyperlink{class_skin_color_picker_ab6f91a0194adb90d587360f595b7fd60}{kLoadSaveHeight}}\ *\ 2;}
+\DoxyCodeLine{00535\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ overrides\_height\ =\ getHeight()\ -\/\ overrides\_y;}
+\DoxyCodeLine{00536\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ overrides\_width\ =\ getWidth()\ /\ 3;}
+\DoxyCodeLine{00537\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a3f52238a2720148630d1d0f96627e622}{Skin::kNumSectionOverrides}};\ ++i)\ \{}
+\DoxyCodeLine{00538\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ override\_y\ =\ i\ *\ overrides\_height\ /\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a3f52238a2720148630d1d0f96627e622}{Skin::kNumSectionOverrides}};}
+\DoxyCodeLine{00539\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ override\_height\ =\ (i\ +\ 1)\ *\ overrides\_height\ /\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a3f52238a2720148630d1d0f96627e622}{Skin::kNumSectionOverrides}}\ -\/\ override\_y;}
+\DoxyCodeLine{00540\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ab48b21882d507610e4a7cdb60c5410d3}{override\_buttons\_}}[i]-\/>setBounds(0,\ override\_y\ +\ overrides\_y,\ overrides\_width,\ override\_height);}
+\DoxyCodeLine{00541\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00542\ }
+\DoxyCodeLine{00543\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ y\ =\ 0;}
+\DoxyCodeLine{00544\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ width\ =\ 2\ *\ getWidth()\ /\ 3\ -\/\ 2\ *\ \mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}};}
+\DoxyCodeLine{00545\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ slider\_height\ =\ \mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}}\ *\ 0.7f;}
+\DoxyCodeLine{00546\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ slider\_pad\ =\ 0.5f\ *\ (\mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}}\ -\/\ slider\_height);}
+\DoxyCodeLine{00547\ }
+\DoxyCodeLine{00548\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab435ef853309bf1e637dbc1a9525ea9a}{Skin::kNumSkinValueIds}};\ ++i)\ \{}
+\DoxyCodeLine{00549\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}}[i]-\/>setBounds(\mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}},\ y\ +\ slider\_pad,\ width\ /\ 2,\ slider\_height);}
+\DoxyCodeLine{00550\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}}[i]-\/>setTextBoxStyle(Slider::TextBoxLeft,\ \textcolor{keyword}{false},\ width\ /\ 2,\ slider\_height);}
+\DoxyCodeLine{00551\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}}[i]-\/>setBounds(0,\ y,\ \mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}},\ \mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}});}
+\DoxyCodeLine{00552\ \ \ \ \ \ \ \ \ y\ +=\ \mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}};}
+\DoxyCodeLine{00553\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00554\ }
+\DoxyCodeLine{00555\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_color_picker_a8e920c25d6a4a2fa1681c8cdfcf39dae}{color\_buttons\_}}.size();\ ++i)\ \{}
+\DoxyCodeLine{00556\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a8e920c25d6a4a2fa1681c8cdfcf39dae}{color\_buttons\_}}[i]-\/>setBounds(\mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}},\ y,\ width,\ \mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}});}
+\DoxyCodeLine{00557\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ab7f00c37656a986750914cc9d6f611a3}{override\_toggle\_buttons\_}}[i]-\/>setBounds(0,\ y,\ \mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}},\ \mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}});}
+\DoxyCodeLine{00558\ \ \ \ \ \ \ \ \ y\ +=\ \mbox{\hyperlink{class_skin_color_picker_a3f92210ee32703f3c23439018dce2cb4}{kButtonHeight}};}
+\DoxyCodeLine{00559\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00560\ }
+\DoxyCodeLine{00561\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ad1e448c79bb26b78eed37b4ce9e73236}{container\_}}-\/>setBounds(getWidth()\ /\ 3,\ 0,\ 2\ *\ getWidth()\ /\ 3\ -\/\ 10,\ y);}
+\DoxyCodeLine{00562\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aad21d50da32ba9f84bd5ec8098d46e44}{viewport\_}}.setBounds(getWidth()\ /\ 3,\ 0,\ 2\ *\ getWidth()\ /\ 3,\ getHeight());}
+\DoxyCodeLine{00563\ \ \ \ \ \}}
+\DoxyCodeLine{00564\ }
+\DoxyCodeLine{00565\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_color_picker_acdc1486b45f6625dc54bd9ab26abc9fd}{setOverride}}(\textcolor{keywordtype}{int}\ override\_index)\ \{}
+\DoxyCodeLine{00566\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ad9a3b62af4a6c453c3d9bcdc2afef4f4}{override\_index\_}}\ =\ override\_index;}
+\DoxyCodeLine{00567\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ override\_button\ :\ \mbox{\hyperlink{class_skin_color_picker_ab48b21882d507610e4a7cdb60c5410d3}{override\_buttons\_}})}
+\DoxyCodeLine{00568\ \ \ \ \ \ \ \ \ override\_button-\/>setButtonText(override\_button-\/>getName());}
+\DoxyCodeLine{00569\ }
+\DoxyCodeLine{00570\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ show\_override\ =\ override\_index\ !=\ \mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a28d4b7ef55689c14ce68e45f5da02089}{Skin::kNone}};}
+\DoxyCodeLine{00571\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}}.size();\ ++i)\ \{}
+\DoxyCodeLine{00572\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}}[i]-\/>setVisible(show\_override);}
+\DoxyCodeLine{00573\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{Skin::ValueId}}\ value\_id\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{Skin::ValueId}}\textcolor{keyword}{>}(i);}
+\DoxyCodeLine{00574\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ overrides\ =\ \mbox{\hyperlink{class_skin_color_picker_aaa5b66c683e1bb9760783000ba7c6b0b}{skin\_}}-\/>\mbox{\hyperlink{class_skin_a183b13ae09d580bfcf0ffc3b82c25c6e}{overridesValue}}(\mbox{\hyperlink{class_skin_color_picker_ad9a3b62af4a6c453c3d9bcdc2afef4f4}{override\_index\_}},\ value\_id);}
+\DoxyCodeLine{00575\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}}[i]-\/>setToggleState(overrides,\ dontSendNotification);}
+\DoxyCodeLine{00576\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00577\ }
+\DoxyCodeLine{00578\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}}.size();\ ++i)\ \{}
+\DoxyCodeLine{00579\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{Skin::ValueId}}\ value\_id\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{Skin::ValueId}}\textcolor{keyword}{>}(i);}
+\DoxyCodeLine{00580\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}}[i]-\/>setValue(\mbox{\hyperlink{class_skin_color_picker_aaa5b66c683e1bb9760783000ba7c6b0b}{skin\_}}-\/>\mbox{\hyperlink{class_skin_a5013aba72d29c7a744f62c925e26f3e1}{getValue}}(\mbox{\hyperlink{class_skin_color_picker_ad9a3b62af4a6c453c3d9bcdc2afef4f4}{override\_index\_}},\ value\_id),\ dontSendNotification);}
+\DoxyCodeLine{00581\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00582\ }
+\DoxyCodeLine{00583\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_color_picker_ab7f00c37656a986750914cc9d6f611a3}{override\_toggle\_buttons\_}}.size();\ ++i)\ \{}
+\DoxyCodeLine{00584\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ab7f00c37656a986750914cc9d6f611a3}{override\_toggle\_buttons\_}}[i]-\/>setVisible(show\_override);}
+\DoxyCodeLine{00585\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127c}{Skin::ColorId}}\ color\_id\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127c}{Skin::ColorId}}\textcolor{keyword}{>}(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4b5b88f7d08ed6a7fdd03876d83f3369}{Skin::kInitialColor}}\ +\ i);}
+\DoxyCodeLine{00586\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ overrides\ =\ \mbox{\hyperlink{class_skin_color_picker_aaa5b66c683e1bb9760783000ba7c6b0b}{skin\_}}-\/>\mbox{\hyperlink{class_skin_a218487566b8ac28544b93e62e916c636}{overridesColor}}(\mbox{\hyperlink{class_skin_color_picker_ad9a3b62af4a6c453c3d9bcdc2afef4f4}{override\_index\_}},\ color\_id);}
+\DoxyCodeLine{00587\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ab7f00c37656a986750914cc9d6f611a3}{override\_toggle\_buttons\_}}[i]-\/>setToggleState(overrides,\ dontSendNotification);}
+\DoxyCodeLine{00588\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00589\ }
+\DoxyCodeLine{00590\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_color_picker_a8e920c25d6a4a2fa1681c8cdfcf39dae}{color\_buttons\_}}.size();\ ++i)\ \{}
+\DoxyCodeLine{00591\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127c}{Skin::ColorId}}\ color\_id\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127c}{Skin::ColorId}}\textcolor{keyword}{>}(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4b5b88f7d08ed6a7fdd03876d83f3369}{Skin::kInitialColor}}\ +\ i);}
+\DoxyCodeLine{00592\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ac95c07f3b749a9adbcdbe29f156002db}{setButtonColor}}(i,\ \mbox{\hyperlink{class_skin_color_picker_aaa5b66c683e1bb9760783000ba7c6b0b}{skin\_}}-\/>\mbox{\hyperlink{class_skin_a8f1d6ccc8f9b34953d37b848b7af0507}{getColor}}(\mbox{\hyperlink{class_skin_color_picker_ad9a3b62af4a6c453c3d9bcdc2afef4f4}{override\_index\_}},\ color\_id));}
+\DoxyCodeLine{00593\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00594\ }
+\DoxyCodeLine{00595\ \ \ \ \ \ \ String\ new\_text\ =\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/-\/\ "{}}\ +\ \mbox{\hyperlink{class_skin_color_picker_ab48b21882d507610e4a7cdb60c5410d3}{override\_buttons\_}}[\mbox{\hyperlink{class_skin_color_picker_ad9a3b62af4a6c453c3d9bcdc2afef4f4}{override\_index\_}}]-\/>getName()\ +\ \textcolor{stringliteral}{"{}\ -\/-\/-\/-\/-\/-\/"{}};}
+\DoxyCodeLine{00596\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ab48b21882d507610e4a7cdb60c5410d3}{override\_buttons\_}}[\mbox{\hyperlink{class_skin_color_picker_ad9a3b62af4a6c453c3d9bcdc2afef4f4}{override\_index\_}}]-\/>setButtonText(new\_text);}
+\DoxyCodeLine{00597\ \ \ \ \ \}}
+\DoxyCodeLine{00598\ }
+\DoxyCodeLine{00599\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_color_picker_a6bf5c5a137d41d4ec0493529cb5c8d18}{toggleOverride}}(\textcolor{keywordtype}{int}\ color\_index)\ \{}
+\DoxyCodeLine{00600\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ visible\ =\ \mbox{\hyperlink{class_skin_color_picker_ab7f00c37656a986750914cc9d6f611a3}{override\_toggle\_buttons\_}}[color\_index]-\/>isVisible();}
+\DoxyCodeLine{00601\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ on\ =\ \mbox{\hyperlink{class_skin_color_picker_ab7f00c37656a986750914cc9d6f611a3}{override\_toggle\_buttons\_}}[color\_index]-\/>getToggleState();}
+\DoxyCodeLine{00602\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127c}{Skin::ColorId}}\ color\_id\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127c}{Skin::ColorId}}\textcolor{keyword}{>}(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4b5b88f7d08ed6a7fdd03876d83f3369}{Skin::kInitialColor}}\ +\ color\_index);}
+\DoxyCodeLine{00603\ \ \ \ \ \ \ Colour\ color\ =\ \mbox{\hyperlink{class_skin_color_picker_a8e920c25d6a4a2fa1681c8cdfcf39dae}{color\_buttons\_}}[color\_index]-\/>findColour(TextButton::buttonColourId);}
+\DoxyCodeLine{00604\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (on\ ||\ !visible)}
+\DoxyCodeLine{00605\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aaa5b66c683e1bb9760783000ba7c6b0b}{skin\_}}-\/>\mbox{\hyperlink{class_skin_a574af6ab7c61347177d6720fbe7f3994}{addOverrideColor}}(\mbox{\hyperlink{class_skin_color_picker_ad9a3b62af4a6c453c3d9bcdc2afef4f4}{override\_index\_}},\ color\_id,\ color);}
+\DoxyCodeLine{00606\ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00607\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aaa5b66c683e1bb9760783000ba7c6b0b}{skin\_}}-\/>\mbox{\hyperlink{class_skin_a659098f9fd8451b9df52d80f75d5bc66}{removeOverrideColor}}(\mbox{\hyperlink{class_skin_color_picker_ad9a3b62af4a6c453c3d9bcdc2afef4f4}{override\_index\_}},\ color\_id);}
+\DoxyCodeLine{00608\ }
+\DoxyCodeLine{00609\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a9c6779b8c2a7bbf6c149cef880c8ba97}{repaintWithSettings}}();}
+\DoxyCodeLine{00610\ \ \ \ \ \}}
+\DoxyCodeLine{00611\ }
+\DoxyCodeLine{00612\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_color_picker_a4e030a1a247448d1010603d2f5bd1821}{toggleValueOverride}}(\textcolor{keywordtype}{int}\ value\_index)\ \{}
+\DoxyCodeLine{00613\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ visible\ =\ \mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}}[value\_index]-\/>isVisible();}
+\DoxyCodeLine{00614\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ on\ =\ \mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}}[value\_index]-\/>getToggleState();}
+\DoxyCodeLine{00615\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{Skin::ValueId}}\ value\_id\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{Skin::ValueId}}\textcolor{keyword}{>}(value\_index);}
+\DoxyCodeLine{00616\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ value\ =\ \mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}}[value\_index]-\/>getValue();}
+\DoxyCodeLine{00617\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (on\ ||\ !visible)}
+\DoxyCodeLine{00618\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aaa5b66c683e1bb9760783000ba7c6b0b}{skin\_}}-\/>\mbox{\hyperlink{class_skin_a490aaab48c21b26245a636f938129881}{addOverrideValue}}(\mbox{\hyperlink{class_skin_color_picker_ad9a3b62af4a6c453c3d9bcdc2afef4f4}{override\_index\_}},\ value\_id,\ value);}
+\DoxyCodeLine{00619\ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00620\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aaa5b66c683e1bb9760783000ba7c6b0b}{skin\_}}-\/>\mbox{\hyperlink{class_skin_a834fbe7fd845aa60c9b4ceaec2ddd134}{removeOverrideValue}}(\mbox{\hyperlink{class_skin_color_picker_ad9a3b62af4a6c453c3d9bcdc2afef4f4}{override\_index\_}},\ value\_id);}
+\DoxyCodeLine{00621\ }
+\DoxyCodeLine{00622\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a9c6779b8c2a7bbf6c149cef880c8ba97}{repaintWithSettings}}();}
+\DoxyCodeLine{00623\ \ \ \ \ \}}
+\DoxyCodeLine{00624\ }
+\DoxyCodeLine{00625\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_color_picker_ae723cd9e93567ff4ab3f896194364f23}{buttonClicked}}(Button*\ clicked\_button)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00626\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ \&\mbox{\hyperlink{class_skin_color_picker_a2c0ee6a0e6a834eb97746fa5e562231f}{load\_button\_}})\ \{}
+\DoxyCodeLine{00627\ \ \ \ \ \ \ \ \ FileChooser\ open\_box(\textcolor{stringliteral}{"{}Open\ Skin"{}},\ File(),\ String(\textcolor{stringliteral}{"{}*."{}})\ +\ \mbox{\hyperlink{namespacevital_a3dcf316d609f62440daf661b741d31a4}{vital::kSkinExtension}});}
+\DoxyCodeLine{00628\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (open\_box.browseForFileToOpen())\ \{}
+\DoxyCodeLine{00629\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{class_skin_color_picker_aaa5b66c683e1bb9760783000ba7c6b0b}{skin\_}}-\/>\mbox{\hyperlink{class_skin_a3d259f69033da0ccea92ea21ecf4cfbe}{loadFromFile}}(open\_box.getResult()))\ \{}
+\DoxyCodeLine{00630\ \ \ \ \ \ \ \ \ \ \ \ \ AlertWindow::showNativeDialogBox(\textcolor{stringliteral}{"{}Error\ opening\ skin"{}},\ \textcolor{stringliteral}{"{}Skin\ file\ is\ corrupted\ and\ won't\ load."{}},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00631\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00632\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00633\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a636e5123f6a9acfdfc78979e806d304f}{setSliderValues}}();}
+\DoxyCodeLine{00634\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a9c6779b8c2a7bbf6c149cef880c8ba97}{repaintWithSettings}}();}
+\DoxyCodeLine{00635\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00636\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00637\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00638\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ \&\mbox{\hyperlink{class_skin_color_picker_aa4a23e69725ab1e99bb5bf9a1bfe5d98}{save\_button\_}})\ \{}
+\DoxyCodeLine{00639\ \ \ \ \ \ \ \ \ FileChooser\ save\_box(\textcolor{stringliteral}{"{}Save\ Skin"{}},\ File(),\ String(\textcolor{stringliteral}{"{}*."{}})\ +\ \mbox{\hyperlink{namespacevital_a3dcf316d609f62440daf661b741d31a4}{vital::kSkinExtension}});}
+\DoxyCodeLine{00640\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (save\_box.browseForFileToSave(\textcolor{keyword}{true}))}
+\DoxyCodeLine{00641\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aaa5b66c683e1bb9760783000ba7c6b0b}{skin\_}}-\/>\mbox{\hyperlink{class_skin_ac7a9d734b148de648e4345251da3c337}{saveToFile}}(save\_box.getResult().withFileExtension(\mbox{\hyperlink{namespacevital_a3dcf316d609f62440daf661b741d31a4}{vital::kSkinExtension}}));}
+\DoxyCodeLine{00642\ }
+\DoxyCodeLine{00643\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00644\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00645\ }
+\DoxyCodeLine{00646\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_color_picker_ab48b21882d507610e4a7cdb60c5410d3}{override\_buttons\_}}.size();\ ++i)\ \{}
+\DoxyCodeLine{00647\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ \mbox{\hyperlink{class_skin_color_picker_ab48b21882d507610e4a7cdb60c5410d3}{override\_buttons\_}}[i].get())\ \{}
+\DoxyCodeLine{00648\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_acdc1486b45f6625dc54bd9ab26abc9fd}{setOverride}}(i);}
+\DoxyCodeLine{00649\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00650\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00651\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00652\ }
+\DoxyCodeLine{00653\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}}.size();\ ++i)\ \{}
+\DoxyCodeLine{00654\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ \mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}}[i].get())\ \{}
+\DoxyCodeLine{00655\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a4e030a1a247448d1010603d2f5bd1821}{toggleValueOverride}}(i);}
+\DoxyCodeLine{00656\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00657\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00658\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00659\ }
+\DoxyCodeLine{00660\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_color_picker_a8e920c25d6a4a2fa1681c8cdfcf39dae}{color\_buttons\_}}.size();\ ++i)\ \{}
+\DoxyCodeLine{00661\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ \mbox{\hyperlink{class_skin_color_picker_ab7f00c37656a986750914cc9d6f611a3}{override\_toggle\_buttons\_}}[i].get())\ \{}
+\DoxyCodeLine{00662\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a6bf5c5a137d41d4ec0493529cb5c8d18}{toggleOverride}}(i);}
+\DoxyCodeLine{00663\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00664\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00665\ }
+\DoxyCodeLine{00666\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ \mbox{\hyperlink{class_skin_color_picker_a8e920c25d6a4a2fa1681c8cdfcf39dae}{color\_buttons\_}}[i].get())}
+\DoxyCodeLine{00667\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_adcd0069558186f0bc3000005020b03d4}{editing\_index\_}}\ =\ i;}
+\DoxyCodeLine{00668\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00669\ }
+\DoxyCodeLine{00670\ \ \ \ \ \ \ ColourSelector*\ color\_selector\ =\ \textcolor{keyword}{new}\ ColourSelector();}
+\DoxyCodeLine{00671\ \ \ \ \ \ \ color\_selector-\/>setCurrentColour(clicked\_button-\/>findColour(TextButton::buttonColourId));}
+\DoxyCodeLine{00672\ \ \ \ \ \ \ color\_selector-\/>addChangeListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00673\ \ \ \ \ \ \ color\_selector-\/>setColour(ColourSelector::backgroundColourId,\ Colours::transparentBlack);}
+\DoxyCodeLine{00674\ \ \ \ \ \ \ color\_selector-\/>setSize(300,\ 400);}
+\DoxyCodeLine{00675\ }
+\DoxyCodeLine{00676\ \ \ \ \ \ \ CallOutBox::launchAsynchronously(std::unique\_ptr<Component>(color\_selector),\ clicked\_button-\/>getScreenBounds(),\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00677\ \ \ \ \ \}}
+\DoxyCodeLine{00678\ }
+\DoxyCodeLine{00679\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_color_picker_a1e497c365b24fc5fed593e55b2409fad}{sliderValueChanged}}(Slider*\ changed\_slider)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00680\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab435ef853309bf1e637dbc1a9525ea9a}{Skin::kNumSkinValueIds}};\ ++i)\ \{}
+\DoxyCodeLine{00681\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}}[i].get()\ ==\ changed\_slider)\ \{}
+\DoxyCodeLine{00682\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}}[i]-\/>isVisible())}
+\DoxyCodeLine{00683\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}}[i]-\/>setToggleState(\textcolor{keyword}{true},\ dontSendNotification);}
+\DoxyCodeLine{00684\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a4e030a1a247448d1010603d2f5bd1821}{toggleValueOverride}}(i);}
+\DoxyCodeLine{00685\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00686\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00687\ \ \ \ \ \}}
+\DoxyCodeLine{00688\ }
+\DoxyCodeLine{00689\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_color_picker_a9c6779b8c2a7bbf6c149cef880c8ba97}{repaintWithSettings}}()\ \{}
+\DoxyCodeLine{00690\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a8ad270d73b9189a8a1670f6e8376e5bf}{full\_interface\_}}-\/>\mbox{\hyperlink{class_full_interface_a6c6dceb31b8e5504807ee37082083950}{reloadSkin}}(*\mbox{\hyperlink{class_skin_color_picker_aaa5b66c683e1bb9760783000ba7c6b0b}{skin\_}});}
+\DoxyCodeLine{00691\ \ \ \ \ \}}
+\DoxyCodeLine{00692\ }
+\DoxyCodeLine{00693\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_color_picker_ac95c07f3b749a9adbcdbe29f156002db}{setButtonColor}}(\textcolor{keywordtype}{int}\ index,\ Colour\ color)\ \{}
+\DoxyCodeLine{00694\ \ \ \ \ \ \ Colour\ text\_color\ =\ color.contrasting(0.9f);}
+\DoxyCodeLine{00695\ \ \ \ \ \ \ TextButton*\ button\ =\ \mbox{\hyperlink{class_skin_color_picker_a8e920c25d6a4a2fa1681c8cdfcf39dae}{color\_buttons\_}}[index].get();}
+\DoxyCodeLine{00696\ \ \ \ \ \ \ button-\/>setColour(TextButton::buttonColourId,\ color);}
+\DoxyCodeLine{00697\ \ \ \ \ \ \ button-\/>setColour(TextButton::textColourOnId,\ text\_color);}
+\DoxyCodeLine{00698\ \ \ \ \ \ \ button-\/>setColour(TextButton::textColourOffId,\ text\_color);}
+\DoxyCodeLine{00699\ \ \ \ \ \}}
+\DoxyCodeLine{00700\ }
+\DoxyCodeLine{00701\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_skin_color_picker_ab673ef3e6c0af48561dff5207dd0f357}{changeListenerCallback}}(ChangeBroadcaster*\ source)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00702\ \ \ \ \ \ \ ColourSelector*\ selector\ =\ \textcolor{keyword}{dynamic\_cast<}ColourSelector*\textcolor{keyword}{>}(source);}
+\DoxyCodeLine{00703\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (selector\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00704\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00705\ }
+\DoxyCodeLine{00706\ \ \ \ \ \ \ Colour\ color\ =\ selector-\/>getCurrentColour();}
+\DoxyCodeLine{00707\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ac95c07f3b749a9adbcdbe29f156002db}{setButtonColor}}(\mbox{\hyperlink{class_skin_color_picker_adcd0069558186f0bc3000005020b03d4}{editing\_index\_}},\ color);}
+\DoxyCodeLine{00708\ }
+\DoxyCodeLine{00709\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_skin_color_picker_ab7f00c37656a986750914cc9d6f611a3}{override\_toggle\_buttons\_}}[\mbox{\hyperlink{class_skin_color_picker_adcd0069558186f0bc3000005020b03d4}{editing\_index\_}}]-\/>isVisible())}
+\DoxyCodeLine{00710\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_ab7f00c37656a986750914cc9d6f611a3}{override\_toggle\_buttons\_}}[\mbox{\hyperlink{class_skin_color_picker_adcd0069558186f0bc3000005020b03d4}{editing\_index\_}}]-\/>setToggleState(\textcolor{keyword}{true},\ dontSendNotification);}
+\DoxyCodeLine{00711\ \ \ \ \ \ \ \mbox{\hyperlink{class_skin_color_picker_a6bf5c5a137d41d4ec0493529cb5c8d18}{toggleOverride}}(\mbox{\hyperlink{class_skin_color_picker_adcd0069558186f0bc3000005020b03d4}{editing\_index\_}});}
+\DoxyCodeLine{00712\ \ \ \ \ \}}
+\DoxyCodeLine{00713\ }
+\DoxyCodeLine{00714\ \ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00715\ \ \ \ \ TextButton\ \mbox{\hyperlink{class_skin_color_picker_a2c0ee6a0e6a834eb97746fa5e562231f}{load\_button\_}};}
+\DoxyCodeLine{00716\ \ \ \ \ TextButton\ \mbox{\hyperlink{class_skin_color_picker_aa4a23e69725ab1e99bb5bf9a1bfe5d98}{save\_button\_}};}
+\DoxyCodeLine{00717\ \ \ \ \ std::vector<std::unique\_ptr<TextButton>>\ \mbox{\hyperlink{class_skin_color_picker_ab48b21882d507610e4a7cdb60c5410d3}{override\_buttons\_}};}
+\DoxyCodeLine{00718\ \ \ \ \ std::vector<std::unique\_ptr<ToggleButton>>\ \mbox{\hyperlink{class_skin_color_picker_ab7f00c37656a986750914cc9d6f611a3}{override\_toggle\_buttons\_}};}
+\DoxyCodeLine{00719\ \ \ \ \ std::vector<std::unique\_ptr<ToggleButton>>\ \mbox{\hyperlink{class_skin_color_picker_aa6881571f7c3928f1465ec70fddd811d}{value\_override\_toggle\_buttons\_}};}
+\DoxyCodeLine{00720\ \ \ \ \ std::vector<std::unique\_ptr<TextButton>>\ \mbox{\hyperlink{class_skin_color_picker_a8e920c25d6a4a2fa1681c8cdfcf39dae}{color\_buttons\_}};}
+\DoxyCodeLine{00721\ \ \ \ \ std::vector<std::unique\_ptr<Slider>>\ \mbox{\hyperlink{class_skin_color_picker_aedc5f696a3833f74bed263f76525e8ba}{value\_sliders\_}};}
+\DoxyCodeLine{00722\ \ \ \ \ std::vector<std::unique\_ptr<Label>>\ \mbox{\hyperlink{class_skin_color_picker_ab1d45c40db646778896b25fa4f98796f}{value\_labels\_}};}
+\DoxyCodeLine{00723\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_skin_color_picker_ad9a3b62af4a6c453c3d9bcdc2afef4f4}{override\_index\_}};}
+\DoxyCodeLine{00724\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_skin_color_picker_adcd0069558186f0bc3000005020b03d4}{editing\_index\_}};}
+\DoxyCodeLine{00725\ }
+\DoxyCodeLine{00726\ \ \ \ \ \mbox{\hyperlink{class_skin}{Skin}}*\ \mbox{\hyperlink{class_skin_color_picker_aaa5b66c683e1bb9760783000ba7c6b0b}{skin\_}};}
+\DoxyCodeLine{00727\ \ \ \ \ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ \mbox{\hyperlink{class_skin_color_picker_a8ad270d73b9189a8a1670f6e8376e5bf}{full\_interface\_}};}
+\DoxyCodeLine{00728\ \ \ \ \ Component*\ \mbox{\hyperlink{class_skin_color_picker_ad1e448c79bb26b78eed37b4ce9e73236}{container\_}};}
+\DoxyCodeLine{00729\ \ \ \ \ Viewport\ \mbox{\hyperlink{class_skin_color_picker_aad21d50da32ba9f84bd5ec8098d46e44}{viewport\_}};}
+\DoxyCodeLine{00730\ \};}
+\DoxyCodeLine{00731\ }
+\DoxyCodeLine{00732\ \mbox{\hyperlink{class_skin_designer_a3363793abd539880c162fda99dec17e0}{SkinDesigner::SkinDesigner}}(\mbox{\hyperlink{class_skin}{Skin}}*\ skin,\ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ full\_interface)\ :}
+\DoxyCodeLine{00733\ \ \ \ \ DocumentWindow(\textcolor{stringliteral}{"{}Skin\ Designer"{}},\ Colours::grey,\ DocumentWindow::closeButton)\{}
+\DoxyCodeLine{00734\ \ \ \mbox{\hyperlink{class_skin_designer_a0bac9d72197e898e22bc22614b683080}{container\_}}\ =\ std::make\_unique<SkinColorPicker>(\textcolor{stringliteral}{"{}Container"{}},\ skin,\ full\_interface);}
+\DoxyCodeLine{00735\ \ \ setContentNonOwned(\mbox{\hyperlink{class_skin_designer_a0bac9d72197e898e22bc22614b683080}{container\_}}.get(),\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00736\ \}}
+\DoxyCodeLine{00737\ }
+\DoxyCodeLine{00738\ \mbox{\hyperlink{class_skin_designer_aa1829fffd9fa0118ea18d22b77eabb64}{SkinDesigner::\string~SkinDesigner}}()\ =\ \textcolor{keywordflow}{default};}
+
+\end{DoxyCode}

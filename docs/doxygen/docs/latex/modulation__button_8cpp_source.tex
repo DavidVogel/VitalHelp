@@ -1,0 +1,334 @@
+\doxysection{modulation\+\_\+button.\+cpp}
+\hypertarget{modulation__button_8cpp_source}{}\label{modulation__button_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/modulation\_button.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/modulation\_button.cpp}}
+\mbox{\hyperlink{modulation__button_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{modulation__button_8h}{modulation\_button.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{default__look__and__feel_8h}{default\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{modulation__matrix_8h}{modulation\_matrix.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__gui__interface_8h}{synth\_gui\_interface.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \mbox{\hyperlink{class_modulation_button_a0023ccef88b96e4b91e8e4f7145a39fb}{ModulationButton::ModulationButton}}(String\ name)\ :\ \mbox{\hyperlink{class_plain_shape_component}{PlainShapeComponent}}(std::move(name)),\ parent\_(nullptr),}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mouse\_state\_(kNone),\ selected\_(false),\ connect\_right\_(false),}
+\DoxyCodeLine{00011\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ draw\_border\_(false),\ active\_modulation\_(false),\ font\_size\_(12.0f),}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ show\_drag\_drop\_(false),\ drag\_drop\_alpha\_(0.0f)\ \{}
+\DoxyCodeLine{00013\ \ \ setWantsKeyboardFocus(\textcolor{keyword}{true});}
+\DoxyCodeLine{00014\ \ \ Path\ shape\ =\ \mbox{\hyperlink{class_paths_a3609fc1d89372e1d139ec61b1b3c2ea3}{Paths::dragDropArrows}}();}
+\DoxyCodeLine{00015\ \ \ shape.addLineSegment(Line<float>(-\/50.0f,\ -\/50.0f,\ -\/50.0f,\ -\/50.0f),\ 0.2f);}
+\DoxyCodeLine{00016\ \ \ \mbox{\hyperlink{class_plain_shape_component_a7374dbbefb05ae093d230058d4b2f3b8}{setShape}}(\mbox{\hyperlink{class_paths_a3609fc1d89372e1d139ec61b1b3c2ea3}{Paths::dragDropArrows}}());}
+\DoxyCodeLine{00017\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a0b92654b5d52ecdebcf1acc15bb4ee93}{setComponent}}(\&drag\_drop\_area\_);}
+\DoxyCodeLine{00018\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1c8e430952213675885826f5a8902bcb}{setActive}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00019\ \ \ \mbox{\hyperlink{class_open_gl_image_component_aa73d7ec62d1dfb2b7a554e420e51490b}{setUseAlpha}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00020\ \ \ setInterceptsMouseClicks(\textcolor{keyword}{true},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00021\ \ \ addAndMakeVisible(drag\_drop\_area\_);}
+\DoxyCodeLine{00022\ \ \ drag\_drop\_area\_.setInterceptsMouseClicks(\textcolor{keyword}{false},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00023\ \ \ \mbox{\hyperlink{class_open_gl_image_component_ac4a9062681f893c5b68fc404a0331905}{setColor}}(Colours::transparentWhite);}
+\DoxyCodeLine{00024\ \}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \mbox{\hyperlink{class_modulation_button_aee82de9b331f841874e40429d117593e}{ModulationButton::\string~ModulationButton}}()\ \{}
+\DoxyCodeLine{00027\ \ \ \textcolor{keywordflow}{if}\ (parent\_)}
+\DoxyCodeLine{00028\ \ \ \ \ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_a80595e304467a490afc879b8ff47bf50}{forceShowModulation}}(getName().toStdString(),\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00029\ \}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_modulation_button_acd3e4aa38fd666e4352bd45ec387d4dc}{ModulationButton::hasAnyModulation}}()\ \{}
+\DoxyCodeLine{00032\ \ \ \textcolor{keywordflow}{if}\ (parent\_)}
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{keywordflow}{return}\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_a5666f8833f3f53e8f39692a8a33c3ee5}{isSourceConnected}}(getName().toStdString());}
+\DoxyCodeLine{00034\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00035\ \}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ Rectangle<int>\ \mbox{\hyperlink{class_modulation_button_ab81ea2970a38f76bbbe9e9014021ffd3}{ModulationButton::getModulationAmountBounds}}(\textcolor{keywordtype}{int}\ index,\ \textcolor{keywordtype}{int}\ total)\ \{}
+\DoxyCodeLine{00038\ \ \ \textcolor{keywordtype}{int}\ columns\ =\ \mbox{\hyperlink{class_modulation_button_a9b58b530dbcd32c93b063414185e81b7}{kModulationKnobColumns}};}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \textcolor{keywordtype}{int}\ row\ =\ index\ /\ columns;}
+\DoxyCodeLine{00041\ \ \ \textcolor{keywordtype}{int}\ column\ =\ index\ \%\ columns;}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ Rectangle<int>\ all\_bounds\ =\ \mbox{\hyperlink{class_modulation_button_ae7103b92c255a51bc6d59274c443e705}{getModulationAreaBounds}}();}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordtype}{int}\ x\ =\ all\_bounds.getX()\ +\ (all\_bounds.getWidth()\ *\ column)\ /\ columns;}
+\DoxyCodeLine{00045\ \ \ \textcolor{keywordtype}{int}\ right\ =\ all\_bounds.getX()\ +\ (all\_bounds.getWidth()\ *\ (column\ +\ 1))\ /\ columns;}
+\DoxyCodeLine{00046\ \ \ \textcolor{keywordtype}{int}\ width\ =\ right\ -\/\ x;}
+\DoxyCodeLine{00047\ \ \ \textcolor{keywordtype}{int}\ y\ =\ all\_bounds.getY()\ +\ all\_bounds.getHeight()\ -\/\ width\ *\ (row\ +\ 1);}
+\DoxyCodeLine{00048\ \ \ \textcolor{keywordflow}{return}\ Rectangle<int>(x,\ y,\ width,\ width);}
+\DoxyCodeLine{00049\ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ Rectangle<int>\ \mbox{\hyperlink{class_modulation_button_a5203bca146a5a9da1b5aaacc69eb77a8}{ModulationButton::getMeterBounds}}()\ \{}
+\DoxyCodeLine{00052\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMinMeterWidth\ =\ 4;}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \textcolor{keywordtype}{int}\ width\ =\ getWidth();}
+\DoxyCodeLine{00055\ \ \ \textcolor{keywordtype}{int}\ meter\_width\ =\ std::max<int>(kMinMeterWidth,\ std::round(width\ *\ \mbox{\hyperlink{class_modulation_button_a10ef9b0d226b6b1a4f7b0550d4f19339}{kMeterAreaRatio}}\ /\ 2.0f)\ *\ 2);}
+\DoxyCodeLine{00056\ \ \ \textcolor{keywordtype}{int}\ meter\_height\ =\ getHeight()\ -\/\ 2;}
+\DoxyCodeLine{00057\ \ \ \textcolor{keywordflow}{return}\ Rectangle<int>(1,\ 1,\ meter\_width,\ meter\_height);}
+\DoxyCodeLine{00058\ \}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ Rectangle<int>\ \mbox{\hyperlink{class_modulation_button_ae7103b92c255a51bc6d59274c443e705}{ModulationButton::getModulationAreaBounds}}()\ \{}
+\DoxyCodeLine{00061\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMaxWidthHeightRatio\ =\ 3;}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}*\ parent\ =\ findParentComponentOfClass<SynthSection>();}
+\DoxyCodeLine{00064\ \ \ \textcolor{keywordtype}{int}\ widget\_margin\ =\ 0;}
+\DoxyCodeLine{00065\ \ \ \textcolor{keywordflow}{if}\ (parent)}
+\DoxyCodeLine{00066\ \ \ \ \ widget\_margin\ =\ parent-\/>\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a045e9e21484c2d32d7835f44c7c161f9}{Skin::kWidgetMargin}});}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ \textcolor{keywordtype}{int}\ width\ =\ getWidth()\ -\/\ \mbox{\hyperlink{class_modulation_button_a5203bca146a5a9da1b5aaacc69eb77a8}{getMeterBounds}}().getRight();}
+\DoxyCodeLine{00069\ \ \ \textcolor{keywordtype}{int}\ height\ =\ getHeight();}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \textcolor{keywordtype}{int}\ widget\_width\ =\ width\ -\/\ 2\ *\ widget\_margin;}
+\DoxyCodeLine{00072\ \ \ \textcolor{keywordtype}{int}\ knob\_width\ =\ widget\_width\ /\ \mbox{\hyperlink{class_modulation_button_a9b58b530dbcd32c93b063414185e81b7}{kModulationKnobColumns}};}
+\DoxyCodeLine{00073\ \ \ widget\_width\ =\ knob\_width\ *\ \mbox{\hyperlink{class_modulation_button_a9b58b530dbcd32c93b063414185e81b7}{kModulationKnobColumns}};}
+\DoxyCodeLine{00074\ \ \ \textcolor{keywordtype}{int}\ widget\_x\ =\ \mbox{\hyperlink{class_modulation_button_a5203bca146a5a9da1b5aaacc69eb77a8}{getMeterBounds}}().getRight()\ +\ (width\ -\/\ widget\_width)\ /\ 2;}
+\DoxyCodeLine{00075\ \ \ \textcolor{keywordtype}{int}\ min\_y\ =\ \mbox{\hyperlink{class_modulation_button_aa4e01ed94f751b7174658e6b321c93d2}{kFontAreaHeightRatio}}\ *\ width;}
+\DoxyCodeLine{00076\ \ \ \textcolor{keywordtype}{int}\ max\_widget\_height\ =\ ceilf(widget\_width\ *\ 2.0f\ /\ 3.0f);}
+\DoxyCodeLine{00077\ \ \ \textcolor{keywordtype}{int}\ widget\_y\ =\ std::max(min\_y,\ height\ -\/\ widget\_margin\ -\/\ max\_widget\_height);}
+\DoxyCodeLine{00078\ \ \ \textcolor{keywordtype}{int}\ widget\_height\ =\ height\ -\/\ widget\_y\ -\/\ widget\_margin;}
+\DoxyCodeLine{00079\ \ \ \textcolor{keywordtype}{int}\ center\_y\ =\ widget\_y\ +\ widget\_height\ /\ 2;}
+\DoxyCodeLine{00080\ \ \ widget\_height\ =\ std::max(widget\_height,\ (widget\_width\ +\ kMaxWidthHeightRatio\ -\/\ 1)\ /\ kMaxWidthHeightRatio);}
+\DoxyCodeLine{00081\ \ \ widget\_y\ =\ center\_y\ -\/\ widget\_height\ /\ 2;}
+\DoxyCodeLine{00082\ \ \ \textcolor{keywordflow}{return}\ Rectangle<int>(widget\_x,\ widget\_y,\ widget\_width,\ widget\_height);}
+\DoxyCodeLine{00083\ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_ac6363e160c3c124aadf5aafcf827f16d}{ModulationButton::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00086\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kShadowArea\ =\ 0.04f;}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \textcolor{keywordflow}{if}\ (getWidth()\ ==\ 0\ ||\ getHeight()\ ==\ 0)}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \textcolor{comment}{//\ Color\ based\ on\ selection}}
+\DoxyCodeLine{00092\ \ \ \textcolor{keywordflow}{if}\ (selected\_)}
+\DoxyCodeLine{00093\ \ \ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca48726887d91d0e8e4bbbfb2ed40b2d4b}{Skin::kModulationButtonSelected}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00094\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00095\ \ \ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca78a745b8bf4f92a466c595b5699c4eec}{Skin::kModulationButtonUnselected}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}*\ parent\ =\ findParentComponentOfClass<SynthSection>();}
+\DoxyCodeLine{00098\ \ \ \textcolor{keywordtype}{int}\ rounding\_amount\ =\ 0;}
+\DoxyCodeLine{00099\ \ \ \textcolor{keywordflow}{if}\ (parent)}
+\DoxyCodeLine{00100\ \ \ \ \ rounding\_amount\ =\ parent-\/>\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}});}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ Rectangle<float>\ meter\_bounds\ =\ \mbox{\hyperlink{class_modulation_button_a5203bca146a5a9da1b5aaacc69eb77a8}{getMeterBounds}}().toFloat();}
+\DoxyCodeLine{00103\ \ \ \textcolor{keywordtype}{int}\ width\ =\ getWidth();}
+\DoxyCodeLine{00104\ \ \ \textcolor{keywordtype}{int}\ adjusted\_width\ =\ connect\_right\_\ ?\ width\ *\ 2\ :\ width;}
+\DoxyCodeLine{00105\ \ \ Rectangle<float>\ bounds(0,\ 0,\ adjusted\_width,\ getHeight());}
+\DoxyCodeLine{00106\ \ \ g.fillRoundedRectangle(bounds,\ rounding\_amount);}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5a30a22b4659bc04528e89d1759558a7}{Skin::kWidgetBackground}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00109\ \ \ g.fillRoundedRectangle(meter\_bounds,\ meter\_bounds.getWidth()\ /\ 2.0f);}
+\DoxyCodeLine{00110\ \ \ \textcolor{keywordtype}{float}\ meter\_width\ =\ meter\_bounds.getWidth();}
+\DoxyCodeLine{00111\ \ \ g.fillRect(meter\_bounds.getX()\ +\ meter\_width\ /\ 2.0f,\ meter\_bounds.getY(),\ meter\_width\ /\ 2,\ meter\_bounds.getHeight());}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \textcolor{keywordflow}{if}\ (draw\_border\_)\ \{}
+\DoxyCodeLine{00114\ \ \ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4cb587bac7f55843677153a9eeb3a4f2}{Skin::kBorder}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00115\ \ \ \ \ g.drawRoundedRectangle(bounds.reduced(0.5f),\ rounding\_amount,\ 1.0f);}
+\DoxyCodeLine{00116\ \ \ \}}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \ \ \textcolor{keywordtype}{int}\ height\ =\ getHeight();}
+\DoxyCodeLine{00119\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00120\ \ \ g.setFont(\mbox{\hyperlink{class_fonts_ae7669a3eeb9db437c7d34feff9e99707}{Fonts::instance}}()-\/>proportional\_regular().withPointHeight(font\_size\_));}
+\DoxyCodeLine{00121\ \ \ String\ text\ =\ text\_override\_;}
+\DoxyCodeLine{00122\ \ \ \textcolor{keywordflow}{if}\ (text.isEmpty())}
+\DoxyCodeLine{00123\ \ \ \ \ text\ =\ \mbox{\hyperlink{class_modulation_matrix_ab281cbaab4286d30b5615623a185b133}{ModulationMatrix::getUiSourceDisplayName}}(getName());}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \textcolor{keywordtype}{int}\ font\_area\_height\ =\ \mbox{\hyperlink{class_modulation_button_aa4e01ed94f751b7174658e6b321c93d2}{kFontAreaHeightRatio}}\ *\ width;}
+\DoxyCodeLine{00126\ \ \ g.drawText(text,\ meter\_bounds.getRight(),\ 0,\ width\ -\/\ meter\_bounds.getRight(),}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \ \ \ \ \ font\_area\_height,\ Justification::centred);}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ \textcolor{keywordflow}{if}\ (connect\_right\_\ \&\&\ !selected\_)\ \{}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{keywordtype}{int}\ shadow\_width\ =\ width\ *\ kShadowArea;}
+\DoxyCodeLine{00131\ \ \ \ \ Colour\ shadow\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cac49d1cbc59ffea2e95181cfba8111055}{Skin::kShadow}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00132\ \ \ \ \ ColourGradient\ gradient(shadow\_color,\ width,\ 0,\ shadow\_color.withAlpha(0.0f),\ width\ -\/\ shadow\_width,\ 0,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00133\ \ \ \ \ g.setGradientFill(gradient);}
+\DoxyCodeLine{00134\ \ \ \ \ g.fillRect(width\ -\/\ shadow\_width,\ 0,\ shadow\_width,\ height);}
+\DoxyCodeLine{00135\ \ \ \}}
+\DoxyCodeLine{00136\ \}}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_afa69736f5a614a5cd9b1d17176df7834}{ModulationButton::parentHierarchyChanged}}()\ \{}
+\DoxyCodeLine{00139\ \ \ \textcolor{keywordflow}{if}\ (parent\_\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00140\ \ \ \ \ parent\_\ =\ findParentComponentOfClass<SynthGuiInterface>();}
+\DoxyCodeLine{00141\ \ \ \ \ \mbox{\hyperlink{class_modulation_button_a325f2cf59aa7e10d77b44000a4a4e6a0}{setForceEnableModulationSource}}();}
+\DoxyCodeLine{00142\ \ \ \}}
+\DoxyCodeLine{00143\ \}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_a391f48f11dc5ce6a5fd442459e3a76a4}{ModulationButton::resized}}()\ \{}
+\DoxyCodeLine{00146\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kBorder\ =\ 0.2f;}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \ \mbox{\hyperlink{class_open_gl_component_a2bd142dbb0cb7690829cb0a99f84e993}{PlainShapeComponent::resized}}();}
+\DoxyCodeLine{00149\ \ \ Rectangle<float>\ meter\_bounds\ =\ \mbox{\hyperlink{class_modulation_button_a5203bca146a5a9da1b5aaacc69eb77a8}{getMeterBounds}}().toFloat();}
+\DoxyCodeLine{00150\ \ \ \textcolor{keywordtype}{int}\ left\ =\ meter\_bounds.getRight();}
+\DoxyCodeLine{00151\ \ \ \textcolor{keywordtype}{int}\ width\ =\ getWidth()\ -\/\ left;}
+\DoxyCodeLine{00152\ \ \ \textcolor{keywordtype}{int}\ font\_area\_height\ =\ \mbox{\hyperlink{class_modulation_button_aa4e01ed94f751b7174658e6b321c93d2}{kFontAreaHeightRatio}}\ *\ width;}
+\DoxyCodeLine{00153\ \ \ \textcolor{keywordtype}{int}\ top\ =\ font\_area\_height\ -\/\ (font\_area\_height\ -\/\ font\_size\_)\ *\ 0.5f;}
+\DoxyCodeLine{00154\ \ \ \textcolor{keywordtype}{int}\ height\ =\ getHeight()\ -\/\ top;}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00156\ \ \ \textcolor{keywordtype}{float}\ size\_mult\ =\ 1.0f\ -\/\ 2.0f\ *\ kBorder;}
+\DoxyCodeLine{00157\ \ \ drag\_drop\_area\_.setBounds(left\ +\ width\ *\ kBorder,\ top\ +\ height\ *\ kBorder,}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ width\ *\ size\_mult,\ height\ *\ size\_mult);}
+\DoxyCodeLine{00159\ \}}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00161\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_a65aa3f6527e774a39633123dd3f3b7a6}{ModulationButton::render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00162\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kDeltaAlpha\ =\ 0.15f;}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \ \ \textcolor{keywordtype}{float}\ target\ =\ 0.0f;}
+\DoxyCodeLine{00165\ \ \ \textcolor{keywordflow}{if}\ (show\_drag\_drop\_)\ \{}
+\DoxyCodeLine{00166\ \ \ \ \ target\ =\ 1.0f;}
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{keywordflow}{if}\ (mouse\_state\_\ ==\ \mbox{\hyperlink{class_modulation_button_ad5e4c503eb870477c61f4a10573e12eba53328adda409dad19dfcf9e88ee46e0a}{kMouseDown}}\ ||\ mouse\_state\_\ ==\ \mbox{\hyperlink{class_modulation_button_ad5e4c503eb870477c61f4a10573e12ebae3e0d4168d23f36f96c6f01eeb019d8a}{kMouseDragging}})}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ target\ =\ 2.0f;}
+\DoxyCodeLine{00169\ \ \ \}}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \ \ \textcolor{keywordtype}{bool}\ increase\ =\ drag\_drop\_alpha\_\ <\ target;}
+\DoxyCodeLine{00172\ \ \ \textcolor{keywordflow}{if}\ (increase)}
+\DoxyCodeLine{00173\ \ \ \ \ drag\_drop\_alpha\_\ =\ std::min(drag\_drop\_alpha\_\ +\ kDeltaAlpha,\ target);}
+\DoxyCodeLine{00174\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00175\ \ \ \ \ drag\_drop\_alpha\_\ =\ std::max(drag\_drop\_alpha\_\ -\/\ kDeltaAlpha,\ target);}
+\DoxyCodeLine{00176\ }
+\DoxyCodeLine{00177\ \ \ \textcolor{keywordflow}{if}\ (drag\_drop\_alpha\_\ <=\ 0.0f)\ \{}
+\DoxyCodeLine{00178\ \ \ \ \ drag\_drop\_alpha\_\ =\ 0.0f;}
+\DoxyCodeLine{00179\ \ \ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1c8e430952213675885826f5a8902bcb}{setActive}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00180\ \ \ \}}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \ \ \mbox{\hyperlink{class_open_gl_image_component_ac4a9062681f893c5b68fc404a0331905}{setColor}}(drag\_drop\_color\_.withMultipliedAlpha(drag\_drop\_alpha\_));}
+\DoxyCodeLine{00183\ \ \ \mbox{\hyperlink{class_open_gl_component_a10a93fd43ee463c2de17aeb055d6ca78}{PlainShapeComponent::render}}(open\_gl,\ animate);}
+\DoxyCodeLine{00184\ \}}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_ab6f1e3f4abac9e5bdb7fa3991ae1a76b}{ModulationButton::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00187\ \ \ \textcolor{keywordflow}{if}\ (e.mods.isPopupMenu())\ \{}
+\DoxyCodeLine{00188\ \ \ \ \ \textcolor{keywordflow}{if}\ (parent\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00190\ }
+\DoxyCodeLine{00191\ \ \ \ \ std::vector<vital::ModulationConnection*>\ connections\ =}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_a129a3dc3855b4a3c9bdab2266e33c275}{getSourceConnections}}(getName().toStdString());}
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \ \ \ \ \textcolor{keywordflow}{if}\ (connections.empty())}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \ \ \ \ mouse\_state\_\ =\ \mbox{\hyperlink{class_modulation_button_ad5e4c503eb870477c61f4a10573e12eba0dafd224e731e2d746a4c39506172a4a}{kNone}};}
+\DoxyCodeLine{00198\ }
+\DoxyCodeLine{00199\ \ \ \ \ \mbox{\hyperlink{struct_popup_items}{PopupItems}}\ options;}
+\DoxyCodeLine{00200\ \ \ \ \ std::string\ disconnect\ =\ \textcolor{stringliteral}{"{}Disconnect\ from\ "{}};}
+\DoxyCodeLine{00201\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ connections.size();\ ++i)\ \{}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ std::string\ destination\ =\ \mbox{\hyperlink{classvital_1_1_parameters_aeee59af635b0a9c234b1821bd2623c77}{vital::Parameters::getDisplayName}}(connections[i]-\/>destination\_name);}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_modulation_button_ad75a6e87b02cec2c57abee6491d648b6ad8197cf7f1cec3e9b58aeb9463f8aa7a}{kModulationList}}\ +\ i,\ disconnect\ +\ destination);}
+\DoxyCodeLine{00204\ \ \ \ \ \}}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00206\ \ \ \ \ \textcolor{keywordflow}{if}\ (connections.size()\ >\ 1)}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_modulation_button_ad75a6e87b02cec2c57abee6491d648b6a52a1d8b44ddafe42dc9391fdc7fc8760}{kDisconnect}},\ \textcolor{stringliteral}{"{}Disconnect\ all"{}});}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00209\ \ \ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}*\ parent\ =\ findParentComponentOfClass<SynthSection>();}
+\DoxyCodeLine{00210\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_synth_section_a9424df12646a0b756b1b58904b9be6ff}{showPopupSelector}}(\textcolor{keyword}{this},\ e.getPosition(),\ options,\ [=](\textcolor{keywordtype}{int}\ selection)\ \{\ disconnectIndex(selection);\ \});}
+\DoxyCodeLine{00211\ \ \ \}}
+\DoxyCodeLine{00212\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00213\ \ \ \ \ \mbox{\hyperlink{class_modulation_button_a46d281fa30ad63e77aa3580e0eef9470}{setActiveModulation}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00214\ \ \ \ \ mouse\_state\_\ =\ \mbox{\hyperlink{class_modulation_button_ad5e4c503eb870477c61f4a10573e12eba53328adda409dad19dfcf9e88ee46e0a}{kMouseDown}};}
+\DoxyCodeLine{00215\ }
+\DoxyCodeLine{00216\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_modulation_button_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ listener-\/>modulationSelected(\textcolor{keyword}{this});}
+\DoxyCodeLine{00218\ \ \ \}}
+\DoxyCodeLine{00219\ \}}
+\DoxyCodeLine{00220\ }
+\DoxyCodeLine{00221\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_a0d7f66f7ace2c66f9c634a010419a7a0}{ModulationButton::mouseDrag}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00222\ \ \ \textcolor{keywordflow}{if}\ (e.mods.isRightButtonDown())}
+\DoxyCodeLine{00223\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00224\ }
+\DoxyCodeLine{00225\ \ \ \textcolor{keywordflow}{if}\ (!getLocalBounds().contains(e.getPosition())\ \&\&\ mouse\_state\_\ !=\ \mbox{\hyperlink{class_modulation_button_ad5e4c503eb870477c61f4a10573e12ebaebcf96e192f93cabb1cdaa016b840e6d}{kDraggingOut}})\ \{}
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_modulation_button_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ listener-\/>startModulationMap(\textcolor{keyword}{this},\ e);}
+\DoxyCodeLine{00228\ \ \ \ \ mouse\_state\_\ =\ \mbox{\hyperlink{class_modulation_button_ad5e4c503eb870477c61f4a10573e12ebaebcf96e192f93cabb1cdaa016b840e6d}{kDraggingOut}};}
+\DoxyCodeLine{00229\ \ \ \ \ setMouseCursor(MouseCursor::DraggingHandCursor);}
+\DoxyCodeLine{00230\ \ \ \}}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00232\ \ \ \textcolor{keywordflow}{if}\ (mouse\_state\_\ ==\ \mbox{\hyperlink{class_modulation_button_ad5e4c503eb870477c61f4a10573e12ebaebcf96e192f93cabb1cdaa016b840e6d}{kDraggingOut}})\ \{}
+\DoxyCodeLine{00233\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_modulation_button_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ listener-\/>modulationDragged(e);}
+\DoxyCodeLine{00235\ \ \ \}}
+\DoxyCodeLine{00236\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (mouse\_state\_\ !=\ \mbox{\hyperlink{class_modulation_button_ad5e4c503eb870477c61f4a10573e12ebae3e0d4168d23f36f96c6f01eeb019d8a}{kMouseDragging}})}
+\DoxyCodeLine{00237\ \ \ \ \ mouse\_state\_\ =\ \mbox{\hyperlink{class_modulation_button_ad5e4c503eb870477c61f4a10573e12ebae3e0d4168d23f36f96c6f01eeb019d8a}{kMouseDragging}};}
+\DoxyCodeLine{00238\ \}}
+\DoxyCodeLine{00239\ }
+\DoxyCodeLine{00240\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_a5f4fc2fe4ec25fb1b7c2ca53d660a68c}{ModulationButton::mouseUp}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00241\ \ \ \textcolor{keywordflow}{if}\ (!e.mods.isRightButtonDown()\ \&\&\ mouse\_state\_\ ==\ \mbox{\hyperlink{class_modulation_button_ad5e4c503eb870477c61f4a10573e12ebaebcf96e192f93cabb1cdaa016b840e6d}{kDraggingOut}})\ \{}
+\DoxyCodeLine{00242\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_modulation_button_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ listener-\/>endModulationMap();}
+\DoxyCodeLine{00244\ \ \ \}}
+\DoxyCodeLine{00245\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (!e.mods.isRightButtonDown())\ \{}
+\DoxyCodeLine{00246\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_modulation_button_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ listener-\/>modulationClicked(\textcolor{keyword}{this});}
+\DoxyCodeLine{00248\ \ \ \}}
+\DoxyCodeLine{00249\ \ \ setMouseCursor(MouseCursor::ParentCursor);}
+\DoxyCodeLine{00250\ }
+\DoxyCodeLine{00251\ \ \ mouse\_state\_\ =\ \mbox{\hyperlink{class_modulation_button_ad5e4c503eb870477c61f4a10573e12ebae3794d131b475cbe041db8e080353682}{kHover}};}
+\DoxyCodeLine{00252\ \}}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_aa043356381ebd4b05116a35ece8f3434}{ModulationButton::mouseEnter}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00255\ \ \ mouse\_state\_\ =\ \mbox{\hyperlink{class_modulation_button_ad5e4c503eb870477c61f4a10573e12ebae3794d131b475cbe041db8e080353682}{kHover}};}
+\DoxyCodeLine{00256\ \ \ drag\_drop\_color\_\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00257\ \ \ show\_drag\_drop\_\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_a129a3dc3855b4a3c9bdab2266e33c275}{getSourceConnections}}(getName().toStdString()).empty();}
+\DoxyCodeLine{00258\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1c8e430952213675885826f5a8902bcb}{setActive}}(show\_drag\_drop\_);}
+\DoxyCodeLine{00259\ \ \ \mbox{\hyperlink{class_open_gl_image_component_abf279f82fefad2a83bb4eb434e1cf8ce}{redrawImage}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00260\ \}}
+\DoxyCodeLine{00261\ }
+\DoxyCodeLine{00262\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_a6e620525a385e6e48f2f421b85d15533}{ModulationButton::mouseExit}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00263\ \ \ mouse\_state\_\ =\ \mbox{\hyperlink{class_modulation_button_ad5e4c503eb870477c61f4a10573e12eba0dafd224e731e2d746a4c39506172a4a}{kNone}};}
+\DoxyCodeLine{00264\ \ \ show\_drag\_drop\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00265\ \}}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00267\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_a39131a00bc1db2ebbe999adcd4d17c0a}{ModulationButton::mouseWheelMove}}(\textcolor{keyword}{const}\ MouseEvent\&\ e,\ \textcolor{keyword}{const}\ MouseWheelDetails\&\ wheel)\ \{}
+\DoxyCodeLine{00268\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_modulation_button_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00269\ \ \ \ \ listener-\/>modulationWheelMoved(e,\ wheel);}
+\DoxyCodeLine{00270\ \}}
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00272\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_ae1cc4b7a0fd1954797a692fa0a54cbf3}{ModulationButton::focusLost}}(FocusChangeType\ cause)\ \{}
+\DoxyCodeLine{00273\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_modulation_button_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00274\ \ \ \ \ listener-\/>modulationLostFocus(\textcolor{keyword}{this});}
+\DoxyCodeLine{00275\ \}}
+\DoxyCodeLine{00276\ }
+\DoxyCodeLine{00277\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_a6faa88c849ebbf0bb5e2a51ef4f636c4}{ModulationButton::addListener}}(\mbox{\hyperlink{class_modulation_button_1_1_listener}{Listener}}*\ listener)\ \{}
+\DoxyCodeLine{00278\ \ \ listeners\_.push\_back(listener);}
+\DoxyCodeLine{00279\ \}}
+\DoxyCodeLine{00280\ }
+\DoxyCodeLine{00281\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_a32a5bbc43599c1f7518e72dc5d1022fc}{ModulationButton::disconnectIndex}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00282\ \ \ \textcolor{keywordflow}{if}\ (parent\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00283\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00285\ \ \ std::vector<vital::ModulationConnection*>\ connections\ =}
+\DoxyCodeLine{00286\ \ \ \ \ \ \ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_a129a3dc3855b4a3c9bdab2266e33c275}{getSourceConnections}}(getName().toStdString());}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00288\ \ \ \textcolor{keywordflow}{if}\ (index\ ==\ \mbox{\hyperlink{class_modulation_button_ad75a6e87b02cec2c57abee6491d648b6a52a1d8b44ddafe42dc9391fdc7fc8760}{kDisconnect}})\ \{}
+\DoxyCodeLine{00289\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{structvital_1_1_modulation_connection}{vital::ModulationConnection}}*\ connection\ :\ connections)}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ disconnectModulation(connection);}
+\DoxyCodeLine{00291\ \ \ \}}
+\DoxyCodeLine{00292\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (index\ >=\ \mbox{\hyperlink{class_modulation_button_ad75a6e87b02cec2c57abee6491d648b6ad8197cf7f1cec3e9b58aeb9463f8aa7a}{kModulationList}})\ \{}
+\DoxyCodeLine{00293\ \ \ \ \ \textcolor{keywordtype}{int}\ connection\_index\ =\ index\ -\/\ \mbox{\hyperlink{class_modulation_button_ad75a6e87b02cec2c57abee6491d648b6ad8197cf7f1cec3e9b58aeb9463f8aa7a}{kModulationList}};}
+\DoxyCodeLine{00294\ \ \ \ \ disconnectModulation(connections[connection\_index]);}
+\DoxyCodeLine{00295\ \ \ \}}
+\DoxyCodeLine{00296\ \}}
+\DoxyCodeLine{00297\ }
+\DoxyCodeLine{00298\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_a0622ec6ccc185aec8e25955d5baf9076}{ModulationButton::select}}(\textcolor{keywordtype}{bool}\ select)\ \{}
+\DoxyCodeLine{00299\ \ \ selected\_\ =\ \mbox{\hyperlink{class_modulation_button_a0622ec6ccc185aec8e25955d5baf9076}{select}};}
+\DoxyCodeLine{00300\ \ \ \mbox{\hyperlink{class_modulation_button_a325f2cf59aa7e10d77b44000a4a4e6a0}{setForceEnableModulationSource}}();}
+\DoxyCodeLine{00301\ \}}
+\DoxyCodeLine{00302\ }
+\DoxyCodeLine{00303\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_a46d281fa30ad63e77aa3580e0eef9470}{ModulationButton::setActiveModulation}}(\textcolor{keywordtype}{bool}\ active)\ \{}
+\DoxyCodeLine{00304\ \ \ active\_modulation\_\ =\ active;}
+\DoxyCodeLine{00305\ \ \ \mbox{\hyperlink{class_modulation_button_a325f2cf59aa7e10d77b44000a4a4e6a0}{setForceEnableModulationSource}}();}
+\DoxyCodeLine{00306\ \}}
+\DoxyCodeLine{00307\ }
+\DoxyCodeLine{00308\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_button_a325f2cf59aa7e10d77b44000a4a4e6a0}{ModulationButton::setForceEnableModulationSource}}()\ \{}
+\DoxyCodeLine{00309\ \ \ \textcolor{keywordflow}{if}\ (parent\_)}
+\DoxyCodeLine{00310\ \ \ \ \ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_a80595e304467a490afc879b8ff47bf50}{forceShowModulation}}(getName().toStdString(),\ active\_modulation\_);}
+\DoxyCodeLine{00311\ \}}
+\DoxyCodeLine{00312\ }
+\DoxyCodeLine{00313\ \textcolor{keywordtype}{void}\ ModulationButton::disconnectModulation(\mbox{\hyperlink{structvital_1_1_modulation_connection}{vital::ModulationConnection}}*\ connection)\ \{}
+\DoxyCodeLine{00314\ \ \ \textcolor{keywordtype}{int}\ modulations\_left\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_ab4da79e8c15272c05163a8e2db8b9d62}{getNumModulations}}(connection-\/>\mbox{\hyperlink{structvital_1_1_modulation_connection_aa639c48dede2e2037c4d55f1066ad661}{destination\_name}});}
+\DoxyCodeLine{00315\ }
+\DoxyCodeLine{00316\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ listeners\_)\ \{}
+\DoxyCodeLine{00317\ \ \ \ \ listener-\/>modulationDisconnected(connection,\ modulations\_left\ <=\ 1);}
+\DoxyCodeLine{00318\ \ \ \ \ listener-\/>modulationConnectionChanged();}
+\DoxyCodeLine{00319\ \ \ \}}
+\DoxyCodeLine{00320\ }
+\DoxyCodeLine{00321\ \ \ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a83c03b5f772f39bca3f4eb301dee3e6e}{disconnectModulation}}(connection);}
+\DoxyCodeLine{00322\ }
+\DoxyCodeLine{00323\ \ \ \textcolor{keywordflow}{if}\ (modulations\_left\ <=\ 1)\ \{}
+\DoxyCodeLine{00324\ \ \ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ listener-\/>modulationCleared();}
+\DoxyCodeLine{00326\ \ \ \}}
+\DoxyCodeLine{00327\ \}}
+\DoxyCodeLine{00328\ }
+
+\end{DoxyCode}

@@ -1,0 +1,175 @@
+\doxysection{modulation\+\_\+tab\+\_\+selector.\+cpp}
+\hypertarget{modulation__tab__selector_8cpp_source}{}\label{modulation__tab__selector_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/modulation\_tab\_selector.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/modulation\_tab\_selector.cpp}}
+\mbox{\hyperlink{modulation__tab__selector_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{modulation__tab__selector_8h}{modulation\_tab\_selector.h}}"{}}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{modulation__button_8h}{modulation\_button.h}}"{}}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__section_8h}{synth\_section.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \mbox{\hyperlink{class_modulation_tab_selector_a6ab48ae4c2e5f6ab8c00838550df4275}{ModulationTabSelector::ModulationTabSelector}}(std::string\ prefix,\ \textcolor{keywordtype}{int}\ number)\ :}
+\DoxyCodeLine{00007\ \ \ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}(prefix),\ vertical\_(true),\ selections\_enabled\_(false),\ min\_modulations\_shown\_(0),\ num\_shown\_(0)\ \{}
+\DoxyCodeLine{00008\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ number;\ ++i)\ \{}
+\DoxyCodeLine{00009\ \ \ \ \ std::string\ name\ =\ prefix\ +\ \textcolor{stringliteral}{"{}\_"{}}\ +\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00010\ \ \ \ \ modulation\_buttons\_.push\_back(std::make\_unique<ModulationButton>(name));}
+\DoxyCodeLine{00011\ \ \ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(modulation\_buttons\_.back().get());}
+\DoxyCodeLine{00012\ \ \ \ \ modulation\_buttons\_.back()-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00013\ \ \ \}}
+\DoxyCodeLine{00014\ \}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \mbox{\hyperlink{class_modulation_tab_selector_a6ab48ae4c2e5f6ab8c00838550df4275}{ModulationTabSelector::ModulationTabSelector}}(String\ name,\ \textcolor{keywordtype}{int}\ number,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}**\ names)\ :}
+\DoxyCodeLine{00017\ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}(name),\ vertical\_(true),\ selections\_enabled\_(false),\ min\_modulations\_shown\_(0),\ num\_shown\_(0)\ \{}
+\DoxyCodeLine{00018\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ number;\ ++i)\ \{}
+\DoxyCodeLine{00019\ \ \ \ \ modulation\_buttons\_.push\_back(std::make\_unique<ModulationButton>(names[i]));}
+\DoxyCodeLine{00020\ \ \ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(modulation\_buttons\_.back().get());}
+\DoxyCodeLine{00021\ \ \ \ \ modulation\_buttons\_.back()-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00022\ \ \ \}}
+\DoxyCodeLine{00023\ \}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \mbox{\hyperlink{class_modulation_tab_selector_a32cab23fdc67f4c84aab815ec2f6b691}{ModulationTabSelector::\string~ModulationTabSelector}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_tab_selector_a8b4754a16a0cd04cade1d27c7323c756}{ModulationTabSelector::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00028\ \ \ \textcolor{keywordtype}{int}\ num\_to\_show\ =\ getNumModulationsToShow();}
+\DoxyCodeLine{00029\ \ \ \textcolor{keywordflow}{if}\ (num\_shown\_\ !=\ num\_to\_show)\ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \mbox{\hyperlink{class_modulation_tab_selector_a9cd1d3fb33df2fdb1e7517c621169d44}{checkNumShown}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00031\ \ \ \ \ num\_shown\_\ =\ num\_to\_show;}
+\DoxyCodeLine{00032\ \ \ \}}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ g.fillAll(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4bf89cbdbad7dd4c1a837af2473389ee}{Skin::kBackground}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00035\ \ \ \mbox{\hyperlink{class_modulation_tab_selector_aaf9581b76604c0ec951aa4e5d7d06da5}{paintTabShadow}}(g);}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ button\ :\ modulation\_buttons\_)\ \{}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keywordflow}{if}\ (button-\/>isVisible())\ \{}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ g.saveState();}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ Rectangle<int>\ bounds\ =\ getLocalArea(button.get(),\ button-\/>getLocalBounds());}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ g.reduceClipRegion(bounds);}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ g.setOrigin(bounds.getTopLeft());}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ button-\/>paintBackground(g);}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ g.restoreState();}
+\DoxyCodeLine{00045\ \ \ \ \ \}}
+\DoxyCodeLine{00046\ \ \ \}}
+\DoxyCodeLine{00047\ \}}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_tab_selector_aaf9581b76604c0ec951aa4e5d7d06da5}{ModulationTabSelector::paintTabShadow}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00050\ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}*\ parent\ =\ findParentComponentOfClass<SynthSection>();}
+\DoxyCodeLine{00051\ \ \ \textcolor{keywordflow}{if}\ (parent\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \textcolor{keywordtype}{int}\ rounding\_amount\ =\ parent-\/>\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}});}
+\DoxyCodeLine{00055\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cac49d1cbc59ffea2e95181cfba8111055}{Skin::kShadow}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00056\ \ \ g.fillRoundedRectangle(getLocalBounds().toFloat(),\ rounding\_amount);}
+\DoxyCodeLine{00057\ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_tab_selector_aae805bbbce04381e6ec60c17d10a9a41}{ModulationTabSelector::resized}}()\ \{}
+\DoxyCodeLine{00060\ \ \ \mbox{\hyperlink{class_modulation_tab_selector_a9cd1d3fb33df2fdb1e7517c621169d44}{checkNumShown}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00061\ \}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_tab_selector_a9cd1d3fb33df2fdb1e7517c621169d44}{ModulationTabSelector::checkNumShown}}(\textcolor{keywordtype}{bool}\ should\_repaint)\ \{}
+\DoxyCodeLine{00064\ \ \ \textcolor{keywordtype}{int}\ num\_to\_show\ =\ getNumModulationsToShow();}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \textcolor{keywordflow}{if}\ (vertical\_)\ \{}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keywordtype}{float}\ cell\_height\ =\ float(getHeight()\ +\ 1)\ /\ num\_to\_show;}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordtype}{int}\ y\ =\ 0;}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_to\_show;\ ++i)\ \{}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ last\_y\ =\ y;}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ y\ =\ std::round((i\ +\ 1)\ *\ cell\_height);}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ modulation\_buttons\_[i]-\/>setBounds(0.0f,\ last\_y,\ getWidth(),\ y\ -\/\ last\_y\ -\/\ 1);}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ modulation\_buttons\_[i]-\/>setVisible(\textcolor{keyword}{true});}
+\DoxyCodeLine{00075\ \ \ \ \ \}}
+\DoxyCodeLine{00076\ \ \ \}}
+\DoxyCodeLine{00077\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keywordtype}{float}\ cell\_width\ =\ float(getWidth()\ +\ 1)\ /\ num\_to\_show;}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{keywordtype}{int}\ x\ =\ 0;}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_to\_show;\ ++i)\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ last\_x\ =\ x;}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ x\ =\ std::round((i\ +\ 1)\ *\ cell\_width);}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ modulation\_buttons\_[i]-\/>setBounds(last\_x,\ 0,\ x\ -\/\ last\_x\ -\/\ 1,\ getHeight());}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ modulation\_buttons\_[i]-\/>setVisible(\textcolor{keyword}{true});}
+\DoxyCodeLine{00086\ \ \ \ \ \}}
+\DoxyCodeLine{00087\ \ \ \}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ num\_to\_show;\ i\ <\ modulation\_buttons\_.size();\ ++i)}
+\DoxyCodeLine{00090\ \ \ \ \ modulation\_buttons\_[i]-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \textcolor{keywordflow}{if}\ (num\_to\_show\ !=\ num\_shown\_\ \&\&\ should\_repaint)}
+\DoxyCodeLine{00093\ \ \ \ \ \mbox{\hyperlink{class_synth_section_af3bc1e4797ef2a7399f9040e564d8ec1}{repaintBackground}}();}
+\DoxyCodeLine{00094\ \}}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_tab_selector_a845ef9f6d55a9d25e54bfb3a75c3a752}{ModulationTabSelector::reset}}()\ \{}
+\DoxyCodeLine{00097\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ button\ :\ modulation\_buttons\_)\ \{}
+\DoxyCodeLine{00098\ \ \ \ \ button-\/>select(\textcolor{keyword}{false});}
+\DoxyCodeLine{00099\ \ \ \ \ button-\/>setActiveModulation(\textcolor{keyword}{false});}
+\DoxyCodeLine{00100\ \ \ \}}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ modulation\_buttons\_[0]-\/>select(selections\_enabled\_);}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \textcolor{keywordflow}{if}\ (getNumModulationsToShow()\ !=\ num\_shown\_)}
+\DoxyCodeLine{00105\ \ \ \ \ \mbox{\hyperlink{class_modulation_tab_selector_a9cd1d3fb33df2fdb1e7517c621169d44}{checkNumShown}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ modulation\_buttons\_[0]-\/>select(selections\_enabled\_);}
+\DoxyCodeLine{00108\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_modulation_tab_selector_1_1_listener}{Listener}}\ *listener\ :\ listeners\_)}
+\DoxyCodeLine{00109\ \ \ \ \ listener-\/>modulationSelected(\textcolor{keyword}{this},\ 0);}
+\DoxyCodeLine{00110\ \}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_tab_selector_ac30b9460d73f0c08bbdd44aa2bbc84ee}{ModulationTabSelector::modulationClicked}}(\mbox{\hyperlink{class_modulation_button}{ModulationButton}}*\ source)\ \{}
+\DoxyCodeLine{00113\ \ \ \textcolor{keywordtype}{int}\ index\ =\ getModulationIndex(source-\/>getName());}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \ \ \textcolor{keywordflow}{if}\ (selections\_enabled\_)\ \{}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ modulation\_buttons\_.size();\ ++i)}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ modulation\_buttons\_[i]-\/>select(index\ ==\ i);}
+\DoxyCodeLine{00118\ \ \ \}}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \mbox{\hyperlink{class_synth_section_af3bc1e4797ef2a7399f9040e564d8ec1}{repaintBackground}}();}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_modulation_tab_selector_1_1_listener}{Listener}}\ *listener\ :\ listeners\_)}
+\DoxyCodeLine{00123\ \ \ \ \ listener-\/>modulationSelected(\textcolor{keyword}{this},\ index);}
+\DoxyCodeLine{00124\ \}}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_tab_selector_af550370e9933a055cd48d7a85bed93e6}{ModulationTabSelector::endModulationMap}}()\ \{}
+\DoxyCodeLine{00127\ \ \ \textcolor{keywordflow}{if}\ (getNumModulationsToShow()\ !=\ num\_shown\_)}
+\DoxyCodeLine{00128\ \ \ \ \ \mbox{\hyperlink{class_modulation_tab_selector_a9cd1d3fb33df2fdb1e7517c621169d44}{checkNumShown}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00129\ \}}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_tab_selector_a157bf616613043705cd37f30cfcea984}{ModulationTabSelector::modulationConnectionChanged}}()\ \{}
+\DoxyCodeLine{00132\ \ \ \textcolor{keywordflow}{if}\ (getNumModulationsToShow()\ !=\ num\_shown\_)}
+\DoxyCodeLine{00133\ \ \ \ \ \mbox{\hyperlink{class_modulation_tab_selector_a9cd1d3fb33df2fdb1e7517c621169d44}{checkNumShown}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00134\ \}}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_tab_selector_ad777c301731d9eca9939a3118a6761d7}{ModulationTabSelector::modulationCleared}}()\ \{}
+\DoxyCodeLine{00137\ \ \ \textcolor{keywordflow}{if}\ (getNumModulationsToShow()\ !=\ num\_shown\_)}
+\DoxyCodeLine{00138\ \ \ \ \ \mbox{\hyperlink{class_modulation_tab_selector_a9cd1d3fb33df2fdb1e7517c621169d44}{checkNumShown}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00139\ \}}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_tab_selector_abeef6bfed893546e043d0f303dd26cdc}{ModulationTabSelector::registerModulationButtons}}(\mbox{\hyperlink{class_synth_section}{SynthSection}}*\ synth\_section)\ \{}
+\DoxyCodeLine{00142\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ button\ :\ modulation\_buttons\_)}
+\DoxyCodeLine{00143\ \ \ \ \ synth\_section-\/>\mbox{\hyperlink{class_synth_section_a87aa990c9416cb2abff763a2527797c9}{addModulationButton}}(button.get(),\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00144\ \}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_tab_selector_ae5d6addd5814d3650aafdb9717f85718}{ModulationTabSelector::setFontSize}}(\textcolor{keywordtype}{float}\ font\_size)\ \{}
+\DoxyCodeLine{00147\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ button\ :\ modulation\_buttons\_)}
+\DoxyCodeLine{00148\ \ \ \ \ button-\/>setFontSize(font\_size);}
+\DoxyCodeLine{00149\ \}}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \textcolor{keywordtype}{int}\ ModulationTabSelector::getNumModulationsToShow()\ \{}
+\DoxyCodeLine{00152\ \ \ \textcolor{keywordtype}{int}\ num\_to\_show\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(modulation\_buttons\_.size());}
+\DoxyCodeLine{00153\ \ \ \textcolor{keywordflow}{if}\ (min\_modulations\_shown\_\ >\ 0)\ \{}
+\DoxyCodeLine{00154\ \ \ \ \ num\_to\_show\ =\ min\_modulations\_shown\_;}
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ min\_modulations\_shown\_\ -\/\ 1;\ i\ <\ modulation\_buttons\_.size();\ ++i)\ \{}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation\_buttons\_[i]-\/>hasAnyModulation())}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ num\_to\_show\ =\ i\ +\ 2;}
+\DoxyCodeLine{00158\ \ \ \ \ \}}
+\DoxyCodeLine{00159\ \ \ \}}
+\DoxyCodeLine{00160\ \ \ \textcolor{keywordflow}{return}\ std::min(num\_to\_show,\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(modulation\_buttons\_.size()));}
+\DoxyCodeLine{00161\ \}}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \textcolor{keywordtype}{int}\ ModulationTabSelector::getModulationIndex(String\ name)\ \{}
+\DoxyCodeLine{00164\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ modulation\_buttons\_.size();\ ++i)\ \{}
+\DoxyCodeLine{00165\ \ \ \ \ \textcolor{keywordflow}{if}\ (name\ ==\ modulation\_buttons\_[i]-\/>getName())}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ i;}
+\DoxyCodeLine{00167\ \ \ \}}
+\DoxyCodeLine{00168\ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00169\ \}}
+
+\end{DoxyCode}

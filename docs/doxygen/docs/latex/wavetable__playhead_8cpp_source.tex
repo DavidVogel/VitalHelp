@@ -1,0 +1,75 @@
+\doxysection{wavetable\+\_\+playhead.\+cpp}
+\hypertarget{wavetable__playhead_8cpp_source}{}\label{wavetable__playhead_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/wavetable\_playhead.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/wavetable\_playhead.cpp}}
+\mbox{\hyperlink{wavetable__playhead_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{}}
+\DoxyCodeLine{00004\ \textcolor{comment}{WavetablePlayhead\ represents\ a\ movable\ playhead\ line\ indicating\ a\ current\ position\ within\ a\ set\ of\ frames.\ Users\ can\ interact\ with\ it\ using\ mouse\ events\ to\ set\ a\ specific\ frame.\ The\ class\ supports\ customizable\ tick\ marks\ at\ regular\ intervals\ and\ notifies\ listeners\ whenever\ the\ playhead\ is\ moved.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable__playhead_8h}{wavetable\_playhead.h}}"{}}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \mbox{\hyperlink{class_wavetable_playhead_a7e55a0d1c4a96d9407c4a2f53565f6c9}{WavetablePlayhead::WavetablePlayhead}}(\textcolor{keywordtype}{int}\ num\_positions)\ :}
+\DoxyCodeLine{00012\ \ \ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}(\textcolor{stringliteral}{"{}Playhead"{}}),\ position\_quad\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment),}
+\DoxyCodeLine{00013\ \ \ \ \ padding\_(0),\ num\_positions\_(num\_positions),\ position\_(0),\ drag\_start\_x\_(0)\ \{}
+\DoxyCodeLine{00014\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&\mbox{\hyperlink{class_wavetable_playhead_abe7ced5d771d7bc054b58f02b9179141}{position\_quad\_}});}
+\DoxyCodeLine{00015\ \}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_playhead_aa73f68e99d54241bb5049c4b37c6b885}{WavetablePlayhead::setPosition}}(\textcolor{keywordtype}{int}\ position)\ \{}
+\DoxyCodeLine{00018\ \ \ \mbox{\hyperlink{class_wavetable_playhead_ae26fd8b4852014bb4b8ed98ef21d0b58}{position\_}}\ =\ \mbox{\hyperlink{class_wavetable_playhead_aa1a8bcec4ea025cbf0b16620064b081a}{position}};}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \textcolor{comment}{//\ Notify\ all\ registered\ listeners\ of\ the\ new\ position.}}
+\DoxyCodeLine{00021\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_wavetable_playhead_1_1_listener}{Listener}}*\ listener\ :\ \mbox{\hyperlink{class_wavetable_playhead_a724f266b1bb378f4e91d3f570716a90f}{listeners\_}})}
+\DoxyCodeLine{00022\ \ \ \ \ listener-\/>playheadMoved(\mbox{\hyperlink{class_wavetable_playhead_ae26fd8b4852014bb4b8ed98ef21d0b58}{position\_}});}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \ \ \mbox{\hyperlink{class_wavetable_playhead_a351a1e834fa633736775beeaec2fef4f}{setPositionQuad}}();}
+\DoxyCodeLine{00025\ \}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_playhead_a351a1e834fa633736775beeaec2fef4f}{WavetablePlayhead::setPositionQuad}}()\ \{}
+\DoxyCodeLine{00028\ \ \ \textcolor{keywordtype}{float}\ active\_width\ =\ getWidth()\ -\/\ 2\ *\ \mbox{\hyperlink{class_wavetable_playhead_ab512892a9197fa3c96b4cc3c15ff101e}{padding\_}}\ +\ 1;}
+\DoxyCodeLine{00029\ \ \ \textcolor{keywordtype}{int}\ x\ =\ (active\_width\ *\ \mbox{\hyperlink{class_wavetable_playhead_ae26fd8b4852014bb4b8ed98ef21d0b58}{position\_}})\ /\ (\mbox{\hyperlink{class_wavetable_playhead_a60592588db792903fec42c9cfa581b61}{num\_positions\_}}\ -\/\ 1)\ -\/\ 0.5f\ +\ \mbox{\hyperlink{class_wavetable_playhead_ab512892a9197fa3c96b4cc3c15ff101e}{padding\_}};}
+\DoxyCodeLine{00030\ \ \ \mbox{\hyperlink{class_wavetable_playhead_abe7ced5d771d7bc054b58f02b9179141}{position\_quad\_}}.setBounds(x,\ 0,\ 1,\ getHeight());}
+\DoxyCodeLine{00031\ \}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_playhead_af6bcdabad97baf8fec2627c179cf4745}{WavetablePlayhead::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ event)\ \{}
+\DoxyCodeLine{00034\ \ \ \mbox{\hyperlink{class_wavetable_playhead_a730bc5b8b10d825a34ffde42f3306949}{mouseEvent}}(event);}
+\DoxyCodeLine{00035\ \}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_playhead_a00affa2501dfa860ffd1d0db90ffa75e}{WavetablePlayhead::mouseDrag}}(\textcolor{keyword}{const}\ MouseEvent\&\ event)\ \{}
+\DoxyCodeLine{00038\ \ \ \mbox{\hyperlink{class_wavetable_playhead_a730bc5b8b10d825a34ffde42f3306949}{mouseEvent}}(event);}
+\DoxyCodeLine{00039\ \}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_playhead_a730bc5b8b10d825a34ffde42f3306949}{WavetablePlayhead::mouseEvent}}(\textcolor{keyword}{const}\ MouseEvent\&\ event)\ \{}
+\DoxyCodeLine{00042\ \ \ \textcolor{keywordtype}{float}\ active\_width\ =\ getWidth()\ -\/\ 2\ *\ \mbox{\hyperlink{class_wavetable_playhead_ab512892a9197fa3c96b4cc3c15ff101e}{padding\_}}\ +\ 1;}
+\DoxyCodeLine{00043\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_wavetable_playhead_aa1a8bcec4ea025cbf0b16620064b081a}{position}}\ =\ std::roundf((\mbox{\hyperlink{class_wavetable_playhead_a60592588db792903fec42c9cfa581b61}{num\_positions\_}}\ -\/\ 1)\ *\ (event.x\ -\/\ \mbox{\hyperlink{class_wavetable_playhead_ab512892a9197fa3c96b4cc3c15ff101e}{padding\_}})\ /\ active\_width);}
+\DoxyCodeLine{00044\ \ \ \textcolor{comment}{//\ Clamp\ the\ playhead\ position\ to\ the\ valid\ range\ and\ update.}}
+\DoxyCodeLine{00045\ \ \ \mbox{\hyperlink{class_wavetable_playhead_aa73f68e99d54241bb5049c4b37c6b885}{setPosition}}(std::max(std::min(\mbox{\hyperlink{class_wavetable_playhead_aa1a8bcec4ea025cbf0b16620064b081a}{position}},\ \mbox{\hyperlink{class_wavetable_playhead_a60592588db792903fec42c9cfa581b61}{num\_positions\_}}\ -\/\ 1),\ 0));}
+\DoxyCodeLine{00046\ \}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_playhead_a6dc6e3a0044591d772363f2afcac6edf}{WavetablePlayhead::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00049\ \ \ \textcolor{keywordtype}{float}\ active\_width\ =\ getWidth()\ -\/\ 2\ *\ \mbox{\hyperlink{class_wavetable_playhead_ab512892a9197fa3c96b4cc3c15ff101e}{padding\_}}\ +\ 1;}
+\DoxyCodeLine{00050\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00051\ \ \ \textcolor{comment}{//\ Draw\ tick\ marks\ at\ regular\ intervals}}
+\DoxyCodeLine{00052\ \ \ \textcolor{keywordtype}{int}\ small\_line\_height\ =\ getHeight()\ /\ 3;}
+\DoxyCodeLine{00053\ \ \ \textcolor{keywordtype}{int}\ big\_line\_height\ =\ 2\ *\ small\_line\_height;}
+\DoxyCodeLine{00054\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_wavetable_playhead_a60592588db792903fec42c9cfa581b61}{num\_positions\_}};\ i\ +=\ \mbox{\hyperlink{class_wavetable_playhead_a5796946c1f1c3d97eacfd50624e3febc}{kLineSkip}})\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordtype}{int}\ x\ =\ \mbox{\hyperlink{class_wavetable_playhead_ab512892a9197fa3c96b4cc3c15ff101e}{padding\_}}\ -\/\ 0.5f\ +\ i\ *\ active\_width\ /\ (\mbox{\hyperlink{class_wavetable_playhead_a60592588db792903fec42c9cfa581b61}{num\_positions\_}}\ -\/\ 1);}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ \%\ \mbox{\hyperlink{class_wavetable_playhead_aaa4579a7662fe068da5118abd19fe049}{kBigLineSkip}}\ ==\ 0)}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ g.fillRect(x,\ getHeight()\ -\/\ big\_line\_height,\ 1,\ big\_line\_height);}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ g.fillRect(x,\ getHeight()\ -\/\ small\_line\_height,\ 1,\ small\_line\_height);}
+\DoxyCodeLine{00060\ \ \ \}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \textcolor{comment}{//\ Set\ the\ playhead\ line\ color}}
+\DoxyCodeLine{00063\ \ \ \mbox{\hyperlink{class_wavetable_playhead_abe7ced5d771d7bc054b58f02b9179141}{position\_quad\_}}.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00064\ \}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_playhead_a438d9090c746bc2fac7800d3d52e273d}{WavetablePlayhead::resized}}()\ \{}
+\DoxyCodeLine{00067\ \ \ \mbox{\hyperlink{class_synth_section_a549f91a2b81b419368a578990cb2e6c2}{SynthSection::resized}}();}
+\DoxyCodeLine{00068\ \ \ \mbox{\hyperlink{class_wavetable_playhead_a351a1e834fa633736775beeaec2fef4f}{setPositionQuad}}();}
+\DoxyCodeLine{00069\ \}}
+
+\end{DoxyCode}

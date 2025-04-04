@@ -1,0 +1,155 @@
+\doxysection{frequency\+\_\+filter\+\_\+modifier.\+cpp}
+\hypertarget{frequency__filter__modifier_8cpp_source}{}\label{frequency__filter__modifier_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/frequency\_filter\_modifier.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/frequency\_filter\_modifier.cpp}}
+\mbox{\hyperlink{frequency__filter__modifier_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{FrequencyFilterModifier\ is\ a\ wavetable\ component\ that\ modifies\ the\ harmonic\ content\ of\ a\ wave\ by\ applying\ frequency-\/domain\ filters\ like\ low-\/pass,\ band-\/pass,\ high-\/pass,\ or\ comb\ filtering.\ FrequencyFilterModifierKeyframe\ stores\ parameters\ (cutoff,\ shape)\ that\ define\ how\ frequencies\ are\ allowed\ or\ attenuated.\ By\ interpolating\ between\ keyframes\ and\ optionally\ normalizing\ the\ result,\ this\ component\ enables\ flexible\ and\ expressive\ frequency\ shaping\ of\ wavetables.}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{frequency__filter__modifier_8h}{frequency\_filter\_modifier.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{futils_8h}{futils.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__frame_8h}{wave\_frame.h}}"{}}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00013\ \ \ \textcolor{comment}{//\ Internal\ constants\ and\ helper\ functions\ for\ shaping\ the\ filter\ response.}}
+\DoxyCodeLine{00014\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMinPower\ =\ -\/9.0f;}
+\DoxyCodeLine{00015\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMaxPower\ =\ 9.0f;}
+\DoxyCodeLine{00016\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMaxSlopeReach\ =\ 128;}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{powerScale}}(\textcolor{keywordtype}{double}\ value,\ \textcolor{keywordtype}{double}\ power)\ \{}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{comment}{//\ Applies\ a\ nonlinear\ scaling\ function\ to\ 'value',\ controlled\ by\ 'power'.}}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//\ Used\ to\ shape\ the\ comb\ filter\ pattern\ or\ other\ transformations.}}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMinPower\ =\ 0.01f;}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keywordflow}{if}\ (fabs(power)\ <\ kMinPower)}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value;}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keywordtype}{double}\ abs\_value\ =\ fabs(value);}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keywordtype}{double}\ numerator\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ad0ad3cd83f0a4d5a41505d7f1df8adbf}{exp}}(power\ *\ abs\_value)\ -\/\ 1.0f;}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keywordtype}{double}\ denominator\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ad0ad3cd83f0a4d5a41505d7f1df8adbf}{exp}}(power)\ -\/\ 1.0f;}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keywordflow}{if}\ (value\ >=\ 0.0f)}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ numerator\ /\ denominator;}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keywordflow}{return}\ -\/numerator\ /\ denominator;}
+\DoxyCodeLine{00032\ \ \ \}}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{float}\ combWave(\textcolor{keywordtype}{float}\ t,\ \textcolor{keywordtype}{float}\ power)\ \{}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{comment}{//\ Generates\ a\ comb-\/like\ pattern\ based\ on\ the\ input\ time\ 't'\ and\ 'power'.}}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{comment}{//\ This\ pattern\ repeats\ and\ creates\ a\ unique\ frequency-\/domain\ shape\ for\ the\ comb\ filter\ mode.}}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{keywordtype}{float}\ range\ =\ t\ -\/\ floorf(t);}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keywordflow}{return}\ 2.0f\ *\ \mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{powerScale}}(1.0f\ -\/\ fabsf(2.0f\ *\ range\ -\/\ 1.0f),\ power);}
+\DoxyCodeLine{00039\ \ \ \}}
+\DoxyCodeLine{00040\ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a1eb4c17f8aee2b54f197ff7e07b7cea0}{FrequencyFilterModifier::FrequencyFilterModifierKeyframe::FrequencyFilterModifierKeyframe}}()\ \{}
+\DoxyCodeLine{00043\ \ \ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a88d2516e96626f8c518e3e67bf2965f9}{cutoff\_}}\ =\ 4.0f;\ \ \ \textcolor{comment}{//\ A\ default\ cutoff\ in\ log-\/space,\ representing\ a\ certain\ frequency\ bin.}}
+\DoxyCodeLine{00044\ \ \ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a423c1e77abeb6734ff49e9b9d3e5d999}{shape\_}}\ =\ 0.5f;\ \ \ \ \textcolor{comment}{//\ Midway\ shape\ for\ the\ filter\ slope.}}
+\DoxyCodeLine{00045\ \ \ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a9216d850b7cb33001aa6fdd8693e0536}{style\_}}\ =\ \mbox{\hyperlink{class_frequency_filter_modifier_a99acdff41a72dd0835522ead69c8250ba9a83284b040f1cfbd275f0617a00fb0a}{kLowPass}};}
+\DoxyCodeLine{00046\ \ \ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a61cab95653d66e8be98459162d341e88}{normalize\_}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00047\ \}}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a2227411b9b1260a1b7a68a20c9b81a6c}{FrequencyFilterModifier::FrequencyFilterModifierKeyframe::copy}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00050\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe}{FrequencyFilterModifierKeyframe}}*\ source\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe}{FrequencyFilterModifierKeyframe}}*\textcolor{keyword}{>}(keyframe);}
+\DoxyCodeLine{00051\ \ \ shape\_\ =\ source-\/>\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a423c1e77abeb6734ff49e9b9d3e5d999}{shape\_}};}
+\DoxyCodeLine{00052\ \ \ cutoff\_\ =\ source-\/>\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a88d2516e96626f8c518e3e67bf2965f9}{cutoff\_}};}
+\DoxyCodeLine{00053\ \}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a43282ee83ae289ad614ddbcc36e268fc}{FrequencyFilterModifier::FrequencyFilterModifierKeyframe::interpolate}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ from\_keyframe,}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ to\_keyframe,}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t)\ \{}
+\DoxyCodeLine{00058\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe}{FrequencyFilterModifierKeyframe}}*\ from\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe}{FrequencyFilterModifierKeyframe}}*\textcolor{keyword}{>}(from\_keyframe);}
+\DoxyCodeLine{00059\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe}{FrequencyFilterModifierKeyframe}}*\ to\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe}{FrequencyFilterModifierKeyframe}}*\textcolor{keyword}{>}(to\_keyframe);}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \textcolor{comment}{//\ Linearly\ interpolate\ cutoff\ and\ shape\ between\ two\ keyframes.}}
+\DoxyCodeLine{00062\ \ \ shape\_\ =\ linearTween(from-\/>\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a423c1e77abeb6734ff49e9b9d3e5d999}{shape\_}},\ to-\/>\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a423c1e77abeb6734ff49e9b9d3e5d999}{shape\_}},\ t);}
+\DoxyCodeLine{00063\ \ \ cutoff\_\ =\ linearTween(from-\/>\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a88d2516e96626f8c518e3e67bf2965f9}{cutoff\_}},\ to-\/>\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a88d2516e96626f8c518e3e67bf2965f9}{cutoff\_}},\ t);}
+\DoxyCodeLine{00064\ \}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a299b40173b55c3ef91625cc47f6a1093}{FrequencyFilterModifier::FrequencyFilterModifierKeyframe::render}}(\mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ wave\_frame)\ \{}
+\DoxyCodeLine{00067\ \ \ \textcolor{comment}{//\ Apply\ the\ multiplier\ to\ each\ frequency\ bin\ in\ the\ wave\_frame's\ frequency\ domain\ representation.}}
+\DoxyCodeLine{00068\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_addeb13945e5fe1e653aa4b2edd487ede}{vital::WaveFrame::kNumRealComplex}};\ ++i)}
+\DoxyCodeLine{00069\ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]\ *=\ getMultiplier(i);}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_ab5daac5c0f9262624ec0ffd913585432}{toTimeDomain}}();}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \textcolor{comment}{//\ Optionally\ normalize\ the\ wave\ after\ applying\ the\ filter.}}
+\DoxyCodeLine{00074\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_frequency_filter_modifier_abaef9dfe30ff04f894428173e1513419}{normalize\_}})\ \{}
+\DoxyCodeLine{00075\ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_af02e09b935df80488c42c00b47b55f03}{normalize}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00076\ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a55389465c6dd32414e034d10834ff0ee}{toFrequencyDomain}}();}
+\DoxyCodeLine{00077\ \ \ \}}
+\DoxyCodeLine{00078\ \}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a2777a4cd6d45a4890cf02b3ef9a7dfad}{FrequencyFilterModifier::FrequencyFilterModifierKeyframe::stateToJson}}()\ \{}
+\DoxyCodeLine{00081\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_wavetable_keyframe_ab12d53e98f7188d011cd3c69e86d2bda}{WavetableKeyframe::stateToJson}}();}
+\DoxyCodeLine{00082\ \ \ data[\textcolor{stringliteral}{"{}cutoff"{}}]\ =\ cutoff\_;}
+\DoxyCodeLine{00083\ \ \ data[\textcolor{stringliteral}{"{}shape"{}}]\ =\ shape\_;}
+\DoxyCodeLine{00084\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00085\ \}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a1d365c56e48bdc564e2a38b1f4b9309f}{FrequencyFilterModifier::FrequencyFilterModifierKeyframe::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00088\ \ \ \mbox{\hyperlink{class_wavetable_keyframe_ad0e81b3bdc5fe9a3d901dec69d9b7b5b}{WavetableKeyframe::jsonToState}}(data);}
+\DoxyCodeLine{00089\ \ \ cutoff\_\ =\ data[\textcolor{stringliteral}{"{}cutoff"{}}];}
+\DoxyCodeLine{00090\ \ \ shape\_\ =\ data[\textcolor{stringliteral}{"{}shape"{}}];}
+\DoxyCodeLine{00091\ \}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a738a214a67b2b4869657f19c92ef28fc}{FrequencyFilterModifier::FrequencyFilterModifierKeyframe::getMultiplier}}(\textcolor{keywordtype}{float}\ index)\ \{}
+\DoxyCodeLine{00094\ \ \ \textcolor{comment}{//\ Convert\ cutoff\ parameter\ to\ a\ frequency\ index\ and\ then\ shape\ the\ response.}}
+\DoxyCodeLine{00095\ \ \ \textcolor{keywordtype}{float}\ cutoff\_index\ =\ std::pow(2.0f,\ cutoff\_);}
+\DoxyCodeLine{00096\ \ \ \textcolor{keywordtype}{float}\ cutoff\_delta\ =\ index\ -\/\ cutoff\_index;}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \ \ \textcolor{keywordtype}{float}\ slope\ =\ 1.0f\ /\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(1.0f,\ kMaxSlopeReach,\ shape\_\ *\ shape\_);}
+\DoxyCodeLine{00099\ \ \ \textcolor{keywordtype}{float}\ power\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(kMinPower,\ kMaxPower,\ shape\_);}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \ \textcolor{comment}{//\ Based\ on\ style,\ determine\ how\ frequencies\ above/below\ cutoff\ are\ attenuated.}}
+\DoxyCodeLine{00102\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_frequency_filter_modifier_a842942b24fe74427924c845a12112299}{style\_}}\ ==\ \mbox{\hyperlink{class_frequency_filter_modifier_a99acdff41a72dd0835522ead69c8250ba9a83284b040f1cfbd275f0617a00fb0a}{kLowPass}})}
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(1.0f\ -\/\ slope\ *\ cutoff\_delta,\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00104\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_frequency_filter_modifier_a842942b24fe74427924c845a12112299}{style\_}}\ ==\ \mbox{\hyperlink{class_frequency_filter_modifier_a99acdff41a72dd0835522ead69c8250ba690f4ac506827bbddb673f6295a4294a}{kBandPass}})}
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(1.0f\ -\/\ fabsf(slope\ *\ cutoff\_delta),\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00106\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_frequency_filter_modifier_a842942b24fe74427924c845a12112299}{style\_}}\ ==\ \mbox{\hyperlink{class_frequency_filter_modifier_a99acdff41a72dd0835522ead69c8250bacc32286a5abd5038f5f2fc66c79c9cb4}{kHighPass}})}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(1.0f\ +\ slope\ *\ cutoff\_delta,\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00108\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_frequency_filter_modifier_a842942b24fe74427924c845a12112299}{style\_}}\ ==\ \mbox{\hyperlink{class_frequency_filter_modifier_a99acdff41a72dd0835522ead69c8250baf1553564e5b2d4064d5d751860aafcd0}{kComb}})}
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordflow}{return}\ combWave(index\ /\ (cutoff\_index\ *\ 2.0f),\ power);}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ \textcolor{keywordflow}{return}\ 0.0f;}
+\DoxyCodeLine{00112\ \}}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ \mbox{\hyperlink{class_frequency_filter_modifier_ad7edb19b4310dc3f4dd5d30edb4f4df9}{FrequencyFilterModifier::createKeyframe}}(\textcolor{keywordtype}{int}\ position)\ \{}
+\DoxyCodeLine{00115\ \ \ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe}{FrequencyFilterModifierKeyframe}}*\ keyframe\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe}{FrequencyFilterModifierKeyframe}}();}
+\DoxyCodeLine{00116\ \ \ \mbox{\hyperlink{class_wavetable_component_a59b735ee67cc2281379418304de76b6d}{interpolate}}(keyframe,\ position);}
+\DoxyCodeLine{00117\ \ \ \textcolor{keywordflow}{return}\ keyframe;}
+\DoxyCodeLine{00118\ \}}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frequency_filter_modifier_ae7eca43714fe4e77d92c9425939bef61}{FrequencyFilterModifier::render}}(\mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ wave\_frame,\ \textcolor{keywordtype}{float}\ position)\ \{}
+\DoxyCodeLine{00121\ \ \ \textcolor{comment}{//\ Interpolate\ parameters\ for\ the\ given\ position,\ then\ render\ using\ those\ parameters.}}
+\DoxyCodeLine{00122\ \ \ \mbox{\hyperlink{class_wavetable_component_a59b735ee67cc2281379418304de76b6d}{interpolate}}(\&\mbox{\hyperlink{class_frequency_filter_modifier_a5bd5417e5b0ba2b518343dfc6aedf66c}{compute\_frame\_}},\ position);}
+\DoxyCodeLine{00123\ \ \ \mbox{\hyperlink{class_frequency_filter_modifier_a5bd5417e5b0ba2b518343dfc6aedf66c}{compute\_frame\_}}.\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_ad2dd0cb18dbff6c450a87fa2519661b1}{setStyle}}(\mbox{\hyperlink{class_frequency_filter_modifier_a842942b24fe74427924c845a12112299}{style\_}});}
+\DoxyCodeLine{00124\ \ \ \mbox{\hyperlink{class_frequency_filter_modifier_a5bd5417e5b0ba2b518343dfc6aedf66c}{compute\_frame\_}}.\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a99e41cced615bd4ba96f074fc50a5485}{setNormalize}}(\mbox{\hyperlink{class_frequency_filter_modifier_abaef9dfe30ff04f894428173e1513419}{normalize\_}});}
+\DoxyCodeLine{00125\ \ \ \mbox{\hyperlink{class_frequency_filter_modifier_a5bd5417e5b0ba2b518343dfc6aedf66c}{compute\_frame\_}}.\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a299b40173b55c3ef91625cc47f6a1093}{render}}(wave\_frame);}
+\DoxyCodeLine{00126\ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bd}{WavetableComponentFactory::ComponentType}}\ \mbox{\hyperlink{class_frequency_filter_modifier_a0994aa6e45c11666eddb82e16b0dd374}{FrequencyFilterModifier::getType}}()\ \{}
+\DoxyCodeLine{00129\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bda52b0e047ceeb28fbc842cfe7e11b9b20}{WavetableComponentFactory::kFrequencyFilter}};}
+\DoxyCodeLine{00130\ \}}
+\DoxyCodeLine{00131\ }
+\DoxyCodeLine{00132\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_frequency_filter_modifier_a90c197d0d9da0e9bf65ea9178d181087}{FrequencyFilterModifier::stateToJson}}()\ \{}
+\DoxyCodeLine{00133\ \ \ \textcolor{comment}{//\ Serialize\ the\ current\ filter\ style\ and\ normalization\ setting.}}
+\DoxyCodeLine{00134\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_wavetable_component_a1c7bd3ba09cf3093d5aea225ee876b02}{WavetableComponent::stateToJson}}();}
+\DoxyCodeLine{00135\ \ \ data[\textcolor{stringliteral}{"{}style"{}}]\ =\ \mbox{\hyperlink{class_frequency_filter_modifier_a842942b24fe74427924c845a12112299}{style\_}};}
+\DoxyCodeLine{00136\ \ \ data[\textcolor{stringliteral}{"{}normalize"{}}]\ =\ \mbox{\hyperlink{class_frequency_filter_modifier_abaef9dfe30ff04f894428173e1513419}{normalize\_}};}
+\DoxyCodeLine{00137\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00138\ \}}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frequency_filter_modifier_a5c4c42036854b659673e646e84e10c91}{FrequencyFilterModifier::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00141\ \ \ \mbox{\hyperlink{class_wavetable_component_a656616fbc4a9d37b7e76c4179f496196}{WavetableComponent::jsonToState}}(data);}
+\DoxyCodeLine{00142\ \ \ \mbox{\hyperlink{class_frequency_filter_modifier_a842942b24fe74427924c845a12112299}{style\_}}\ =\ data[\textcolor{stringliteral}{"{}style"{}}];}
+\DoxyCodeLine{00143\ \ \ \mbox{\hyperlink{class_frequency_filter_modifier_abaef9dfe30ff04f894428173e1513419}{normalize\_}}\ =\ data[\textcolor{stringliteral}{"{}normalize"{}}];}
+\DoxyCodeLine{00144\ \}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe}{FrequencyFilterModifier::FrequencyFilterModifierKeyframe}}*\ \mbox{\hyperlink{class_frequency_filter_modifier_afa45265c6f76ccae4282a922e9c91249}{FrequencyFilterModifier::getKeyframe}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00147\ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ wavetable\_keyframe\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[index].get();}
+\DoxyCodeLine{00148\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe}{FrequencyFilterModifier::FrequencyFilterModifierKeyframe}}*\textcolor{keyword}{>}(wavetable\_keyframe);}
+\DoxyCodeLine{00149\ \}}
+
+\end{DoxyCode}

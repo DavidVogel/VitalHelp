@@ -1,0 +1,478 @@
+\doxysection{spectral\+\_\+morph.\+h}
+\hypertarget{spectral__morph_8h_source}{}\label{spectral__morph_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/producers/spectral\_morph.h@{/Users/davidvogel/repos/VitalHelp/src/synthesis/producers/spectral\_morph.h}}
+\mbox{\hyperlink{spectral__morph_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fourier__transform_8h}{fourier\_transform.h}}"{}}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{futils_8h}{futils.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable_8h}{wavetable.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00010\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kNumHarmonics\ =\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{WaveFrame::kWaveformSize}}\ /\ 2\ +\ 1;}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00015\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kMaxFormantShift\ =\ 1.0f;}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00020\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kMaxEvenOddFormantShift\ =\ 2.0f;}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00025\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kMaxHarmonicScale\ =\ 4.0f;}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00030\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kMaxInharmonicScale\ =\ 12.0f;}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00035\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMaxSplitScale\ =\ 2;}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00040\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kMaxSplitShift\ =\ 24.0f;}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00045\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kRandomAmplitudeStages\ =\ 16;}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00050\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kPhaseDisperseScale\ =\ 0.05f;}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00055\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kSkewScale\ =\ 16.0f;}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00060\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMaxPolyIndex\ =\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{WaveFrame::kWaveformSize}}\ /\ poly\_float::kSize;}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00071\ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ transformAndWrapBuffer(FourierTransform*\ transform,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ buffer)\ \{}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ transform-\/>transformRealInverse(buffer\ +\ poly\_float::kSize);}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ poly\_float::kSize;\ ++i)\ \{}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \ \ buffer[i]\ =\ buffer[i\ +\ \mbox{\hyperlink{classvital_1_1_wavetable_af75994d8bd5b79ec318fb936abfe8141}{Wavetable::kWaveformSize}}];}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \ \ buffer[i\ +\ \mbox{\hyperlink{classvital_1_1_wavetable_af75994d8bd5b79ec318fb936abfe8141}{Wavetable::kWaveformSize}}\ +\ poly\_float::kSize]\ =\ buffer[i\ +\ poly\_float::kSize];}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \textcolor{preprocessor}{\#if\ DEBUG}}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wavetable_af75994d8bd5b79ec318fb936abfe8141}{Wavetable::kWaveformSize}}\ +\ 2\ *\ poly\_float::kSize;\ ++i)}
+\DoxyCodeLine{00081\ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{namespacevital_1_1utils_a221874465932464f6c5fe9e187f0eb14}{utils::isFinite}}(buffer[i]));}
+\DoxyCodeLine{00082\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00083\ \ \ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00091\ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ transformAndWrapBuffer(FourierTransform*\ transform,\ poly\_float*\ buffer)\ \{}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ transformAndWrapBuffer(transform,\ (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)buffer);}
+\DoxyCodeLine{00093\ \ \ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00109\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ passthroughMorph(\textcolor{keyword}{const}\ Wavetable::WavetableData*\ wavetable\_data,}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ wavetable\_index,\ poly\_float*\ dest,\ FourierTransform*\ transform,}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ shift,\ \textcolor{keywordtype}{int}\ last\_harmonic,\ \textcolor{keyword}{const}\ poly\_float*\ data\_buffer)\ \{}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ frequency\_amplitudes\ =\ wavetable\_data-\/>frequency\_amplitudes[wavetable\_index];}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ normalized\_frequencies\ =\ wavetable\_data-\/>normalized\_frequencies[wavetable\_index];}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \ \ \ \ poly\_float*\ wave\_start\ =\ dest\ +\ 1;}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keywordtype}{int}\ last\_index\ =\ 2\ *\ last\_harmonic\ /\ poly\_float::kSize;}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <=\ last\_index;\ ++i)}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ wave\_start[i]\ =\ frequency\_amplitudes[i]\ *\ normalized\_frequencies[i];}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ last\_index\ +\ 1;\ i\ <\ kMaxPolyIndex;\ ++i)}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ wave\_start[i]\ =\ 0.0f;}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ \ \ transformAndWrapBuffer(transform,\ dest);}
+\DoxyCodeLine{00125\ \ \ \}}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00141\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ shepardMorph(\textcolor{keyword}{const}\ Wavetable::WavetableData*\ wavetable\_data,}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ wavetable\_index,\ poly\_float*\ dest,\ FourierTransform*\ transform,}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ shift,\ \textcolor{keywordtype}{int}\ last\_harmonic,\ \textcolor{keyword}{const}\ poly\_float*\ data\_buffer)\ \{}
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMinAmplitudeRatio\ =\ 2.0f;}
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMinAmplitudeAdd\ =\ 0.001f;}
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ poly\_amplitudes\ =\ wavetable\_data-\/>frequency\_amplitudes[wavetable\_index];}
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ poly\_normalized\_frequencies\ =\ wavetable\_data-\/>normalized\_frequencies[wavetable\_index];}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \ \ \ \ poly\_float*\ poly\_wave\_start\ =\ dest\ +\ 1;}
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keywordtype}{int}\ last\_index\ =\ 2\ *\ last\_harmonic\ /\ poly\_float::kSize;}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \ \ \textcolor{keywordtype}{float}\ regular\_amount\ =\ 1.0f\ -\/\ shift;}
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <=\ last\_index;\ ++i)\ \{}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ poly\_float\ value\ =\ poly\_amplitudes[i]\ *\ poly\_normalized\_frequencies[i]\ *\ regular\_amount;}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ poly\_wave\_start[i]\ =\ value\ \&\ \mbox{\hyperlink{namespacevital_1_1constants_acd0f986d96453e973fa18d21a30b553f}{constants::kSecondMask}};}
+\DoxyCodeLine{00156\ \ \ \ \ \}}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ last\_index\ +\ 1;\ i\ <\ kMaxPolyIndex;\ ++i)}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ poly\_wave\_start[i]\ =\ 0.0f;}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ frequency\_amplitudes\ =\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)wavetable\_data-\/>frequency\_amplitudes[wavetable\_index];}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ normalized\ =\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)wavetable\_data-\/>normalized\_frequencies[wavetable\_index];}
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ phases\ =\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)wavetable\_data-\/>phases[wavetable\_index];}
+\DoxyCodeLine{00164\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ wave\_start\ =\ (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)(dest\ +\ 1);}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <=\ last\_harmonic;\ i\ +=\ 2)\ \{}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ real\_index\ =\ 2\ *\ i;}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ imag\_index\ =\ real\_index\ +\ 1;}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ fundamental\_amplitude\ =\ frequency\_amplitudes[real\_index];}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ shepard\_amplitude\ =\ frequency\_amplitudes[i];}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\ =\ fundamental\_amplitude\ +\ (shepard\_amplitude\ -\/\ fundamental\_amplitude)\ *\ shift;}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ ratio\ =\ (fundamental\_amplitude\ +\ kMinAmplitudeAdd)\ /\ (shepard\_amplitude\ +\ kMinAmplitudeAdd);}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ real,\ imag;}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ratio\ <\ kMinAmplitudeRatio\ \&\&\ ratio\ >\ (1.0f\ /\ kMinAmplitudeRatio))\ \{}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ fundamental\_phase\ =\ phases[real\_index]\ *\ (0.5f\ /\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{kPi}});}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ shepard\_phase\ =\ phases[i]\ *\ (0.5f\ /\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{kPi}});}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ delta\_phase\ =\ shepard\_phase\ -\/\ fundamental\_phase;}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ wraps\ =\ delta\_phase;}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ wraps\ =\ (wraps\ +\ 1)\ /\ 2;}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ delta\_phase\ -\/=\ 2.0f\ *\ wraps;}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ phase\ =\ fundamental\_phase\ +\ delta\_phase\ *\ shift;}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ real\ =\ \mbox{\hyperlink{namespacevital_1_1futils_a67053c866c0d6deeff2b0b2a38d55d3e}{futils::sin}}(\mbox{\hyperlink{namespacevital_1_1utils_a02cebee05a6ccafbce870a1a18ae0d04}{utils::mod}}(phase\ +\ 0.75f)[0]\ -\/\ 0.5f);}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ imag\ =\ \mbox{\hyperlink{namespacevital_1_1futils_a67053c866c0d6deeff2b0b2a38d55d3e}{futils::sin}}(\mbox{\hyperlink{namespacevital_1_1utils_a02cebee05a6ccafbce870a1a18ae0d04}{utils::mod}}(phase\ +\ 0.5f)[0]\ -\/\ 0.5f);}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ fundamental\_real\ =\ normalized[real\_index];}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ real\ =\ (normalized[i]\ -\/\ fundamental\_real)\ *\ shift\ +\ fundamental\_real;}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ fundamental\_imag\ =\ normalized[real\_index\ +\ 1];}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ imag\ =\ (normalized[i\ +\ 1]\ -\/\ fundamental\_imag)\ *\ shift\ +\ fundamental\_imag;}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00195\ \ \ \ \ \ \ wave\_start[real\_index]\ =\ amplitude\ *\ real;}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ wave\_start[imag\_index]\ =\ amplitude\ *\ imag;}
+\DoxyCodeLine{00197\ \ \ \ \ \}}
+\DoxyCodeLine{00198\ }
+\DoxyCodeLine{00199\ \ \ \ \ transformAndWrapBuffer(transform,\ dest);}
+\DoxyCodeLine{00200\ \ \ \}}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00216\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ wavetableSkewMorph(\textcolor{keyword}{const}\ Wavetable::WavetableData*\ wavetable\_data,}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ wavetable\_index,\ poly\_float*\ dest,\ FourierTransform*\ transform,}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ shift,\ \textcolor{keywordtype}{int}\ last\_harmonic,\ \textcolor{keyword}{const}\ poly\_float*\ data\_buffer)\ \{}
+\DoxyCodeLine{00219\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ wave\_start\ =\ (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)(dest\ +\ 1);}
+\DoxyCodeLine{00220\ }
+\DoxyCodeLine{00221\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_frames\ =\ wavetable\_data-\/>num\_frames;}
+\DoxyCodeLine{00222\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_frames\ <=\ 1)\ \{}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ passthroughMorph(wavetable\_data,\ wavetable\_index,\ dest,\ transform,\ shift,\ last\_harmonic,\ data\_buffer);}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00225\ \ \ \ \ \}}
+\DoxyCodeLine{00226\ }
+\DoxyCodeLine{00227\ \ \ \ \ \textcolor{keywordtype}{float}\ dc\_amplitude\ =\ wavetable\_data-\/>frequency\_amplitudes[wavetable\_index][0][0];}
+\DoxyCodeLine{00228\ \ \ \ \ \textcolor{keywordtype}{float}\ dc\_real\ =\ wavetable\_data-\/>normalized\_frequencies[wavetable\_index][0][0];}
+\DoxyCodeLine{00229\ \ \ \ \ \textcolor{keywordtype}{float}\ dc\_imag\ =\ wavetable\_data-\/>normalized\_frequencies[wavetable\_index][0][1];}
+\DoxyCodeLine{00230\ \ \ \ \ wave\_start[0]\ =\ dc\_amplitude\ *\ dc\_real;}
+\DoxyCodeLine{00231\ \ \ \ \ wave\_start[1]\ =\ dc\_amplitude\ *\ dc\_imag;}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00233\ \ \ \ \ \textcolor{keywordtype}{float}\ max\_frame\ =\ \mbox{\hyperlink{namespacevital_aa72aa67cd199ba84e12ec933d74ba400}{kNumOscillatorWaveFrames}}\ -\/\ 1;}
+\DoxyCodeLine{00234\ \ \ \ \ \textcolor{keywordtype}{float}\ base\_wavetable\_t\ =\ wavetable\_index\ /\ max\_frame;}
+\DoxyCodeLine{00235\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <=\ last\_harmonic;\ ++i)\ \{}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ shift\_scale\ =\ \mbox{\hyperlink{namespacevital_1_1futils_a7a327ceafdcf035f71f3959db159e24c}{futils::log2}}(i)\ /\ \mbox{\hyperlink{classvital_1_1_wavetable_a737e3d506f166f24ee5955915f6b8dce}{Wavetable::kFrequencyBins}};}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ poly\_float\ base\_value\ =\ poly\_float(1.0f)\ -\/\ \mbox{\hyperlink{namespacevital_1_1utils_a02cebee05a6ccafbce870a1a18ae0d04}{utils::mod}}((base\_wavetable\_t\ +\ shift\ *\ shift\_scale)\ *\ 0.5f)\ *\ 2.0f;}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ shifted\_index\ =\ (1.0f\ -\/\ \mbox{\hyperlink{structvital_1_1poly__float_ac682406ecd547c6e897f3d09ac549105}{poly\_float::abs}}(base\_value)[0])\ *\ max\_frame;}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ from\_index\ =\ std::min<int>(shifted\_index,\ num\_frames\ -\/\ 2);}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ std::min(1.0f,\ shifted\_index\ -\/\ from\_index);}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ to\_index\ =\ from\_index\ +\ 1;}
+\DoxyCodeLine{00242\ }
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ real\_index\ =\ 2\ *\ i;}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ imaginary\_index\ =\ real\_index\ +\ 1;}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ from\_amplitudes\ =\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)wavetable\_data-\/>frequency\_amplitudes[from\_index];}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ to\_amplitudes\ =\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)wavetable\_data-\/>frequency\_amplitudes[to\_index];}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(from\_amplitudes[real\_index],\ to\_amplitudes[real\_index],\ t);}
+\DoxyCodeLine{00248\ }
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ from\_normalized\ =\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)wavetable\_data-\/>normalized\_frequencies[from\_index];}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ to\_normalized\ =\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)wavetable\_data-\/>normalized\_frequencies[to\_index];}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ real\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(from\_normalized[real\_index],\ to\_normalized[real\_index],\ t);}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ imag\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(from\_normalized[imaginary\_index],\ to\_normalized[imaginary\_index],\ t);}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \ \ \ \ \ \ wave\_start[real\_index]\ =\ amplitude\ *\ real;}
+\DoxyCodeLine{00255\ \ \ \ \ \ \ wave\_start[imaginary\_index]\ =\ amplitude\ *\ imag;}
+\DoxyCodeLine{00256\ \ \ \ \ \}}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00258\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 2\ *\ (last\_harmonic\ +\ 1);\ i\ <\ 2\ *\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{WaveFrame::kWaveformSize}};\ ++i)}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ wave\_start[i]\ =\ 0.0f;}
+\DoxyCodeLine{00260\ }
+\DoxyCodeLine{00261\ \ \ \ \ transformAndWrapBuffer(transform,\ dest);}
+\DoxyCodeLine{00262\ \ \ \}}
+\DoxyCodeLine{00263\ }
+\DoxyCodeLine{00277\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ phaseMorph(\textcolor{keyword}{const}\ Wavetable::WavetableData*\ wavetable\_data,}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ wavetable\_index,\ poly\_float*\ dest,\ FourierTransform*\ transform,}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ phase\_shift,\ \textcolor{keywordtype}{int}\ last\_harmonic,\ \textcolor{keyword}{const}\ poly\_float*\ data\_buffer)\ \{}
+\DoxyCodeLine{00280\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kCenterMorph\ =\ 24.0f;}
+\DoxyCodeLine{00281\ }
+\DoxyCodeLine{00282\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ frequency\_amplitudes\ =\ wavetable\_data-\/>frequency\_amplitudes[wavetable\_index];}
+\DoxyCodeLine{00283\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ normalized\_frequencies\ =\ wavetable\_data-\/>normalized\_frequencies[wavetable\_index];}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00285\ \ \ \ \ poly\_float*\ wave\_start\ =\ dest\ +\ 1;}
+\DoxyCodeLine{00286\ \ \ \ \ \textcolor{keywordtype}{int}\ last\_index\ =\ 2\ *\ last\_harmonic\ /\ poly\_float::kSize;}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00288\ \ \ \ \ \textcolor{keywordtype}{float}\ offset\ =\ -\/(kCenterMorph\ -\/\ 1.0f)\ *\ (kCenterMorph\ -\/\ 1.0f)\ *\ phase\_shift;}
+\DoxyCodeLine{00289\ \ \ \ \ poly\_float\ value\_offset(0.0f,\ 0.0f,\ 1.0f,\ 1.0f);}
+\DoxyCodeLine{00290\ \ \ \ \ poly\_float\ phase\_offset(0.25f,\ 0.0f,\ 0.25f,\ 0.0f);}
+\DoxyCodeLine{00291\ \ \ \ \ poly\_float\ scale\ =\ 0.5f\ /\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{kPi}};}
+\DoxyCodeLine{00292\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <=\ last\_index;\ ++i)\ \{}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ poly\_float\ amplitude\ =\ frequency\_amplitudes[i];}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ poly\_float\ normalized\ =\ normalized\_frequencies[i];}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ poly\_float\ index\ =\ value\_offset\ +\ 2.0f\ *\ i;}
+\DoxyCodeLine{00296\ }
+\DoxyCodeLine{00297\ \ \ \ \ \ \ poly\_float\ delta\_center\ =\ (index\ -\/\ kCenterMorph)\ *\ (index\ -\/\ kCenterMorph)\ *\ phase\_shift\ +\ offset;}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ poly\_float\ phase\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a02cebee05a6ccafbce870a1a18ae0d04}{utils::mod}}(delta\_center\ *\ scale\ +\ phase\_offset);}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ poly\_float\ shift\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ac023a188ceb712b21378487be3c90e5c}{futils::sin1}}(phase);}
+\DoxyCodeLine{00300\ }
+\DoxyCodeLine{00301\ \ \ \ \ \ \ poly\_float\ match\_mult\ =\ normalized\ *\ shift;}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ poly\_float\ switch\_mult\ =\ \mbox{\hyperlink{namespacevital_1_1utils_af5c60a9d57eb9105808c85d03cc6ae71}{utils::swapStereo}}(normalized)\ *\ shift;}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ poly\_float\ real\ =\ match\_mult\ -\/\ \mbox{\hyperlink{namespacevital_1_1utils_af5c60a9d57eb9105808c85d03cc6ae71}{utils::swapStereo}}(match\_mult);}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ poly\_float\ imag\ =\ switch\_mult\ +\ \mbox{\hyperlink{namespacevital_1_1utils_af5c60a9d57eb9105808c85d03cc6ae71}{utils::swapStereo}}(switch\_mult);}
+\DoxyCodeLine{00305\ }
+\DoxyCodeLine{00306\ \ \ \ \ \ \ wave\_start[i]\ =\ amplitude\ *\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(imag,\ real,\ \mbox{\hyperlink{namespacevital_1_1constants_aa5dbdca3f4761e46912a986e3c4dfd60}{constants::kLeftMask}});}
+\DoxyCodeLine{00307\ \ \ \ \ \}}
+\DoxyCodeLine{00308\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ last\_index\ +\ 1;\ i\ <\ kMaxPolyIndex;\ ++i)}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ wave\_start[i]\ =\ 0.0f;}
+\DoxyCodeLine{00310\ }
+\DoxyCodeLine{00311\ \ \ \ \ transformAndWrapBuffer(transform,\ dest);}
+\DoxyCodeLine{00312\ \ \ \}}
+\DoxyCodeLine{00313\ }
+\DoxyCodeLine{00327\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ smearMorph(\textcolor{keyword}{const}\ Wavetable::WavetableData*\ wavetable\_data,}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ wavetable\_index,\ poly\_float*\ dest,\ FourierTransform*\ transform,}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ smear,\ \textcolor{keywordtype}{int}\ last\_harmonic,\ \textcolor{keyword}{const}\ poly\_float*\ data\_buffer)\ \{}
+\DoxyCodeLine{00330\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ frequency\_amplitudes\ =\ wavetable\_data-\/>frequency\_amplitudes[wavetable\_index];}
+\DoxyCodeLine{00331\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ normalized\_frequencies\ =\ wavetable\_data-\/>normalized\_frequencies[wavetable\_index];}
+\DoxyCodeLine{00332\ }
+\DoxyCodeLine{00333\ \ \ \ \ poly\_float*\ wave\_start\ =\ dest\ +\ 1;}
+\DoxyCodeLine{00334\ \ \ \ \ \textcolor{keywordtype}{int}\ last\_index\ =\ 2\ *\ last\_harmonic\ /\ poly\_float::kSize;}
+\DoxyCodeLine{00335\ }
+\DoxyCodeLine{00336\ \ \ \ \ poly\_float\ amplitude\ =\ frequency\_amplitudes[0]\ *\ (1.0f\ -\/\ smear);}
+\DoxyCodeLine{00337\ \ \ \ \ wave\_start[0]\ =\ amplitude\ *\ normalized\_frequencies[0];}
+\DoxyCodeLine{00338\ }
+\DoxyCodeLine{00339\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <=\ last\_index;\ ++i)\ \{}
+\DoxyCodeLine{00340\ \ \ \ \ \ \ poly\_float\ original\_amplitude\ =\ frequency\_amplitudes[i];}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ amplitude\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(original\_amplitude,\ amplitude,\ smear);}
+\DoxyCodeLine{00342\ }
+\DoxyCodeLine{00343\ \ \ \ \ \ \ wave\_start[i]\ =\ amplitude\ *\ normalized\_frequencies[i];}
+\DoxyCodeLine{00344\ \ \ \ \ \ \ amplitude\ *=\ (i\ +\ 0.25f)\ /\ i;}
+\DoxyCodeLine{00345\ \ \ \ \ \}}
+\DoxyCodeLine{00346\ }
+\DoxyCodeLine{00347\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ last\_index\ +\ 1;\ i\ <\ kMaxPolyIndex;\ ++i)}
+\DoxyCodeLine{00348\ \ \ \ \ \ \ wave\_start[i]\ =\ 0.0f;}
+\DoxyCodeLine{00349\ }
+\DoxyCodeLine{00350\ \ \ \ \ transformAndWrapBuffer(transform,\ dest);}
+\DoxyCodeLine{00351\ \ \ \}}
+\DoxyCodeLine{00352\ }
+\DoxyCodeLine{00366\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ lowPassMorph(\textcolor{keyword}{const}\ Wavetable::WavetableData*\ wavetable\_data,}
+\DoxyCodeLine{00367\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ wavetable\_index,\ poly\_float*\ dest,\ FourierTransform*\ transform,}
+\DoxyCodeLine{00368\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ cutoff\_t,\ \textcolor{keywordtype}{int}\ last\_harmonic,\ \textcolor{keyword}{const}\ poly\_float*\ data\_buffer)\ \{}
+\DoxyCodeLine{00369\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ frequency\_amplitudes\ =\ wavetable\_data-\/>frequency\_amplitudes[wavetable\_index];}
+\DoxyCodeLine{00370\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ normalized\_frequencies\ =\ wavetable\_data-\/>normalized\_frequencies[wavetable\_index];}
+\DoxyCodeLine{00371\ }
+\DoxyCodeLine{00372\ \ \ \ \ poly\_float*\ wave\_start\ =\ dest\ +\ 1;}
+\DoxyCodeLine{00373\ \ \ \ \ \textcolor{keywordtype}{float}\ cutoff\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ae7439e66951da54e8d732fd62619bc5b}{futils::pow}}(2.0f,\ (\mbox{\hyperlink{classvital_1_1_wavetable_a737e3d506f166f24ee5955915f6b8dce}{Wavetable::kFrequencyBins}}\ -\/\ 1)\ *\ cutoff\_t)\ +\ 1.0f;}
+\DoxyCodeLine{00374\ \ \ \ \ \textcolor{keywordtype}{int}\ last\_index\ =\ 2\ *\ last\_harmonic\ /\ poly\_float::kSize;}
+\DoxyCodeLine{00375\ \ \ \ \ \textcolor{keywordtype}{float}\ poly\_cutoff\ =\ std::min(last\_index\ +\ 1.0f,\ 2.0f\ *\ cutoff\ /\ poly\_float::kSize);}
+\DoxyCodeLine{00376\ \ \ \ \ last\_index\ =\ std::min<int>(last\_index,\ poly\_cutoff);}
+\DoxyCodeLine{00377\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ poly\_float::kSize\ *\ (poly\_cutoff\ -\/\ last\_index)\ /\ 2.0f;}
+\DoxyCodeLine{00378\ }
+\DoxyCodeLine{00379\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <=\ last\_index;\ ++i)}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ wave\_start[i]\ =\ frequency\_amplitudes[i]\ *\ normalized\_frequencies[i];}
+\DoxyCodeLine{00381\ }
+\DoxyCodeLine{00382\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ last\_index\ +\ 1;\ i\ <=\ kMaxPolyIndex;\ ++i)}
+\DoxyCodeLine{00383\ \ \ \ \ \ \ wave\_start[i]\ =\ 0.0f;}
+\DoxyCodeLine{00384\ }
+\DoxyCodeLine{00385\ \ \ \ \ poly\_float\ last\_mult\ =\ 1.0f;}
+\DoxyCodeLine{00386\ \ \ \ \ \textcolor{keywordflow}{if}\ (t\ >=\ 1.0f)}
+\DoxyCodeLine{00387\ \ \ \ \ \ \ last\_mult\ =\ poly\_float(1.0f,\ 1.0f,\ t\ -\/\ 1.0f,\ t\ -\/\ 1.0f);}
+\DoxyCodeLine{00388\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00389\ \ \ \ \ \ \ last\_mult\ =\ poly\_float(t,\ t,\ 0.0f,\ 0.0f);}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00391\ \ \ \ \ wave\_start[last\_index]\ =\ wave\_start[last\_index]\ *\ last\_mult;}
+\DoxyCodeLine{00392\ }
+\DoxyCodeLine{00393\ \ \ \ \ transformAndWrapBuffer(transform,\ dest);}
+\DoxyCodeLine{00394\ \ \ \}}
+\DoxyCodeLine{00395\ }
+\DoxyCodeLine{00409\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ highPassMorph(\textcolor{keyword}{const}\ Wavetable::WavetableData*\ wavetable\_data,}
+\DoxyCodeLine{00410\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ wavetable\_index,\ poly\_float*\ dest,\ FourierTransform*\ transform,}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ cutoff\_t,\ \textcolor{keywordtype}{int}\ last\_harmonic,\ \textcolor{keyword}{const}\ poly\_float*\ data\_buffer)\ \{}
+\DoxyCodeLine{00412\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ frequency\_amplitudes\ =\ wavetable\_data-\/>frequency\_amplitudes[wavetable\_index];}
+\DoxyCodeLine{00413\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ normalized\_frequencies\ =\ wavetable\_data-\/>normalized\_frequencies[wavetable\_index];}
+\DoxyCodeLine{00414\ }
+\DoxyCodeLine{00415\ \ \ \ \ poly\_float*\ wave\_start\ =\ dest\ +\ 1;}
+\DoxyCodeLine{00416\ \ \ \ \ \textcolor{keywordtype}{float}\ cutoff\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ae7439e66951da54e8d732fd62619bc5b}{futils::pow}}(2.0f,\ (\mbox{\hyperlink{classvital_1_1_wavetable_a737e3d506f166f24ee5955915f6b8dce}{Wavetable::kFrequencyBins}}\ -\/\ 1)\ *\ cutoff\_t);}
+\DoxyCodeLine{00417\ \ \ \ \ cutoff\ *=\ (kNumHarmonics\ +\ 1.0f)\ /\ kNumHarmonics;}
+\DoxyCodeLine{00418\ \ \ \ \ \textcolor{keywordtype}{int}\ last\_index\ =\ 2\ *\ last\_harmonic\ /\ poly\_float::kSize;}
+\DoxyCodeLine{00419\ \ \ \ \ \textcolor{keywordtype}{float}\ poly\_cutoff\ =\ std::min(last\_index\ +\ 1.0f,\ 2.0f\ *\ cutoff\ /\ poly\_float::kSize);}
+\DoxyCodeLine{00420\ \ \ \ \ \textcolor{keywordtype}{int}\ start\_index\ =\ poly\_cutoff;}
+\DoxyCodeLine{00421\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ poly\_float::kSize\ *\ (poly\_cutoff\ -\/\ start\_index)\ /\ 2.0f;}
+\DoxyCodeLine{00422\ }
+\DoxyCodeLine{00423\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ start\_index;\ ++i)}
+\DoxyCodeLine{00424\ \ \ \ \ \ \ wave\_start[i]\ =\ 0.0f;}
+\DoxyCodeLine{00425\ }
+\DoxyCodeLine{00426\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ start\_index;\ i\ <=\ last\_index;\ ++i)}
+\DoxyCodeLine{00427\ \ \ \ \ \ \ wave\_start[i]\ =\ frequency\_amplitudes[i]\ *\ normalized\_frequencies[i];}
+\DoxyCodeLine{00428\ }
+\DoxyCodeLine{00429\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ last\_index\ +\ 1;\ i\ <=\ kMaxPolyIndex;\ ++i)}
+\DoxyCodeLine{00430\ \ \ \ \ \ \ wave\_start[i]\ =\ 0.0f;}
+\DoxyCodeLine{00431\ }
+\DoxyCodeLine{00432\ \ \ \ \ poly\_float\ last\_mult\ =\ 1.0f;}
+\DoxyCodeLine{00433\ \ \ \ \ \textcolor{keywordflow}{if}\ (t\ >=\ 1.0f)}
+\DoxyCodeLine{00434\ \ \ \ \ \ \ last\_mult\ =\ poly\_float(0.0f,\ 0.0f,\ 2.0f\ -\/\ t,\ 2.0f\ -\/\ t);}
+\DoxyCodeLine{00435\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00436\ \ \ \ \ \ \ last\_mult\ =\ poly\_float(1.0f\ -\/\ t,\ 1.0f\ -\/\ t,\ 1.0f,\ 1.0f);}
+\DoxyCodeLine{00437\ }
+\DoxyCodeLine{00438\ \ \ \ \ wave\_start[start\_index]\ =\ wave\_start[start\_index]\ *\ last\_mult;}
+\DoxyCodeLine{00439\ }
+\DoxyCodeLine{00440\ \ \ \ \ transformAndWrapBuffer(transform,\ dest);}
+\DoxyCodeLine{00441\ \ \ \}}
+\DoxyCodeLine{00442\ }
+\DoxyCodeLine{00457\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ evenOddVocodeMorph(\textcolor{keyword}{const}\ Wavetable::WavetableData*\ wavetable\_data,}
+\DoxyCodeLine{00458\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ wavetable\_index,\ poly\_float*\ dest,\ FourierTransform*\ transform,}
+\DoxyCodeLine{00459\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ shift,\ \textcolor{keywordtype}{int}\ last\_harmonic,\ \textcolor{keyword}{const}\ poly\_float*\ data\_buffer)\ \{}
+\DoxyCodeLine{00460\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ wave\_start\ =\ (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)(dest\ +\ 1);}
+\DoxyCodeLine{00461\ \ \ \ \ \textcolor{keywordtype}{int}\ last\_index\ =\ std::min<int>(last\_harmonic,\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{WaveFrame::kWaveformSize}}\ /\ (2\ *\ shift));}
+\DoxyCodeLine{00462\ }
+\DoxyCodeLine{00463\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ amplitudes\ =\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)wavetable\_data-\/>frequency\_amplitudes[wavetable\_index];}
+\DoxyCodeLine{00464\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ normalized\ =\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)wavetable\_data-\/>normalized\_frequencies[wavetable\_index];}
+\DoxyCodeLine{00465\ }
+\DoxyCodeLine{00466\ \ \ \ \ \textcolor{keywordtype}{float}\ dc\_amplitude\ =\ amplitudes[0];}
+\DoxyCodeLine{00467\ \ \ \ \ wave\_start[0]\ =\ dc\_amplitude\ *\ normalized[0];}
+\DoxyCodeLine{00468\ \ \ \ \ wave\_start[1]\ =\ dc\_amplitude\ *\ normalized[1];}
+\DoxyCodeLine{00469\ }
+\DoxyCodeLine{00470\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <=\ last\_index;\ ++i)\ \{}
+\DoxyCodeLine{00471\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ shifted\_index\ =\ std::max(1.0f,\ i\ *\ shift);}
+\DoxyCodeLine{00472\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\_start\ =\ shifted\_index;}
+\DoxyCodeLine{00473\ \ \ \ \ \ \ index\_start\ =\ index\_start\ -\/\ (i\ +\ index\_start)\ \%\ 2;}
+\DoxyCodeLine{00474\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(index\_start\ >=\ 0\ \&\&\ index\_start\ <\ kNumHarmonics);}
+\DoxyCodeLine{00475\ }
+\DoxyCodeLine{00476\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ (shifted\_index\ -\/\ index\_start)\ *\ 0.5f;}
+\DoxyCodeLine{00477\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ real\_index1\ =\ 2\ *\ index\_start;}
+\DoxyCodeLine{00478\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ real\_index2\ =\ real\_index1\ +\ 4;}
+\DoxyCodeLine{00479\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\_from\ =\ amplitudes[real\_index1];}
+\DoxyCodeLine{00480\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\_to\ =\ amplitudes[real\_index2];}
+\DoxyCodeLine{00481\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ real\_from\ =\ amplitude\_from\ *\ normalized[real\_index1];}
+\DoxyCodeLine{00482\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ real\_to\ =\ amplitude\_to\ *\ normalized[real\_index2];}
+\DoxyCodeLine{00483\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ imag\_from\ =\ amplitude\_from\ *\ normalized[real\_index1\ +\ 1];}
+\DoxyCodeLine{00484\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ imag\_to\ =\ amplitude\_to\ *\ normalized[real\_index2\ +\ 1];}
+\DoxyCodeLine{00485\ }
+\DoxyCodeLine{00486\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{namespacevital_1_1utils_a221874465932464f6c5fe9e187f0eb14}{utils::isFinite}}(real\_from)\ \&\&\ \mbox{\hyperlink{namespacevital_1_1utils_a221874465932464f6c5fe9e187f0eb14}{utils::isFinite}}(real\_to));}
+\DoxyCodeLine{00487\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{namespacevital_1_1utils_a221874465932464f6c5fe9e187f0eb14}{utils::isFinite}}(imag\_from)\ \&\&\ \mbox{\hyperlink{namespacevital_1_1utils_a221874465932464f6c5fe9e187f0eb14}{utils::isFinite}}(imag\_to));}
+\DoxyCodeLine{00488\ }
+\DoxyCodeLine{00489\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ real\_index\ =\ 2\ *\ i;}
+\DoxyCodeLine{00490\ \ \ \ \ \ \ wave\_start[real\_index]\ =\ shift\ *\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(real\_from,\ real\_to,\ t);}
+\DoxyCodeLine{00491\ \ \ \ \ \ \ wave\_start[real\_index\ +\ 1]\ =\ shift\ *\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(imag\_from,\ imag\_to,\ t);}
+\DoxyCodeLine{00492\ \ \ \ \ \}}
+\DoxyCodeLine{00493\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 2\ *\ (last\_index\ +\ 1);\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{WaveFrame::kWaveformSize}};\ ++i)}
+\DoxyCodeLine{00494\ \ \ \ \ \ \ wave\_start[i]\ =\ 0.0f;}
+\DoxyCodeLine{00495\ }
+\DoxyCodeLine{00496\ \ \ \ \ transformAndWrapBuffer(transform,\ dest);}
+\DoxyCodeLine{00497\ \ \ \}}
+\DoxyCodeLine{00498\ }
+\DoxyCodeLine{00512\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ harmonicScaleMorph(\textcolor{keyword}{const}\ Wavetable::WavetableData*\ wavetable\_data,}
+\DoxyCodeLine{00513\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ wavetable\_index,\ poly\_float*\ dest,\ FourierTransform*\ transform,}
+\DoxyCodeLine{00514\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ shift,\ \textcolor{keywordtype}{int}\ last\_harmonic,\ \textcolor{keyword}{const}\ poly\_float*\ data\_buffer)\ \{}
+\DoxyCodeLine{00515\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ wave\_start\ =\ (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)(dest\ +\ 1);}
+\DoxyCodeLine{00516\ \ \ \ \ memset(wave\_start,\ 0,\ 2\ *\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{WaveFrame::kWaveformSize}}\ *\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}));}
+\DoxyCodeLine{00517\ \ \ \ \ \textcolor{keywordtype}{int}\ harmonics\ =\ std::min<int>(kNumHarmonics,\ (last\_harmonic\ -\/\ 1)\ /\ shift\ +\ 1);}
+\DoxyCodeLine{00518\ }
+\DoxyCodeLine{00519\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ amplitudes\ =\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)wavetable\_data-\/>frequency\_amplitudes[wavetable\_index];}
+\DoxyCodeLine{00520\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ normalized\ =\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)wavetable\_data-\/>normalized\_frequencies[wavetable\_index];}
+\DoxyCodeLine{00521\ }
+\DoxyCodeLine{00522\ \ \ \ \ \textcolor{keywordtype}{float}\ dc\_amplitude\ =\ amplitudes[0];}
+\DoxyCodeLine{00523\ \ \ \ \ wave\_start[0]\ =\ dc\_amplitude\ *\ normalized[0];}
+\DoxyCodeLine{00524\ \ \ \ \ wave\_start[1]\ =\ dc\_amplitude\ *\ normalized[1];}
+\DoxyCodeLine{00525\ }
+\DoxyCodeLine{00526\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <=\ harmonics;\ ++i)\ \{}
+\DoxyCodeLine{00527\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ shifted\_index\ =\ std::max(1.0f,\ (i\ -\/\ 1)\ *\ shift\ +\ 1);}
+\DoxyCodeLine{00528\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ dest\_index\ =\ shifted\_index;}
+\DoxyCodeLine{00529\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(dest\_index\ >=\ 0\ \&\&\ dest\_index\ <=\ kNumHarmonics);}
+\DoxyCodeLine{00530\ }
+\DoxyCodeLine{00531\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ shifted\_index\ -\/\ dest\_index;}
+\DoxyCodeLine{00532\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ real\_amount\ =\ normalized[2\ *\ i];}
+\DoxyCodeLine{00533\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ imag\_amount\ =\ normalized[2\ *\ i\ +\ 1];}
+\DoxyCodeLine{00534\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\ =\ amplitudes[2\ *\ i];}
+\DoxyCodeLine{00535\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude1\ =\ (1.0f\ -\/\ t)\ *\ amplitude;}
+\DoxyCodeLine{00536\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude2\ =\ t\ *\ amplitude;}
+\DoxyCodeLine{00537\ }
+\DoxyCodeLine{00538\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ real\_index1\ =\ 2\ *\ dest\_index;}
+\DoxyCodeLine{00539\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ imaginary\_index1\ =\ real\_index1\ +\ 1;}
+\DoxyCodeLine{00540\ \ \ \ \ \ \ wave\_start[real\_index1]\ +=\ amplitude1\ *\ real\_amount;}
+\DoxyCodeLine{00541\ \ \ \ \ \ \ wave\_start[imaginary\_index1]\ +=\ amplitude1\ *\ imag\_amount;}
+\DoxyCodeLine{00542\ }
+\DoxyCodeLine{00543\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ real\_index2\ =\ imaginary\_index1\ +\ 1;}
+\DoxyCodeLine{00544\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ imaginary\_index2\ =\ real\_index2\ +\ 1;}
+\DoxyCodeLine{00545\ \ \ \ \ \ \ wave\_start[real\_index2]\ +=\ amplitude2\ *\ real\_amount;}
+\DoxyCodeLine{00546\ \ \ \ \ \ \ wave\_start[imaginary\_index2]\ +=\ amplitude2\ *\ imag\_amount;}
+\DoxyCodeLine{00547\ \ \ \ \ \}}
+\DoxyCodeLine{00548\ }
+\DoxyCodeLine{00549\ \ \ \ \ transformAndWrapBuffer(transform,\ dest);}
+\DoxyCodeLine{00550\ \ \ \}}
+\DoxyCodeLine{00551\ }
+\DoxyCodeLine{00565\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ inharmonicScaleMorph(\textcolor{keyword}{const}\ Wavetable::WavetableData*\ wavetable\_data,}
+\DoxyCodeLine{00566\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ wavetable\_index,\ poly\_float*\ dest,\ FourierTransform*\ transform,}
+\DoxyCodeLine{00567\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ mult,\ \textcolor{keywordtype}{int}\ last\_harmonic,\ \textcolor{keyword}{const}\ poly\_float*\ data\_buffer)\ \{}
+\DoxyCodeLine{00568\ \ \ \ \ poly\_float*\ poly\_data\_start\ =\ dest\ +\ 2\ +\ kMaxPolyIndex;}
+\DoxyCodeLine{00569\ }
+\DoxyCodeLine{00570\ \ \ \ \ poly\_float\ offset(0.0f,\ 2.0f,\ 1.0f,\ 3.0f);}
+\DoxyCodeLine{00571\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <=\ kMaxPolyIndex\ /\ 2;\ ++i)\ \{}
+\DoxyCodeLine{00572\ \ \ \ \ \ \ poly\_float\ index\ =\ offset\ +\ i\ *\ 4;}
+\DoxyCodeLine{00573\ \ \ \ \ \ \ poly\_float\ octave\ =\ \mbox{\hyperlink{namespacevital_1_1futils_a7a327ceafdcf035f71f3959db159e24c}{futils::log2}}(index);}
+\DoxyCodeLine{00574\ \ \ \ \ \ \ poly\_float\ power\ =\ octave\ *\ (1.0f\ /\ (\mbox{\hyperlink{classvital_1_1_wavetable_a737e3d506f166f24ee5955915f6b8dce}{Wavetable::kFrequencyBins}}\ -\/\ 1.0f));}
+\DoxyCodeLine{00575\ \ \ \ \ \ \ poly\_float\ shift\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ae7439e66951da54e8d732fd62619bc5b}{futils::pow}}(mult,\ power);}
+\DoxyCodeLine{00576\ \ \ \ \ \ \ poly\_float\ shifted\_index\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(1.0f,\ shift\ *\ (index\ -\/\ 1.0f)\ +\ 1.0f);}
+\DoxyCodeLine{00577\ \ \ \ \ \ \ poly\_data\_start[2\ *\ i]\ =\ shifted\_index;}
+\DoxyCodeLine{00578\ \ \ \ \ \ \ poly\_data\_start[2\ *\ i\ +\ 1]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_af5c60a9d57eb9105808c85d03cc6ae71}{utils::swapStereo}}(shifted\_index);}
+\DoxyCodeLine{00579\ \ \ \ \ \}}
+\DoxyCodeLine{00580\ }
+\DoxyCodeLine{00581\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ amplitudes\ =\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)wavetable\_data-\/>frequency\_amplitudes[wavetable\_index];}
+\DoxyCodeLine{00582\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ normalized\ =\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)wavetable\_data-\/>normalized\_frequencies[wavetable\_index];}
+\DoxyCodeLine{00583\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ wave\_start\ =\ (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)(dest\ +\ 1);}
+\DoxyCodeLine{00584\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ index\_data\ =\ (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)(poly\_data\_start);}
+\DoxyCodeLine{00585\ \ \ \ \ memset(wave\_start,\ 0,\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{WaveFrame::kWaveformSize}}\ *\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}));}
+\DoxyCodeLine{00586\ }
+\DoxyCodeLine{00587\ \ \ \ \ \textcolor{keywordtype}{float}\ dc\_amplitude\ =\ amplitudes[0];}
+\DoxyCodeLine{00588\ \ \ \ \ wave\_start[0]\ =\ dc\_amplitude\ *\ normalized[0];}
+\DoxyCodeLine{00589\ \ \ \ \ wave\_start[1]\ =\ dc\_amplitude\ *\ normalized[1];}
+\DoxyCodeLine{00590\ }
+\DoxyCodeLine{00591\ \ \ \ \ \textcolor{keywordtype}{int}\ processed\_index\ =\ 1;}
+\DoxyCodeLine{00592\ \ \ \ \ \textcolor{keywordflow}{for}\ (;\ processed\_index\ <=\ kNumHarmonics;\ ++processed\_index)\ \{}
+\DoxyCodeLine{00593\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 2\ *\ processed\_index;}
+\DoxyCodeLine{00594\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ shifted\_index\ =\ index\_data[index];}
+\DoxyCodeLine{00595\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ dest\_index\ =\ shifted\_index;}
+\DoxyCodeLine{00596\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (dest\_index\ >\ 2\ *\ last\_harmonic)}
+\DoxyCodeLine{00597\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00598\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(dest\_index\ >=\ 0\ \&\&\ dest\_index\ <=\ kNumHarmonics\ *\ 2);}
+\DoxyCodeLine{00599\ }
+\DoxyCodeLine{00600\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ shifted\_index\ -\/\ dest\_index;}
+\DoxyCodeLine{00601\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\ =\ amplitudes[index];}
+\DoxyCodeLine{00602\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ real\ =\ normalized[index];}
+\DoxyCodeLine{00603\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ imag\ =\ normalized[index\ +\ 1];}
+\DoxyCodeLine{00604\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(real\ <\ 10000.0f);}
+\DoxyCodeLine{00605\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(imag\ <\ 10000.0f);}
+\DoxyCodeLine{00606\ }
+\DoxyCodeLine{00607\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ real\_index\ =\ 2\ *\ dest\_index;}
+\DoxyCodeLine{00608\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ value1\ =\ (1.0f\ -\/\ t)\ *\ amplitude;}
+\DoxyCodeLine{00609\ \ \ \ \ \ \ wave\_start[real\_index]\ +=\ value1\ *\ real;}
+\DoxyCodeLine{00610\ \ \ \ \ \ \ wave\_start[real\_index\ +\ 1]\ +=\ value1\ *\ imag;}
+\DoxyCodeLine{00611\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ value2\ =\ t\ *\ amplitude;}
+\DoxyCodeLine{00612\ \ \ \ \ \ \ wave\_start[real\_index\ +\ 2]\ +=\ value2\ *\ real;}
+\DoxyCodeLine{00613\ \ \ \ \ \ \ wave\_start[real\_index\ +\ 3]\ +=\ value2\ *\ imag;}
+\DoxyCodeLine{00614\ \ \ \ \ \}}
+\DoxyCodeLine{00615\ }
+\DoxyCodeLine{00616\ \ \ \ \ transformAndWrapBuffer(transform,\ dest);}
+\DoxyCodeLine{00617\ \ \ \}}
+\DoxyCodeLine{00618\ }
+\DoxyCodeLine{00632\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ randomAmplitudeMorph(\textcolor{keyword}{const}\ Wavetable::WavetableData*\ wavetable\_data,}
+\DoxyCodeLine{00633\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ wavetable\_index,\ poly\_float*\ dest,\ FourierTransform*\ transform,}
+\DoxyCodeLine{00634\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ shift,\ \textcolor{keywordtype}{int}\ last\_harmonic,\ \textcolor{keyword}{const}\ poly\_float*\ data\_buffer)\ \{}
+\DoxyCodeLine{00635\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ frequency\_amplitudes\ =\ wavetable\_data-\/>frequency\_amplitudes[wavetable\_index];}
+\DoxyCodeLine{00636\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ normalized\_frequencies\ =\ wavetable\_data-\/>normalized\_frequencies[wavetable\_index];}
+\DoxyCodeLine{00637\ }
+\DoxyCodeLine{00638\ \ \ \ \ poly\_float*\ wave\_start\ =\ dest\ +\ 1;}
+\DoxyCodeLine{00639\ \ \ \ \ \textcolor{keywordtype}{int}\ last\_index\ =\ 2\ *\ last\_harmonic\ /\ poly\_float::kSize;}
+\DoxyCodeLine{00640\ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ std::min<int>(shift,\ kRandomAmplitudeStages\ -\/\ 2);}
+\DoxyCodeLine{00641\ \ \ \ \ \textcolor{keywordtype}{float}\ amount\ =\ shift\ /\ kRandomAmplitudeStages;}
+\DoxyCodeLine{00642\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ shift\ -\/\ index;}
+\DoxyCodeLine{00643\ \ \ \ \ poly\_float\ scale\ =\ shift;}
+\DoxyCodeLine{00644\ \ \ \ \ poly\_float\ center\ =\ poly\_float(1.0f)\ -\/\ scale;}
+\DoxyCodeLine{00645\ \ \ \ \ poly\_float\ mult\ =\ 1.0f\ +\ shift;}
+\DoxyCodeLine{00646\ }
+\DoxyCodeLine{00647\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ buffer1\ =\ data\_buffer\ +\ index\ *\ kNumHarmonics\ /\ poly\_float::kSize;}
+\DoxyCodeLine{00648\ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ buffer2\ =\ data\_buffer\ +\ (index\ +\ 1)\ *\ kNumHarmonics\ /\ poly\_float::kSize;}
+\DoxyCodeLine{00649\ }
+\DoxyCodeLine{00650\ \ \ \ \ poly\_float\ random\_t(amount,\ 1.0f\ -\/\ amount,\ amount,\ 1.0f\ -\/\ amount);}
+\DoxyCodeLine{00651\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <=\ last\_index;\ ++i)\ \{}
+\DoxyCodeLine{00652\ \ \ \ \ \ \ poly\_float\ random\_value1\ =\ buffer1[i]\ \&\ \mbox{\hyperlink{namespacevital_1_1constants_aa5dbdca3f4761e46912a986e3c4dfd60}{constants::kLeftMask}};}
+\DoxyCodeLine{00653\ \ \ \ \ \ \ random\_value1\ =\ random\_value1\ +\ \mbox{\hyperlink{namespacevital_1_1utils_af5c60a9d57eb9105808c85d03cc6ae71}{utils::swapStereo}}(random\_value1);}
+\DoxyCodeLine{00654\ \ \ \ \ \ \ poly\_float\ random\_value2\ =\ buffer2[i]\ \&\ \mbox{\hyperlink{namespacevital_1_1constants_aa5dbdca3f4761e46912a986e3c4dfd60}{constants::kLeftMask}};}
+\DoxyCodeLine{00655\ \ \ \ \ \ \ random\_value2\ =\ random\_value2\ +\ \mbox{\hyperlink{namespacevital_1_1utils_af5c60a9d57eb9105808c85d03cc6ae71}{utils::swapStereo}}(random\_value2);}
+\DoxyCodeLine{00656\ \ \ \ \ \ \ poly\_float\ random1\ =\ mult\ *\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(center\ -\/\ scale\ *\ random\_value1,\ 0.0f);}
+\DoxyCodeLine{00657\ \ \ \ \ \ \ poly\_float\ random2\ =\ mult\ *\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(center\ -\/\ scale\ *\ random\_value2,\ 0.0f);}
+\DoxyCodeLine{00658\ \ \ \ \ \ \ poly\_float\ amplitude\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5b6ee09220fec012fc1597235e4c50e3}{utils::min}}(\mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(random1,\ random2,\ t)\ *\ frequency\_amplitudes[i],\ 1024.0f);}
+\DoxyCodeLine{00659\ }
+\DoxyCodeLine{00660\ \ \ \ \ \ \ wave\_start[i]\ =\ amplitude\ *\ normalized\_frequencies[i];}
+\DoxyCodeLine{00661\ \ \ \ \ \}}
+\DoxyCodeLine{00662\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ last\_index\ +\ 1;\ i\ <=\ kMaxPolyIndex;\ ++i)}
+\DoxyCodeLine{00663\ \ \ \ \ \ \ wave\_start[i]\ =\ 0.0f;}
+\DoxyCodeLine{00664\ }
+\DoxyCodeLine{00665\ \ \ \ \ transformAndWrapBuffer(transform,\ dest);}
+\DoxyCodeLine{00666\ \ \ \}}
+\DoxyCodeLine{00667\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

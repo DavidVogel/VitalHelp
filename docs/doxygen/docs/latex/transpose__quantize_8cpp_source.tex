@@ -1,0 +1,272 @@
+\doxysection{transpose\+\_\+quantize.\+cpp}
+\hypertarget{transpose__quantize_8cpp_source}{}\label{transpose__quantize_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/transpose\_quantize.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/transpose\_quantize.cpp}}
+\mbox{\hyperlink{transpose__quantize_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{transpose__quantize_8h}{transpose\_quantize.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{common_8h}{common.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__look__and__feel_8h}{text\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00016\ \ \ \textcolor{keywordtype}{void}\ setKeyBounds(Rectangle<float>*\ bounds,\ \textcolor{keywordtype}{float}\ y,\ \textcolor{keywordtype}{float}\ width,\ \textcolor{keywordtype}{float}\ height)\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kWhiteKeys\ =\ 7;}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMissingBlackKey\ =\ 2;}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kHeightDifferenceMult\ =\ 0.86602540378f;}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kPaddingRatio\ =\ 0.03f;}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kOuterPaddingRatio\ =\ 0.11f;}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keywordtype}{int}\ inner\_padding\ =\ width\ *\ kPaddingRatio;}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordtype}{int}\ outer\_padding\ =\ width\ *\ kOuterPaddingRatio;}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keywordtype}{float}\ key\_width\ =\ (width\ -\/\ (kWhiteKeys\ -\/\ 1)\ *\ inner\_padding\ -\/\ 2\ *\ outer\_padding)\ *\ 1.0f\ /\ kWhiteKeys;}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keywordtype}{float}\ y\_mid\ =\ y\ +\ (height\ -\/\ key\_width)\ /\ 2.0f;}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keywordtype}{float}\ height\_offset\ =\ kHeightDifferenceMult\ *\ (key\_width\ +\ inner\_padding);}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keywordtype}{float}\ y\_black\ =\ y\_mid\ -\/\ height\_offset\ /\ 2.0f;}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keywordtype}{float}\ y\_white\ =\ y\_black\ +\ height\_offset;}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{comment}{//\ White\ keys}}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ kWhiteKeys;\ ++i)\ \{}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ x\ =\ outer\_padding\ +\ (key\_width\ +\ inner\_padding)\ *\ i;}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 2\ *\ i;}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ >\ kMissingBlackKey)}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ index-\/-\/;}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \ \ bounds[index]\ =\ Rectangle<float>(x,\ y\_white,\ key\_width,\ key\_width);}
+\DoxyCodeLine{00039\ \ \ \ \ \}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{comment}{//\ Black\ keys}}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordtype}{float}\ black\_offset\ =\ (key\_width\ +\ inner\_padding)\ /\ 2.0f;}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ kWhiteKeys\ -\/\ 1;\ ++i)\ \{}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ ==\ kMissingBlackKey)}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ x\ =\ outer\_padding\ +\ black\_offset\ +\ (key\_width\ +\ inner\_padding)\ *\ i;}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 2\ *\ i;}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ <\ kMissingBlackKey)}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ index++;}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ bounds[index]\ =\ Rectangle<float>(x,\ y\_black,\ key\_width,\ key\_width);}
+\DoxyCodeLine{00052\ \ \ \ \ \}}
+\DoxyCodeLine{00053\ \ \ \}}
+\DoxyCodeLine{00054\ \}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \mbox{\hyperlink{class_transpose_quantize_call_out_a7b320f45ffe003d5923f9c1b05d8eaf6}{TransposeQuantizeCallOut::TransposeQuantizeCallOut}}(\textcolor{keywordtype}{bool}*\ selected,\ \textcolor{keywordtype}{bool}*\ global\_snap)\ :}
+\DoxyCodeLine{00057\ \ \ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}(\textcolor{stringliteral}{"{}Transpose\ Quantize\ Call\ Out"{}}),\ selected\_(selected),\ global\_snap\_(global\_snap),}
+\DoxyCodeLine{00058\ \ \ \ \ hover\_index\_(-\/1),\ enabling\_(false),\ disabling\_(false)\ \{}
+\DoxyCodeLine{00059\ \ \ global\_snap\_button\_\ =\ std::make\_unique<ToggleButton>(\textcolor{stringliteral}{"{}Global\ Snap"{}});}
+\DoxyCodeLine{00060\ \ \ global\_snap\_button\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00061\ \ \ addAndMakeVisible(global\_snap\_button\_.get());}
+\DoxyCodeLine{00062\ \ \ global\_snap\_button\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00063\ \ \ global\_snap\_button\_-\/>setToggleState(*global\_snap,\ dontSendNotification);}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \mbox{\hyperlink{class_synth_section_ae4b092420f64f8d195dd2fdb406bfccf}{setSkinOverride}}(\mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96ad669be98bcfc51e4490ef453801ff641}{Skin::kOscillator}});}
+\DoxyCodeLine{00066\ \}}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_transpose_quantize_call_out_af417e87169b29c000d2de67ba2bf83b8}{TransposeQuantizeCallOut::paint}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00069\ \ \ \textcolor{keywordtype}{int}\ title\_height\ =\ getHeight()\ *\ \mbox{\hyperlink{class_transpose_quantize_call_out_a30d1e6b8de93be7788d0af73c2ca98b8}{kTitleHeightRatio}};}
+\DoxyCodeLine{00070\ \ \ \textcolor{keywordtype}{int}\ text\_height\ =\ title\_height\ *\ \mbox{\hyperlink{class_transpose_quantize_call_out_ae7081e407b9ee97b5ae6c0c4e3278d5d}{kTitleTextRatio}};}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ g.setColour(\mbox{\hyperlink{class_synth_section_ad3284eddb286b40516ccb36e38463685}{parent\_}}-\/>findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00073\ \ \ g.setFont(\mbox{\hyperlink{class_fonts_ae7669a3eeb9db437c7d34feff9e99707}{Fonts::instance}}()-\/>proportional\_light().withPointHeight(text\_height));}
+\DoxyCodeLine{00074\ \ \ g.drawText(\textcolor{stringliteral}{"{}TRANSPOSE\ SNAP"{}},\ 0,\ 0,\ getWidth(),\ title\_height,\ Justification::centred);}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ g.setColour(\mbox{\hyperlink{class_synth_section_ad3284eddb286b40516ccb36e38463685}{parent\_}}-\/>findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caf3f313b602cc030a3a3601e2c56b5198}{Skin::kLabelBackground}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00077\ \ \ \textcolor{keywordtype}{float}\ rounding\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180aa1b3bea00a02a7c9ce9f4e8f4afc4a7e}{Skin::kLabelBackgroundRounding}});}
+\DoxyCodeLine{00078\ \ \ g.fillRoundedRectangle(global\_snap\_button\_-\/>getBounds().toFloat(),\ rounding);}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}};\ ++i)\ \{}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keywordflow}{if}\ (selected\_[i])\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (*global\_snap\_)}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ g.setColour(\mbox{\hyperlink{class_synth_section_ad3284eddb286b40516ccb36e38463685}{parent\_}}-\/>findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca2f3696f9d26770c17f938a550ea24b54}{Skin::kUiActionButton}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ g.setColour(\mbox{\hyperlink{class_synth_section_ad3284eddb286b40516ccb36e38463685}{parent\_}}-\/>findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00086\ \ \ \ \ \}}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ g.setColour(\mbox{\hyperlink{class_synth_section_ad3284eddb286b40516ccb36e38463685}{parent\_}}-\/>findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \ \ g.fillEllipse(key\_bounds\_[i]);}
+\DoxyCodeLine{00091\ \ \ \}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \ \textcolor{keywordflow}{if}\ (hover\_index\_\ >=\ 0)\ \{}
+\DoxyCodeLine{00094\ \ \ \ \ g.setColour(\mbox{\hyperlink{class_synth_section_ad3284eddb286b40516ccb36e38463685}{parent\_}}-\/>findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00095\ \ \ \ \ g.fillEllipse(key\_bounds\_[hover\_index\_]);}
+\DoxyCodeLine{00096\ \ \ \}}
+\DoxyCodeLine{00097\ \}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_transpose_quantize_call_out_a8d018a9f704928cd861cd3a481abddff}{TransposeQuantizeCallOut::resized}}()\ \{}
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordtype}{int}\ title\_height\ =\ getHeight()\ *\ \mbox{\hyperlink{class_transpose_quantize_call_out_a30d1e6b8de93be7788d0af73c2ca98b8}{kTitleHeightRatio}};}
+\DoxyCodeLine{00101\ \ \ \textcolor{keywordtype}{int}\ global\_height\ =\ getHeight()\ *\ \mbox{\hyperlink{class_transpose_quantize_call_out_aaca420319fe5c85153d25281b4e3ee49}{kGlobalHeightRatio}};}
+\DoxyCodeLine{00102\ \ \ setKeyBounds(key\_bounds\_,\ title\_height,\ getWidth(),\ getHeight()\ -\/\ title\_height\ -\/\ global\_height);}
+\DoxyCodeLine{00103\ \ \ global\_snap\_button\_-\/>setBounds(0,\ getHeight()\ -\/\ global\_height,\ getWidth(),\ global\_height);}
+\DoxyCodeLine{00104\ \ \ repaint();}
+\DoxyCodeLine{00105\ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_transpose_quantize_call_out_a971ccd6c6b2e761bf1d6bd9e86d6c47b}{TransposeQuantizeCallOut::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00108\ \ \ \textcolor{keywordtype}{int}\ hover\_index\ =\ getHoverIndex(e);}
+\DoxyCodeLine{00109\ \ \ enabling\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00110\ \ \ disabling\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00111\ \ \ \textcolor{keywordflow}{if}\ (hover\_index\ <\ 0)}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \ \ \textcolor{keywordflow}{if}\ (selected\_[hover\_index])}
+\DoxyCodeLine{00115\ \ \ \ \ disabling\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00116\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00117\ \ \ \ \ enabling\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ selected\_[hover\_index]\ =\ !selected\_[hover\_index];}
+\DoxyCodeLine{00120\ \ \ notify();}
+\DoxyCodeLine{00121\ \ \ repaint();}
+\DoxyCodeLine{00122\ \}}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_transpose_quantize_call_out_a3d01189eb963f2491a6745983537473e}{TransposeQuantizeCallOut::mouseDrag}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00125\ \ \ \textcolor{keywordtype}{int}\ index\ =\ getHoverIndex(e);}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \ \ hover\_index\_\ =\ index;}
+\DoxyCodeLine{00128\ \ \ \textcolor{keywordflow}{if}\ (hover\_index\_\ <\ 0)}
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ \textcolor{keywordflow}{if}\ (!disabling\_\ \&\&\ !enabling\_)\ \{}
+\DoxyCodeLine{00132\ \ \ \ \ \textcolor{keywordflow}{if}\ (selected\_[hover\_index\_])}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ disabling\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ enabling\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00136\ \ \ \}}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ \textcolor{keywordflow}{if}\ (disabling\_\ \&\&\ selected\_[hover\_index\_])\ \{}
+\DoxyCodeLine{00139\ \ \ \ \ selected\_[hover\_index\_]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00140\ \ \ \ \ notify();}
+\DoxyCodeLine{00141\ \ \ \ \ repaint();}
+\DoxyCodeLine{00142\ \ \ \}}
+\DoxyCodeLine{00143\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (enabling\_\ \&\&\ !selected\_[hover\_index\_])\ \{}
+\DoxyCodeLine{00144\ \ \ \ \ selected\_[hover\_index\_]\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00145\ \ \ \ \ notify();}
+\DoxyCodeLine{00146\ \ \ \ \ repaint();}
+\DoxyCodeLine{00147\ \ \ \}}
+\DoxyCodeLine{00148\ \}}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00150\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_transpose_quantize_call_out_a2b611f8644d3a9960e0f64b6a9828aac}{TransposeQuantizeCallOut::mouseMove}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00151\ \ \ \textcolor{keywordtype}{int}\ hover\_index\ =\ getHoverIndex(e);}
+\DoxyCodeLine{00152\ \ \ \textcolor{keywordflow}{if}\ (hover\_index\ !=\ hover\_index\_)\ \{}
+\DoxyCodeLine{00153\ \ \ \ \ hover\_index\_\ =\ hover\_index;}
+\DoxyCodeLine{00154\ \ \ \ \ repaint();}
+\DoxyCodeLine{00155\ \ \ \}}
+\DoxyCodeLine{00156\ \}}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_transpose_quantize_call_out_a5c2f521ac85b445cc19ea2b6f9fc7f13}{TransposeQuantizeCallOut::mouseExit}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00159\ \ \ hover\_index\_\ =\ -\/1;}
+\DoxyCodeLine{00160\ \ \ repaint();}
+\DoxyCodeLine{00161\ \}}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_transpose_quantize_call_out_a081ee1ae1df00c2a3aa4b158af020b80}{TransposeQuantizeCallOut::buttonClicked}}(Button*\ clicked\_button)\ \{}
+\DoxyCodeLine{00164\ \ \ *global\_snap\_\ =\ global\_snap\_button\_-\/>getToggleState();}
+\DoxyCodeLine{00165\ \ \ notify();}
+\DoxyCodeLine{00166\ \ \ repaint();}
+\DoxyCodeLine{00167\ \}}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \textcolor{keywordtype}{int}\ TransposeQuantizeCallOut::getHoverIndex(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00170\ \ \ \textcolor{keywordtype}{float}\ key\_radius\ =\ key\_bounds\_[0].getWidth()\ /\ 2.0f;}
+\DoxyCodeLine{00171\ \ \ \textcolor{keywordtype}{float}\ key\_radius2\ =\ key\_radius\ *\ key\_radius;}
+\DoxyCodeLine{00172\ \ \ Point<float>\ position\ =\ e.position;}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}};\ ++i)\ \{}
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{keywordflow}{if}\ (position.getDistanceSquaredFrom(key\_bounds\_[i].getCentre())\ <=\ key\_radius2)}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ i;}
+\DoxyCodeLine{00177\ \ \ \}}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00179\ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{00180\ \}}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \mbox{\hyperlink{class_transpose_quantize_button_a49849003e82ad4021c963d1ecfe36377}{TransposeQuantizeButton::TransposeQuantizeButton}}()\ :\ \mbox{\hyperlink{class_open_gl_image_component}{OpenGlImageComponent}}(\textcolor{stringliteral}{"{}Transpose\ Quantize"{}}),}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ global\_snap\_(false),\ hover\_(false)\ \{}
+\DoxyCodeLine{00184\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}};\ ++i)}
+\DoxyCodeLine{00185\ \ \ \ \ selected\_[i]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00186\ \}}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_transpose_quantize_button_ae63775da6cf4fb90e789005e704f1c5d}{TransposeQuantizeButton::paint}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00189\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}};\ ++i)\ \{}
+\DoxyCodeLine{00190\ \ \ \ \ \textcolor{keywordflow}{if}\ (selected\_[i])\ \{}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (global\_snap\_)}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca2f3696f9d26770c17f938a550ea24b54}{Skin::kUiActionButton}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00195\ \ \ \ \ \}}
+\DoxyCodeLine{00196\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00198\ }
+\DoxyCodeLine{00199\ \ \ \ \ g.fillEllipse(key\_bounds\_[i]);}
+\DoxyCodeLine{00200\ \ \ \}}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00202\ \ \ \textcolor{keywordflow}{if}\ (hover\_)\ \{}
+\DoxyCodeLine{00203\ \ \ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00204\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}};\ ++i)}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ g.fillEllipse(key\_bounds\_[i]);}
+\DoxyCodeLine{00206\ \ \ \}}
+\DoxyCodeLine{00207\ \}}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00209\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_transpose_quantize_button_a9be0b2c26194c3206aa9ca31ac1c8c58}{TransposeQuantizeButton::resized}}()\ \{}
+\DoxyCodeLine{00210\ \ \ setKeyBounds(key\_bounds\_,\ 0,\ getWidth(),\ getHeight());}
+\DoxyCodeLine{00211\ \ \ \mbox{\hyperlink{class_open_gl_component_a2bd142dbb0cb7690829cb0a99f84e993}{OpenGlImageComponent::resized}}();}
+\DoxyCodeLine{00212\ \ \ \mbox{\hyperlink{class_open_gl_image_component_abf279f82fefad2a83bb4eb434e1cf8ce}{redrawImage}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00213\ \}}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00215\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_transpose_quantize_button_a8403e2d16539d9d3e846f5044b76857a}{TransposeQuantizeButton::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00216\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kWidthMult\ =\ 4.0f;}
+\DoxyCodeLine{00217\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kHeightRatio\ =\ 0.6f;}
+\DoxyCodeLine{00218\ }
+\DoxyCodeLine{00219\ \ \ \textcolor{keywordtype}{int}\ width\ =\ getWidth()\ *\ kWidthMult;}
+\DoxyCodeLine{00220\ \ \ \textcolor{keywordtype}{int}\ height\ =\ width\ *\ kHeightRatio;}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00222\ \ \ \mbox{\hyperlink{class_transpose_quantize_call_out}{TransposeQuantizeCallOut}}*\ quantize\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_transpose_quantize_call_out}{TransposeQuantizeCallOut}}(selected\_,\ \&global\_snap\_);}
+\DoxyCodeLine{00223\ \ \ quantize-\/>\mbox{\hyperlink{class_transpose_quantize_call_out_ab3f890ab00c33acf6b9fe820635a7617}{addQuantizeListener}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00224\ \ \ quantize-\/>setSize(width,\ height);}
+\DoxyCodeLine{00225\ \ \ quantize-\/>\mbox{\hyperlink{class_synth_section_ae7500185b489a4a19ea4b7e841d305e0}{setParent}}(findParentComponentOfClass<SynthSection>());}
+\DoxyCodeLine{00226\ \ \ quantize-\/>setLookAndFeel(\mbox{\hyperlink{class_default_look_and_feel_a0a6bb51331c18a334fe5b8e633d75eb9}{DefaultLookAndFeel::instance}}());}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00228\ \ \ CallOutBox\&\ callout\ =\ CallOutBox::launchAsynchronously(std::unique\_ptr<Component>(quantize),\ getScreenBounds(),\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00229\ \ \ callout.setLookAndFeel(\mbox{\hyperlink{class_default_look_and_feel_a0a6bb51331c18a334fe5b8e633d75eb9}{DefaultLookAndFeel::instance}}());}
+\DoxyCodeLine{00230\ \ \ callout.setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caffad88f44cd2bcaaf60dbe0032955def}{Skin::kBody}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caffad88f44cd2bcaaf60dbe0032955def}{Skin::kBody}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00231\ \ \ callout.setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca40f69a7bcbd96c231bc0dd874bbe3c8f}{Skin::kPopupBorder}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca40f69a7bcbd96c231bc0dd874bbe3c8f}{Skin::kPopupBorder}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00233\ \ \ hover\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00234\ \ \ \mbox{\hyperlink{class_open_gl_image_component_abf279f82fefad2a83bb4eb434e1cf8ce}{redrawImage}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00235\ \}}
+\DoxyCodeLine{00236\ }
+\DoxyCodeLine{00237\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_transpose_quantize_button_a36cf728ccdf04e805617ed46f626d00f}{TransposeQuantizeButton::mouseEnter}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00238\ \ \ hover\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00239\ \ \ \mbox{\hyperlink{class_open_gl_image_component_abf279f82fefad2a83bb4eb434e1cf8ce}{redrawImage}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00240\ \}}
+\DoxyCodeLine{00241\ }
+\DoxyCodeLine{00242\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_transpose_quantize_button_a97aa38ff618bb311ab82b97857570577}{TransposeQuantizeButton::mouseExit}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00243\ \ \ hover\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00244\ \ \ \mbox{\hyperlink{class_open_gl_image_component_abf279f82fefad2a83bb4eb434e1cf8ce}{redrawImage}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00245\ \}}
+\DoxyCodeLine{00246\ }
+\DoxyCodeLine{00247\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_transpose_quantize_button_a12f6a78df2e7dcde847a3b4ab7a8d954}{TransposeQuantizeButton::getValue}}()\ \{}
+\DoxyCodeLine{00248\ \ \ \textcolor{keywordtype}{int}\ value\ =\ 0;}
+\DoxyCodeLine{00249\ \ \ \textcolor{keywordflow}{if}\ (global\_snap\_)}
+\DoxyCodeLine{00250\ \ \ \ \ value\ =\ 1\ <<\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}};}
+\DoxyCodeLine{00251\ }
+\DoxyCodeLine{00252\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}};\ ++i)\ \{}
+\DoxyCodeLine{00253\ \ \ \ \ \textcolor{keywordflow}{if}\ (selected\_[i])}
+\DoxyCodeLine{00254\ \ \ \ \ \ \ value\ +=\ 1\ <<\ i;}
+\DoxyCodeLine{00255\ \ \ \}}
+\DoxyCodeLine{00256\ \ \ \textcolor{keywordflow}{return}\ value;}
+\DoxyCodeLine{00257\ \}}
+\DoxyCodeLine{00258\ }
+\DoxyCodeLine{00259\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_transpose_quantize_button_a56b3da3d064b32d5f7c82aada2b3e1c9}{TransposeQuantizeButton::setValue}}(\textcolor{keywordtype}{int}\ value)\ \{}
+\DoxyCodeLine{00260\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}};\ ++i)}
+\DoxyCodeLine{00261\ \ \ \ \ selected\_[i]\ =\ (value\ >>\ i)\ \&\ 1;}
+\DoxyCodeLine{00262\ }
+\DoxyCodeLine{00263\ \ \ global\_snap\_\ =\ value\ >>\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}};}
+\DoxyCodeLine{00264\ \ \ \mbox{\hyperlink{class_open_gl_image_component_abf279f82fefad2a83bb4eb434e1cf8ce}{redrawImage}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00265\ \}}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00267\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_transpose_quantize_button_a756a93f6701177b138df3e9449bba2b7}{TransposeQuantizeButton::quantizeUpdated}}()\ \{}
+\DoxyCodeLine{00268\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_transpose_quantize_button_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00269\ \ \ \ \ listener-\/>quantizeUpdated();}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00271\ \ \ \mbox{\hyperlink{class_open_gl_image_component_abf279f82fefad2a83bb4eb434e1cf8ce}{redrawImage}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00272\ \}}
+
+\end{DoxyCode}

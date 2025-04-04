@@ -1,0 +1,44 @@
+\doxysection{line\+\_\+map.\+cpp}
+\hypertarget{line__map_8cpp_source}{}\label{line__map_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/modulators/line\_map.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/modulators/line\_map.cpp}}
+\mbox{\hyperlink{line__map_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{line__map_8h}{line\_map.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{line__generator_8h}{line\_generator.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_line_map_a26306a1ef2a8500199def86ad2207d1a}{LineMap::LineMap}}(\mbox{\hyperlink{class_line_generator}{LineGenerator}}*\ source)\ :\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}(1,\ kNumOutputs,\ true),\ source\_(source)\ \{\ \}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_line_map_a1c0e908e9c44a24f1cc7de004278d083}{LineMap::process}}(\textcolor{keywordtype}{int}\ \textcolor{comment}{/*num\_samples*/})\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_line_map_a1c0e908e9c44a24f1cc7de004278d083}{process}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}()-\/>at(0));}
+\DoxyCodeLine{00018\ \ \ \ \ \}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_line_map_a1c0e908e9c44a24f1cc7de004278d083}{LineMap::process}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ phase)\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Retrieve\ the\ line\ generator's\ cubic\ interpolation\ buffer\ and\ resolution.}}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ buffer\ =\ \mbox{\hyperlink{classvital_1_1_line_map_afb44aaa4f26a9f13aab71b12b28055c6}{source\_}}-\/>\mbox{\hyperlink{class_line_generator_ae1d135bc4fb25f20fc8cd642bafef316}{getCubicInterpolationBuffer}}();}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ resolution\ =\ \mbox{\hyperlink{classvital_1_1_line_map_afb44aaa4f26a9f13aab71b12b28055c6}{source\_}}-\/>\mbox{\hyperlink{class_line_generator_ab915f3ee0e673ae1aeabdf39880e2af0}{resolution}}();}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Convert\ the\ phase\ into\ an\ index\ into\ the\ buffer.}}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ boost\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(phase\ *\ resolution,\ 0.0f,\ (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}})resolution);}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ indices\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{namespacevital_1_1utils_ad78f0e7d254bdef79f99ff199f8cbd9f}{utils::toInt}}(boost),\ 0,\ resolution\ -\/\ 1);}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ t\ =\ boost\ -\/\ \mbox{\hyperlink{namespacevital_1_1utils_a29ec8af38789c39515d4b43ee42e9de6}{utils::toFloat}}(indices);}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ interpolation\ matrices\ and\ apply\ cubic\ interpolation.}}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1matrix}{matrix}}\ interpolation\_matrix\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a72052df2c021a50c70d7c835d1fe0fa3}{utils::getPolynomialInterpolationMatrix}}(t);}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1matrix}{matrix}}\ value\_matrix\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ac395090a16e639959e02aa2ff9527202}{utils::getValueMatrix}}(buffer,\ indices);}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Transpose\ the\ value\ matrix\ to\ align\ dimensions\ for\ multiplication.}}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ value\_matrix.\mbox{\hyperlink{structvital_1_1matrix_a6c21356aed14f6074aba63a9a4e6ce2c}{transpose}}();}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Perform\ matrix\ multiplication\ to\ get\ the\ interpolated\ result.}}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ result\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(interpolation\_matrix.\mbox{\hyperlink{structvital_1_1matrix_a453c475add0774341fd36d8adf3f0a32}{multiplyAndSumRows}}(value\_matrix),\ -\/1.0f,\ 1.0f);}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Output\ the\ computed\ value\ and\ the\ original\ phase.}}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_line_map_a96bf60ceb8ffe3a75a997e44112148c1a53204ab66e3494aacfa336cb3abd6e24}{kValue}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ result;}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_line_map_a96bf60ceb8ffe3a75a997e44112148c1a984a6c2046b27376aafa7e43e1b4062a}{kPhase}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ phase;}
+\DoxyCodeLine{00051\ \ \ \ \ \}}
+\DoxyCodeLine{00052\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

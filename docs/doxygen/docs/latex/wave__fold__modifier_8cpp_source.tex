@@ -1,0 +1,82 @@
+\doxysection{wave\+\_\+fold\+\_\+modifier.\+cpp}
+\hypertarget{wave__fold__modifier_8cpp_source}{}\label{wave__fold__modifier_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/wave\_fold\_modifier.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/wave\_fold\_modifier.cpp}}
+\mbox{\hyperlink{wave__fold__modifier_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{WaveFoldModifier\ applies\ a\ nonlinear\ wave-\/folding\ effect\ to\ a\ wavetable’s\ time-\/domain\ waveform.\ By\ scaling\ and\ folding\ the\ waveform\ through\ sine\ and\ arcsine\ functions,\ it\ adds\ harmonic\ complexity\ and\ can\ create\ interesting\ timbral\ variations.\ Adjusting\ the\ fold\ boost\ parameter\ in\ keyframes\ and\ interpolating\ between\ them\ allows\ dynamic\ control\ over\ the\ amount\ of\ wave\ folding\ across\ the\ wavetable.}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__fold__modifier_8h}{wave\_fold\_modifier.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__frame_8h}{wave\_frame.h}}"{}}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe_a9abba553a1431935c9e9112570bbf146}{WaveFoldModifier::WaveFoldModifierKeyframe::WaveFoldModifierKeyframe}}()\ \{}
+\DoxyCodeLine{00012\ \ \ \textcolor{comment}{//\ Default\ fold\ boost\ set\ to\ 1.0\ for\ neutral\ folding.}}
+\DoxyCodeLine{00013\ \ \ \mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe_ab985e3883b6bba6f346970902952f1ff}{wave\_fold\_boost\_}}\ =\ 1.0f;}
+\DoxyCodeLine{00014\ \}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe_a499f32257167ea201fb4e6a90175afd4}{WaveFoldModifier::WaveFoldModifierKeyframe::copy}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00017\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe}{WaveFoldModifierKeyframe}}*\ source\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe}{WaveFoldModifierKeyframe}}*\textcolor{keyword}{>}(keyframe);}
+\DoxyCodeLine{00018\ \ \ wave\_fold\_boost\_\ =\ source-\/>\mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe_ab985e3883b6bba6f346970902952f1ff}{wave\_fold\_boost\_}};}
+\DoxyCodeLine{00019\ \}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe_aefd1cc5d607c4cd525939461d65626fd}{WaveFoldModifier::WaveFoldModifierKeyframe::interpolate}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ from\_keyframe,}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ to\_keyframe,}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t)\ \{}
+\DoxyCodeLine{00024\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe}{WaveFoldModifierKeyframe}}*\ from\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe}{WaveFoldModifierKeyframe}}*\textcolor{keyword}{>}(from\_keyframe);}
+\DoxyCodeLine{00025\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe}{WaveFoldModifierKeyframe}}*\ to\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe}{WaveFoldModifierKeyframe}}*\textcolor{keyword}{>}(to\_keyframe);}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \textcolor{comment}{//\ Linearly\ interpolate\ the\ fold\ boost\ between\ two\ keyframes.}}
+\DoxyCodeLine{00028\ \ \ wave\_fold\_boost\_\ =\ linearTween(from-\/>\mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe_ab985e3883b6bba6f346970902952f1ff}{wave\_fold\_boost\_}},\ to-\/>\mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe_ab985e3883b6bba6f346970902952f1ff}{wave\_fold\_boost\_}},\ t);}
+\DoxyCodeLine{00029\ \}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe_a09b92f11e044c9190e112651dc8a96d4}{WaveFoldModifier::WaveFoldModifierKeyframe::render}}(\mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ wave\_frame)\ \{}
+\DoxyCodeLine{00032\ \ \ \textcolor{comment}{//\ Wave-\/folding\ is\ achieved\ by\ scaling\ and\ mapping\ the\ waveform’s\ amplitude\ through\ a\ nonlinear\ transform.}}
+\DoxyCodeLine{00033\ \ \ \textcolor{keywordtype}{float}\ max\_value\ =\ std::max(1.0f,\ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_ae1248d7130215dbc4b4b71517103d49f}{getMaxZeroOffset}}());}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};\ ++i)\ \{}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{comment}{//\ Clamp\ the\ waveform's\ value\ to\ [-\/1,\ 1]\ relative\ to\ max\_value,\ then\ map\ through\ asin\ and\ sin\ to\ fold\ it.}}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{keywordtype}{float}\ value\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i]\ /\ max\_value,\ -\/1.0f,\ 1.0f);}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keywordtype}{float}\ adjusted\_value\ =\ max\_value\ *\ wave\_fold\_boost\_\ *\ asinf(value);}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i]\ =\ sinf(adjusted\_value);}
+\DoxyCodeLine{00041\ \ \ \}}
+\DoxyCodeLine{00042\ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a55389465c6dd32414e034d10834ff0ee}{toFrequencyDomain}}();}
+\DoxyCodeLine{00043\ \}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe_a9459b06d71fca826aaee5d52ef63e3eb}{WaveFoldModifier::WaveFoldModifierKeyframe::stateToJson}}()\ \{}
+\DoxyCodeLine{00046\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_wavetable_keyframe_ab12d53e98f7188d011cd3c69e86d2bda}{WavetableKeyframe::stateToJson}}();}
+\DoxyCodeLine{00047\ \ \ data[\textcolor{stringliteral}{"{}fold\_boost"{}}]\ =\ wave\_fold\_boost\_;}
+\DoxyCodeLine{00048\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00049\ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe_aa7886b1c562c2aa5510fd115bef62574}{WaveFoldModifier::WaveFoldModifierKeyframe::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00052\ \ \ \mbox{\hyperlink{class_wavetable_keyframe_ad0e81b3bdc5fe9a3d901dec69d9b7b5b}{WavetableKeyframe::jsonToState}}(data);}
+\DoxyCodeLine{00053\ \ \ wave\_fold\_boost\_\ =\ data[\textcolor{stringliteral}{"{}fold\_boost"{}}];}
+\DoxyCodeLine{00054\ \}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ \mbox{\hyperlink{class_wave_fold_modifier_a624d0f22199f9e1fdb2ff83a500054ac}{WaveFoldModifier::createKeyframe}}(\textcolor{keywordtype}{int}\ position)\ \{}
+\DoxyCodeLine{00057\ \ \ \textcolor{comment}{//\ Interpolate\ the\ fold\ boost\ parameter\ from\ the\ component’s\ keyframe\ list\ at\ the\ given\ position.}}
+\DoxyCodeLine{00058\ \ \ \mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe}{WaveFoldModifierKeyframe}}*\ keyframe\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe}{WaveFoldModifierKeyframe}}();}
+\DoxyCodeLine{00059\ \ \ \mbox{\hyperlink{class_wavetable_component_a59b735ee67cc2281379418304de76b6d}{interpolate}}(keyframe,\ position);}
+\DoxyCodeLine{00060\ \ \ \textcolor{keywordflow}{return}\ keyframe;}
+\DoxyCodeLine{00061\ \}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_fold_modifier_a9cbd51ff2113edc3e2766d051034fcab}{WaveFoldModifier::render}}(\mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ wave\_frame,\ \textcolor{keywordtype}{float}\ position)\ \{}
+\DoxyCodeLine{00064\ \ \ \textcolor{comment}{//\ Interpolate\ parameters\ for\ this\ position\ and\ apply\ the\ folding\ transformation.}}
+\DoxyCodeLine{00065\ \ \ \mbox{\hyperlink{class_wavetable_component_a59b735ee67cc2281379418304de76b6d}{interpolate}}(\&\mbox{\hyperlink{class_wave_fold_modifier_aa4c700d6c35683661d70ef713c9d0cb7}{compute\_frame\_}},\ position);}
+\DoxyCodeLine{00066\ \ \ \mbox{\hyperlink{class_wave_fold_modifier_aa4c700d6c35683661d70ef713c9d0cb7}{compute\_frame\_}}.\mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe_a09b92f11e044c9190e112651dc8a96d4}{render}}(wave\_frame);}
+\DoxyCodeLine{00067\ \}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bd}{WavetableComponentFactory::ComponentType}}\ \mbox{\hyperlink{class_wave_fold_modifier_a9a4ae0b9c577978c4b1841d47dc633e7}{WaveFoldModifier::getType}}()\ \{}
+\DoxyCodeLine{00070\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bda40cd2c1668934a6aebe089400dedfcde}{WavetableComponentFactory::kWaveFolder}};}
+\DoxyCodeLine{00071\ \}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe}{WaveFoldModifier::WaveFoldModifierKeyframe}}*\ \mbox{\hyperlink{class_wave_fold_modifier_a53b4c100b59a8ab602cad94744ea6d94}{WaveFoldModifier::getKeyframe}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00074\ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ wavetable\_keyframe\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[index].get();}
+\DoxyCodeLine{00075\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_wave_fold_modifier_1_1_wave_fold_modifier_keyframe}{WaveFoldModifier::WaveFoldModifierKeyframe}}*\textcolor{keyword}{>}(wavetable\_keyframe);}
+\DoxyCodeLine{00076\ \}}
+
+\end{DoxyCode}

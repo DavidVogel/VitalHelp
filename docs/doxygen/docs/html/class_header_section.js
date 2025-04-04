@@ -1,0 +1,27 @@
+var class_header_section =
+[
+    [ "Listener", "class_header_section_1_1_listener.html", "class_header_section_1_1_listener" ],
+    [ "HeaderSection", "class_header_section.html#a9755888ee41f17e9723ef1b74c59bfde", null ],
+    [ "addListener", "class_header_section.html#a3bb0a6cd7ab38d01c45b9dba8c95ca75", null ],
+    [ "bankImported", "class_header_section.html#a3488d584d9ba22cb2a5046eb6bbacc81", null ],
+    [ "buttonClicked", "class_header_section.html#adb2e976918b2e5e4dd0194c0b0a64091", null ],
+    [ "deleteRequested", "class_header_section.html#adc2df48d495cd2d61a196c5b01a485b5", null ],
+    [ "notifyChange", "class_header_section.html#aaae2ce6f4f72db1fbbac70566d61637b", null ],
+    [ "notifyFresh", "class_header_section.html#a01052adc5c84740f574ad53a3649be01", null ],
+    [ "paintBackground", "class_header_section.html#a5a9b421929670c713846f0841d5eabe4", null ],
+    [ "reset", "class_header_section.html#a28ab5de269cd289598dca9ac1d23747a", null ],
+    [ "resized", "class_header_section.html#adacb5dc626edb4ca6b10aae0d09eaa7e", null ],
+    [ "save", "class_header_section.html#a580c52f9218f56aca7ac44d96e3c0de6", null ],
+    [ "setAllValues", "class_header_section.html#ad3dfdd44b09e366dafc9881d37ee663b", null ],
+    [ "setAudioMemory", "class_header_section.html#a40651d8f6667c56489e04734c73980da", null ],
+    [ "setBankExporter", "class_header_section.html#af338b2515acca198eb82be62fd65f516", null ],
+    [ "setBankExporterVisibility", "class_header_section.html#ae856f080c3bf132834fc71a7252486d4", null ],
+    [ "setBrowser", "class_header_section.html#ae8334b64dc3ff7f4dea3a13453edecc5", null ],
+    [ "setOscilloscopeMemory", "class_header_section.html#a9d87999259e03b0ee77aae0f74bbefde", null ],
+    [ "setPresetBrowserVisibility", "class_header_section.html#a8846380cbe21f69b71596fe436d64e65", null ],
+    [ "setSaveSection", "class_header_section.html#a645cc1727c1c2b15bd67535a87c74141", null ],
+    [ "setTabOffset", "class_header_section.html#a72e6c13af005c54c7f0b7a104e3dd3fc", null ],
+    [ "setTemporaryTab", "class_header_section.html#afbc1055482e0686cf44b106847956205", null ],
+    [ "showAboutSection", "class_header_section.html#ac831dd430d3c98cf475ff25c2af4d57b", null ],
+    [ "sliderValueChanged", "class_header_section.html#a836a1ca43ce4ecc236a75c64c0b5c463", null ]
+];

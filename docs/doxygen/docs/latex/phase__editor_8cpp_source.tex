@@ -1,0 +1,72 @@
+\doxysection{phase\+\_\+editor.\+cpp}
+\hypertarget{phase__editor_8cpp_source}{}\label{phase__editor_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/editors/phase\_editor.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/editors/phase\_editor.cpp}}
+\mbox{\hyperlink{phase__editor_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{phase__editor_8h}{phase\_editor.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{shaders_8h}{shaders.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \mbox{\hyperlink{class_phase_editor_ab8a727d9161e910e067e70947dbe2282}{PhaseEditor::PhaseEditor}}()\ :\ \mbox{\hyperlink{class_open_gl_multi_quad}{OpenGlMultiQuad}}(kNumLines,\ \mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment)\ \{}
+\DoxyCodeLine{00009\ \ \ \ \ phase\_\ =\ 0.0f;}
+\DoxyCodeLine{00010\ \ \ \ \ max\_tick\_height\_\ =\ \mbox{\hyperlink{class_phase_editor_ad2114d876c1d9a1b1c69e624612289b5}{kDefaultHeightPercent}};}
+\DoxyCodeLine{00011\ \ \ \ \ setInterceptsMouseClicks(\textcolor{keyword}{true},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00012\ \}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \mbox{\hyperlink{class_phase_editor_a20e06b26597eb9227174f6a3bc55d3b7}{PhaseEditor::\string~PhaseEditor}}()\ \{\ \}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_editor_aa1fa1eda59393b73fb80f3dd8088e520}{PhaseEditor::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ last\_edit\_position\_\ =\ e.getPosition();}
+\DoxyCodeLine{00018\ \}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_editor_a938c718bc7ee1a6d08c282675789a797}{PhaseEditor::mouseUp}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00021\ \ \ \ \ updatePhase(e);}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//\ Notify\ listeners\ that\ mouse\ is\ now\ up,\ finalizing\ the\ change.}}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_phase_editor_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ listener-\/>phaseChanged(phase\_,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00026\ \}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_editor_a8b53b140b618c1d21209613ee5e0c132}{PhaseEditor::mouseDrag}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{comment}{//\ Update\ phase\ on\ each\ mouse\ drag\ movement,\ listeners\ get\ notified\ with\ mouse\_up\ =\ false.}}
+\DoxyCodeLine{00030\ \ \ \ \ updatePhase(e);}
+\DoxyCodeLine{00031\ \}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{keywordtype}{void}\ PhaseEditor::updatePhase(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{keywordtype}{int}\ difference\ =\ e.getPosition().x\ -\/\ last\_edit\_position\_.x;}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{comment}{//\ Convert\ horizontal\ drag\ into\ a\ phase\ change\ based\ on\ component\ width.}}
+\DoxyCodeLine{00036\ \ \ \ \ phase\_\ +=\ (2.0f\ *\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{vital::kPi}}\ *\ difference)\ /\ getWidth();}
+\DoxyCodeLine{00037\ \ \ \ \ last\_edit\_position\_\ =\ e.getPosition();}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ listener-\/>phaseChanged(phase\_,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \ \ updatePositions();}
+\DoxyCodeLine{00043\ \}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \textcolor{keywordtype}{void}\ PhaseEditor::updatePositions()\ \{}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keywordtype}{float}\ width\ =\ 2.0f\ /\ getWidth();}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_phase_editor_adef6fa1763c4e0b8ed34fe9b12254f31}{kNumLines}};\ ++i)\ \{}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ the\ fractional\ position\ along\ the\ x-\/axis\ and\ wrap\ phase\ around\ [0,1].}}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ fraction\ =\ phase\_\ /\ (2.0f\ *\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{vital::kPi}})\ +\ (1.0f\ *\ i)\ /\ \mbox{\hyperlink{class_phase_editor_adef6fa1763c4e0b8ed34fe9b12254f31}{kNumLines}};}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ fraction\ -\/=\ floorf(fraction);}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ height\ =\ max\_tick\_height\_\ *\ 2.0f;}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Reduce\ height\ for\ certain\ divisions,\ making\ a\ structured\ pattern\ of\ lines.}}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ div\ =\ 2;\ div\ <\ \mbox{\hyperlink{class_phase_editor_adef6fa1763c4e0b8ed34fe9b12254f31}{kNumLines}};\ div\ *=\ 2)\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ \%\ div)}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ height\ /=\ 2.0f;}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(i,\ 2.0f\ *\ fraction\ -\/\ 1.0f,\ -\/1.0f,\ width,\ height);}
+\DoxyCodeLine{00060\ \ \ \ \ \}}
+\DoxyCodeLine{00061\ \}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_editor_a8689b27eb0807e6edefa570ad267cb20}{PhaseEditor::setPhase}}(\textcolor{keywordtype}{float}\ phase)\ \{}
+\DoxyCodeLine{00064\ \ \ \ \ phase\_\ =\ phase;}
+\DoxyCodeLine{00065\ \ \ \ \ updatePositions();}
+\DoxyCodeLine{00066\ \}}
+
+\end{DoxyCode}

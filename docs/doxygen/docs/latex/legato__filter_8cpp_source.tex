@@ -1,0 +1,44 @@
+\doxysection{legato\+\_\+filter.\+cpp}
+\hypertarget{legato__filter_8cpp_source}{}\label{legato__filter_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/utilities/legato\_filter.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/utilities/legato\_filter.cpp}}
+\mbox{\hyperlink{legato__filter_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{legato__filter_8h}{legato\_filter.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_legato_filter_a71a087311184479c933d970e3837e4f0}{LegatoFilter::LegatoFilter}}()}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ \ \ \ \ :\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}(kNumInputs,\ kNumOutputs,\ true),}
+\DoxyCodeLine{00013\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ last\_value\_(\mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836faa8561c95d99b0fd70d107807f0fd88ca}{kVoiceOff}})\ \{}
+\DoxyCodeLine{00014\ \ \ \ \ \}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_legato_filter_a918303bbe1b676962c692d1f7d414deb}{LegatoFilter::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Clear\ any\ previous\ triggers\ on\ the\ output\ before\ processing.}}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_legato_filter_a83e6b83b576cc72e1e8247660db42b68a055f2dbb29279c66a08d9d3f42431952}{kRetrigger}})-\/>\mbox{\hyperlink{structvital_1_1_output_a60830e1cea540817709295d17510ce27}{clearTrigger}}();}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Get\ the\ current\ trigger\ mask\ from\ the\ input\ trigger\ source.}}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ trigger\_mask\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_legato_filter_aa4ddac2784bd217fc755588a16d770f3ab9bedc42e9b5f3bcb47098a46bd7225d}{kTrigger}})-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_ab5d8c509c6b262ea89dbbfafbc24673b}{trigger\_mask}};}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (trigger\_mask.\mbox{\hyperlink{structvital_1_1poly__int_a2fab54be2efa9a05ed842b91e4bad62d}{anyMask}}()\ ==\ 0)}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};\ \textcolor{comment}{//\ No\ triggers\ to\ process,\ so\ return\ early.}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Retrieve\ the\ trigger\ value\ and\ offset\ from\ the\ input.}}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ trigger\_value\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_legato_filter_aa4ddac2784bd217fc755588a16d770f3ab9bedc42e9b5f3bcb47098a46bd7225d}{kTrigger}})-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}};}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ trigger\_offset\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_legato_filter_aa4ddac2784bd217fc755588a16d770f3ab9bedc42e9b5f3bcb47098a46bd7225d}{kTrigger}})-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_a295fb3938d4bd8f9a4029c1e617230f8}{trigger\_offset}};}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Determine\ which\ voices\ should\ be\ retriggered\ considering\ the\ legato\ state.}}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ legato\_mask\ will\ be\ true\ when\ we\ need\ to\ block\ retriggers\ due\ to\ legato\ rules.}}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ legato\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_legato_filter_aa4ddac2784bd217fc755588a16d770f3adcceb44bae38c1decf5402b27428d93b}{kLegato}})-\/>at(0),\ 0.0f);}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ legato\_mask\ |=\ \mbox{\hyperlink{structvital_1_1poly__float_ad58ea0499df6b4f55868db8213a12c98}{poly\_float::notEqual}}(trigger\_value,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa2ce85055a27054faf723c514c8a74dea}{kVoiceOn}});}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ legato\_mask\ |=\ \mbox{\hyperlink{structvital_1_1poly__float_ad58ea0499df6b4f55868db8213a12c98}{poly\_float::notEqual}}(last\_value\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa2ce85055a27054faf723c514c8a74dea}{kVoiceOn}});}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ trigger\_mask\ \&=\ legato\_mask;}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Trigger\ the\ output\ when\ conditions\ are\ met.}}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_legato_filter_a83e6b83b576cc72e1e8247660db42b68a055f2dbb29279c66a08d9d3f42431952}{kRetrigger}})-\/>\mbox{\hyperlink{structvital_1_1_output_a16f8b90753a7d427090e088f82b011de}{trigger}}(trigger\_mask,\ trigger\_value,\ trigger\_offset);}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ the\ last\_value\_\ based\ on\ which\ voices\ triggered.}}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ last\_value\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(last\_value\_,\ trigger\_value,\ trigger\_mask);}
+\DoxyCodeLine{00041\ \ \ \ \ \}}
+\DoxyCodeLine{00042\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

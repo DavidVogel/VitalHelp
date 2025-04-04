@@ -1,0 +1,73 @@
+\doxysection{smooth\+\_\+value.\+cpp}
+\hypertarget{smooth__value_8cpp_source}{}\label{smooth__value_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/utilities/smooth\_value.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/utilities/smooth\_value.cpp}}
+\mbox{\hyperlink{smooth__value_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{smooth__value_8h}{smooth\_value.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <cmath>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{futils_8h}{futils.h}}"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_smooth_value_acc6a4181b1df7f700ebac319e916f57f}{SmoothValue::SmoothValue}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value)\ :\ \mbox{\hyperlink{classvital_1_1_value}{Value}}(value),\ current\_value\_(value)\ \{\ \}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_smooth_value_abc0f9e3a72a42b6dc87c6784d190038d}{SmoothValue::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00015\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ all\ values\ are\ equal\ (current\_value,\ target\ value,\ and\ output),\ no\ need\ to\ continue\ processing.}}
+\DoxyCodeLine{00016\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespacevital_1_1utils_ab485b6f004b79eacf3799c21734856ea}{utils::equal}}(current\_value\_,\ \mbox{\hyperlink{classvital_1_1_value_a6b15b1484cf9f4bb6eef84d732c65a2e}{value\_}})\ \&\&\ \mbox{\hyperlink{namespacevital_1_1utils_ab485b6f004b79eacf3799c21734856ea}{utils::equal}}(current\_value\_,\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>buffer[0])\ \&\&}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_ab485b6f004b79eacf3799c21734856ea}{utils::equal}}(current\_value\_,\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>buffer[num\_samples\ -\/\ 1]))\ \{}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab5a6caa5b2e9cdfba5cf770363034d98}{enable}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Calculate\ the\ exponential\ decay\ factor\ based\ on\ the\ smoothing\ cutoff\ and\ sample\ rate.}}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ decay\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ad0ad3cd83f0a4d5a41505d7f1df8adbf}{futils::exp}}(-\/2.0f\ *\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{kPi}}\ *\ \mbox{\hyperlink{classvital_1_1_smooth_value_abdad58a7b5fbcd51961dc77dc8e4f102}{kSmoothCutoff}}\ /\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}());}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_value\ =\ current\_value\_;}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ target\_value\ =\ \mbox{\hyperlink{classvital_1_1_value_a6b15b1484cf9f4bb6eef84d732c65a2e}{value\_}};}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ dest\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Apply\ exponential\ smoothing\ sample-\/by-\/sample.}}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \ \ \ \ current\_value\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(target\_value,\ current\_value,\ decay);}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \ \ \ \ dest[i]\ =\ current\_value;}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Check\ if\ conditions\ are\ met\ for\ linear\ interpolation\ for\ a\ final\ smooth\ step.}}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ equal\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(current\_value,\ current\_value\_)\ |}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(\mbox{\hyperlink{classvital_1_1_value_a6b15b1484cf9f4bb6eef84d732c65a2e}{value\_}},\ current\_value\_);}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (equal\_mask.\mbox{\hyperlink{structvital_1_1poly__int_a2fab54be2efa9a05ed842b91e4bad62d}{anyMask}}())}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_smooth_value_a5dbdc1cc20b022b902d7cd5271ebaa25}{linearInterpolate}}(num\_samples,\ equal\_mask);}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ current\_value\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(current\_value,\ current\_value\_,\ equal\_mask);}
+\DoxyCodeLine{00041\ \ \ \ \ \}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_smooth_value_a5dbdc1cc20b022b902d7cd5271ebaa25}{SmoothValue::linearInterpolate}}(\textcolor{keywordtype}{int}\ num\_samples,\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ linear\_mask)\ \{}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ linear\ interpolation\ is\ needed,\ we\ linearly\ ramp\ the\ value.}}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_value\ =\ current\_value\_;}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ current\_value\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(current\_value\_,\ \mbox{\hyperlink{classvital_1_1_value_a6b15b1484cf9f4bb6eef84d732c65a2e}{value\_}},\ linear\_mask);}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_value\ =\ (\mbox{\hyperlink{classvital_1_1_value_a6b15b1484cf9f4bb6eef84d732c65a2e}{value\_}}\ -\/\ current\_value)\ *\ (1.0f\ /\ num\_samples);}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ dest\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \ \ \ \ current\_value\ +=\ delta\_value;}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \ \ \ \ dest[i]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(dest[i],\ current\_value,\ linear\_mask);}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Fill\ remaining\ buffer\ with\ the\ final\ value\ if\ needed.}}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ max\_samples\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a56a8b6494724ac9fc94fb1bc2974ae6d}{buffer\_size}};}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ num\_samples;\ i\ <\ max\_samples;\ ++i)}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \ \ \ \ dest[i]\ =\ current\_value\_;}
+\DoxyCodeLine{00059\ \ \ \ \ \}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keyword}{namespace\ }cr\ \{}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1cr_1_1_smooth_value_a98a9d4dd7701ebe95df2bd3aee5c0266}{SmoothValue::SmoothValue}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value)\ :\ \mbox{\hyperlink{classvital_1_1cr_1_1_value}{Value}}(value),\ current\_value\_(value)\ \{\ \}}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1cr_1_1_smooth_value_a2d60e9cacb0f965a7efa7887edf416b8}{SmoothValue::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ decay\ based\ on\ control-\/rate\ updates.}}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ decay\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ad0ad3cd83f0a4d5a41505d7f1df8adbf}{futils::exp}}(-\/2.0f\ *\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{kPi}}\ *\ \mbox{\hyperlink{classvital_1_1cr_1_1_smooth_value_a2a3880cc4eda8108884aade102f908b7}{kSmoothCutoff}}\ *\ num\_samples\ /\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}());}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \ \ \ \ current\_value\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(\mbox{\hyperlink{classvital_1_1_value_a6b15b1484cf9f4bb6eef84d732c65a2e}{value\_}},\ current\_value\_,\ decay);}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ current\_value\_;}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00070\ \ \ \ \ \}\ \textcolor{comment}{//\ namespace\ cr}}
+\DoxyCodeLine{00071\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

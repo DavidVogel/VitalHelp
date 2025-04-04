@@ -1,0 +1,557 @@
+\doxysection{file\+\_\+source\+\_\+overlay.\+cpp}
+\hypertarget{file__source__overlay_8cpp_source}{}\label{file__source__overlay_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/overlays/file\_source\_overlay.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/overlays/file\_source\_overlay.cpp}}
+\mbox{\hyperlink{file__source__overlay_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{file__source__overlay_8h}{file\_source\_overlay.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{audio__file__drop__source_8h}{audio\_file\_drop\_source.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__look__and__feel_8h}{text\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{tuning_8h}{tuning.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__frame_8h}{wave\_frame.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{sample__viewer_8h}{sample\_viewer.h}}"{}}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00012\ \ \ \textcolor{keyword}{const}\ std::string\ kFadeLookup[]\ =\ \{}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{stringliteral}{"{}File\ Blend"{}},}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{stringliteral}{"{}None"{}},}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{stringliteral}{"{}Time"{}},}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{stringliteral}{"{}Spectral"{}},}
+\DoxyCodeLine{00017\ \ \ \};}
+\DoxyCodeLine{00018\ \ \ \textcolor{keyword}{const}\ std::string\ kPhaseLookup[]\ =\ \{}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{stringliteral}{"{}None"{}},}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{stringliteral}{"{}Clear"{}},}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{stringliteral}{"{}Vocode"{}},}
+\DoxyCodeLine{00022\ \ \ \};}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00035\ \ \ \textcolor{keywordtype}{float}\ windowTextToSize(String\ text,\ \textcolor{keywordtype}{int}\ sample\_rate)\ \{}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMaxWindowSize\ =\ 9999.9f;}
+\DoxyCodeLine{00037\ \ \ \ \ String\ trimmed\ =\ text.trim();}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keywordtype}{int}\ note\_midi\ =\ \mbox{\hyperlink{class_tuning_a8975d1798d38a2931b7f9fa1410e77e7}{Tuning::noteToMidiKey}}(text);}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keywordflow}{if}\ (note\_midi\ <\ 0\ ||\ note\_midi\ >=\ \mbox{\hyperlink{namespacevital_a7be9efa423f42230b10924b0f69b3b03}{vital::kMidiSize}})}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(trimmed.getFloatValue(),\ 1.0f,\ kMaxWindowSize);}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{keywordflow}{return}\ sample\_rate\ /\ \mbox{\hyperlink{namespacevital_1_1utils_ad576b73366d625ca0b47c8b92b81f7a4}{vital::utils::midiNoteToFrequency}}(note\_midi);}
+\DoxyCodeLine{00042\ \ \ \}}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00049\ \ \ \textcolor{keywordtype}{float}\ positionTextToSize(String\ text)\ \{}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordflow}{return}\ text.trim().getFloatValue();}
+\DoxyCodeLine{00051\ \ \ \}}
+\DoxyCodeLine{00052\ \}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \mbox{\hyperlink{class_audio_file_viewer_adb7b3dc61aa5cb06ba601f477bf4f5e9}{AudioFileViewer::AudioFileViewer}}()\ :\ \mbox{\hyperlink{class_synth_section}{SynthSection}}(\textcolor{stringliteral}{"{}Audio\ File"{}}),\ top\_(kResolution),\ bottom\_(kResolution),}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dragging\_quad\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kRoundedRectangleFragment),\ sample\_rate\_(0),}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ file\_source\_(nullptr)\ \{}
+\DoxyCodeLine{00057\ \ \ window\_position\_\ =\ 0.0f;}
+\DoxyCodeLine{00058\ \ \ window\_size\_\ =\ 1.0f;}
+\DoxyCodeLine{00059\ \ \ window\_fade\_\ =\ 0.0f;}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&top\_);}
+\DoxyCodeLine{00062\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&bottom\_);}
+\DoxyCodeLine{00063\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&dragging\_quad\_);}
+\DoxyCodeLine{00064\ \ \ top\_.setInterceptsMouseClicks(\textcolor{keyword}{false},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00065\ \ \ bottom\_.setInterceptsMouseClicks(\textcolor{keyword}{false},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ top\_.\mbox{\hyperlink{class_open_gl_line_renderer_a2370751b939ff421b5ad9049ce7e008d}{setFill}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00068\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a2370751b939ff421b5ad9049ce7e008d}{setFill}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ dragging\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a400b44f0d176e32e9a3014be91816808}{setTargetComponent}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00071\ \}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_file_viewer_a1e15dbafc1d4803665f7e88f4f1a2c1a}{AudioFileViewer::resized}}()\ \{}
+\DoxyCodeLine{00074\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kBuffer\ =\ 0.1f;}
+\DoxyCodeLine{00075\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kCenterAlpha\ =\ 0.1f;}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \textcolor{keywordtype}{int}\ buffer\ =\ getHeight()\ *\ kBuffer;}
+\DoxyCodeLine{00078\ \ \ Rectangle<int>\ bounds(0,\ buffer,\ getWidth(),\ getHeight()\ -\/\ 2\ *\ buffer);}
+\DoxyCodeLine{00079\ \ \ top\_.setBounds(bounds);}
+\DoxyCodeLine{00080\ \ \ bottom\_.setBounds(bounds);}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \ \ top\_.\mbox{\hyperlink{class_open_gl_line_renderer_aa6fb221f264f39c93c973656445b5bea}{setLineWidth}}(3.0f);}
+\DoxyCodeLine{00083\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_aa6fb221f264f39c93c973656445b5bea}{setLineWidth}}(3.0f);}
+\DoxyCodeLine{00084\ \ \ Colour\ line\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00085\ \ \ Colour\ fill\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca759c8acbffc8962e9ee2d8cba9677e73}{Skin::kWidgetSecondary1}},\ \textcolor{keyword}{true}).withAlpha(kCenterAlpha);}
+\DoxyCodeLine{00086\ \ \ top\_.\mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(line);}
+\DoxyCodeLine{00087\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(line);}
+\DoxyCodeLine{00088\ \ \ top\_.\mbox{\hyperlink{class_open_gl_line_renderer_a5bcf1f7612edbd16f5493f02dcb4dfa2}{setFillColor}}(fill);}
+\DoxyCodeLine{00089\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a5bcf1f7612edbd16f5493f02dcb4dfa2}{setFillColor}}(fill);}
+\DoxyCodeLine{00090\ \ \ dragging\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca96acc35a77e43810baea7c1bbe94a226}{Skin::kOverlayScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \textcolor{keywordtype}{float}\ line\_boost\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a9c9397bfae636bb4478a9f360d91bba0}{Skin::kWidgetLineBoost}});}
+\DoxyCodeLine{00093\ \ \ top\_.\mbox{\hyperlink{class_open_gl_line_renderer_a5009bf6a1b7b6fc2e1d7cb077db2145e}{setBoostAmount}}(line\_boost);}
+\DoxyCodeLine{00094\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a5009bf6a1b7b6fc2e1d7cb077db2145e}{setBoostAmount}}(line\_boost);}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \ \ top\_.\mbox{\hyperlink{class_open_gl_line_renderer_a320bfdf74261a460c79ba0a8eb464297}{setFillBoostAmount}}(1.0f\ /\ kCenterAlpha);}
+\DoxyCodeLine{00097\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a320bfdf74261a460c79ba0a8eb464297}{setFillBoostAmount}}(1.0f\ /\ kCenterAlpha);}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \textcolor{keywordtype}{float}\ delta\ =\ getWidth()\ /\ (\mbox{\hyperlink{class_audio_file_viewer_a20139cfd6c658b31a86b8473d732b799}{kResolution}}\ -\/\ 1.0f);}
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_audio_file_viewer_a20139cfd6c658b31a86b8473d732b799}{kResolution}};\ ++i)\ \{}
+\DoxyCodeLine{00101\ \ \ \ \ top\_.\mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(i,\ delta\ *\ i);}
+\DoxyCodeLine{00102\ \ \ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(i,\ delta\ *\ i);}
+\DoxyCodeLine{00103\ \ \ \}}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \ \ \mbox{\hyperlink{class_audio_file_viewer_ace310e6790d08ed710dd5b444e48e3a2}{setAudioPositions}}();}
+\DoxyCodeLine{00106\ \}}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_file_viewer_a5eb1a5669a46fcba60d1a281b7ffed4d}{AudioFileViewer::clearAudioPositions}}()\ \{}
+\DoxyCodeLine{00109\ \ \ \textcolor{keywordtype}{float}\ center\ =\ top\_.getHeight()\ *\ 0.5f;}
+\DoxyCodeLine{00110\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_audio_file_viewer_a20139cfd6c658b31a86b8473d732b799}{kResolution}};\ ++i)\ \{}
+\DoxyCodeLine{00111\ \ \ \ \ top\_.\mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(i,\ center);}
+\DoxyCodeLine{00112\ \ \ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(i,\ center);}
+\DoxyCodeLine{00113\ \ \ \}}
+\DoxyCodeLine{00114\ \}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_file_viewer_ace310e6790d08ed710dd5b444e48e3a2}{AudioFileViewer::setAudioPositions}}()\ \{}
+\DoxyCodeLine{00117\ \ \ \textcolor{keywordflow}{if}\ (file\_source\_\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00118\ \ \ \ \ \mbox{\hyperlink{class_audio_file_viewer_a5eb1a5669a46fcba60d1a281b7ffed4d}{clearAudioPositions}}();}
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00120\ \ \ \}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_file_source_1_1_sample_buffer}{FileSource::SampleBuffer}}*\ sample\_buffer\ =\ file\_source\_-\/>\mbox{\hyperlink{class_file_source_aa9697c495bd8a31f97768fe1d4a2bcd6}{buffer}}();}
+\DoxyCodeLine{00123\ \ \ \textcolor{keywordflow}{if}\ (sample\_buffer-\/>\mbox{\hyperlink{struct_file_source_1_1_sample_buffer_a16dad676282bed4a1daefd7a20f6019a}{size}}\ ==\ 0\ ||\ sample\_buffer-\/>\mbox{\hyperlink{struct_file_source_1_1_sample_buffer_a5cfcfe80a25bfee4007c6143a6492321}{data}}\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00124\ \ \ \ \ \mbox{\hyperlink{class_audio_file_viewer_a5eb1a5669a46fcba60d1a281b7ffed4d}{clearAudioPositions}}();}
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00126\ \ \ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}*\ buffer\ =\ sample\_buffer-\/>\mbox{\hyperlink{struct_file_source_1_1_sample_buffer_a5cfcfe80a25bfee4007c6143a6492321}{data}}.get();}
+\DoxyCodeLine{00129\ \ \ \textcolor{keywordtype}{int}\ sample\_length\ =\ sample\_buffer-\/>\mbox{\hyperlink{struct_file_source_1_1_sample_buffer_a16dad676282bed4a1daefd7a20f6019a}{size}};}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ \textcolor{keywordtype}{float}\ center\ =\ top\_.getHeight()\ *\ 0.5f;}
+\DoxyCodeLine{00132\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_audio_file_viewer_a20139cfd6c658b31a86b8473d732b799}{kResolution}};\ ++i)\ \{}
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keywordtype}{int}\ start\_index\ =\ std::min<int>(sample\_length\ *\ i\ /\ \mbox{\hyperlink{class_audio_file_viewer_a20139cfd6c658b31a86b8473d732b799}{kResolution}},\ sample\_length);}
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keywordtype}{int}\ end\_index\ =\ std::min<int>((sample\_length\ *\ (i\ +\ 1)\ +\ \mbox{\hyperlink{class_audio_file_viewer_a20139cfd6c658b31a86b8473d732b799}{kResolution}}\ -\/\ 1)\ /\ \mbox{\hyperlink{class_audio_file_viewer_a20139cfd6c658b31a86b8473d732b799}{kResolution}},\ sample\_length);}
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{keywordtype}{float}\ max\ =\ buffer[start\_index];}
+\DoxyCodeLine{00136\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ start\_index\ +\ 1;\ i\ <\ end\_index;\ ++i)}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ max\ =\ std::max(max,\ buffer[i]);}
+\DoxyCodeLine{00138\ \ \ \ \ top\_.\mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(i,\ center\ -\/\ max\ *\ center);}
+\DoxyCodeLine{00139\ \ \ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(i,\ center\ +\ max\ *\ center);}
+\DoxyCodeLine{00140\ \ \ \}}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \ \ \mbox{\hyperlink{class_audio_file_viewer_abfde0e463e46f6239474c1ac03f72df0}{setWindowValues}}();}
+\DoxyCodeLine{00143\ \}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_file_viewer_abfde0e463e46f6239474c1ac03f72df0}{AudioFileViewer::setWindowValues}}()\ \{}
+\DoxyCodeLine{00146\ \ \ \textcolor{keywordflow}{if}\ (file\_source\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_file_source_1_1_sample_buffer}{FileSource::SampleBuffer}}*\ sample\_buffer\ =\ file\_source\_-\/>\mbox{\hyperlink{class_file_source_aa9697c495bd8a31f97768fe1d4a2bcd6}{buffer}}();}
+\DoxyCodeLine{00150\ \ \ \textcolor{keywordflow}{if}\ (sample\_buffer-\/>\mbox{\hyperlink{struct_file_source_1_1_sample_buffer_a16dad676282bed4a1daefd7a20f6019a}{size}}\ ==\ 0\ ||\ sample\_buffer-\/>\mbox{\hyperlink{struct_file_source_1_1_sample_buffer_a5cfcfe80a25bfee4007c6143a6492321}{data}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00151\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \ \ window\_size\_\ =\ file\_source\_-\/>\mbox{\hyperlink{class_file_source_a4f42092aad44fe79ac771b2776bfb83c}{getWindowSize}}()\ /\ sample\_buffer-\/>\mbox{\hyperlink{struct_file_source_1_1_sample_buffer_a16dad676282bed4a1daefd7a20f6019a}{size}};}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00155\ \ \ \textcolor{keywordtype}{float}\ fade\_length\ =\ std::max(window\_fade\_\ *\ window\_size\_,\ 1.0f\ /\ \mbox{\hyperlink{class_audio_file_viewer_a20139cfd6c658b31a86b8473d732b799}{kResolution}});}
+\DoxyCodeLine{00156\ \ \ \textcolor{keywordtype}{float}\ start\ =\ window\_position\_\ -\/\ fade\_length\ *\ 0.5f;}
+\DoxyCodeLine{00157\ \ \ \textcolor{keywordtype}{float}\ end\ =\ window\_position\_\ +\ window\_size\_\ +\ fade\_length\ *\ 0.5f;}
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_audio_file_viewer_a20139cfd6c658b31a86b8473d732b799}{kResolution}};\ ++i)\ \{}
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{keywordtype}{float}\ position\ =\ i\ /\ (\mbox{\hyperlink{class_audio_file_viewer_a20139cfd6c658b31a86b8473d732b799}{kResolution}}\ -\/\ 1.0f);}
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keywordtype}{float}\ window\_phase\ =\ std::min(position\ -\/\ start,\ end\ -\/\ position)\ /\ fade\_length;}
+\DoxyCodeLine{00162\ \ \ \ \ window\_phase\ =\ std::max(std::min(window\_phase,\ 1.0f),\ 0.0f)\ *\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{vital::kPi}};}
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{keywordtype}{float}\ window\_value\ =\ 0.5f\ -\/\ cosf(window\_phase)\ *\ 0.5f;}
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00165\ \ \ \ \ top\_.\mbox{\hyperlink{class_open_gl_line_renderer_ac8d022f7bbaab92019bb55ff606806fd}{setBoostLeft}}(i,\ window\_value);}
+\DoxyCodeLine{00166\ \ \ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_ac8d022f7bbaab92019bb55ff606806fd}{setBoostLeft}}(i,\ window\_value);}
+\DoxyCodeLine{00167\ \ \ \}}
+\DoxyCodeLine{00168\ \}}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_file_viewer_a985814a200001823e5a4ec4fcbc135cd}{AudioFileViewer::audioFileLoaded}}(\textcolor{keyword}{const}\ File\&\ file)\ \{}
+\DoxyCodeLine{00171\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMaxFileSamples\ =\ 176400;}
+\DoxyCodeLine{00172\ \ \ std::unique\_ptr<AudioFormatReader>\ format\_reader(\mbox{\hyperlink{class_audio_file_drop_source_af48e243e71f5266b5d0f26bc76de9b40}{format\_manager\_}}.createReaderFor(file));}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ \textcolor{keywordflow}{if}\ (format\_reader)\ \{}
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_samples\ =\ (int)std::min<long\ long>(format\_reader-\/>lengthInSamples,\ kMaxFileSamples);}
+\DoxyCodeLine{00176\ \ \ \ \ sample\_buffer\_.setSize(format\_reader-\/>numChannels,\ num\_samples);}
+\DoxyCodeLine{00177\ \ \ \ \ format\_reader-\/>read(\&sample\_buffer\_,\ 0,\ num\_samples,\ 0,\ \textcolor{keyword}{true},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00178\ \ \ \}}
+\DoxyCodeLine{00179\ }
+\DoxyCodeLine{00180\ \ \ dragging\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a11c7d32833ea8910f9301d6c98e4daff}{setActive}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00181\ \}}
+\DoxyCodeLine{00182\ }
+\DoxyCodeLine{00183\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_file_viewer_a3732a1a14fe32a69a2db7bdf748632de}{AudioFileViewer::fileDragEnter}}(\textcolor{keyword}{const}\ StringArray\&\ files,\ \textcolor{keywordtype}{int}\ x,\ \textcolor{keywordtype}{int}\ y)\ \{}
+\DoxyCodeLine{00184\ \ \ dragging\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a11c7d32833ea8910f9301d6c98e4daff}{setActive}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00185\ \}}
+\DoxyCodeLine{00186\ }
+\DoxyCodeLine{00187\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_file_viewer_a5e47a8716e4b3cd2757f63994c461783}{AudioFileViewer::fileDragExit}}(\textcolor{keyword}{const}\ StringArray\&\ files)\ \{}
+\DoxyCodeLine{00188\ \ \ dragging\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a11c7d32833ea8910f9301d6c98e4daff}{setActive}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00189\ \}}
+\DoxyCodeLine{00190\ }
+\DoxyCodeLine{00191\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_audio_file_viewer_aab9e7fce33ad21c2c1bd5ec6b435cb6a}{AudioFileViewer::updateMousePosition}}(Point<float>\ position)\ \{}
+\DoxyCodeLine{00192\ \ \ \textcolor{keywordtype}{float}\ ratio\ =\ (position.x\ -\/\ last\_mouse\_position\_.x)\ /\ getWidth();}
+\DoxyCodeLine{00193\ \ \ last\_mouse\_position\_\ =\ position;}
+\DoxyCodeLine{00194\ \ \ \textcolor{keywordflow}{return}\ ratio;}
+\DoxyCodeLine{00195\ \}}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_file_viewer_ac52c80e2ab8292587d5dc9940ed807fa}{AudioFileViewer::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00198\ \ \ \mbox{\hyperlink{class_audio_file_viewer_aab9e7fce33ad21c2c1bd5ec6b435cb6a}{updateMousePosition}}(e.position);}
+\DoxyCodeLine{00199\ \}}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_file_viewer_a5e825f4da8cbd5f3f61dd94624f1eba9}{AudioFileViewer::mouseDrag}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00202\ \ \ \textcolor{keywordtype}{float}\ ratio\ =\ \mbox{\hyperlink{class_audio_file_viewer_aab9e7fce33ad21c2c1bd5ec6b435cb6a}{updateMousePosition}}(e.position);}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_audio_file_viewer_1_1_drag_listener}{DragListener}}*\ listener\ :\ drag\_listeners\_)}
+\DoxyCodeLine{00205\ \ \ \ \ listener-\/>positionMovedRelative(ratio,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00206\ \}}
+\DoxyCodeLine{00207\ }
+\DoxyCodeLine{00208\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_file_viewer_a2d034e456f120218c6bddee3e59bc3eb}{AudioFileViewer::mouseUp}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00209\ \ \ \textcolor{keywordtype}{float}\ ratio\ =\ \mbox{\hyperlink{class_audio_file_viewer_aab9e7fce33ad21c2c1bd5ec6b435cb6a}{updateMousePosition}}(e.position);}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_audio_file_viewer_1_1_drag_listener}{DragListener}}*\ listener\ :\ drag\_listeners\_)}
+\DoxyCodeLine{00212\ \ \ \ \ listener-\/>positionMovedRelative(ratio,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00213\ \}}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00215\ \mbox{\hyperlink{class_file_source_overlay_a24227775a92a20c4412fbd7f25a80697}{FileSourceOverlay::FileSourceOverlay}}()\ :\ \mbox{\hyperlink{class_wavetable_component_overlay}{WavetableComponentOverlay}}(\textcolor{stringliteral}{"{}FILE\ SOURCE"{}}),\ file\_source\_(nullptr)\ \{}
+\DoxyCodeLine{00216\ \ \ \mbox{\hyperlink{class_file_source_overlay_a878e3d0ee875e7a26d94dce937f5f376}{current\_frame\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00217\ \ \ \mbox{\hyperlink{class_file_source_overlay_ad53a75e72e9649f7fd377a2e5129362c}{load\_button\_}}\ =\ std::make\_unique<TextButton>(\textcolor{stringliteral}{"{}LOAD"{}});}
+\DoxyCodeLine{00218\ \ \ addAndMakeVisible(\mbox{\hyperlink{class_file_source_overlay_ad53a75e72e9649f7fd377a2e5129362c}{load\_button\_}}.get());}
+\DoxyCodeLine{00219\ \ \ \mbox{\hyperlink{class_file_source_overlay_ad53a75e72e9649f7fd377a2e5129362c}{load\_button\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00220\ \ \ \mbox{\hyperlink{class_file_source_overlay_ad53a75e72e9649f7fd377a2e5129362c}{load\_button\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00221\ \ \ \mbox{\hyperlink{class_file_source_overlay_ad53a75e72e9649f7fd377a2e5129362c}{load\_button\_}}-\/>setButtonText(\textcolor{stringliteral}{"{}LOAD"{}});}
+\DoxyCodeLine{00222\ }
+\DoxyCodeLine{00223\ \ \ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}\ =\ std::make\_unique<TextSelector>(\textcolor{stringliteral}{"{}Fade\ Style"{}});}
+\DoxyCodeLine{00224\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}.get());}
+\DoxyCodeLine{00225\ \ \ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00226\ \ \ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00227\ \ \ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00228\ \ \ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}-\/>setRange(0,\ \mbox{\hyperlink{class_file_source_a591f45c07477e877e5c7af5d835f670bae505c71ce3ee1cdc5fa5d55b68f0fbd6}{FileSource::kNumFadeStyles}}\ -\/\ 1,\ 1);}
+\DoxyCodeLine{00229\ \ \ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00230\ \ \ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00231\ \ \ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}-\/>setStringLookup(kFadeLookup);}
+\DoxyCodeLine{00232\ \ \ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}-\/>setLongStringLookup(kFadeLookup);}
+\DoxyCodeLine{00233\ }
+\DoxyCodeLine{00234\ \ \ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}\ =\ std::make\_unique<TextSelector>(\textcolor{stringliteral}{"{}Phase\ Style"{}});}
+\DoxyCodeLine{00235\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}.get());}
+\DoxyCodeLine{00236\ \ \ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00237\ \ \ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00238\ \ \ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00239\ \ \ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}-\/>setRange(0,\ \mbox{\hyperlink{class_file_source_af08ef1b0e1cb5ebe1a60258ab71d99aca6bbfaf71bb8db2ce901fd256bc5a4c56}{FileSource::kNumPhaseStyles}}\ -\/\ 1,\ 1);}
+\DoxyCodeLine{00240\ \ \ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00241\ \ \ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}-\/>setStringLookup(kPhaseLookup);}
+\DoxyCodeLine{00242\ \ \ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00243\ \ \ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}-\/>setLongStringLookup(kPhaseLookup);}
+\DoxyCodeLine{00244\ }
+\DoxyCodeLine{00245\ \ \ \mbox{\hyperlink{class_file_source_overlay_ab689c7fe200a6c19262666846f3ea6a9}{normalize\_gain\_}}\ =\ std::make\_unique<OpenGlToggleButton>(\textcolor{stringliteral}{"{}NORMALIZE"{}});}
+\DoxyCodeLine{00246\ \ \ addAndMakeVisible(\mbox{\hyperlink{class_file_source_overlay_ab689c7fe200a6c19262666846f3ea6a9}{normalize\_gain\_}}.get());}
+\DoxyCodeLine{00247\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\mbox{\hyperlink{class_file_source_overlay_ab689c7fe200a6c19262666846f3ea6a9}{normalize\_gain\_}}-\/>getGlComponent());}
+\DoxyCodeLine{00248\ \ \ \mbox{\hyperlink{class_file_source_overlay_ab689c7fe200a6c19262666846f3ea6a9}{normalize\_gain\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00249\ \ \ \mbox{\hyperlink{class_file_source_overlay_ab689c7fe200a6c19262666846f3ea6a9}{normalize\_gain\_}}-\/>getGlComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00250\ \ \ \mbox{\hyperlink{class_file_source_overlay_ab689c7fe200a6c19262666846f3ea6a9}{normalize\_gain\_}}-\/>setNoBackground();}
+\DoxyCodeLine{00251\ \ \ \mbox{\hyperlink{class_file_source_overlay_ab689c7fe200a6c19262666846f3ea6a9}{normalize\_gain\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00252\ \ \ \mbox{\hyperlink{class_file_source_overlay_ab689c7fe200a6c19262666846f3ea6a9}{normalize\_gain\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}\ =\ std::make\_unique<AudioFileViewer>();}
+\DoxyCodeLine{00255\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(\mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}.get());}
+\DoxyCodeLine{00256\ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00257\ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00258\ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>addDragListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00259\ }
+\DoxyCodeLine{00260\ \textcolor{preprocessor}{\#if\ !defined(NO\_TEXT\_ENTRY)}}
+\DoxyCodeLine{00261\ \ \ \mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}\ =\ std::make\_unique<OpenGlTextEditor>(\textcolor{stringliteral}{"{}Start\ Position"{}});}
+\DoxyCodeLine{00262\ \ \ addAndMakeVisible(\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}.get());}
+\DoxyCodeLine{00263\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}-\/>getImageComponent());}
+\DoxyCodeLine{00264\ \ \ \mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00265\ \ \ \mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00266\ \ \ \mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00267\ \ \ \mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00268\ \ \ \mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}-\/>setJustification(Justification::centred);}
+\DoxyCodeLine{00269\ }
+\DoxyCodeLine{00270\ \ \ \mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}\ =\ std::make\_unique<OpenGlTextEditor>(\textcolor{stringliteral}{"{}Window\ Size"{}});}
+\DoxyCodeLine{00271\ \ \ addAndMakeVisible(\mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}.get());}
+\DoxyCodeLine{00272\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}-\/>getImageComponent());}
+\DoxyCodeLine{00273\ \ \ \mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00274\ \ \ \mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00275\ \ \ \mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00276\ \ \ \mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00277\ \ \ \mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}-\/>setJustification(Justification::centred);}
+\DoxyCodeLine{00278\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00279\ }
+\DoxyCodeLine{00280\ \ \ \mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}File\ Source\ Window\ Fade"{}});}
+\DoxyCodeLine{00281\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}.get());}
+\DoxyCodeLine{00282\ \ \ \mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00283\ \ \ \mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00284\ \ \ \mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00285\ \ \ \mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}-\/>setRange(0.0f,\ 1.0f);}
+\DoxyCodeLine{00286\ \ \ \mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}-\/>setDoubleClickReturnValue(\textcolor{keyword}{true},\ 1.0f);}
+\DoxyCodeLine{00287\ \ \ \mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00288\ \ \ \mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00289\ }
+\DoxyCodeLine{00290\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_aa2fc0516ff532630f3bfcf5910e453b1}{clearTitles}}();}
+\DoxyCodeLine{00291\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00292\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}POSITION"{}});}
+\DoxyCodeLine{00293\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}WINDOW\ SIZE"{}});}
+\DoxyCodeLine{00294\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}WINDOW\ FADE"{}});}
+\DoxyCodeLine{00295\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}BLEND\ STYLE"{}});}
+\DoxyCodeLine{00296\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}PHASE\ STYLE"{}});}
+\DoxyCodeLine{00297\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00298\ \}}
+\DoxyCodeLine{00299\ }
+\DoxyCodeLine{00300\ \mbox{\hyperlink{class_file_source_overlay_ae3da0af9c9a905462942ebe9bf68d7f4}{FileSourceOverlay::\string~FileSourceOverlay}}()\ \{\ \}}
+\DoxyCodeLine{00301\ }
+\DoxyCodeLine{00302\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_adfa9b73eae11c86785eebe74b2cc004b}{FileSourceOverlay::frameSelected}}(\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00303\ \ \ \textcolor{keywordflow}{if}\ (keyframe\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00304\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a878e3d0ee875e7a26d94dce937f5f376}{current\_frame\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00305\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a568088f16dde91e6f8ae8d0f3fa5b755}{owner}}()\ ==\ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}})\ \{}
+\DoxyCodeLine{00306\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a878e3d0ee875e7a26d94dce937f5f376}{current\_frame\_}}\ =\ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_addd1babe9f8e4f58472684cde497c2da}{getKeyframe}}(keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a1faf74be7dd4b7f3f4ea0e83fa75ce8d}{index}}());}
+\DoxyCodeLine{00307\ }
+\DoxyCodeLine{00308\ \ \ \ \ \textcolor{keywordtype}{double}\ start\_position\ =\ \mbox{\hyperlink{class_file_source_overlay_a878e3d0ee875e7a26d94dce937f5f376}{current\_frame\_}}-\/>\mbox{\hyperlink{class_file_source_1_1_file_source_keyframe_ae41990ffbf450c73a6ed860335a1ebd6}{getStartPosition}}();}
+\DoxyCodeLine{00309\ \ \ \ \ \textcolor{keywordtype}{double}\ window\_fade\ =\ \mbox{\hyperlink{class_file_source_overlay_a878e3d0ee875e7a26d94dce937f5f376}{current\_frame\_}}-\/>\mbox{\hyperlink{class_file_source_1_1_file_source_keyframe_ac02984a9d263fa793cfa656b66574d5b}{getWindowFade}}();}
+\DoxyCodeLine{00310\ \ \ \ \ \textcolor{keywordtype}{double}\ window\_size\ =\ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_a4f42092aad44fe79ac771b2776bfb83c}{getWindowSize}}();}
+\DoxyCodeLine{00311\ }
+\DoxyCodeLine{00312\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}})}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}-\/>setText(String(start\_position,\ 1));}
+\DoxyCodeLine{00314\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}-\/>setValue(window\_fade,\ dontSendNotification);}
+\DoxyCodeLine{00315\ }
+\DoxyCodeLine{00316\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}})}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}-\/>setText(String(window\_size,\ 1));}
+\DoxyCodeLine{00318\ }
+\DoxyCodeLine{00319\ \ \ \ \ \textcolor{keywordtype}{double}\ num\_samples\ =\ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_aa9697c495bd8a31f97768fe1d4a2bcd6}{buffer}}()-\/>\mbox{\hyperlink{struct_file_source_1_1_sample_buffer_a16dad676282bed4a1daefd7a20f6019a}{size}};}
+\DoxyCodeLine{00320\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_samples)\ \{}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>setWindowPosition(start\_position\ /\ num\_samples);}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>setWindowSize(window\_size\ /\ num\_samples);}
+\DoxyCodeLine{00323\ \ \ \ \ \}}
+\DoxyCodeLine{00324\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>setWindowPosition(0.0f);}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>setWindowSize(1.0f);}
+\DoxyCodeLine{00327\ \ \ \ \ \}}
+\DoxyCodeLine{00328\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>setWindowFade(window\_fade);}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00330\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_ab689c7fe200a6c19262666846f3ea6a9}{normalize\_gain\_}}-\/>setToggleState(\mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_a910aeff67a02081799c4099e7833d5e2}{getNormalizeGain}}(),\ dontSendNotification);}
+\DoxyCodeLine{00331\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}-\/>setValue(\mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_afd8f522835b9a87f2b5c6b20fb08cc1a}{getFadeStyle}}(),\ dontSendNotification);}
+\DoxyCodeLine{00332\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}-\/>setValue(\mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_a7d00a25504c4efea532da04900d00d5c}{getPhaseStyle}}(),\ dontSendNotification);}
+\DoxyCodeLine{00333\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}-\/>redoImage();}
+\DoxyCodeLine{00334\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}-\/>redoImage();}
+\DoxyCodeLine{00335\ \ \ \}}
+\DoxyCodeLine{00336\ \}}
+\DoxyCodeLine{00337\ }
+\DoxyCodeLine{00338\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_a5265d2bafe4c40b1e5a2c6b226b46d76}{FileSourceOverlay::setEditBounds}}(Rectangle<int>\ bounds)\ \{}
+\DoxyCodeLine{00339\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kTextBoxWidthHeightRatio\ =\ 2.5f;}
+\DoxyCodeLine{00340\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kWindowFadeWidthHeightRatio\ =\ 3.0f;}
+\DoxyCodeLine{00341\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kSelectorWidthHeightRatio\ =\ 3.0f;}
+\DoxyCodeLine{00342\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kNormalizeWidthHeightRatio\ =\ 2.5f;}
+\DoxyCodeLine{00343\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kBorderWidthHeightRatio\ =\ 1.5f;}
+\DoxyCodeLine{00344\ }
+\DoxyCodeLine{00345\ \ \ \textcolor{keywordflow}{if}\ (bounds.getWidth()\ <=\ 0)}
+\DoxyCodeLine{00346\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00347\ }
+\DoxyCodeLine{00348\ \ \ \textcolor{keywordtype}{int}\ padding\ =\ \mbox{\hyperlink{class_wavetable_component_overlay_a6247819afe1ddce8d34ad500917e3460}{getPadding}}();}
+\DoxyCodeLine{00349\ \ \ \textcolor{keywordtype}{int}\ text\_box\_width\ =\ bounds.getHeight()\ *\ kTextBoxWidthHeightRatio;}
+\DoxyCodeLine{00350\ \ \ \textcolor{keywordtype}{int}\ window\_fade\_width\ =\ bounds.getHeight()\ *\ kWindowFadeWidthHeightRatio;}
+\DoxyCodeLine{00351\ \ \ \textcolor{keywordtype}{int}\ selector\_width\ =\ bounds.getHeight()\ *\ kSelectorWidthHeightRatio;}
+\DoxyCodeLine{00352\ \ \ \textcolor{keywordtype}{int}\ normalize\_width\ =\ bounds.getHeight()\ *\ kNormalizeWidthHeightRatio;}
+\DoxyCodeLine{00353\ \ \ \textcolor{keywordtype}{int}\ border\_width\ =\ bounds.getHeight()\ *\ kBorderWidthHeightRatio;}
+\DoxyCodeLine{00354\ \ \ \textcolor{keywordtype}{int}\ total\_width\ =\ bounds.getWidth()\ -\/\ 2\ *\ border\_width;}
+\DoxyCodeLine{00355\ \ \ \textcolor{keywordtype}{int}\ audio\_width\ =\ total\_width\ -\/\ normalize\_width\ -\/\ 2\ *\ selector\_width\ -\/\ window\_fade\_width\ -\/}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 2\ *\ text\_box\_width\ -\/\ 6\ *\ padding;}
+\DoxyCodeLine{00357\ }
+\DoxyCodeLine{00358\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a16ea421b63ea56ec8a453dde9b45c7a7}{setControlsWidth}}(total\_width);}
+\DoxyCodeLine{00359\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2b9025728b8627dae45261e3d72814db}{WavetableComponentOverlay::setEditBounds}}(bounds);}
+\DoxyCodeLine{00360\ }
+\DoxyCodeLine{00361\ \ \ \textcolor{keywordtype}{int}\ title\_height\ =\ \mbox{\hyperlink{class_wavetable_component_overlay_a54c6e22bd9b774c88c6246d849ce8c56}{WavetableComponentOverlay::kTitleHeightRatio}}\ *\ bounds.getHeight();}
+\DoxyCodeLine{00362\ \ \ \textcolor{keywordtype}{int}\ x\ =\ border\_width;}
+\DoxyCodeLine{00363\ \ \ \textcolor{keywordtype}{int}\ y\ =\ bounds.getY();}
+\DoxyCodeLine{00364\ \ \ \textcolor{keywordtype}{int}\ y\_title\ =\ y\ +\ title\_height;}
+\DoxyCodeLine{00365\ \ \ \textcolor{keywordtype}{int}\ height\ =\ bounds.getHeight();}
+\DoxyCodeLine{00366\ \ \ \textcolor{keywordtype}{int}\ height\_title\ =\ height\ -\/\ title\_height;}
+\DoxyCodeLine{00367\ \ \ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}-\/>setTextHeightPercentage(0.4f);}
+\DoxyCodeLine{00368\ \ \ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}-\/>setTextHeightPercentage(0.4f);}
+\DoxyCodeLine{00369\ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>setBounds(x\ +\ 1,\ y\ +\ 1,\ audio\_width\ -\/\ 1,\ height\ -\/\ 2);}
+\DoxyCodeLine{00370\ }
+\DoxyCodeLine{00371\ \ \ \textcolor{keywordtype}{int}\ edit\_x\ =\ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>getRight()\ +\ padding;}
+\DoxyCodeLine{00372\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}})\ \{}
+\DoxyCodeLine{00373\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}-\/>setBounds(edit\_x,\ y\_title,\ text\_box\_width,\ height\_title\ -\/\ 1);}
+\DoxyCodeLine{00374\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}-\/>setBounds(\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}-\/>getRight()\ +\ padding,\ y\_title,\ text\_box\_width,\ height\_title\ -\/\ 1);}
+\DoxyCodeLine{00375\ \ \ \ \ edit\_x\ =\ \mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}-\/>getRight()\ +\ padding;}
+\DoxyCodeLine{00376\ \ \ \}}
+\DoxyCodeLine{00377\ \ \ \mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}-\/>setBounds(edit\_x,\ y\_title,\ window\_fade\_width,\ height\_title);}
+\DoxyCodeLine{00378\ \ \ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}-\/>setBounds(\mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}-\/>getRight()\ +\ padding,\ y\_title,\ selector\_width,\ height\_title);}
+\DoxyCodeLine{00379\ \ \ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}-\/>setBounds(\mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}-\/>getRight()\ +\ padding,\ y\_title,\ selector\_width,\ height\_title);}
+\DoxyCodeLine{00380\ \ \ \textcolor{keywordtype}{int}\ normalize\_padding\ =\ height\ /\ 6;}
+\DoxyCodeLine{00381\ \ \ \mbox{\hyperlink{class_file_source_overlay_ab689c7fe200a6c19262666846f3ea6a9}{normalize\_gain\_}}-\/>setBounds(\mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}-\/>getRight()\ +\ padding,\ y\ +\ normalize\_padding,}
+\DoxyCodeLine{00382\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ normalize\_width,\ height\ -\/\ 2\ *\ normalize\_padding);}
+\DoxyCodeLine{00383\ }
+\DoxyCodeLine{00384\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_af5926c7c594c424bc5f4e62574e85c39}{clearLines}}();}
+\DoxyCodeLine{00385\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(audio\_width);}
+\DoxyCodeLine{00386\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(audio\_width\ +\ text\_box\_width\ +\ padding);}
+\DoxyCodeLine{00387\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(audio\_width\ +\ 2\ *\ text\_box\_width\ +\ 2\ *\ padding);}
+\DoxyCodeLine{00388\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(audio\_width\ +\ 2\ *\ text\_box\_width\ +\ window\_fade\_width\ +\ 3\ *\ padding);}
+\DoxyCodeLine{00389\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(audio\_width\ +\ 2\ *\ text\_box\_width\ +\ window\_fade\_width\ +\ selector\_width\ +\ 4\ *\ padding);}
+\DoxyCodeLine{00390\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(audio\_width\ +\ 2\ *\ text\_box\_width\ +\ window\_fade\_width\ +\ 2\ *\ selector\_width\ +\ 5\ *\ padding);}
+\DoxyCodeLine{00391\ }
+\DoxyCodeLine{00392\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}\ \&\&\ \mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}})\ \{}
+\DoxyCodeLine{00393\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_ac0c0f5177269c2f78cfef6460c523f6b}{setTextEditorVisuals}}(\mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}.get(),\ height\_title);}
+\DoxyCodeLine{00394\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_ac0c0f5177269c2f78cfef6460c523f6b}{setTextEditorVisuals}}(\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}.get(),\ height\_title);}
+\DoxyCodeLine{00395\ }
+\DoxyCodeLine{00396\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}-\/>redoImage();}
+\DoxyCodeLine{00397\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}-\/>redoImage();}
+\DoxyCodeLine{00398\ \ \ \}}
+\DoxyCodeLine{00399\ \ \ \mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}-\/>redoImage();}
+\DoxyCodeLine{00400\ \ \ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}-\/>redoImage();}
+\DoxyCodeLine{00401\ \ \ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}-\/>redoImage();}
+\DoxyCodeLine{00402\ \}}
+\DoxyCodeLine{00403\ }
+\DoxyCodeLine{00404\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_afb2f5ac5fb6564f0e909b5b71ab126e4}{FileSourceOverlay::sliderValueChanged}}(Slider*\ moved\_slider)\ \{}
+\DoxyCodeLine{00405\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_file_source_overlay_a878e3d0ee875e7a26d94dce937f5f376}{current\_frame\_}}\ ==\ \textcolor{keyword}{nullptr}\ ||\ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00406\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00407\ }
+\DoxyCodeLine{00408\ \ \ \textcolor{keywordflow}{if}\ (moved\_slider\ ==\ \mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}.get())\ \{}
+\DoxyCodeLine{00409\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a878e3d0ee875e7a26d94dce937f5f376}{current\_frame\_}}-\/>\mbox{\hyperlink{class_file_source_1_1_file_source_keyframe_a42200201d9bc717634732a09a29d9ea4}{setWindowFade}}(\mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}-\/>getValue());}
+\DoxyCodeLine{00410\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>setWindowFade(\mbox{\hyperlink{class_file_source_overlay_a90d96d460639aeafa514dac04e16a0ee}{window\_fade\_}}-\/>getValue());}
+\DoxyCodeLine{00411\ \ \ \}}
+\DoxyCodeLine{00412\ }
+\DoxyCodeLine{00413\ \ \ \textcolor{keywordflow}{if}\ (moved\_slider\ ==\ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}.get())}
+\DoxyCodeLine{00414\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_a9e523aec5c9952f4667c2065559dff49}{setFadeStyle}}((\mbox{\hyperlink{class_file_source_a591f45c07477e877e5c7af5d835f670b}{FileSource::FadeStyle}})\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(\mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}-\/>getValue()));}
+\DoxyCodeLine{00415\ }
+\DoxyCodeLine{00416\ \ \ \textcolor{keywordflow}{if}\ (moved\_slider\ ==\ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}.get())}
+\DoxyCodeLine{00417\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_a9faf3184fcd9e2db4e5715b061619101}{setPhaseStyle}}((\mbox{\hyperlink{class_file_source_af08ef1b0e1cb5ebe1a60258ab71d99ac}{FileSource::PhaseStyle}})\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(\mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}-\/>getValue()));}
+\DoxyCodeLine{00418\ }
+\DoxyCodeLine{00419\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(moved\_slider\ ==\ \mbox{\hyperlink{class_file_source_overlay_af4b0896086fd92e5a73140af3b020db4}{fade\_style\_}}.get()\ ||\ moved\_slider\ ==\ \mbox{\hyperlink{class_file_source_overlay_a7f38dceae40a29e410ba273c36a8aacf}{phase\_style\_}}.get());}
+\DoxyCodeLine{00420\ \}}
+\DoxyCodeLine{00421\ }
+\DoxyCodeLine{00422\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_a2f31aa9b260381ab5d5c2720adc42229}{FileSourceOverlay::sliderDragEnded}}(Slider*\ moved\_slider)\ \{}
+\DoxyCodeLine{00423\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00424\ \}}
+\DoxyCodeLine{00425\ }
+\DoxyCodeLine{00426\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_a6dd3bb624fd93e08647562f070bda230}{FileSourceOverlay::loadFile}}(\textcolor{keyword}{const}\ File\&\ file)\ \{}
+\DoxyCodeLine{00427\ \ \ \textcolor{keywordflow}{if}\ (!file.exists()\ ||\ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00428\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00429\ }
+\DoxyCodeLine{00430\ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>audioFileLoaded(file);}
+\DoxyCodeLine{00431\ \ \ AudioSampleBuffer*\ sample\_buffer\ =\ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>getSampleBuffer();}
+\DoxyCodeLine{00432\ \ \ \textcolor{keywordtype}{int}\ sample\_rate\ =\ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>getSampleRate();}
+\DoxyCodeLine{00433\ \ \ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_a24ac438fb14a0c5fb87efc0e5b903a38}{loadBuffer}}(sample\_buffer-\/>getReadPointer(0,\ 0),\ sample\_buffer-\/>getNumSamples(),\ sample\_rate);}
+\DoxyCodeLine{00434\ \ \ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_a501d5e3f806bd1646632198ea5dd447d}{detectPitch}}();}
+\DoxyCodeLine{00435\ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>setAudioPositions();}
+\DoxyCodeLine{00436\ }
+\DoxyCodeLine{00437\ \ \ \mbox{\hyperlink{class_file_source_overlay_a83c7593c32e16363b42ac420ec2dd8f2}{clampStartingPosition}}();}
+\DoxyCodeLine{00438\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}})}
+\DoxyCodeLine{00439\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_ace9fc47fde65e03a368212a37542d432}{textEditorReturnKeyPressed}}(*\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}});}
+\DoxyCodeLine{00440\ }
+\DoxyCodeLine{00441\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00442\ \}}
+\DoxyCodeLine{00443\ }
+\DoxyCodeLine{00444\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_a1089ed81dd1e09dcb81ee9d7a19c2b31}{FileSourceOverlay::loadFilePressed}}()\ \{}
+\DoxyCodeLine{00445\ \ \ FileChooser\ load\_file(\textcolor{stringliteral}{"{}Load\ Audio\ File"{}},\ File::getSpecialLocation(File::userHomeDirectory),\ String(\textcolor{stringliteral}{"{}*.wav"{}}));}
+\DoxyCodeLine{00446\ \ \ \textcolor{keywordflow}{if}\ (load\_file.browseForFileToOpen())}
+\DoxyCodeLine{00447\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a6dd3bb624fd93e08647562f070bda230}{loadFile}}(load\_file.getResult());}
+\DoxyCodeLine{00448\ \}}
+\DoxyCodeLine{00449\ }
+\DoxyCodeLine{00450\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_a80a174099c47d8240129a3a5a3ac4548}{FileSourceOverlay::buttonClicked}}(Button*\ clicked\_button)\ \{}
+\DoxyCodeLine{00451\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00452\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00453\ }
+\DoxyCodeLine{00454\ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ \mbox{\hyperlink{class_file_source_overlay_ad53a75e72e9649f7fd377a2e5129362c}{load\_button\_}}.get())}
+\DoxyCodeLine{00455\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a1089ed81dd1e09dcb81ee9d7a19c2b31}{loadFilePressed}}();}
+\DoxyCodeLine{00456\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ \mbox{\hyperlink{class_file_source_overlay_ab689c7fe200a6c19262666846f3ea6a9}{normalize\_gain\_}}.get())\ \{}
+\DoxyCodeLine{00457\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_a5d7e9714f3c1a9a7814e1bac7f42b9a7}{setNormalizeGain}}(\mbox{\hyperlink{class_file_source_overlay_ab689c7fe200a6c19262666846f3ea6a9}{normalize\_gain\_}}-\/>getToggleState());}
+\DoxyCodeLine{00458\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00459\ \ \ \}}
+\DoxyCodeLine{00460\ \}}
+\DoxyCodeLine{00461\ }
+\DoxyCodeLine{00462\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_a70d65a7068a20d22ffaf79943ed5100b}{FileSourceOverlay::audioFileLoaded}}(\textcolor{keyword}{const}\ File\&\ file)\ \{}
+\DoxyCodeLine{00463\ \ \ \mbox{\hyperlink{class_file_source_overlay_a6dd3bb624fd93e08647562f070bda230}{loadFile}}(file);}
+\DoxyCodeLine{00464\ \}}
+\DoxyCodeLine{00465\ }
+\DoxyCodeLine{00466\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_ace9fc47fde65e03a368212a37542d432}{FileSourceOverlay::textEditorReturnKeyPressed}}(TextEditor\&\ text\_editor)\ \{}
+\DoxyCodeLine{00467\ \ \ \textcolor{keywordflow}{if}\ (\&text\_editor\ ==\ \mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}.get())}
+\DoxyCodeLine{00468\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_ae9bae24451b100f690c3a4a0151ddd3b}{loadWindowSizeText}}();}
+\DoxyCodeLine{00469\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\&text\_editor\ ==\ \mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}.get())}
+\DoxyCodeLine{00470\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a5ea03b12d572941d6870580352092bce}{loadStartingPositionText}}();}
+\DoxyCodeLine{00471\ \}}
+\DoxyCodeLine{00472\ }
+\DoxyCodeLine{00473\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_a06cd26954a903654ddc60f96a8a923c1}{FileSourceOverlay::textEditorFocusLost}}(TextEditor\&\ text\_editor)\ \{}
+\DoxyCodeLine{00474\ \ \ \textcolor{keywordflow}{if}\ (\&text\_editor\ ==\ \mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}.get())}
+\DoxyCodeLine{00475\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_ae9bae24451b100f690c3a4a0151ddd3b}{loadWindowSizeText}}();}
+\DoxyCodeLine{00476\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\&text\_editor\ ==\ \mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}.get())}
+\DoxyCodeLine{00477\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a5ea03b12d572941d6870580352092bce}{loadStartingPositionText}}();}
+\DoxyCodeLine{00478\ \}}
+\DoxyCodeLine{00479\ }
+\DoxyCodeLine{00480\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_a533646678d0bd53c3c72061fe750c3ac}{FileSourceOverlay::positionMovedRelative}}(\textcolor{keywordtype}{float}\ ratio,\ \textcolor{keywordtype}{bool}\ mouse\_up)\ \{}
+\DoxyCodeLine{00481\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00482\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00483\ }
+\DoxyCodeLine{00484\ \ \ \textcolor{keywordtype}{int}\ num\_samples\ =\ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_aa9697c495bd8a31f97768fe1d4a2bcd6}{buffer}}()-\/>\mbox{\hyperlink{struct_file_source_1_1_sample_buffer_a16dad676282bed4a1daefd7a20f6019a}{size}};}
+\DoxyCodeLine{00485\ \ \ \textcolor{keywordtype}{float}\ max\_position\ =\ num\_samples\ -\/\ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_a4f42092aad44fe79ac771b2776bfb83c}{getWindowSize}}();}
+\DoxyCodeLine{00486\ \ \ \textcolor{keywordtype}{float}\ position\ =\ 0.0f;}
+\DoxyCodeLine{00487\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}})}
+\DoxyCodeLine{00488\ \ \ \ \ position\ =\ positionTextToSize(\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}-\/>getText());}
+\DoxyCodeLine{00489\ \ \ position\ +=\ ratio\ *\ max\_position;}
+\DoxyCodeLine{00490\ \ \ position\ =\ std::max(0.0f,\ std::min(max\_position,\ position));}
+\DoxyCodeLine{00491\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}})}
+\DoxyCodeLine{00492\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}-\/>setText(String(position,\ 1),\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00493\ }
+\DoxyCodeLine{00494\ \ \ \textcolor{keywordflow}{if}\ (num\_samples\ \&\&\ \mbox{\hyperlink{class_file_source_overlay_a878e3d0ee875e7a26d94dce937f5f376}{current\_frame\_}})\ \{}
+\DoxyCodeLine{00495\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a878e3d0ee875e7a26d94dce937f5f376}{current\_frame\_}}-\/>\mbox{\hyperlink{class_file_source_1_1_file_source_keyframe_aedc8e911f98205df3d25bd34a6d70e5b}{setStartPosition}}(position);}
+\DoxyCodeLine{00496\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>setWindowPosition(position\ /\ num\_samples);}
+\DoxyCodeLine{00497\ \ \ \}}
+\DoxyCodeLine{00498\ }
+\DoxyCodeLine{00499\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(mouse\_up);}
+\DoxyCodeLine{00500\ \}}
+\DoxyCodeLine{00501\ }
+\DoxyCodeLine{00502\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_ac0c0f5177269c2f78cfef6460c523f6b}{FileSourceOverlay::setTextEditorVisuals}}(TextEditor*\ text\_editor,\ \textcolor{keywordtype}{float}\ height)\ \{}
+\DoxyCodeLine{00503\ \ \ text\_editor-\/>setColour(CaretComponent::caretColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caf4bb4fdf63337ceb6bb167959fb9f919}{Skin::kTextEditorCaret}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00504\ \ \ text\_editor-\/>setColour(TextEditor::textColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00505\ \ \ text\_editor-\/>setColour(TextEditor::highlightedTextColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00506\ \ \ text\_editor-\/>setColour(TextEditor::highlightColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cac5ef4508573fe6dae078edd51c88b04e}{Skin::kTextEditorSelection}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00507\ }
+\DoxyCodeLine{00508\ \ \ Font\ font\ =\ \mbox{\hyperlink{class_fonts_ae7669a3eeb9db437c7d34feff9e99707}{Fonts::instance}}()-\/>\mbox{\hyperlink{class_fonts_a0257f51670ef6eb7a024f72a1ba109b2}{monospace}}().withPointHeight(height\ *\ 0.6f);}
+\DoxyCodeLine{00509\ \ \ text\_editor-\/>setFont(font);}
+\DoxyCodeLine{00510\ \ \ text\_editor-\/>applyFontToAllText(font);}
+\DoxyCodeLine{00511\ \ \ text\_editor-\/>resized();}
+\DoxyCodeLine{00512\ \}}
+\DoxyCodeLine{00513\ }
+\DoxyCodeLine{00514\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_ae9bae24451b100f690c3a4a0151ddd3b}{FileSourceOverlay::loadWindowSizeText}}()\ \{}
+\DoxyCodeLine{00515\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}\ ==\ \textcolor{keyword}{nullptr}\ ||\ \mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00516\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00517\ }
+\DoxyCodeLine{00518\ \ \ \textcolor{keywordtype}{float}\ window\_size\ =\ windowTextToSize(\mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}-\/>getText(),\ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_aa9697c495bd8a31f97768fe1d4a2bcd6}{buffer}}()-\/>\mbox{\hyperlink{struct_file_source_1_1_sample_buffer_a5b369ca30b9b899390e5f6775c464b72}{sample\_rate}});}
+\DoxyCodeLine{00519\ \ \ \textcolor{keywordflow}{if}\ (window\_size\ >\ 0.0f)\ \{}
+\DoxyCodeLine{00520\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_ad5729ee3c2a5f6ace2f9876e99cfd02b}{setWindowSize}}(window\_size);}
+\DoxyCodeLine{00521\ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a6e7308b9a15bb2fb41e1b854eead74ab}{window\_size\_}}-\/>setText(String(window\_size,\ 1));}
+\DoxyCodeLine{00522\ }
+\DoxyCodeLine{00523\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_samples\ =\ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_aa9697c495bd8a31f97768fe1d4a2bcd6}{buffer}}()-\/>\mbox{\hyperlink{struct_file_source_1_1_sample_buffer_a16dad676282bed4a1daefd7a20f6019a}{size}};}
+\DoxyCodeLine{00524\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_samples)}
+\DoxyCodeLine{00525\ \ \ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>setWindowSize(window\_size\ /\ num\_samples);}
+\DoxyCodeLine{00526\ }
+\DoxyCodeLine{00527\ \ \ \ \ getParentComponent()-\/>grabKeyboardFocus();}
+\DoxyCodeLine{00528\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00529\ \ \ \}}
+\DoxyCodeLine{00530\ \}}
+\DoxyCodeLine{00531\ }
+\DoxyCodeLine{00532\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_a5ea03b12d572941d6870580352092bce}{FileSourceOverlay::loadStartingPositionText}}()\ \{}
+\DoxyCodeLine{00533\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}\ ==\ \textcolor{keyword}{nullptr}\ ||\ \mbox{\hyperlink{class_file_source_overlay_a878e3d0ee875e7a26d94dce937f5f376}{current\_frame\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00534\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00535\ }
+\DoxyCodeLine{00536\ \ \ \mbox{\hyperlink{class_file_source_overlay_a83c7593c32e16363b42ac420ec2dd8f2}{clampStartingPosition}}();}
+\DoxyCodeLine{00537\ \ \ \textcolor{keywordtype}{float}\ position\ =\ 0.0f;}
+\DoxyCodeLine{00538\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}})}
+\DoxyCodeLine{00539\ \ \ \ \ position\ =\ positionTextToSize(\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}-\/>getText());}
+\DoxyCodeLine{00540\ \ \ \textcolor{keywordflow}{if}\ (position\ >=\ 0.0f)\ \{}
+\DoxyCodeLine{00541\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_samples\ =\ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_aa9697c495bd8a31f97768fe1d4a2bcd6}{buffer}}()-\/>\mbox{\hyperlink{struct_file_source_1_1_sample_buffer_a16dad676282bed4a1daefd7a20f6019a}{size}};}
+\DoxyCodeLine{00542\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_samples)\ \{}
+\DoxyCodeLine{00543\ \ \ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a878e3d0ee875e7a26d94dce937f5f376}{current\_frame\_}}-\/>\mbox{\hyperlink{class_file_source_1_1_file_source_keyframe_aedc8e911f98205df3d25bd34a6d70e5b}{setStartPosition}}(position);}
+\DoxyCodeLine{00544\ \ \ \ \ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>setWindowPosition(position\ /\ num\_samples);}
+\DoxyCodeLine{00545\ \ \ \ \ \}}
+\DoxyCodeLine{00546\ }
+\DoxyCodeLine{00547\ \ \ \ \ getParentComponent()-\/>grabKeyboardFocus();}
+\DoxyCodeLine{00548\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00549\ \ \ \}}
+\DoxyCodeLine{00550\ \}}
+\DoxyCodeLine{00551\ }
+\DoxyCodeLine{00552\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_a73890feb8344e6cef2b631c7183ebd4d}{FileSourceOverlay::setFileSource}}(\mbox{\hyperlink{class_file_source}{FileSource}}*\ file\_source)\ \{}
+\DoxyCodeLine{00553\ \ \ \mbox{\hyperlink{class_file_source_overlay_a878e3d0ee875e7a26d94dce937f5f376}{current\_frame\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00554\ \ \ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}\ =\ file\_source;}
+\DoxyCodeLine{00555\ \ \ \mbox{\hyperlink{class_file_source_overlay_a69cbd3f6bf8b1b198f7476346537a3a9}{audio\_thumbnail\_}}-\/>setFileSource(file\_source);}
+\DoxyCodeLine{00556\ \ \ \mbox{\hyperlink{class_file_source_overlay_a83c7593c32e16363b42ac420ec2dd8f2}{clampStartingPosition}}();}
+\DoxyCodeLine{00557\ \}}
+\DoxyCodeLine{00558\ }
+\DoxyCodeLine{00559\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_file_source_overlay_a83c7593c32e16363b42ac420ec2dd8f2}{FileSourceOverlay::clampStartingPosition}}()\ \{}
+\DoxyCodeLine{00560\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00561\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00562\ }
+\DoxyCodeLine{00563\ \ \ \textcolor{keywordtype}{float}\ max\_position\ =\ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_aa9697c495bd8a31f97768fe1d4a2bcd6}{buffer}}()-\/>\mbox{\hyperlink{struct_file_source_1_1_sample_buffer_a16dad676282bed4a1daefd7a20f6019a}{size}}\ -\/\ \mbox{\hyperlink{class_file_source_overlay_aaa8a65d05197fa357682a19cdb9d6d45}{file\_source\_}}-\/>\mbox{\hyperlink{class_file_source_a4f42092aad44fe79ac771b2776bfb83c}{getWindowSize}}();}
+\DoxyCodeLine{00564\ \ \ \textcolor{keywordtype}{float}\ position\ =\ positionTextToSize(\mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}-\/>getText());}
+\DoxyCodeLine{00565\ \ \ position\ =\ std::max(0.0f,\ std::min(position,\ max\_position));}
+\DoxyCodeLine{00566\ \ \ \mbox{\hyperlink{class_file_source_overlay_a2fac279e1d2591d8d56f57aba1d59bb6}{start\_position\_}}-\/>setText(String(position,\ 1));}
+\DoxyCodeLine{00567\ \}}
+
+\end{DoxyCode}

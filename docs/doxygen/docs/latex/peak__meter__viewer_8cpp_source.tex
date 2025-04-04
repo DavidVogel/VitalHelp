@@ -1,0 +1,193 @@
+\doxysection{peak\+\_\+meter\+\_\+viewer.\+cpp}
+\hypertarget{peak__meter__viewer_8cpp_source}{}\label{peak__meter__viewer_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/peak\_meter\_viewer.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/peak\_meter\_viewer.cpp}}
+\mbox{\hyperlink{peak__meter__viewer_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{peak__meter__viewer_8h}{peak\_meter\_viewer.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{shaders_8h}{shaders.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__gui__interface_8h}{synth\_gui\_interface.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00009\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kClampDecay\ =\ 0.014f;}
+\DoxyCodeLine{00010\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMinDb\ =\ -\/80.0f;}
+\DoxyCodeLine{00011\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMaxDb\ =\ 6.0f;}
+\DoxyCodeLine{00012\ \}\ \textcolor{comment}{//\ namespace;}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \mbox{\hyperlink{class_peak_meter_viewer_aa719827b8cf05409b1ff6e96e154f4d2}{PeakMeterViewer::PeakMeterViewer}}(\textcolor{keywordtype}{bool}\ left)\ :\ shader\_(nullptr),\ clamped\_(0.0f),\ left\_(left)\ \{}
+\DoxyCodeLine{00015\ \ \ \mbox{\hyperlink{class_open_gl_component_a2139561c2dc95b0a7389e65f4cea60f9}{addRoundedCorners}}();}
+\DoxyCodeLine{00016\ \ \ peak\_output\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00017\ \ \ peak\_memory\_output\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00018\ \ \ \textcolor{keywordtype}{float}\ position\_vertices[kNumPositions]\ =\ \{}
+\DoxyCodeLine{00019\ \ \ \ \ -\/1.0f,\ 1.0f,}
+\DoxyCodeLine{00020\ \ \ \ \ -\/1.0f,\ -\/1.0f,}
+\DoxyCodeLine{00021\ \ \ \ \ 1.0f,\ -\/1.0f,}
+\DoxyCodeLine{00022\ \ \ \ \ 1.0f,\ 1.0f,}
+\DoxyCodeLine{00023\ \ \ \};}
+\DoxyCodeLine{00024\ \ \ memcpy(position\_vertices\_,\ position\_vertices,\ kNumPositions\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}));}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \textcolor{keywordtype}{int}\ position\_triangles[6]\ =\ \{}
+\DoxyCodeLine{00027\ \ \ \ \ 0,\ 1,\ 2,}
+\DoxyCodeLine{00028\ \ \ \ \ 2,\ 3,\ 0}
+\DoxyCodeLine{00029\ \ \ \};}
+\DoxyCodeLine{00030\ \ \ memcpy(position\_triangles\_,\ position\_triangles,\ kNumTriangleIndices\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int}));}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ vertex\_buffer\_\ =\ 0;}
+\DoxyCodeLine{00033\ \ \ triangle\_buffer\_\ =\ 0;}
+\DoxyCodeLine{00034\ \}}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \mbox{\hyperlink{class_peak_meter_viewer_aed07bf3dd8d2312b8c0989e0555e56a3}{PeakMeterViewer::\string~PeakMeterViewer}}()\ \{\ \}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_peak_meter_viewer_a890e30573df3462ca76c80ab6ac24b5b}{PeakMeterViewer::resized}}()\ \{}
+\DoxyCodeLine{00039\ \ \ \textcolor{keywordflow}{if}\ (peak\_output\_\ ==\ \textcolor{keyword}{nullptr}\ ||\ peak\_memory\_output\_\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00040\ \ \ \ \ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ parent\ =\ findParentComponentOfClass<SynthGuiInterface>();}
+\DoxyCodeLine{00041\ \ \ \ \ peak\_output\_\ =\ parent-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_add97643be1ba341314ac1b158206dc4b}{getStatusOutput}}(\textcolor{stringliteral}{"{}peak\_meter"{}});}
+\DoxyCodeLine{00042\ \ \ \ \ peak\_memory\_output\_\ =\ parent-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_add97643be1ba341314ac1b158206dc4b}{getStatusOutput}}(\textcolor{stringliteral}{"{}peak\_meter\_memory"{}});}
+\DoxyCodeLine{00043\ \ \ \}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \mbox{\hyperlink{class_open_gl_component_a2bd142dbb0cb7690829cb0a99f84e993}{OpenGlComponent::resized}}();}
+\DoxyCodeLine{00046\ \}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_peak_meter_viewer_a109ac991f1537e07f52ce3c0d9b28b5a}{PeakMeterViewer::init}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00049\ \ \ \mbox{\hyperlink{class_open_gl_component_ad78b342a43cf1e61d4875b6137ed8127}{OpenGlComponent::init}}(open\_gl);}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenBuffers(1,\ \&vertex\_buffer\_);}
+\DoxyCodeLine{00052\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ vertex\_buffer\_);}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ GLsizeiptr\ vert\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(kNumPositions\ *\ \textcolor{keyword}{sizeof}(float)));}
+\DoxyCodeLine{00055\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ARRAY\_BUFFER,\ vert\_size,}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ position\_vertices\_,\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenBuffers(1,\ \&triangle\_buffer\_);}
+\DoxyCodeLine{00059\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ triangle\_buffer\_);}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ GLsizeiptr\ tri\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(kNumTriangleIndices\ *\ \textcolor{keyword}{sizeof}(float)));}
+\DoxyCodeLine{00062\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ELEMENT\_ARRAY\_BUFFER,\ tri\_size,}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ position\_triangles\_,\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ shader\_\ =\ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_af70c9f649bbea5dfd68c376d1e2918ea}{shaders}}-\/>\mbox{\hyperlink{class_shaders_ae4644dfe46dda65994ede40a18e2747a}{getShaderProgram}}(\mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76aa16c803f16ff9b1c8970c751c84786c5}{Shaders::kGainMeterVertex}},\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a959f73555fa7b41d8a469d79091c48e9}{Shaders::kGainMeterFragment}});}
+\DoxyCodeLine{00066\ \ \ shader\_-\/>use();}
+\DoxyCodeLine{00067\ \ \ position\_\ =\ \mbox{\hyperlink{class_open_gl_component_a59361984d78ce0542bfa722179d57f93}{getAttribute}}(open\_gl,\ *shader\_,\ \textcolor{stringliteral}{"{}position"{}});}
+\DoxyCodeLine{00068\ \ \ color\_from\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *shader\_,\ \textcolor{stringliteral}{"{}color\_from"{}});}
+\DoxyCodeLine{00069\ \ \ color\_to\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *shader\_,\ \textcolor{stringliteral}{"{}color\_to"{}});}
+\DoxyCodeLine{00070\ \}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \textcolor{keywordtype}{void}\ PeakMeterViewer::updateVertices()\ \{}
+\DoxyCodeLine{00073\ \ \ \textcolor{keywordflow}{if}\ (peak\_output\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \textcolor{keywordtype}{float}\ val\ =\ peak\_output\_-\/>\mbox{\hyperlink{classvital_1_1_status_output_adc2827a952fdcedd4ba84d1e3b793240}{value}}()[left\_\ ?\ 0\ :\ 1];}
+\DoxyCodeLine{00077\ \ \ \textcolor{keywordflow}{if}\ (val\ >\ 1.0f)}
+\DoxyCodeLine{00078\ \ \ \ \ clamped\_\ =\ 1.0f;}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \textcolor{keywordtype}{float}\ db\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a72fe86e55abbffc96cbc376ba0f12dcc}{vital::utils::magnitudeToDb}}(val);}
+\DoxyCodeLine{00081\ \ \ \textcolor{keywordtype}{float}\ t\ =\ std::max((db\ -\/\ kMinDb)\ /\ (kMaxDb\ -\/\ kMinDb),\ 0.0f);}
+\DoxyCodeLine{00082\ \ \ t\ *=\ t;}
+\DoxyCodeLine{00083\ \ \ \textcolor{keywordtype}{float}\ position\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(-\/1.0f,\ 1.0f,\ t);}
+\DoxyCodeLine{00084\ \ \ position\_vertices\_[0]\ =\ -\/1.0f;}
+\DoxyCodeLine{00085\ \ \ position\_vertices\_[2]\ =\ -\/1.0f;}
+\DoxyCodeLine{00086\ \ \ position\_vertices\_[4]\ =\ position;}
+\DoxyCodeLine{00087\ \ \ position\_vertices\_[6]\ =\ position;}
+\DoxyCodeLine{00088\ \}}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \textcolor{keywordtype}{void}\ PeakMeterViewer::updateVerticesMemory()\ \{}
+\DoxyCodeLine{00091\ \ \ \textcolor{keywordflow}{if}\ (peak\_memory\_output\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \ \ \textcolor{keywordtype}{float}\ val\ =\ peak\_memory\_output\_-\/>\mbox{\hyperlink{classvital_1_1_status_output_adc2827a952fdcedd4ba84d1e3b793240}{value}}()[left\_\ ?\ 0\ :\ 1];}
+\DoxyCodeLine{00095\ \ \ \textcolor{keywordflow}{if}\ (val\ >\ 1.0f)}
+\DoxyCodeLine{00096\ \ \ \ \ clamped\_\ =\ 1.0f;}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \ \ \textcolor{keywordtype}{float}\ db\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a72fe86e55abbffc96cbc376ba0f12dcc}{vital::utils::magnitudeToDb}}(val);}
+\DoxyCodeLine{00099\ \ \ \textcolor{keywordtype}{float}\ t\ =\ std::max((db\ -\/\ kMinDb)\ /\ (kMaxDb\ -\/\ kMinDb),\ 0.0f);}
+\DoxyCodeLine{00100\ \ \ t\ *=\ t;}
+\DoxyCodeLine{00101\ \ \ \textcolor{keywordtype}{float}\ position\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(-\/1.0f,\ 1.0f,\ t);}
+\DoxyCodeLine{00102\ \ \ \textcolor{keywordtype}{float}\ width\ =\ 2.0f\ /\ getWidth();}
+\DoxyCodeLine{00103\ \ \ position\_vertices\_[0]\ =\ position\ -\/\ width;}
+\DoxyCodeLine{00104\ \ \ position\_vertices\_[2]\ =\ position\ -\/\ width;}
+\DoxyCodeLine{00105\ \ \ position\_vertices\_[4]\ =\ position;}
+\DoxyCodeLine{00106\ \ \ position\_vertices\_[6]\ =\ position;}
+\DoxyCodeLine{00107\ \}}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_peak_meter_viewer_a4eece5ace7f703bed109ad087ee4aaff}{PeakMeterViewer::render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00110\ \ \ \textcolor{keywordflow}{if}\ (!animate\ ||\ peak\_output\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ glEnable(GL\_BLEND);}
+\DoxyCodeLine{00114\ \ \ glBlendFunc(GL\_ONE,\ GL\_ONE\_MINUS\_SRC\_ALPHA);}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \mbox{\hyperlink{class_open_gl_component_a0641317fa0d502284c603188bb7da9a7}{setViewPort}}(open\_gl);}
+\DoxyCodeLine{00117\ \ \ shader\_-\/>use();}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ Colour\ color\_from,\ color\_to;}
+\DoxyCodeLine{00120\ \ \ \textcolor{keywordflow}{if}\ (clamped\_\ >\ 0.0f)\ \{}
+\DoxyCodeLine{00121\ \ \ \ \ color\_from\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca2dbe5efa84f5aaa45d87a00fbfdb54e2}{Skin::kWidgetAccent1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00122\ \ \ \ \ color\_to\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caf911444fc8e39321d57b23c144a5f3d5}{Skin::kWidgetAccent2}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00123\ \ \ \}}
+\DoxyCodeLine{00124\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00125\ \ \ \ \ color\_from\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca759c8acbffc8962e9ee2d8cba9677e73}{Skin::kWidgetSecondary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00126\ \ \ \ \ color\_to\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caf0e70a44ed7ab9d5dbef16a856b50cfb}{Skin::kWidgetSecondary2}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00127\ \ \ \}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ color\_from\_-\/>set(color\_from.getFloatRed(),\ color\_from.getFloatGreen(),}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ color\_from.getFloatBlue(),\ color\_from.getFloatAlpha());}
+\DoxyCodeLine{00131\ \ \ color\_to\_-\/>set(color\_to.getFloatRed(),\ color\_to.getFloatGreen(),}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ color\_to.getFloatBlue(),\ color\_to.getFloatAlpha());}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ \ \ updateVertices();}
+\DoxyCodeLine{00135\ \ \ \mbox{\hyperlink{class_peak_meter_viewer_a8a12266a639167ab3be94611fda7730a}{draw}}(open\_gl);}
+\DoxyCodeLine{00136\ \ \ updateVerticesMemory();}
+\DoxyCodeLine{00137\ \ \ \mbox{\hyperlink{class_peak_meter_viewer_a8a12266a639167ab3be94611fda7730a}{draw}}(open\_gl);}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \ \ clamped\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{vital::utils::max}}(clamped\_\ -\/\ kClampDecay,\ 0.0f);}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ \textcolor{keywordtype}{float}\ rounding\ =\ std::min(getHeight()\ /\ 3.0f,\ \mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab3cb761113ca34ffe06c8ed64a7df2f1}{Skin::kWidgetRoundedCorner}})\ *\ 0.5f);}
+\DoxyCodeLine{00142\ \ \ \mbox{\hyperlink{class_open_gl_component_a5c6aa6d7c8a20882ce3b621efbf7e18b}{renderCorners}}(open\_gl,\ animate,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4bf89cbdbad7dd4c1a837af2473389ee}{Skin::kBackground}},\ \textcolor{keyword}{true}),\ rounding);}
+\DoxyCodeLine{00143\ \}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_peak_meter_viewer_a8a12266a639167ab3be94611fda7730a}{PeakMeterViewer::draw}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00146\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ vertex\_buffer\_);}
+\DoxyCodeLine{00147\ \ \ GLsizeiptr\ vert\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(kNumPositions\ *\ \textcolor{keyword}{sizeof}(float)));}
+\DoxyCodeLine{00148\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ARRAY\_BUFFER,\ vert\_size,}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ position\_vertices\_,\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ triangle\_buffer\_);}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glVertexAttribPointer(position\_-\/>attributeID,\ 2,\ GL\_FLOAT,}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GL\_FALSE,\ 2\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00155\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glEnableVertexAttribArray(position\_-\/>attributeID);}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00157\ \ \ glDrawElements(GL\_TRIANGLES,\ 6,\ GL\_UNSIGNED\_INT,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ 0);}
+\DoxyCodeLine{00160\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ 0);}
+\DoxyCodeLine{00161\ \}}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_peak_meter_viewer_a9bf48856514f3960956c52b27705b233}{PeakMeterViewer::destroy}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00164\ \ \ \mbox{\hyperlink{class_open_gl_component_aba2309cf4b3c040f6d25418d1fa2dbd3}{OpenGlComponent::destroy}}(open\_gl);}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ shader\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00167\ \ \ position\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00168\ \ \ color\_from\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00169\ \ \ color\_to\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00170\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDeleteBuffers(1,\ \&vertex\_buffer\_);}
+\DoxyCodeLine{00171\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDeleteBuffers(1,\ \&triangle\_buffer\_);}
+\DoxyCodeLine{00172\ \}}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_peak_meter_viewer_a10e9b45d1b5da44f872e8084ca5af2cb}{PeakMeterViewer::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00175\ \ \ \textcolor{keywordtype}{float}\ t\ =\ -\/kMinDb\ /\ (kMaxDb\ -\/\ kMinDb);}
+\DoxyCodeLine{00176\ \ \ t\ *=\ t;}
+\DoxyCodeLine{00177\ \ \ \textcolor{keywordtype}{float}\ x\ =\ getWidth()\ *\ t;}
+\DoxyCodeLine{00178\ \ \ Colour\ background\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5a30a22b4659bc04528e89d1759558a7}{Skin::kWidgetBackground}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00179\ \ \ g.setColour(background.interpolatedWith(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4bf89cbdbad7dd4c1a837af2473389ee}{Skin::kBackground}},\ \textcolor{keyword}{true}),\ 0.5f));}
+\DoxyCodeLine{00180\ \ \ g.fillRect(x,\ 0.0f,\ getWidth()\ -\/\ x,\ 1.0f\ *\ getHeight());}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \ \ g.setColour(background);}
+\DoxyCodeLine{00183\ \ \ g.fillRect(0.0f,\ 0.0f,\ x,\ 1.0f\ *\ getHeight());}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00185\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00186\ \ \ g.fillRect((\textcolor{keywordtype}{int})x,\ 0,\ 1,\ getHeight());}
+\DoxyCodeLine{00187\ \}}
+
+\end{DoxyCode}

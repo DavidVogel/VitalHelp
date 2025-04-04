@@ -1,0 +1,243 @@
+\doxysection{chorus\+\_\+section.\+cpp}
+\hypertarget{chorus__section_8cpp_source}{}\label{chorus__section_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/chorus\_section.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/chorus\_section.cpp}}
+\mbox{\hyperlink{chorus__section_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{chorus__section_8h}{chorus\_section.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{chorus__module_8h}{chorus\_module.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{delay__section_8h}{delay\_section.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__strings_8h}{synth\_strings.h}}"{}}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__button_8h}{synth\_button.h}}"{}}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__slider_8h}{synth\_slider.h}}"{}}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{tempo__selector_8h}{tempo\_selector.h}}"{}}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__look__and__feel_8h}{text\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00021\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_chorus_viewer}{ChorusViewer}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_bar_renderer}{BarRenderer}}\ \{}
+\DoxyCodeLine{00022\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_chorus_viewer_a0dec0c72b833d3338a503441cb7bd78d}{kDelays}}\ =\ \mbox{\hyperlink{classvital_1_1_chorus_module_a237dc194dc9eb3cb346850170826ccb0}{vital::ChorusModule::kMaxDelayPairs}};}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_chorus_viewer_a841397f6761fa1dbb2849d65b07de4c1}{kNumBars}}\ =\ \mbox{\hyperlink{class_chorus_viewer_a0dec0c72b833d3338a503441cb7bd78d}{kDelays}}\ *\ vital::poly\_float::kSize;}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00027\ \ \ \ \ \mbox{\hyperlink{class_chorus_viewer_a4400f7a866fd4a91301114d2aa89804d}{ChorusViewer}}()\ :\ \mbox{\hyperlink{class_bar_renderer}{BarRenderer}}(\mbox{\hyperlink{class_chorus_viewer_a841397f6761fa1dbb2849d65b07de4c1}{kNumBars}},\ true),\ delays\_()\ \{}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ active\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_afe64ec8044c5495a69c5beab004803c3}{parent\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ num\_voices\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a8d38844e8c85367490b24ab2d05f2793}{setBarWidth}}(0.3f);}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a751453ac1ae1e4dbf84384d53bdd30dc}{setScale}}(1.0f);}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a6318d26ce4ab8a2afded6a0cee00f870}{setAdditiveBlending}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00035\ \ \ \ \ \}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_chorus_viewer_ac63aae154f9b9b7d8cb74561b6b6a68e}{parentHierarchyChanged}}()\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (delays\_[0])}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ parent\ =\ findParentComponentOfClass<SynthGuiInterface>();}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (parent\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_chorus_viewer_a0dec0c72b833d3338a503441cb7bd78d}{kDelays}};\ ++i)}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \ \ \ \ delays\_[i]\ =\ parent-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_add97643be1ba341314ac1b158206dc4b}{getStatusOutput}}(\textcolor{stringliteral}{"{}chorus\_delays"{}}\ +\ std::to\_string(i\ +\ 1));}
+\DoxyCodeLine{00049\ \ \ \ \ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_chorus_viewer_ac6a9fd3134a71456e352b95f1979f1cc}{drawBars}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMaxDelay\ =\ 0.07f;}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMinDelay\ =\ 0.000f;}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kDelayRange\ =\ kMaxDelay\ -\/\ kMinDelay;}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (delays\_[0]\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_voices\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(num\_voices\_-\/>getValue()\ *\ vital::poly\_float::kSize);}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_voices;\ ++i)\ \{}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ delay\_frequency\ =\ delays\_[i\ /\ vital::poly\_float::kSize]-\/>\mbox{\hyperlink{classvital_1_1_status_output_adc2827a952fdcedd4ba84d1e3b793240}{value}}();}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ delay\ =\ 1.0f\ /\ delay\_frequency[i\ \%\ vital::poly\_float::kSize];}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a483ef36533d6e334f37b00765298a095}{setX}}(i,\ 2.0f\ *\ (delay\ -\/\ kMinDelay)\ /\ kDelayRange\ -\/\ 1.0f);}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_ae2668c540ae3be73425116b38209b863}{setY}}(i,\ 0.5f);}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a5f8fb87049a81b7c48502e54990afbaf}{setBottom}}(i,\ -\/0.5f);}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ num\_voices;\ i\ <\ \mbox{\hyperlink{class_bar_renderer_ac7deb66b7aaddba29d02914a4c57e3a3}{num\_points\_}};\ ++i)}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a483ef36533d6e334f37b00765298a095}{setX}}(i\ ,\ -\/2.0f);}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_acc4b3fa29ee13b2594f951b5f3cbb7ef}{BarRenderer::render}}(open\_gl,\ animate);}
+\DoxyCodeLine{00075\ \ \ \ \ \}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_chorus_viewer_af9e4fee7545eb52dc001e7ae875bf787}{render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_)\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \ \ \ \ Colour\ color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca759c8acbffc8962e9ee2d8cba9677e73}{Skin::kWidgetSecondary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ alpha\ =\ color.getFloatAlpha();}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a143e1c039e44e574cf4ca208ce50d6df}{setColor}}(color.withAlpha(alpha\ +\ (1.0f\ -\/\ alpha)\ *\ alpha));}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a143e1c039e44e574cf4ca208ce50d6df}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca8c72cd53e923c259556519e2210b1d6a}{Skin::kWidgetSecondaryDisabled}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_chorus_viewer_ac6a9fd3134a71456e352b95f1979f1cc}{drawBars}}(open\_gl,\ animate);}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_a5c6aa6d7c8a20882ce3b621efbf7e18b}{renderCorners}}(open\_gl,\ animate);}
+\DoxyCodeLine{00091\ \ \ \ \ \}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_chorus_viewer_ac4a411f7358129cbf5a23f0309ebf608}{setActive}}(\textcolor{keywordtype}{bool}\ active)\ \{\ active\_\ =\ active;\ \}}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_chorus_viewer_ab82914d01bb034ce06145e7bc2d8cf30}{setNumVoicesSlider}}(\mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ num\_voices)\ \{\ num\_voices\_\ =\ num\_voices;\ \}}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordtype}{bool}\ active\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_status_output}{vital::StatusOutput}}*\ delays\_[4];\ \ \ \ }
+\DoxyCodeLine{00104\ \ \ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ num\_voices\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(\mbox{\hyperlink{class_chorus_viewer}{ChorusViewer}})}
+\DoxyCodeLine{00107\ \};}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \mbox{\hyperlink{class_chorus_section_a35457bc187731e076ef0b62378c0e127}{ChorusSection::ChorusSection}}(\textcolor{keyword}{const}\ String\&\ name,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ mono\_modulations)\ :\ \mbox{\hyperlink{class_synth_section}{SynthSection}}(name)\ \{}
+\DoxyCodeLine{00110\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ kTempoDragSensitivity\ =\ 0.5;}
+\DoxyCodeLine{00111\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kViewerResolution\ =\ 64;}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ voices\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}chorus\_voices"{}});}
+\DoxyCodeLine{00114\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(voices\_.get());}
+\DoxyCodeLine{00115\ \ \ voices\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00116\ \ \ voices\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00117\ \ \ voices\_-\/>setSensitivity(kTempoDragSensitivity);}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ delay\_1\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}chorus\_delay\_1"{}});}
+\DoxyCodeLine{00120\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(delay\_1\_.get());}
+\DoxyCodeLine{00121\ \ \ delay\_1\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \ \ delay\_2\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}chorus\_delay\_2"{}});}
+\DoxyCodeLine{00124\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(delay\_2\_.get());}
+\DoxyCodeLine{00125\ \ \ delay\_2\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \ \ mod\_depth\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}chorus\_mod\_depth"{}});}
+\DoxyCodeLine{00128\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(mod\_depth\_.get());}
+\DoxyCodeLine{00129\ \ \ mod\_depth\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ frequency\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}chorus\_frequency"{}});}
+\DoxyCodeLine{00132\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(frequency\_.get());}
+\DoxyCodeLine{00133\ \ \ frequency\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00134\ \ \ frequency\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ tempo\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}chorus\_tempo"{}});}
+\DoxyCodeLine{00137\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(tempo\_.get());}
+\DoxyCodeLine{00138\ \ \ tempo\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00139\ \ \ tempo\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00140\ \ \ tempo\_-\/>setSensitivity(kTempoDragSensitivity);}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \ \ sync\_\ =\ std::make\_unique<TempoSelector>(\textcolor{stringliteral}{"{}chorus\_sync"{}});}
+\DoxyCodeLine{00143\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(sync\_.get());}
+\DoxyCodeLine{00144\ \ \ sync\_-\/>setSliderStyle(Slider::LinearBar);}
+\DoxyCodeLine{00145\ \ \ sync\_-\/>setTempoSlider(tempo\_.get());}
+\DoxyCodeLine{00146\ \ \ sync\_-\/>setFreeSlider(frequency\_.get());}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \ feedback\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}chorus\_feedback"{}});}
+\DoxyCodeLine{00149\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(feedback\_.get());}
+\DoxyCodeLine{00150\ \ \ feedback\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00151\ \ \ feedback\_-\/>setBipolar();}
+\DoxyCodeLine{00152\ \ \ feedback\_-\/>snapToValue(\textcolor{keyword}{true});}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \ \ dry\_wet\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}chorus\_dry\_wet"{}});}
+\DoxyCodeLine{00155\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(dry\_wet\_.get());}
+\DoxyCodeLine{00156\ \ \ dry\_wet\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \ \ filter\_cutoff\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}chorus\_cutoff"{}});}
+\DoxyCodeLine{00159\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(filter\_cutoff\_.get());}
+\DoxyCodeLine{00160\ \ \ filter\_cutoff\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ \ \ filter\_spread\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}chorus\_spread"{}});}
+\DoxyCodeLine{00163\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(filter\_spread\_.get());}
+\DoxyCodeLine{00164\ \ \ filter\_spread\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ chorus\_viewer\_\ =\ std::make\_unique<ChorusViewer>();}
+\DoxyCodeLine{00167\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(chorus\_viewer\_.get());}
+\DoxyCodeLine{00168\ \ \ chorus\_viewer\_-\/>setNumVoicesSlider(voices\_.get());}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \ \ filter\_viewer\_\ =\ std::make\_unique<DelayFilterViewer>(\textcolor{stringliteral}{"{}chorus"{}},\ kViewerResolution,\ mono\_modulations);}
+\DoxyCodeLine{00171\ \ \ filter\_viewer\_-\/>setCutoffSlider(filter\_cutoff\_.get());}
+\DoxyCodeLine{00172\ \ \ filter\_viewer\_-\/>setSpreadSlider(filter\_spread\_.get());}
+\DoxyCodeLine{00173\ \ \ filter\_viewer\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00174\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(filter\_viewer\_.get());}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \ \ on\_\ =\ std::make\_unique<SynthButton>(\textcolor{stringliteral}{"{}chorus\_on"{}});}
+\DoxyCodeLine{00177\ \ \ \mbox{\hyperlink{class_synth_section_a98013478e89ec21a3e488d2d81594f24}{addButton}}(on\_.get());}
+\DoxyCodeLine{00178\ \ \ \mbox{\hyperlink{class_synth_section_aabf4f96c8241d9fb729c782e144dbee1}{setActivator}}(on\_.get());}
+\DoxyCodeLine{00179\ \ \ \mbox{\hyperlink{class_synth_section_ae4b092420f64f8d195dd2fdb406bfccf}{setSkinOverride}}(\mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a9f8a17cb8c7cb89dceb73996027af350}{Skin::kChorus}});}
+\DoxyCodeLine{00180\ \}}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \mbox{\hyperlink{class_chorus_section_af7570e44f7c489b7a302e0855034b10d}{ChorusSection::\string~ChorusSection}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_chorus_section_ae14d34664ad6c3c7e8bd43e7fd6aa302}{ChorusSection::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00185\ \ \ \mbox{\hyperlink{class_synth_section_aab234ab666f00b51df3dbf374a8a4e7d}{SynthSection::paintBackground}}(g);}
+\DoxyCodeLine{00186\ }
+\DoxyCodeLine{00187\ \ \ Rectangle<int>\ frequency\_bounds(tempo\_-\/>getX(),\ tempo\_-\/>getY(),}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sync\_-\/>getRight()\ -\/\ tempo\_-\/>getX(),\ tempo\_-\/>getHeight());}
+\DoxyCodeLine{00189\ \ \ \mbox{\hyperlink{class_synth_section_a03c774195fa401025d90987b176e4614}{drawTextComponentBackground}}(g,\ frequency\_bounds,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00190\ \ \ \mbox{\hyperlink{class_synth_section_a03c774195fa401025d90987b176e4614}{drawTextComponentBackground}}(g,\ voices\_-\/>getBounds(),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \ \ \mbox{\hyperlink{class_synth_section_a87c021454e2c5d2207afa28af959a1fe}{setLabelFont}}(g);}
+\DoxyCodeLine{00193\ \ \ \mbox{\hyperlink{class_synth_section_a30c41b16dd66c5bc3c6552c84c72f67d}{drawLabel}}(g,\ TRANS(\textcolor{stringliteral}{"{}FREQUENCY"{}}),\ frequency\_bounds,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00194\ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}VOICES"{}}),\ voices\_.get(),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00195\ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}FEEDBACK"{}}),\ feedback\_.get());}
+\DoxyCodeLine{00196\ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}MIX"{}}),\ dry\_wet\_.get());}
+\DoxyCodeLine{00197\ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}DEPTH"{}}),\ mod\_depth\_.get());}
+\DoxyCodeLine{00198\ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}DELAY\ 1"{}}),\ delay\_1\_.get());}
+\DoxyCodeLine{00199\ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}DELAY\ 2"{}}),\ delay\_2\_.get());}
+\DoxyCodeLine{00200\ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}CUTOFF"{}}),\ filter\_cutoff\_.get());}
+\DoxyCodeLine{00201\ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}SPREAD"{}}),\ filter\_spread\_.get());}
+\DoxyCodeLine{00202\ }
+\DoxyCodeLine{00203\ \ \ \mbox{\hyperlink{class_synth_section_a36ecb19ce45e4e258e449937665280e5}{drawTempoDivider}}(g,\ sync\_.get());}
+\DoxyCodeLine{00204\ \}}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00206\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_chorus_section_a1716310483a3b3bd491d56c7264b66d2}{ChorusSection::resized}}()\ \{}
+\DoxyCodeLine{00207\ \ \ \textcolor{keywordtype}{int}\ widget\_margin\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a045e9e21484c2d32d7835f44c7c161f9}{Skin::kWidgetMargin}});}
+\DoxyCodeLine{00208\ \ \ \textcolor{keywordtype}{int}\ title\_width\ =\ \mbox{\hyperlink{class_synth_section_ae0397399d283628b325650e0b7b60c6f}{getTitleWidth}}();}
+\DoxyCodeLine{00209\ \ \ \textcolor{keywordtype}{int}\ section\_height\ =\ \mbox{\hyperlink{class_synth_section_aab9bab4cc6657d3836887da39dc57e63}{getKnobSectionHeight}}();}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ \ \ Rectangle<int>\ bounds\ =\ getLocalBounds().withLeft(title\_width);}
+\DoxyCodeLine{00212\ \ \ Rectangle<int>\ delay\_area\ =\ \mbox{\hyperlink{class_synth_section_a009968441fdef3138c8bde380095116e}{getDividedAreaBuffered}}(bounds,\ 3,\ 0,\ widget\_margin);}
+\DoxyCodeLine{00213\ \ \ Rectangle<int>\ knobs\_area\ =\ \mbox{\hyperlink{class_synth_section_a009968441fdef3138c8bde380095116e}{getDividedAreaBuffered}}(bounds,\ 3,\ 2,\ widget\_margin);}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00215\ \ \ \mbox{\hyperlink{class_synth_section_a16e740094fb526018b139749cb6543c0}{placeKnobsInArea}}(Rectangle<int>(delay\_area.getX(),\ 0,\ delay\_area.getWidth(),\ section\_height),}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{\ voices\_.get(),\ tempo\_.get()\});}
+\DoxyCodeLine{00217\ \ \ voices\_-\/>setBounds(voices\_-\/>getBounds().withTop(widget\_margin));}
+\DoxyCodeLine{00218\ \ \ \mbox{\hyperlink{class_synth_section_a558e14a7af20ad66e155479971dbabf5}{placeTempoControls}}(tempo\_-\/>getX(),\ widget\_margin,\ tempo\_-\/>getWidth(),}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ section\_height\ -\/\ 2\ *\ widget\_margin,\ frequency\_.get(),\ sync\_.get());}
+\DoxyCodeLine{00220\ \ \ tempo\_-\/>setBounds(frequency\_-\/>getBounds());}
+\DoxyCodeLine{00221\ \ \ tempo\_-\/>setModulationArea(frequency\_-\/>getModulationArea());}
+\DoxyCodeLine{00222\ }
+\DoxyCodeLine{00223\ \ \ \textcolor{keywordtype}{int}\ delay\_y\ =\ section\_height\ -\/\ widget\_margin;}
+\DoxyCodeLine{00224\ \ \ \mbox{\hyperlink{class_synth_section_a16e740094fb526018b139749cb6543c0}{placeKnobsInArea}}(Rectangle<int>(delay\_area.getX(),\ delay\_y,\ delay\_area.getWidth(),\ section\_height),}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{\ mod\_depth\_.get(),\ delay\_1\_.get(),\ delay\_2\_.get()\ \});}
+\DoxyCodeLine{00226\ }
+\DoxyCodeLine{00227\ \ \ \textcolor{keywordtype}{int}\ widget\_x\ =\ delay\_2\_-\/>getRight()\ +\ widget\_margin;}
+\DoxyCodeLine{00228\ \ \ \textcolor{keywordtype}{int}\ viewer\_width\ =\ knobs\_area.getX()\ -\/\ widget\_x;}
+\DoxyCodeLine{00229\ \ \ \textcolor{keywordtype}{int}\ delay\_height\ =\ (getHeight()\ -\/\ 3\ *\ widget\_margin)\ /\ 2;}
+\DoxyCodeLine{00230\ \ \ \textcolor{keywordtype}{int}\ filter\_y\ =\ delay\_height\ +\ 2\ *\ widget\_margin;}
+\DoxyCodeLine{00231\ \ \ chorus\_viewer\_-\/>setBounds(widget\_x,\ widget\_margin,\ viewer\_width,\ delay\_height);}
+\DoxyCodeLine{00232\ \ \ filter\_viewer\_-\/>setBounds(widget\_x,\ filter\_y,\ viewer\_width,\ getHeight()\ -\/\ filter\_y\ -\/\ widget\_margin);}
+\DoxyCodeLine{00233\ }
+\DoxyCodeLine{00234\ \ \ \mbox{\hyperlink{class_synth_section_a16e740094fb526018b139749cb6543c0}{placeKnobsInArea}}(Rectangle<int>(knobs\_area.getX(),\ 0,\ knobs\_area.getWidth(),\ section\_height),}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{\ feedback\_.get(),\ \ dry\_wet\_.get()\ \});}
+\DoxyCodeLine{00236\ }
+\DoxyCodeLine{00237\ \ \ \textcolor{keywordtype}{int}\ knob\_y2\ =\ section\_height\ -\/\ widget\_margin;}
+\DoxyCodeLine{00238\ \ \ \mbox{\hyperlink{class_synth_section_a16e740094fb526018b139749cb6543c0}{placeKnobsInArea}}(Rectangle<int>(knobs\_area.getX(),\ knob\_y2,\ knobs\_area.getWidth(),\ section\_height),}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{\ filter\_cutoff\_.get(),\ filter\_spread\_.get()\ \});}
+\DoxyCodeLine{00240\ }
+\DoxyCodeLine{00241\ \ \ \mbox{\hyperlink{class_synth_section_a549f91a2b81b419368a578990cb2e6c2}{SynthSection::resized}}();}
+\DoxyCodeLine{00242\ \}}
+\DoxyCodeLine{00243\ }
+\DoxyCodeLine{00244\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_chorus_section_a599d3fd2e495d527cda2ffad0d54edaf}{ChorusSection::setActive}}(\textcolor{keywordtype}{bool}\ active)\ \{}
+\DoxyCodeLine{00245\ \ \ \mbox{\hyperlink{class_synth_section_a731aed83dc75720d2f2e3951ed5310ba}{SynthSection::setActive}}(active);}
+\DoxyCodeLine{00246\ \ \ chorus\_viewer\_-\/>setActive(active);}
+\DoxyCodeLine{00247\ \ \ filter\_viewer\_-\/>setActive(active);}
+\DoxyCodeLine{00248\ \}}
+\DoxyCodeLine{00249\ }
+\DoxyCodeLine{00250\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_chorus_section_a55e9a0c25a8bfad3d5964f9742762fbb}{ChorusSection::deltaMovement}}(\textcolor{keywordtype}{float}\ x,\ \textcolor{keywordtype}{float}\ y)\ \{}
+\DoxyCodeLine{00251\ \ \ \textcolor{keywordtype}{double}\ x\_range\ =\ filter\_cutoff\_-\/>getMaximum()\ -\/\ filter\_cutoff\_-\/>getMinimum();}
+\DoxyCodeLine{00252\ \ \ \textcolor{keywordtype}{double}\ y\_range\ =\ filter\_spread\_-\/>getMaximum()\ -\/\ filter\_spread\_-\/>getMinimum();}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \ \ filter\_cutoff\_-\/>setValue(filter\_cutoff\_-\/>getValue()\ +\ x\ *\ x\_range);}
+\DoxyCodeLine{00255\ \ \ filter\_spread\_-\/>setValue(filter\_spread\_-\/>getValue()\ +\ y\ *\ y\_range);}
+\DoxyCodeLine{00256\ \}}
+
+\end{DoxyCode}

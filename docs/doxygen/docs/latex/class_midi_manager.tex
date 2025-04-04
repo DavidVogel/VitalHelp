@@ -1,0 +1,974 @@
+\doxysection{Midi\+Manager Class Reference}
+\hypertarget{class_midi_manager}{}\label{class_midi_manager}\index{MidiManager@{MidiManager}}
+
+
+The \doxylink{class_midi_manager}{Midi\+Manager} class handles all incoming MIDI messages and directs them to the synthesizer engine.  
+
+
+
+
+{\ttfamily \#include $<$midi\+\_\+manager.\+h$>$}
+
+Inheritance diagram for Midi\+Manager\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_midi_manager}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_midi_manager_1_1_listener}{Listener}}
+\begin{DoxyCompactList}\small\item\em An interface for classes that listen to MIDI-\/driven parameter changes. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{struct_midi_manager_1_1_preset_loaded_callback}{Preset\+Loaded\+Callback}}
+\begin{DoxyCompactList}\small\item\em A callback message class that notifies listeners of preset changes through MIDI. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94}{Midi\+Main\+Type}} \{ \newline
+\mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94adf333999c7ba647168be7a6afb727f48}{k\+Note\+Off}} = 0x80
+, \mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94a6a67d5a204f53166abc1452fde8658bf}{k\+Note\+On}} = 0x90
+, \mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94ac2cf7a7c95ee60819dbf4e470262dc40}{k\+Aftertouch}} = 0xa0
+, \mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94a20358e2169bc3d65778cda375097ad50}{k\+Controller}} = 0xb0
+, \newline
+\mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94a0634eaadc23c90e05907dd12de8eb351}{k\+Program\+Change}} = 0xc0
+, \mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94a0f8b503eadaab893f530f312c39bc8df}{k\+Channel\+Pressure}} = 0xd0
+, \mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94a14195a80f407cdd0c964c0333f2211c2}{k\+Pitch\+Wheel}} = 0xe0
+ \}
+\begin{DoxyCompactList}\small\item\em Enum representing main categories of MIDI events (status bytes). \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12}{Midi\+Secondary\+Type}} \{ \newline
+\mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12a3648111321e7eb3717e1340409d8f58d}{k\+Bank\+Select}} = 0x00
+, \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12ab4a134a32f8090ccddd325a396f3b023}{k\+Mod\+Wheel}} = 0x01
+, \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12aecde22320a2676cf9e5a728dcd0b6ba2}{k\+Folder\+Select}} = 0x20
+, \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12acad3479031cce6f6de79f923216597a0}{k\+Sustain\+Pedal}} = 0x40
+, \newline
+\mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12abbb0686e7466c10ff54eb410d0802392}{k\+Sostenuto\+Pedal}} = 0x42
+, \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12ae9f680c83ffe23f0fd99b368137844fe}{k\+Soft\+Pedal\+On}} = 0x43
+, \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12ac68095622c4095e08feb5b82523809a6}{k\+Slide}} = 0x4a
+, \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12af5e22f8217b4e605fa36898383b1a1f9}{k\+Lsb\+Pressure}} = 0x66
+, \newline
+\mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12a48b8096088aee813b581e57ecc67b96e}{k\+Lsb\+Slide}} = 0x6a
+, \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12a5d6d378b3f5a97720bb0393334573550}{k\+All\+Sounds\+Off}} = 0x78
+, \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12a40afe14c68f29bfc6ab34c2db396beb2}{k\+All\+Controllers\+Off}} = 0x79
+, \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12a265faedcc6d650490d086754d0bf3dec}{k\+All\+Notes\+Off}} = 0x7b
+ \}
+\begin{DoxyCompactList}\small\item\em Enum representing secondary MIDI controller values (MIDI CC numbers). \end{DoxyCompactList}\item 
+typedef std\+::map$<$ int, std\+::map$<$ std\+::string, const \mbox{\hyperlink{structvital_1_1_value_details}{vital\+::\+Value\+Details}} \texorpdfstring{$\ast$}{*} $>$ $>$ \mbox{\hyperlink{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad}{midi\+\_\+map}}
+\begin{DoxyCompactList}\small\item\em A nested type defining a map from MIDI controls to a map of parameter names and their Value\+Details. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_midi_manager_a88fa55d3e11549dd5ac44c46b0e39338}{Midi\+Manager}} (\mbox{\hyperlink{class_synth_base}{Synth\+Base}} \texorpdfstring{$\ast$}{*}synth, Midi\+Keyboard\+State \texorpdfstring{$\ast$}{*}keyboard\+\_\+state, std\+::map$<$ std\+::string, String $>$ \texorpdfstring{$\ast$}{*}gui\+\_\+state, \mbox{\hyperlink{class_midi_manager_1_1_listener}{Listener}} \texorpdfstring{$\ast$}{*}listener=nullptr)
+\begin{DoxyCompactList}\small\item\em Constructs a \doxylink{class_midi_manager}{Midi\+Manager} to handle MIDI events for a given \doxylink{class_synth_base}{Synth\+Base} instance. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_midi_manager_ade136c979da7caa50a0319b19e9b636f}{\texorpdfstring{$\sim$}{\string~}\+Midi\+Manager}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_aa22a30c343529585a1ae750cca2a2183}{arm\+Midi\+Learn}} (std\+::string name)
+\begin{DoxyCompactList}\small\item\em Arms the MIDI learn functionality for a given parameter. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_af0a7815a13fc5d40bab3b33ec0b99648}{cancel\+Midi\+Learn}} ()
+\begin{DoxyCompactList}\small\item\em Cancels the MIDI learn operation without assigning any mapping. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_ae112df505ea9ddd2d0f5cadbd0ab4f16}{clear\+Midi\+Learn}} (const std\+::string \&name)
+\begin{DoxyCompactList}\small\item\em Clears an existing MIDI mapping for a given parameter. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_a1bdc6d99b63c31fd2594e53fc5eb9455}{midi\+Input}} (int control, \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital\+::mono\+\_\+float}} value)
+\begin{DoxyCompactList}\small\item\em Handles a direct MIDI input value and applies MIDI learn if armed. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_aebdfa63b1bd8394ae891644ca4b8ed13}{process\+Midi\+Message}} (const Midi\+Message \&midi\+\_\+message, int sample\+\_\+position=0)
+\begin{DoxyCompactList}\small\item\em Processes a given MIDI message and forwards it to the synth engine. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{class_midi_manager_a5dd7f6c06d50be0f24fa4c9cceb2e139}{is\+Midi\+Mapped}} (const std\+::string \&name) const
+\begin{DoxyCompactList}\small\item\em Checks if a parameter is already mapped to a MIDI control. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_a1221095cbb425fbec1a749947ff0d2c4}{set\+Sample\+Rate}} (double sample\+\_\+rate)
+\begin{DoxyCompactList}\small\item\em Sets the audio sample rate for MIDI message timing. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_aae32567d27e712e41ec7d7126cce2c97}{remove\+Next\+Block\+Of\+Messages}} (Midi\+Buffer \&buffer, int num\+\_\+samples)
+\begin{DoxyCompactList}\small\item\em Removes the next block of MIDI messages, filling a Midi\+Buffer. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_a91b3bf2db4b3ea41f0681f8004f428d7}{replace\+Keyboard\+Messages}} (Midi\+Buffer \&buffer, int num\+\_\+samples)
+\begin{DoxyCompactList}\small\item\em Replaces keyboard messages in the given MIDI buffer. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_a6d432fa39f52f35e4c72637492722066}{process\+All\+Notes\+Off}} (const Midi\+Message \&midi\+\_\+message, int sample\+\_\+position, int channel)
+\begin{DoxyCompactList}\small\item\em Processes an \textquotesingle{}All Notes Off\textquotesingle{} MIDI message. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_a644840dab4957dbce5b3ed6f0728a6e6}{process\+All\+Sounds\+Off}} ()
+\begin{DoxyCompactList}\small\item\em Processes an \textquotesingle{}All Sounds Off\textquotesingle{} MIDI message, turning off all voices immediately. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_ad62db23461e01bdc43994671cea80084}{process\+Sustain}} (const Midi\+Message \&midi\+\_\+message, int sample\+\_\+position, int channel)
+\begin{DoxyCompactList}\small\item\em Processes a sustain pedal MIDI message. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_a951bf6bd47fe27635e92d01d3a267872}{process\+Sostenuto}} (const Midi\+Message \&midi\+\_\+message, int sample\+\_\+position, int channel)
+\begin{DoxyCompactList}\small\item\em Processes a sostenuto pedal MIDI message. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_a9dbc51f252be19f62f31546251b8abc6}{process\+Pitch\+Bend}} (const Midi\+Message \&midi\+\_\+message, int sample\+\_\+position, int channel)
+\begin{DoxyCompactList}\small\item\em Processes a pitch bend MIDI message. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_a55454c73f2a9222e7f296242517e29c7}{process\+Pressure}} (const Midi\+Message \&midi\+\_\+message, int sample\+\_\+position, int channel)
+\begin{DoxyCompactList}\small\item\em Processes channel pressure (aftertouch) MIDI messages. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_a24e93bcd7294e440665f586bcde362e3}{process\+Slide}} (const Midi\+Message \&midi\+\_\+message, int sample\+\_\+position, int channel)
+\begin{DoxyCompactList}\small\item\em Processes slide messages (MPE CC events) translating them to appropriate modulation. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{class_midi_manager_a258a7525bea556188df298afe13c1854}{is\+Mpe\+Channel\+Master\+Lower\+Zone}} (int channel)
+\begin{DoxyCompactList}\small\item\em Checks if the given channel is the MPE master channel for the lower zone. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{class_midi_manager_a59204068ee8beaf04278ba3d36d0b311}{is\+Mpe\+Channel\+Master\+Upper\+Zone}} (int channel)
+\begin{DoxyCompactList}\small\item\em Checks if the given channel is the MPE master channel for the upper zone. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int \mbox{\hyperlink{class_midi_manager_ac1f5827444bc06f86e456789c16a000b}{lower\+Zone\+Start\+Channel}} ()
+\begin{DoxyCompactList}\small\item\em Returns the start channel index (0-\/based) of the MPE lower zone. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int \mbox{\hyperlink{class_midi_manager_ae393100c97ec79780ebde3a09c4fda45}{upper\+Zone\+Start\+Channel}} ()
+\begin{DoxyCompactList}\small\item\em Returns the start channel index (0-\/based) of the MPE upper zone. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int \mbox{\hyperlink{class_midi_manager_ab235cf3f54a1949de8bc785bb38e1dca}{lower\+Zone\+End\+Channel}} ()
+\begin{DoxyCompactList}\small\item\em Returns the end channel index (0-\/based) of the MPE lower zone. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int \mbox{\hyperlink{class_midi_manager_aec0fb479830da9e00ac71efb9d096bad}{upper\+Zone\+End\+Channel}} ()
+\begin{DoxyCompactList}\small\item\em Returns the end channel index (0-\/based) of the MPE upper zone. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int \mbox{\hyperlink{class_midi_manager_af76be44264f35e11e98c40d840747572}{lower\+Master\+Channel}} ()
+\begin{DoxyCompactList}\small\item\em Returns the master channel index (0-\/based) of the MPE lower zone. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int \mbox{\hyperlink{class_midi_manager_a87a04a3b0685a55dc1630f402d2c78c4}{upper\+Master\+Channel}} ()
+\begin{DoxyCompactList}\small\item\em Returns the master channel index (0-\/based) of the MPE upper zone. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_a4e13079c7920be8b8760ad154370f49e}{set\+Mpe\+Enabled}} (bool enabled)
+\begin{DoxyCompactList}\small\item\em Enables or disables MPE mode for MIDI processing. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad}{midi\+\_\+map}} \mbox{\hyperlink{class_midi_manager_a12fe402ee3806c82621ea636d9b1b5fa}{get\+Midi\+Learn\+Map}} ()
+\begin{DoxyCompactList}\small\item\em Returns the current MIDI learn map. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_a3463c30e6e4365d36c2832aa57385bcd}{set\+Midi\+Learn\+Map}} (const \mbox{\hyperlink{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad}{midi\+\_\+map}} \&midi\+\_\+learn\+\_\+map)
+\begin{DoxyCompactList}\small\item\em Sets the current MIDI learn map, overriding existing mappings. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_midi_manager_a5d4942d12c1009d4c72d75e081208eba}{handle\+Incoming\+Midi\+Message}} (\mbox{\hyperlink{class_midi_input}{Midi\+Input}} \texorpdfstring{$\ast$}{*}source, const Midi\+Message \&midi\+\_\+message) override
+\begin{DoxyCompactList}\small\item\em Handles incoming MIDI messages from a \doxylink{class_midi_input}{Midi\+Input} source (\doxylink{class_midi_input_callback}{Midi\+Input\+Callback} interface). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{class_midi_input_callback}{Midi\+Input\+Callback}}}
+\begin{DoxyCompactItemize}
+\item 
+virtual \mbox{\hyperlink{class_midi_input_callback_a5636d6d55f23b03b3d443ed42609f566}{\texorpdfstring{$\sim$}{\string~}\+Midi\+Input\+Callback}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_midi_manager_a183844171aefd41b403f26e37aff6b4b}{read\+Mpe\+Message}} (const Midi\+Message \&message)
+\begin{DoxyCompactList}\small\item\em Parses and processes an MPE-\/related MIDI message. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_synth_base}{Synth\+Base}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_midi_manager_ad60bb87241da093f8f62ecc050230178}{synth\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Associated synthesizer base instance. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classvital_1_1_sound_engine}{vital\+::\+Sound\+Engine}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_midi_manager_acb05258645533b3cc067dbaadad5672c}{engine\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The sound engine for handling audio events. \end{DoxyCompactList}\item 
+Midi\+Keyboard\+State \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_midi_manager_adab0619ddc63c8e813d6ab2d0b4dc091}{keyboard\+\_\+state\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The keyboard state for on-\/screen keyboard integration. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{class_midi_message_collector}{Midi\+Message\+Collector}} \mbox{\hyperlink{class_midi_manager_a2af838db46e8dee84f23e5d5725aa55b}{midi\+\_\+collector\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Collects incoming MIDI messages. \end{DoxyCompactList}\item 
+std\+::map$<$ std\+::string, String $>$ \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_midi_manager_a2fe43ed0aeab4d6ca6f10a8263863bcd}{gui\+\_\+state\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Holds GUI-\/related state info. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{class_midi_manager_1_1_listener}{Listener}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_midi_manager_a39e9b96c0552ddc1d8ac79a6356ae2a2}{listener\+\_\+}}
+\begin{DoxyCompactList}\small\item\em \doxylink{class_midi_manager_1_1_listener}{Listener} for MIDI-\/driven parameter changes and preset loads. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_midi_manager_a11bb4bbae8395db2f01d99ddd62ca888}{current\+\_\+bank\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Tracks the current bank for preset selection. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_midi_manager_ab11a080dba6850eaa9e89ad20d2a982f}{current\+\_\+folder\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Tracks the current folder for preset selection. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_midi_manager_a8956953d1ec9f742197348299902ebc4}{current\+\_\+preset\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Tracks the current preset within a folder. \end{DoxyCompactList}\item 
+const \mbox{\hyperlink{structvital_1_1_value_details}{vital\+::\+Value\+Details}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_midi_manager_a0e615abf6ddff13a41e67fcb9c4565da}{armed\+\_\+value\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Parameter armed for MIDI learn. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad}{midi\+\_\+map}} \mbox{\hyperlink{class_midi_manager_ac041947c58a8c1e4b2951717274a7571}{midi\+\_\+learn\+\_\+map\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Mapping of MIDI controls to synth parameters. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_midi_manager_ab4aa58c3a90a21bb514d3103c481d833}{msb\+\_\+pressure\+\_\+values\+\_\+}} \mbox{[}\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{vital\+::k\+Num\+Midi\+Channels}}\mbox{]}
+\begin{DoxyCompactList}\small\item\em MSB values for channel pressure. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_midi_manager_a5b0727a7abec4f4735879b7f17b13382}{lsb\+\_\+pressure\+\_\+values\+\_\+}} \mbox{[}\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{vital\+::k\+Num\+Midi\+Channels}}\mbox{]}
+\begin{DoxyCompactList}\small\item\em LSB values for channel pressure. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_midi_manager_aebb756b3c2f209ccc4dc7ac3fb768e1d}{msb\+\_\+slide\+\_\+values\+\_\+}} \mbox{[}\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{vital\+::k\+Num\+Midi\+Channels}}\mbox{]}
+\begin{DoxyCompactList}\small\item\em MSB values for slide control. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_midi_manager_a80964f02b5c92db171d1f3a4c0ebead0}{lsb\+\_\+slide\+\_\+values\+\_\+}} \mbox{[}\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{vital\+::k\+Num\+Midi\+Channels}}\mbox{]}
+\begin{DoxyCompactList}\small\item\em LSB values for slide control. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{class_midi_manager_adc07243583baf15da16265a00c947d5f}{mpe\+\_\+enabled\+\_\+}}
+\begin{DoxyCompactList}\small\item\em True if MPE mode is enabled. \end{DoxyCompactList}\item 
+MPEZone\+Layout \mbox{\hyperlink{class_midi_manager_ab9d5a6330ccd9eb3f370be0e44b9cc17}{mpe\+\_\+zone\+\_\+layout\+\_\+}}
+\begin{DoxyCompactList}\small\item\em MPE zone layout object. \end{DoxyCompactList}\item 
+Midi\+RPNDetector \mbox{\hyperlink{class_midi_manager_aef6969cbca9df751c3c177e79ccdfd29}{rpn\+\_\+detector\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Detects and processes MIDI RPN/\+NRPN messages. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The \doxylink{class_midi_manager}{Midi\+Manager} class handles all incoming MIDI messages and directs them to the synthesizer engine. 
+
+This class interfaces with both the JUCE MIDI subsystem and the Vital {\ttfamily Sound\+Engine}. It can\+:
+\begin{DoxyItemize}
+\item Process note on/off, pitch bend, mod wheel, aftertouch, and other MIDI control messages.
+\item Handle MPE (MIDI Polyphonic Expression) messages if enabled.
+\item Support MIDI learn functionality, allowing MIDI controls to be dynamically mapped to synth parameters.
+\item Relay MIDI-\/driven preset changes and gather MIDI input from external sources. 
+\end{DoxyItemize}
+
+\doxysubsection{Member Typedef Documentation}
+\Hypertarget{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad}\index{MidiManager@{MidiManager}!midi\_map@{midi\_map}}
+\index{midi\_map@{midi\_map}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{midi\_map}{midi\_map}}
+{\footnotesize\ttfamily \label{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad} 
+std\+::map$<$int, std\+::map$<$std\+::string, const \mbox{\hyperlink{structvital_1_1_value_details}{vital\+::\+Value\+Details}}\texorpdfstring{$\ast$}{*}$>$ $>$ \mbox{\hyperlink{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad}{Midi\+Manager\+::midi\+\_\+map}}}
+
+
+
+A nested type defining a map from MIDI controls to a map of parameter names and their Value\+Details. 
+
+The outer map key (int) corresponds to a MIDI control number, and the inner map relates parameter names (strings) to pointers of their associated Value\+Details struct. 
+
+\doxysubsection{Member Enumeration Documentation}
+\Hypertarget{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94}\index{MidiManager@{MidiManager}!MidiMainType@{MidiMainType}}
+\index{MidiMainType@{MidiMainType}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{MidiMainType}{MidiMainType}}
+{\footnotesize\ttfamily \label{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94} 
+enum \mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94}{Midi\+Manager\+::\+Midi\+Main\+Type}}}
+
+
+
+Enum representing main categories of MIDI events (status bytes). 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kNoteOff@{kNoteOff}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kNoteOff@{kNoteOff}}}\Hypertarget{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94adf333999c7ba647168be7a6afb727f48}\label{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94} 
+k\+Note\+Off&MIDI Note Off event. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kNoteOn@{kNoteOn}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kNoteOn@{kNoteOn}}}\Hypertarget{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94a6a67d5a204f53166abc1452fde8658bf}\label{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94} 
+k\+Note\+On&MIDI Note On event. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kAftertouch@{kAftertouch}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kAftertouch@{kAftertouch}}}\Hypertarget{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94ac2cf7a7c95ee60819dbf4e470262dc40}\label{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94} 
+k\+Aftertouch&MIDI Polyphonic Aftertouch. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kController@{kController}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kController@{kController}}}\Hypertarget{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94a20358e2169bc3d65778cda375097ad50}\label{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94} 
+k\+Controller&MIDI Control Change event. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kProgramChange@{kProgramChange}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kProgramChange@{kProgramChange}}}\Hypertarget{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94a0634eaadc23c90e05907dd12de8eb351}\label{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94} 
+k\+Program\+Change&MIDI Program Change. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kChannelPressure@{kChannelPressure}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kChannelPressure@{kChannelPressure}}}\Hypertarget{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94a0f8b503eadaab893f530f312c39bc8df}\label{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94} 
+k\+Channel\+Pressure&MIDI Channel Pressure (monophonic aftertouch) \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kPitchWheel@{kPitchWheel}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kPitchWheel@{kPitchWheel}}}\Hypertarget{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94a14195a80f407cdd0c964c0333f2211c2}\label{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94} 
+k\+Pitch\+Wheel&MIDI Pitch Wheel event. \\
+\hline
+
+\end{DoxyEnumFields}
+\Hypertarget{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12}\index{MidiManager@{MidiManager}!MidiSecondaryType@{MidiSecondaryType}}
+\index{MidiSecondaryType@{MidiSecondaryType}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{MidiSecondaryType}{MidiSecondaryType}}
+{\footnotesize\ttfamily \label{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12} 
+enum \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12}{Midi\+Manager\+::\+Midi\+Secondary\+Type}}}
+
+
+
+Enum representing secondary MIDI controller values (MIDI CC numbers). 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kBankSelect@{kBankSelect}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kBankSelect@{kBankSelect}}}\Hypertarget{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12a3648111321e7eb3717e1340409d8f58d}\label{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12} 
+k\+Bank\+Select&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kModWheel@{kModWheel}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kModWheel@{kModWheel}}}\Hypertarget{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12ab4a134a32f8090ccddd325a396f3b023}\label{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12} 
+k\+Mod\+Wheel&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kFolderSelect@{kFolderSelect}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kFolderSelect@{kFolderSelect}}}\Hypertarget{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12aecde22320a2676cf9e5a728dcd0b6ba2}\label{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12} 
+k\+Folder\+Select&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kSustainPedal@{kSustainPedal}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kSustainPedal@{kSustainPedal}}}\Hypertarget{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12acad3479031cce6f6de79f923216597a0}\label{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12} 
+k\+Sustain\+Pedal&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kSostenutoPedal@{kSostenutoPedal}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kSostenutoPedal@{kSostenutoPedal}}}\Hypertarget{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12abbb0686e7466c10ff54eb410d0802392}\label{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12} 
+k\+Sostenuto\+Pedal&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kSoftPedalOn@{kSoftPedalOn}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kSoftPedalOn@{kSoftPedalOn}}}\Hypertarget{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12ae9f680c83ffe23f0fd99b368137844fe}\label{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12} 
+k\+Soft\+Pedal\+On&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kSlide@{kSlide}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kSlide@{kSlide}}}\Hypertarget{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12ac68095622c4095e08feb5b82523809a6}\label{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12} 
+k\+Slide&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kLsbPressure@{kLsbPressure}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kLsbPressure@{kLsbPressure}}}\Hypertarget{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12af5e22f8217b4e605fa36898383b1a1f9}\label{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12} 
+k\+Lsb\+Pressure&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kLsbSlide@{kLsbSlide}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kLsbSlide@{kLsbSlide}}}\Hypertarget{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12a48b8096088aee813b581e57ecc67b96e}\label{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12} 
+k\+Lsb\+Slide&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kAllSoundsOff@{kAllSoundsOff}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kAllSoundsOff@{kAllSoundsOff}}}\Hypertarget{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12a5d6d378b3f5a97720bb0393334573550}\label{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12} 
+k\+All\+Sounds\+Off&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kAllControllersOff@{kAllControllersOff}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kAllControllersOff@{kAllControllersOff}}}\Hypertarget{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12a40afe14c68f29bfc6ab34c2db396beb2}\label{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12} 
+k\+All\+Controllers\+Off&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kAllNotesOff@{kAllNotesOff}!MidiManager@{MidiManager}}\index{MidiManager@{MidiManager}!kAllNotesOff@{kAllNotesOff}}}\Hypertarget{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12a265faedcc6d650490d086754d0bf3dec}\label{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12} 
+k\+All\+Notes\+Off&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{class_midi_manager_a88fa55d3e11549dd5ac44c46b0e39338}\index{MidiManager@{MidiManager}!MidiManager@{MidiManager}}
+\index{MidiManager@{MidiManager}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{MidiManager()}{MidiManager()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a88fa55d3e11549dd5ac44c46b0e39338} 
+Midi\+Manager\+::\+Midi\+Manager (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_synth_base}{Synth\+Base}} \texorpdfstring{$\ast$}{*}}]{synth}{, }\item[{Midi\+Keyboard\+State \texorpdfstring{$\ast$}{*}}]{keyboard\+\_\+state}{, }\item[{std\+::map$<$ std\+::string, String $>$ \texorpdfstring{$\ast$}{*}}]{gui\+\_\+state}{, }\item[{\mbox{\hyperlink{class_midi_manager_1_1_listener}{Listener}} \texorpdfstring{$\ast$}{*}}]{listener}{ = {\ttfamily nullptr}}\end{DoxyParamCaption})}
+
+
+
+Constructs a \doxylink{class_midi_manager}{Midi\+Manager} to handle MIDI events for a given \doxylink{class_synth_base}{Synth\+Base} instance. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em synth} & A pointer to the \doxylink{class_synth_base}{Synth\+Base} to receive MIDI events. \\
+\hline
+{\em keyboard\+\_\+state} & A pointer to a Midi\+Keyboard\+State for GUI keyboard handling. \\
+\hline
+{\em gui\+\_\+state} & A map of GUI-\/related state strings. \\
+\hline
+{\em listener} & A listener for MIDI-\/driven parameter changes and preset loads, if any. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_ade136c979da7caa50a0319b19e9b636f}\index{MidiManager@{MidiManager}!````~MidiManager@{\texorpdfstring{$\sim$}{\string~}MidiManager}}
+\index{````~MidiManager@{\texorpdfstring{$\sim$}{\string~}MidiManager}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{\texorpdfstring{$\sim$}{\string~}MidiManager()}{\string~MidiManager()}}
+{\footnotesize\ttfamily \label{class_midi_manager_ade136c979da7caa50a0319b19e9b636f} 
+Midi\+Manager\+::\texorpdfstring{$\sim$}{\string~}\+Midi\+Manager (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Destructor. 
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_midi_manager_aa22a30c343529585a1ae750cca2a2183}\index{MidiManager@{MidiManager}!armMidiLearn@{armMidiLearn}}
+\index{armMidiLearn@{armMidiLearn}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{armMidiLearn()}{armMidiLearn()}}
+{\footnotesize\ttfamily \label{class_midi_manager_aa22a30c343529585a1ae750cca2a2183} 
+void Midi\+Manager\+::arm\+Midi\+Learn (\begin{DoxyParamCaption}\item[{std\+::string}]{name}{}\end{DoxyParamCaption})}
+
+
+
+Arms the MIDI learn functionality for a given parameter. 
+
+The next MIDI control message will map that parameter to the corresponding MIDI control.
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & The parameter name to arm for MIDI learn. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_af0a7815a13fc5d40bab3b33ec0b99648}\index{MidiManager@{MidiManager}!cancelMidiLearn@{cancelMidiLearn}}
+\index{cancelMidiLearn@{cancelMidiLearn}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{cancelMidiLearn()}{cancelMidiLearn()}}
+{\footnotesize\ttfamily \label{class_midi_manager_af0a7815a13fc5d40bab3b33ec0b99648} 
+void Midi\+Manager\+::cancel\+Midi\+Learn (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Cancels the MIDI learn operation without assigning any mapping. 
+
+\Hypertarget{class_midi_manager_ae112df505ea9ddd2d0f5cadbd0ab4f16}\index{MidiManager@{MidiManager}!clearMidiLearn@{clearMidiLearn}}
+\index{clearMidiLearn@{clearMidiLearn}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{clearMidiLearn()}{clearMidiLearn()}}
+{\footnotesize\ttfamily \label{class_midi_manager_ae112df505ea9ddd2d0f5cadbd0ab4f16} 
+void Midi\+Manager\+::clear\+Midi\+Learn (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name}{}\end{DoxyParamCaption})}
+
+
+
+Clears an existing MIDI mapping for a given parameter. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & The parameter name whose MIDI mapping will be cleared. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_a12fe402ee3806c82621ea636d9b1b5fa}\index{MidiManager@{MidiManager}!getMidiLearnMap@{getMidiLearnMap}}
+\index{getMidiLearnMap@{getMidiLearnMap}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{getMidiLearnMap()}{getMidiLearnMap()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a12fe402ee3806c82621ea636d9b1b5fa} 
+\mbox{\hyperlink{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad}{midi\+\_\+map}} Midi\+Manager\+::get\+Midi\+Learn\+Map (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the current MIDI learn map. 
+
+\begin{DoxyReturn}{Returns}
+The current midi\+\_\+map structure. 
+\end{DoxyReturn}
+\Hypertarget{class_midi_manager_a5d4942d12c1009d4c72d75e081208eba}\index{MidiManager@{MidiManager}!handleIncomingMidiMessage@{handleIncomingMidiMessage}}
+\index{handleIncomingMidiMessage@{handleIncomingMidiMessage}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{handleIncomingMidiMessage()}{handleIncomingMidiMessage()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a5d4942d12c1009d4c72d75e081208eba} 
+void Midi\+Manager\+::handle\+Incoming\+Midi\+Message (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_midi_input}{Midi\+Input}} \texorpdfstring{$\ast$}{*}}]{source}{, }\item[{const Midi\+Message \&}]{midi\+\_\+message}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Handles incoming MIDI messages from a \doxylink{class_midi_input}{Midi\+Input} source (\doxylink{class_midi_input_callback}{Midi\+Input\+Callback} interface). 
+
+Adds messages to the \doxylink{class_midi_message_collector}{Midi\+Message\+Collector} queue for processing.
+
+
+\begin{DoxyParams}{Parameters}
+{\em source} & The \doxylink{class_midi_input}{Midi\+Input} source that provided the message. \\
+\hline
+{\em midi\+\_\+message} & The incoming MIDI message. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{class_midi_input_callback_a0ebcfca2919879294517fc9c5ab7972f}{Midi\+Input\+Callback}}.
+
+\Hypertarget{class_midi_manager_a5dd7f6c06d50be0f24fa4c9cceb2e139}\index{MidiManager@{MidiManager}!isMidiMapped@{isMidiMapped}}
+\index{isMidiMapped@{isMidiMapped}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{isMidiMapped()}{isMidiMapped()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a5dd7f6c06d50be0f24fa4c9cceb2e139} 
+bool Midi\+Manager\+::is\+Midi\+Mapped (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name}{}\end{DoxyParamCaption}) const}
+
+
+
+Checks if a parameter is already mapped to a MIDI control. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & The parameter name. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if the parameter is MIDI-\/mapped, false otherwise. 
+\end{DoxyReturn}
+\Hypertarget{class_midi_manager_a258a7525bea556188df298afe13c1854}\index{MidiManager@{MidiManager}!isMpeChannelMasterLowerZone@{isMpeChannelMasterLowerZone}}
+\index{isMpeChannelMasterLowerZone@{isMpeChannelMasterLowerZone}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{isMpeChannelMasterLowerZone()}{isMpeChannelMasterLowerZone()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a258a7525bea556188df298afe13c1854} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} bool Midi\+Manager\+::is\+Mpe\+Channel\+Master\+Lower\+Zone (\begin{DoxyParamCaption}\item[{int}]{channel}{}\end{DoxyParamCaption})}
+
+
+
+Checks if the given channel is the MPE master channel for the lower zone. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em channel} & The 0-\/based MIDI channel. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if it is the MPE lower zone master channel. 
+\end{DoxyReturn}
+\Hypertarget{class_midi_manager_a59204068ee8beaf04278ba3d36d0b311}\index{MidiManager@{MidiManager}!isMpeChannelMasterUpperZone@{isMpeChannelMasterUpperZone}}
+\index{isMpeChannelMasterUpperZone@{isMpeChannelMasterUpperZone}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{isMpeChannelMasterUpperZone()}{isMpeChannelMasterUpperZone()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a59204068ee8beaf04278ba3d36d0b311} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} bool Midi\+Manager\+::is\+Mpe\+Channel\+Master\+Upper\+Zone (\begin{DoxyParamCaption}\item[{int}]{channel}{}\end{DoxyParamCaption})}
+
+
+
+Checks if the given channel is the MPE master channel for the upper zone. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em channel} & The 0-\/based MIDI channel. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if it is the MPE upper zone master channel. 
+\end{DoxyReturn}
+\Hypertarget{class_midi_manager_af76be44264f35e11e98c40d840747572}\index{MidiManager@{MidiManager}!lowerMasterChannel@{lowerMasterChannel}}
+\index{lowerMasterChannel@{lowerMasterChannel}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{lowerMasterChannel()}{lowerMasterChannel()}}
+{\footnotesize\ttfamily \label{class_midi_manager_af76be44264f35e11e98c40d840747572} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int Midi\+Manager\+::lower\+Master\+Channel (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the master channel index (0-\/based) of the MPE lower zone. 
+
+\Hypertarget{class_midi_manager_ab235cf3f54a1949de8bc785bb38e1dca}\index{MidiManager@{MidiManager}!lowerZoneEndChannel@{lowerZoneEndChannel}}
+\index{lowerZoneEndChannel@{lowerZoneEndChannel}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{lowerZoneEndChannel()}{lowerZoneEndChannel()}}
+{\footnotesize\ttfamily \label{class_midi_manager_ab235cf3f54a1949de8bc785bb38e1dca} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int Midi\+Manager\+::lower\+Zone\+End\+Channel (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the end channel index (0-\/based) of the MPE lower zone. 
+
+\Hypertarget{class_midi_manager_ac1f5827444bc06f86e456789c16a000b}\index{MidiManager@{MidiManager}!lowerZoneStartChannel@{lowerZoneStartChannel}}
+\index{lowerZoneStartChannel@{lowerZoneStartChannel}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{lowerZoneStartChannel()}{lowerZoneStartChannel()}}
+{\footnotesize\ttfamily \label{class_midi_manager_ac1f5827444bc06f86e456789c16a000b} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int Midi\+Manager\+::lower\+Zone\+Start\+Channel (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the start channel index (0-\/based) of the MPE lower zone. 
+
+\Hypertarget{class_midi_manager_a1bdc6d99b63c31fd2594e53fc5eb9455}\index{MidiManager@{MidiManager}!midiInput@{midiInput}}
+\index{midiInput@{midiInput}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{midiInput()}{midiInput()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a1bdc6d99b63c31fd2594e53fc5eb9455} 
+void Midi\+Manager\+::midi\+Input (\begin{DoxyParamCaption}\item[{int}]{control}{, }\item[{\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital\+::mono\+\_\+float}}}]{value}{}\end{DoxyParamCaption})}
+
+
+
+Handles a direct MIDI input value and applies MIDI learn if armed. 
+
+If MIDI learn is armed, this maps the armed parameter to the given MIDI control. Otherwise, it updates any parameters already mapped to that MIDI control.
+
+
+\begin{DoxyParams}{Parameters}
+{\em control} & The MIDI control number. \\
+\hline
+{\em value} & The MIDI value, generally 0-\/127. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_a6d432fa39f52f35e4c72637492722066}\index{MidiManager@{MidiManager}!processAllNotesOff@{processAllNotesOff}}
+\index{processAllNotesOff@{processAllNotesOff}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{processAllNotesOff()}{processAllNotesOff()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a6d432fa39f52f35e4c72637492722066} 
+void Midi\+Manager\+::process\+All\+Notes\+Off (\begin{DoxyParamCaption}\item[{const Midi\+Message \&}]{midi\+\_\+message}{, }\item[{int}]{sample\+\_\+position}{, }\item[{int}]{channel}{}\end{DoxyParamCaption})}
+
+
+
+Processes an \textquotesingle{}All Notes Off\textquotesingle{} MIDI message. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em midi\+\_\+message} & The MIDI message triggering the event. \\
+\hline
+{\em sample\+\_\+position} & The timing sample position. \\
+\hline
+{\em channel} & The MIDI channel (0-\/based) affected. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_a644840dab4957dbce5b3ed6f0728a6e6}\index{MidiManager@{MidiManager}!processAllSoundsOff@{processAllSoundsOff}}
+\index{processAllSoundsOff@{processAllSoundsOff}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{processAllSoundsOff()}{processAllSoundsOff()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a644840dab4957dbce5b3ed6f0728a6e6} 
+void Midi\+Manager\+::process\+All\+Sounds\+Off (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Processes an \textquotesingle{}All Sounds Off\textquotesingle{} MIDI message, turning off all voices immediately. 
+
+\Hypertarget{class_midi_manager_aebdfa63b1bd8394ae891644ca4b8ed13}\index{MidiManager@{MidiManager}!processMidiMessage@{processMidiMessage}}
+\index{processMidiMessage@{processMidiMessage}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{processMidiMessage()}{processMidiMessage()}}
+{\footnotesize\ttfamily \label{class_midi_manager_aebdfa63b1bd8394ae891644ca4b8ed13} 
+void Midi\+Manager\+::process\+Midi\+Message (\begin{DoxyParamCaption}\item[{const Midi\+Message \&}]{midi\+\_\+message}{, }\item[{int}]{sample\+\_\+position}{ = {\ttfamily 0}}\end{DoxyParamCaption})}
+
+
+
+Processes a given MIDI message and forwards it to the synth engine. 
+
+This handles note on/off, control changes, pitch bend, aftertouch, etc.
+
+
+\begin{DoxyParams}{Parameters}
+{\em midi\+\_\+message} & The incoming MIDI message. \\
+\hline
+{\em sample\+\_\+position} & The sample frame position for timing (optional). \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_a9dbc51f252be19f62f31546251b8abc6}\index{MidiManager@{MidiManager}!processPitchBend@{processPitchBend}}
+\index{processPitchBend@{processPitchBend}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{processPitchBend()}{processPitchBend()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a9dbc51f252be19f62f31546251b8abc6} 
+void Midi\+Manager\+::process\+Pitch\+Bend (\begin{DoxyParamCaption}\item[{const Midi\+Message \&}]{midi\+\_\+message}{, }\item[{int}]{sample\+\_\+position}{, }\item[{int}]{channel}{}\end{DoxyParamCaption})}
+
+
+
+Processes a pitch bend MIDI message. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em midi\+\_\+message} & The pitch bend message. \\
+\hline
+{\em sample\+\_\+position} & The timing sample position. \\
+\hline
+{\em channel} & The MIDI channel affected. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_a55454c73f2a9222e7f296242517e29c7}\index{MidiManager@{MidiManager}!processPressure@{processPressure}}
+\index{processPressure@{processPressure}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{processPressure()}{processPressure()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a55454c73f2a9222e7f296242517e29c7} 
+void Midi\+Manager\+::process\+Pressure (\begin{DoxyParamCaption}\item[{const Midi\+Message \&}]{midi\+\_\+message}{, }\item[{int}]{sample\+\_\+position}{, }\item[{int}]{channel}{}\end{DoxyParamCaption})}
+
+
+
+Processes channel pressure (aftertouch) MIDI messages. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em midi\+\_\+message} & The aftertouch message. \\
+\hline
+{\em sample\+\_\+position} & The timing sample position. \\
+\hline
+{\em channel} & The MIDI channel affected. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_a24e93bcd7294e440665f586bcde362e3}\index{MidiManager@{MidiManager}!processSlide@{processSlide}}
+\index{processSlide@{processSlide}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{processSlide()}{processSlide()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a24e93bcd7294e440665f586bcde362e3} 
+void Midi\+Manager\+::process\+Slide (\begin{DoxyParamCaption}\item[{const Midi\+Message \&}]{midi\+\_\+message}{, }\item[{int}]{sample\+\_\+position}{, }\item[{int}]{channel}{}\end{DoxyParamCaption})}
+
+
+
+Processes slide messages (MPE CC events) translating them to appropriate modulation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em midi\+\_\+message} & The slide-\/related CC message. \\
+\hline
+{\em sample\+\_\+position} & The timing sample position. \\
+\hline
+{\em channel} & The MIDI channel affected. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_a951bf6bd47fe27635e92d01d3a267872}\index{MidiManager@{MidiManager}!processSostenuto@{processSostenuto}}
+\index{processSostenuto@{processSostenuto}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{processSostenuto()}{processSostenuto()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a951bf6bd47fe27635e92d01d3a267872} 
+void Midi\+Manager\+::process\+Sostenuto (\begin{DoxyParamCaption}\item[{const Midi\+Message \&}]{midi\+\_\+message}{, }\item[{int}]{sample\+\_\+position}{, }\item[{int}]{channel}{}\end{DoxyParamCaption})}
+
+
+
+Processes a sostenuto pedal MIDI message. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em midi\+\_\+message} & The MIDI sostenuto message. \\
+\hline
+{\em sample\+\_\+position} & The timing sample position. \\
+\hline
+{\em channel} & The MIDI channel affected. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_ad62db23461e01bdc43994671cea80084}\index{MidiManager@{MidiManager}!processSustain@{processSustain}}
+\index{processSustain@{processSustain}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{processSustain()}{processSustain()}}
+{\footnotesize\ttfamily \label{class_midi_manager_ad62db23461e01bdc43994671cea80084} 
+void Midi\+Manager\+::process\+Sustain (\begin{DoxyParamCaption}\item[{const Midi\+Message \&}]{midi\+\_\+message}{, }\item[{int}]{sample\+\_\+position}{, }\item[{int}]{channel}{}\end{DoxyParamCaption})}
+
+
+
+Processes a sustain pedal MIDI message. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em midi\+\_\+message} & The MIDI sustain message. \\
+\hline
+{\em sample\+\_\+position} & The timing sample position. \\
+\hline
+{\em channel} & The MIDI channel affected. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_a183844171aefd41b403f26e37aff6b4b}\index{MidiManager@{MidiManager}!readMpeMessage@{readMpeMessage}}
+\index{readMpeMessage@{readMpeMessage}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{readMpeMessage()}{readMpeMessage()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a183844171aefd41b403f26e37aff6b4b} 
+void Midi\+Manager\+::read\+Mpe\+Message (\begin{DoxyParamCaption}\item[{const Midi\+Message \&}]{message}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Parses and processes an MPE-\/related MIDI message. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em message} & The MIDI message to process. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_aae32567d27e712e41ec7d7126cce2c97}\index{MidiManager@{MidiManager}!removeNextBlockOfMessages@{removeNextBlockOfMessages}}
+\index{removeNextBlockOfMessages@{removeNextBlockOfMessages}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{removeNextBlockOfMessages()}{removeNextBlockOfMessages()}}
+{\footnotesize\ttfamily \label{class_midi_manager_aae32567d27e712e41ec7d7126cce2c97} 
+void Midi\+Manager\+::remove\+Next\+Block\+Of\+Messages (\begin{DoxyParamCaption}\item[{Midi\+Buffer \&}]{buffer}{, }\item[{int}]{num\+\_\+samples}{}\end{DoxyParamCaption})}
+
+
+
+Removes the next block of MIDI messages, filling a Midi\+Buffer. 
+
+This is typically called every audio block to retrieve pending MIDI events.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer} & A reference to the Midi\+Buffer to fill. \\
+\hline
+{\em num\+\_\+samples} & The number of audio samples in the current buffer. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_a91b3bf2db4b3ea41f0681f8004f428d7}\index{MidiManager@{MidiManager}!replaceKeyboardMessages@{replaceKeyboardMessages}}
+\index{replaceKeyboardMessages@{replaceKeyboardMessages}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{replaceKeyboardMessages()}{replaceKeyboardMessages()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a91b3bf2db4b3ea41f0681f8004f428d7} 
+void Midi\+Manager\+::replace\+Keyboard\+Messages (\begin{DoxyParamCaption}\item[{Midi\+Buffer \&}]{buffer}{, }\item[{int}]{num\+\_\+samples}{}\end{DoxyParamCaption})}
+
+
+
+Replaces keyboard messages in the given MIDI buffer. 
+
+This allows on-\/screen keyboard events to be integrated into the MIDI processing flow.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer} & The Midi\+Buffer to process. \\
+\hline
+{\em num\+\_\+samples} & The number of samples in the current audio block. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_a3463c30e6e4365d36c2832aa57385bcd}\index{MidiManager@{MidiManager}!setMidiLearnMap@{setMidiLearnMap}}
+\index{setMidiLearnMap@{setMidiLearnMap}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{setMidiLearnMap()}{setMidiLearnMap()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a3463c30e6e4365d36c2832aa57385bcd} 
+void Midi\+Manager\+::set\+Midi\+Learn\+Map (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad}{midi\+\_\+map}} \&}]{midi\+\_\+learn\+\_\+map}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Sets the current MIDI learn map, overriding existing mappings. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em midi\+\_\+learn\+\_\+map} & A midi\+\_\+map of control-\/to-\/parameter assignments. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_a4e13079c7920be8b8760ad154370f49e}\index{MidiManager@{MidiManager}!setMpeEnabled@{setMpeEnabled}}
+\index{setMpeEnabled@{setMpeEnabled}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{setMpeEnabled()}{setMpeEnabled()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a4e13079c7920be8b8760ad154370f49e} 
+void Midi\+Manager\+::set\+Mpe\+Enabled (\begin{DoxyParamCaption}\item[{bool}]{enabled}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Enables or disables MPE mode for MIDI processing. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em enabled} & True to enable MPE, false to disable. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_a1221095cbb425fbec1a749947ff0d2c4}\index{MidiManager@{MidiManager}!setSampleRate@{setSampleRate}}
+\index{setSampleRate@{setSampleRate}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{setSampleRate()}{setSampleRate()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a1221095cbb425fbec1a749947ff0d2c4} 
+void Midi\+Manager\+::set\+Sample\+Rate (\begin{DoxyParamCaption}\item[{double}]{sample\+\_\+rate}{}\end{DoxyParamCaption})}
+
+
+
+Sets the audio sample rate for MIDI message timing. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sample\+\_\+rate} & The sample rate in Hz. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_midi_manager_a87a04a3b0685a55dc1630f402d2c78c4}\index{MidiManager@{MidiManager}!upperMasterChannel@{upperMasterChannel}}
+\index{upperMasterChannel@{upperMasterChannel}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{upperMasterChannel()}{upperMasterChannel()}}
+{\footnotesize\ttfamily \label{class_midi_manager_a87a04a3b0685a55dc1630f402d2c78c4} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int Midi\+Manager\+::upper\+Master\+Channel (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the master channel index (0-\/based) of the MPE upper zone. 
+
+\Hypertarget{class_midi_manager_aec0fb479830da9e00ac71efb9d096bad}\index{MidiManager@{MidiManager}!upperZoneEndChannel@{upperZoneEndChannel}}
+\index{upperZoneEndChannel@{upperZoneEndChannel}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{upperZoneEndChannel()}{upperZoneEndChannel()}}
+{\footnotesize\ttfamily \label{class_midi_manager_aec0fb479830da9e00ac71efb9d096bad} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int Midi\+Manager\+::upper\+Zone\+End\+Channel (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the end channel index (0-\/based) of the MPE upper zone. 
+
+\Hypertarget{class_midi_manager_ae393100c97ec79780ebde3a09c4fda45}\index{MidiManager@{MidiManager}!upperZoneStartChannel@{upperZoneStartChannel}}
+\index{upperZoneStartChannel@{upperZoneStartChannel}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{upperZoneStartChannel()}{upperZoneStartChannel()}}
+{\footnotesize\ttfamily \label{class_midi_manager_ae393100c97ec79780ebde3a09c4fda45} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int Midi\+Manager\+::upper\+Zone\+Start\+Channel (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the start channel index (0-\/based) of the MPE upper zone. 
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{class_midi_manager_a0e615abf6ddff13a41e67fcb9c4565da}\index{MidiManager@{MidiManager}!armed\_value\_@{armed\_value\_}}
+\index{armed\_value\_@{armed\_value\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{armed\_value\_}{armed\_value\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_a0e615abf6ddff13a41e67fcb9c4565da} 
+const \mbox{\hyperlink{structvital_1_1_value_details}{vital\+::\+Value\+Details}}\texorpdfstring{$\ast$}{*} Midi\+Manager\+::armed\+\_\+value\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Parameter armed for MIDI learn. 
+
+\Hypertarget{class_midi_manager_a11bb4bbae8395db2f01d99ddd62ca888}\index{MidiManager@{MidiManager}!current\_bank\_@{current\_bank\_}}
+\index{current\_bank\_@{current\_bank\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{current\_bank\_}{current\_bank\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_a11bb4bbae8395db2f01d99ddd62ca888} 
+int Midi\+Manager\+::current\+\_\+bank\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Tracks the current bank for preset selection. 
+
+\Hypertarget{class_midi_manager_ab11a080dba6850eaa9e89ad20d2a982f}\index{MidiManager@{MidiManager}!current\_folder\_@{current\_folder\_}}
+\index{current\_folder\_@{current\_folder\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{current\_folder\_}{current\_folder\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_ab11a080dba6850eaa9e89ad20d2a982f} 
+int Midi\+Manager\+::current\+\_\+folder\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Tracks the current folder for preset selection. 
+
+\Hypertarget{class_midi_manager_a8956953d1ec9f742197348299902ebc4}\index{MidiManager@{MidiManager}!current\_preset\_@{current\_preset\_}}
+\index{current\_preset\_@{current\_preset\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{current\_preset\_}{current\_preset\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_a8956953d1ec9f742197348299902ebc4} 
+int Midi\+Manager\+::current\+\_\+preset\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Tracks the current preset within a folder. 
+
+\Hypertarget{class_midi_manager_acb05258645533b3cc067dbaadad5672c}\index{MidiManager@{MidiManager}!engine\_@{engine\_}}
+\index{engine\_@{engine\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{engine\_}{engine\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_acb05258645533b3cc067dbaadad5672c} 
+\mbox{\hyperlink{classvital_1_1_sound_engine}{vital\+::\+Sound\+Engine}}\texorpdfstring{$\ast$}{*} Midi\+Manager\+::engine\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+The sound engine for handling audio events. 
+
+\Hypertarget{class_midi_manager_a2fe43ed0aeab4d6ca6f10a8263863bcd}\index{MidiManager@{MidiManager}!gui\_state\_@{gui\_state\_}}
+\index{gui\_state\_@{gui\_state\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{gui\_state\_}{gui\_state\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_a2fe43ed0aeab4d6ca6f10a8263863bcd} 
+std\+::map$<$std\+::string, String$>$\texorpdfstring{$\ast$}{*} Midi\+Manager\+::gui\+\_\+state\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Holds GUI-\/related state info. 
+
+\Hypertarget{class_midi_manager_adab0619ddc63c8e813d6ab2d0b4dc091}\index{MidiManager@{MidiManager}!keyboard\_state\_@{keyboard\_state\_}}
+\index{keyboard\_state\_@{keyboard\_state\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{keyboard\_state\_}{keyboard\_state\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_adab0619ddc63c8e813d6ab2d0b4dc091} 
+Midi\+Keyboard\+State\texorpdfstring{$\ast$}{*} Midi\+Manager\+::keyboard\+\_\+state\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+The keyboard state for on-\/screen keyboard integration. 
+
+\Hypertarget{class_midi_manager_a39e9b96c0552ddc1d8ac79a6356ae2a2}\index{MidiManager@{MidiManager}!listener\_@{listener\_}}
+\index{listener\_@{listener\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{listener\_}{listener\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_a39e9b96c0552ddc1d8ac79a6356ae2a2} 
+\mbox{\hyperlink{class_midi_manager_1_1_listener}{Listener}}\texorpdfstring{$\ast$}{*} Midi\+Manager\+::listener\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+\doxylink{class_midi_manager_1_1_listener}{Listener} for MIDI-\/driven parameter changes and preset loads. 
+
+\Hypertarget{class_midi_manager_a5b0727a7abec4f4735879b7f17b13382}\index{MidiManager@{MidiManager}!lsb\_pressure\_values\_@{lsb\_pressure\_values\_}}
+\index{lsb\_pressure\_values\_@{lsb\_pressure\_values\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{lsb\_pressure\_values\_}{lsb\_pressure\_values\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_a5b0727a7abec4f4735879b7f17b13382} 
+int Midi\+Manager\+::lsb\+\_\+pressure\+\_\+values\+\_\+\mbox{[}\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{vital\+::k\+Num\+Midi\+Channels}}\mbox{]}\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+LSB values for channel pressure. 
+
+\Hypertarget{class_midi_manager_a80964f02b5c92db171d1f3a4c0ebead0}\index{MidiManager@{MidiManager}!lsb\_slide\_values\_@{lsb\_slide\_values\_}}
+\index{lsb\_slide\_values\_@{lsb\_slide\_values\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{lsb\_slide\_values\_}{lsb\_slide\_values\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_a80964f02b5c92db171d1f3a4c0ebead0} 
+int Midi\+Manager\+::lsb\+\_\+slide\+\_\+values\+\_\+\mbox{[}\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{vital\+::k\+Num\+Midi\+Channels}}\mbox{]}\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+LSB values for slide control. 
+
+\Hypertarget{class_midi_manager_a2af838db46e8dee84f23e5d5725aa55b}\index{MidiManager@{MidiManager}!midi\_collector\_@{midi\_collector\_}}
+\index{midi\_collector\_@{midi\_collector\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{midi\_collector\_}{midi\_collector\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_a2af838db46e8dee84f23e5d5725aa55b} 
+\mbox{\hyperlink{class_midi_message_collector}{Midi\+Message\+Collector}} Midi\+Manager\+::midi\+\_\+collector\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Collects incoming MIDI messages. 
+
+\Hypertarget{class_midi_manager_ac041947c58a8c1e4b2951717274a7571}\index{MidiManager@{MidiManager}!midi\_learn\_map\_@{midi\_learn\_map\_}}
+\index{midi\_learn\_map\_@{midi\_learn\_map\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{midi\_learn\_map\_}{midi\_learn\_map\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_ac041947c58a8c1e4b2951717274a7571} 
+\mbox{\hyperlink{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad}{midi\+\_\+map}} Midi\+Manager\+::midi\+\_\+learn\+\_\+map\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Mapping of MIDI controls to synth parameters. 
+
+\Hypertarget{class_midi_manager_adc07243583baf15da16265a00c947d5f}\index{MidiManager@{MidiManager}!mpe\_enabled\_@{mpe\_enabled\_}}
+\index{mpe\_enabled\_@{mpe\_enabled\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{mpe\_enabled\_}{mpe\_enabled\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_adc07243583baf15da16265a00c947d5f} 
+bool Midi\+Manager\+::mpe\+\_\+enabled\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+True if MPE mode is enabled. 
+
+\Hypertarget{class_midi_manager_ab9d5a6330ccd9eb3f370be0e44b9cc17}\index{MidiManager@{MidiManager}!mpe\_zone\_layout\_@{mpe\_zone\_layout\_}}
+\index{mpe\_zone\_layout\_@{mpe\_zone\_layout\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{mpe\_zone\_layout\_}{mpe\_zone\_layout\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_ab9d5a6330ccd9eb3f370be0e44b9cc17} 
+MPEZone\+Layout Midi\+Manager\+::mpe\+\_\+zone\+\_\+layout\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+MPE zone layout object. 
+
+\Hypertarget{class_midi_manager_ab4aa58c3a90a21bb514d3103c481d833}\index{MidiManager@{MidiManager}!msb\_pressure\_values\_@{msb\_pressure\_values\_}}
+\index{msb\_pressure\_values\_@{msb\_pressure\_values\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{msb\_pressure\_values\_}{msb\_pressure\_values\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_ab4aa58c3a90a21bb514d3103c481d833} 
+int Midi\+Manager\+::msb\+\_\+pressure\+\_\+values\+\_\+\mbox{[}\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{vital\+::k\+Num\+Midi\+Channels}}\mbox{]}\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+MSB values for channel pressure. 
+
+\Hypertarget{class_midi_manager_aebb756b3c2f209ccc4dc7ac3fb768e1d}\index{MidiManager@{MidiManager}!msb\_slide\_values\_@{msb\_slide\_values\_}}
+\index{msb\_slide\_values\_@{msb\_slide\_values\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{msb\_slide\_values\_}{msb\_slide\_values\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_aebb756b3c2f209ccc4dc7ac3fb768e1d} 
+int Midi\+Manager\+::msb\+\_\+slide\+\_\+values\+\_\+\mbox{[}\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{vital\+::k\+Num\+Midi\+Channels}}\mbox{]}\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+MSB values for slide control. 
+
+\Hypertarget{class_midi_manager_aef6969cbca9df751c3c177e79ccdfd29}\index{MidiManager@{MidiManager}!rpn\_detector\_@{rpn\_detector\_}}
+\index{rpn\_detector\_@{rpn\_detector\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{rpn\_detector\_}{rpn\_detector\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_aef6969cbca9df751c3c177e79ccdfd29} 
+Midi\+RPNDetector Midi\+Manager\+::rpn\+\_\+detector\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Detects and processes MIDI RPN/\+NRPN messages. 
+
+\Hypertarget{class_midi_manager_ad60bb87241da093f8f62ecc050230178}\index{MidiManager@{MidiManager}!synth\_@{synth\_}}
+\index{synth\_@{synth\_}!MidiManager@{MidiManager}}
+\doxysubsubsection{\texorpdfstring{synth\_}{synth\_}}
+{\footnotesize\ttfamily \label{class_midi_manager_ad60bb87241da093f8f62ecc050230178} 
+\mbox{\hyperlink{class_synth_base}{Synth\+Base}}\texorpdfstring{$\ast$}{*} Midi\+Manager\+::synth\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Associated synthesizer base instance. 
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/davidvogel/repos/\+Vital\+Help/src/common/\mbox{\hyperlink{midi__manager_8h}{midi\+\_\+manager.\+h}}\item 
+/\+Users/davidvogel/repos/\+Vital\+Help/src/common/\mbox{\hyperlink{midi__manager_8cpp}{midi\+\_\+manager.\+cpp}}\end{DoxyCompactItemize}

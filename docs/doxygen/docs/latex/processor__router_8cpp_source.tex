@@ -1,0 +1,416 @@
+\doxysection{processor\+\_\+router.\+cpp}
+\hypertarget{processor__router_8cpp_source}{}\label{processor__router_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/framework/processor\_router.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/framework/processor\_router.cpp}}
+\mbox{\hyperlink{processor__router_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{processor__router_8h}{processor\_router.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{feedback_8h}{feedback.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ <algorithm>}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a43ee925ced978ace8ec567faac893add}{ProcessorRouter::ProcessorRouter}}(\textcolor{keywordtype}{int}\ num\_inputs,\ \textcolor{keywordtype}{int}\ num\_outputs,\ \textcolor{keywordtype}{bool}\ control\_rate)\ :}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}(num\_inputs,\ num\_outputs,\ control\_rate),}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ \ \ \ \ global\_order\_(new\ \mbox{\hyperlink{classvital_1_1_circular_queue}{CircularQueue}}<\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*>(\mbox{\hyperlink{namespacevital_abcbdb48fbd4d9f98b90cae346ee22044}{kMaxModulationConnections}})),}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ \ \ \ \ global\_reorder\_(new\ \mbox{\hyperlink{classvital_1_1_circular_queue}{CircularQueue}}<\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*>(\mbox{\hyperlink{namespacevital_abcbdb48fbd4d9f98b90cae346ee22044}{kMaxModulationConnections}})),}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ \ \ \ \ local\_order\_(\mbox{\hyperlink{namespacevital_abcbdb48fbd4d9f98b90cae346ee22044}{kMaxModulationConnections}}),}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ \ \ \ \ global\_feedback\_order\_(new\ std::vector<const\ \mbox{\hyperlink{classvital_1_1_feedback}{Feedback}}*>()),}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \ \ \ \ global\_changes\_(new\ int(0)),\ local\_changes\_(0),}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \ \ \ \ dependencies\_(new\ \mbox{\hyperlink{classvital_1_1_circular_queue}{CircularQueue}}<const\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*>(\mbox{\hyperlink{namespacevital_abcbdb48fbd4d9f98b90cae346ee22044}{kMaxModulationConnections}})),}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \ \ \ \ dependencies\_visited\_(new\ \mbox{\hyperlink{classvital_1_1_circular_queue}{CircularQueue}}<const\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*>(\mbox{\hyperlink{namespacevital_abcbdb48fbd4d9f98b90cae346ee22044}{kMaxModulationConnections}})),}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \ \ \ \ dependency\_inputs\_(new\ \mbox{\hyperlink{classvital_1_1_circular_queue}{CircularQueue}}<const\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*>(\mbox{\hyperlink{namespacevital_abcbdb48fbd4d9f98b90cae346ee22044}{kMaxModulationConnections}}))\ \{\ \}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a43ee925ced978ace8ec567faac893add}{ProcessorRouter::ProcessorRouter}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor_router}{ProcessorRouter}}\&\ original)\ :}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}(original),}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \ \ \ \ global\_order\_(original.global\_order\_),\ global\_reorder\_(original.global\_reorder\_),}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \ \ \ \ global\_feedback\_order\_(original.global\_feedback\_order\_),}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \ \ \ \ global\_changes\_(original.global\_changes\_),}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \ \ \ \ local\_changes\_(original.local\_changes\_)\ \{}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}}.reserve(\mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>capacity());}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}}.assign(\mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>size(),\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}.assign(\mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\_feedback\_order\_}}-\/>size(),\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_processors\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>size();}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ for\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_processors;\ ++i)\ \{}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ next\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>at(i);}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \ \ \ \ std::unique\_ptr<Processor>\ \mbox{\hyperlink{classvital_1_1_processor_router_a1451035228a588d309dd1eca909ca6d3}{clone}}(next-\/>\mbox{\hyperlink{classvital_1_1_processor_ad5e74a9e2f6e2656b067843b302fe767}{clone}}());}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}}[i]\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a1451035228a588d309dd1eca909ca6d3}{clone}}.get();}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}[next]\ =\ \{\ 0,\ std::move(\mbox{\hyperlink{classvital_1_1_processor_router_a1451035228a588d309dd1eca909ca6d3}{clone}})\ \};}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_feedbacks\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(\mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\_feedback\_order\_}}-\/>size());}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_feedbacks;\ ++i)\ \{}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_feedback}{Feedback}}*\ next\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\_feedback\_order\_}}-\/>at(i);}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \ \ \ \ std::unique\_ptr<Feedback>\ \mbox{\hyperlink{classvital_1_1_processor_router_a1451035228a588d309dd1eca909ca6d3}{clone}}((\mbox{\hyperlink{classvital_1_1_feedback}{Feedback}}*)(next-\/>\mbox{\hyperlink{classvital_1_1_feedback_a5fce1bccaefc51cc5a03dbac9e4aac92}{clone}}()));}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}[i]\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a1451035228a588d309dd1eca909ca6d3}{clone}}.get();}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a064ca063a40b70ac3bd913f90cfb5b26}{feedback\_processors\_}}[next]\ =\ \{\ 0,\ std::move(\mbox{\hyperlink{classvital_1_1_processor_router_a1451035228a588d309dd1eca909ca6d3}{clone}})\ \};}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00053\ \ \ \ \ \}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a203c2bc185de31720f97cc5e244e149d}{ProcessorRouter::\string~ProcessorRouter}}()\ \{\ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_aeb03f0b2e5c2249dd065f26b8b3f1866}{ProcessorRouter::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_router_acc4d83926132b0f626c41aa0f255bfa6}{shouldUpdate}}())}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a064f6bdad96043512fd705a9a017c7a3}{updateAllProcessors}}();}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Refresh\ feedback\ loops}}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_feedbacks\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(\mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}.size());}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_feedbacks;\ ++i)}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}[i]-\/>refreshOutput(num\_samples);}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Process\ all\ Processors\ in\ order}}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ normal\_samples\ =\ std::max(1,\ num\_samples\ /\ \mbox{\hyperlink{classvital_1_1_processor_a9781b732ace6aa715422754635b771ca}{getOversampleAmount}}());}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor\ :\ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}})\ \{}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (processor-\/>enabled())\ \{}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ processor\_samples\ =\ normal\_samples\ *\ processor-\/>getOversampleAmount();}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(processor-\/>checkInputAndOutputSize(processor\_samples));}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ processor-\/>process(processor\_samples);}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{namespacevital_1_1utils_a221874465932464f6c5fe9e187f0eb14}{utils::isFinite}}(processor-\/>output()-\/>buffer,\ processor-\/>isControlRate()\ ?\ 0\ :\ processor\_samples));}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ feedback\ objects\ with\ processed\ output}}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_feedbacks;\ ++i)\ \{}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\_feedback\_order\_}}-\/>at(i)-\/>enabled())}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}[i]-\/>process(num\_samples);}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00082\ \ \ \ \ \}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_a6ebd94c5d73a14a1a20b67ddf60125ee}{ProcessorRouter::init}}()\ \{}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_adb6eaa40b95275a42029ed4c0c4bcba4}{Processor::init}}();}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor\ :\ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}})}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \ \ \ \ processor-\/>init();}
+\DoxyCodeLine{00088\ \ \ \ \ \}}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_a7e0dd6e0873082d4883a3fa1e6e451a0}{ProcessorRouter::setSampleRate}}(\textcolor{keywordtype}{int}\ sample\_rate)\ \{}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ac778f37e9b9e3c1c05fca568e8f8664c}{Processor::setSampleRate}}(sample\_rate);}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_router_acc4d83926132b0f626c41aa0f255bfa6}{shouldUpdate}}())}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a064f6bdad96043512fd705a9a017c7a3}{updateAllProcessors}}();}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_processors\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(\mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}}.size());}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_processors;\ ++i)}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}}[i]-\/>\mbox{\hyperlink{classvital_1_1_processor_router_a7e0dd6e0873082d4883a3fa1e6e451a0}{setSampleRate}}(sample\_rate);}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_feedbacks\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(\mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}.size());}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_feedbacks;\ ++i)}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}[i]-\/>\mbox{\hyperlink{classvital_1_1_processor_router_a7e0dd6e0873082d4883a3fa1e6e451a0}{setSampleRate}}(sample\_rate);}
+\DoxyCodeLine{00102\ \ \ \ \ \}}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_a4c88954b0d0baec70f87485772d0c228}{ProcessorRouter::setOversampleAmount}}(\textcolor{keywordtype}{int}\ oversample)\ \{}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a2684da3687deca092882748cf170eac7}{Processor::setOversampleAmount}}(oversample);}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_router_acc4d83926132b0f626c41aa0f255bfa6}{shouldUpdate}}())}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a064f6bdad96043512fd705a9a017c7a3}{updateAllProcessors}}();}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ idle\_processor\ :\ \mbox{\hyperlink{classvital_1_1_processor_router_a99f43b9da34a29911ed8df8f8839c1a1}{idle\_processors\_}})}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \ \ \ \ idle\_processor.second-\/>setOversampleAmount(oversample);}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_processors\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(\mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}}.size());}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_processors;\ ++i)}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}}[i]-\/>\mbox{\hyperlink{classvital_1_1_processor_router_a4c88954b0d0baec70f87485772d0c228}{setOversampleAmount}}(oversample);}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_feedbacks\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(\mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}.size());}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_feedbacks;\ ++i)}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}[i]-\/>\mbox{\hyperlink{classvital_1_1_processor_router_a4c88954b0d0baec70f87485772d0c228}{setOversampleAmount}}(oversample);}
+\DoxyCodeLine{00119\ \ \ \ \ \}}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_af5322ce72a1e53f6d81ce917f07427e7}{ProcessorRouter::addProcessor}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\ \{}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(processor-\/>\mbox{\hyperlink{classvital_1_1_processor_ad669f63d02cbbab8b33bbfb25be43e19}{router}}()\ ==\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>ensureSpace();}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_adb3133fc9539fc2f3bbaef89d1ade304}{global\_reorder\_}}-\/>ensureCapacity(\mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>capacity());}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}}.ensureSpace();}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_acd338716e49f52c83662951b22ed012b}{addProcessorRealTime}}(processor);}
+\DoxyCodeLine{00127\ \ \ \ \ \}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_acd338716e49f52c83662951b22ed012b}{ProcessorRouter::addProcessorRealTime}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\ \{}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(processor-\/>\mbox{\hyperlink{classvital_1_1_processor_ad669f63d02cbbab8b33bbfb25be43e19}{router}}()\ ==\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ (*global\_changes\_)++;}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a18ae154ff39a2b8656b90779ab8baa50}{local\_changes\_}}++;}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_ad669f63d02cbbab8b33bbfb25be43e19}{router}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_a9781b732ace6aa715422754635b771ca}{getOversampleAmount}}()\ >\ 1)}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ \ \ \ \ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_a2684da3687deca092882748cf170eac7}{setOversampleAmount}}(\mbox{\hyperlink{classvital_1_1_processor_a9781b732ace6aa715422754635b771ca}{getOversampleAmount}}());}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>push\_back(processor);}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}[processor]\ =\ \{\ 0,\ std::unique\_ptr<Processor>(processor)\ \};}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}}.push\_back(processor);}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_a11d86444fb2fb200b11d54b5602b6f18}{numInputs}}();\ ++i)}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_ad172a585ce6ed81b9817f400b4f8e2ee}{connect}}(processor,\ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(i)-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}},\ i);}
+\DoxyCodeLine{00144\ \ \ \ \ \}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_a8bc90b699c1ec299b060ed0df32f476c}{ProcessorRouter::addIdleProcessor}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}\ *processor)\ \{}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_ad669f63d02cbbab8b33bbfb25be43e19}{router}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a99f43b9da34a29911ed8df8f8839c1a1}{idle\_processors\_}}[processor]\ =\ std::unique\_ptr<Processor>(processor);}
+\DoxyCodeLine{00149\ \ \ \ \ \}}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_a2e2a39dff7f95f2faee9421b87133a4f}{ProcessorRouter::removeProcessor}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\ \{}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_a11d86444fb2fb200b11d54b5602b6f18}{numInputs}}();\ ++i)}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a2c272134f228096aff853f46c0f5cac6}{disconnect}}(processor,\ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(i)-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}});}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(processor-\/>\mbox{\hyperlink{classvital_1_1_processor_ad669f63d02cbbab8b33bbfb25be43e19}{router}}()\ ==\ \textcolor{keyword}{this});}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ (*global\_changes\_)++;}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a18ae154ff39a2b8656b90779ab8baa50}{local\_changes\_}}++;}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>remove(processor);}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}}.remove(processor);}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ old\_processor\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}[processor].second.release();}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(old\_processor\ ==\ processor);}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_a86d500a34c624c2cae56bc25a31b12f3}{UNUSED}}(old\_processor);}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_ad669f63d02cbbab8b33bbfb25be43e19}{router}}(\textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}.erase(processor);}
+\DoxyCodeLine{00166\ \ \ \ \ \}}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_ad172a585ce6ed81b9817f400b4f8e2ee}{ProcessorRouter::connect}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ destination,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ source,\ \textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_router_a44f998b01ec090f5a071efbb19dbd75a}{isDownstream}}(destination,\ source-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}))\ \{}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Cycle\ detected\ -\/\ insert\ feedback}}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_feedback}{Feedback}}*\ feedback\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{classvital_1_1cr_1_1_feedback}{cr::Feedback}}();}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ \ \ \ \ feedback-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(source);}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \ \ \ \ destination-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(feedback,\ index);}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a57792f6f08a068cdade56ca571b78e8e}{addFeedback}}(feedback);}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ No\ cycle,\ just\ reorder\ if\ needed}}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_acbde70124da8d2bf06b9ea3d6412211b}{reorder}}(destination);}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00180\ \ \ \ \ \}}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_a2c272134f228096aff853f46c0f5cac6}{ProcessorRouter::disconnect}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ destination,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ source)\ \{}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_router_a44f998b01ec090f5a071efbb19dbd75a}{isDownstream}}(destination,\ source-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}))\ \{}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ there's\ a\ cycle,\ we\ may\ need\ to\ remove\ a\ Feedback\ node}}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ destination-\/>\mbox{\hyperlink{classvital_1_1_processor_a11d86444fb2fb200b11d54b5602b6f18}{numInputs}}();\ ++i)\ \{}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ owner\ =\ destination-\/>\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(i)-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}};}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_router_a064ca063a40b70ac3bd913f90cfb5b26}{feedback\_processors\_}}.find(owner)\ !=\ \mbox{\hyperlink{classvital_1_1_processor_router_a064ca063a40b70ac3bd913f90cfb5b26}{feedback\_processors\_}}.end())\ \{}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_feedback}{Feedback}}*\ feedback\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a064ca063a40b70ac3bd913f90cfb5b26}{feedback\_processors\_}}[owner].second.get();}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (feedback-\/>\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}()-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}\ ==\ source)}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a6c80c8234c2dded315fb62415db7ca26}{removeFeedback}}(feedback);}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ destination-\/>\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(i)-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}\ =\ \&\mbox{\hyperlink{classvital_1_1_processor_a813191fdb6729bffcf2bb1cab0b028fe}{Processor::null\_source\_}};}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00195\ \ \ \ \ \}}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_acbde70124da8d2bf06b9ea3d6412211b}{ProcessorRouter::reorder}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\ \{}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ (*global\_changes\_)++;}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a18ae154ff39a2b8656b90779ab8baa50}{local\_changes\_}}++;}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_ae9d882ba4884aad6e011488177885a56}{getDependencies}}(processor);}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_router_a0af6729c08f07e71c1d636a8318f2944}{dependencies\_}}-\/>size()\ ==\ 0)\ \{}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_ace0e128ab619a92c4b2647b8157e1098}{router\_}})}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ace0e128ab619a92c4b2647b8157e1098}{router\_}}-\/>\mbox{\hyperlink{classvital_1_1_processor_router_acbde70124da8d2bf06b9ea3d6412211b}{reorder}}(processor);}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00207\ }
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_processors\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(\mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}.size());}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_adb3133fc9539fc2f3bbaef89d1ade304}{global\_reorder\_}}-\/>clear();}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_processors;\ ++i)\ \{}
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ current\_processor\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>at(i);}
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (current\_processor\ !=\ processor\ \&\&\ \mbox{\hyperlink{classvital_1_1_processor_router_a0af6729c08f07e71c1d636a8318f2944}{dependencies\_}}-\/>contains(current\_processor))}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_adb3133fc9539fc2f3bbaef89d1ade304}{global\_reorder\_}}-\/>push\_back(current\_processor);}
+\DoxyCodeLine{00215\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}.find(processor)\ !=\ \mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}.end())}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_adb3133fc9539fc2f3bbaef89d1ade304}{global\_reorder\_}}-\/>push\_back(processor);}
+\DoxyCodeLine{00219\ }
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_processors;\ ++i)\ \{}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ current\_processor\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>at(i);}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (current\_processor\ !=\ processor\ \&\&\ !\mbox{\hyperlink{classvital_1_1_processor_router_a0af6729c08f07e71c1d636a8318f2944}{dependencies\_}}-\/>contains(current\_processor))}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_adb3133fc9539fc2f3bbaef89d1ade304}{global\_reorder\_}}-\/>push\_back(current\_processor);}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_processors;\ ++i)}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>at(i)\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_adb3133fc9539fc2f3bbaef89d1ade304}{global\_reorder\_}}-\/>at(i);}
+\DoxyCodeLine{00228\ }
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_ace0e128ab619a92c4b2647b8157e1098}{router\_}})}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ace0e128ab619a92c4b2647b8157e1098}{router\_}}-\/>\mbox{\hyperlink{classvital_1_1_processor_router_acbde70124da8d2bf06b9ea3d6412211b}{reorder}}(processor);}
+\DoxyCodeLine{00231\ \ \ \ \ \}}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00233\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_processor_router_a44f998b01ec090f5a071efbb19dbd75a}{ProcessorRouter::isDownstream}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ first,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ second)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_ae9d882ba4884aad6e011488177885a56}{getDependencies}}(second);}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classvital_1_1_processor_router_a0af6729c08f07e71c1d636a8318f2944}{dependencies\_}}-\/>contains(first);}
+\DoxyCodeLine{00236\ \ \ \ \ \}}
+\DoxyCodeLine{00237\ }
+\DoxyCodeLine{00238\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_processor_router_a8d323f7284f5980af0575d09de995ef0}{ProcessorRouter::areOrdered}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ first,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ second)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ first\_context\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_aed399a6457c7206cf35d3c575b9d21d3}{getContext}}(first);}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ second\_context\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_aed399a6457c7206cf35d3c575b9d21d3}{getContext}}(second);}
+\DoxyCodeLine{00241\ }
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (first\_context\ \&\&\ second\_context)\ \{}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ num\_processors\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>size();}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ num\_processors;\ ++i)\ \{}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>at(i)\ ==\ first\_context)}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>at(i)\ ==\ second\_context)}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_ace0e128ab619a92c4b2647b8157e1098}{router\_}})}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classvital_1_1_processor_ace0e128ab619a92c4b2647b8157e1098}{router\_}}-\/>\mbox{\hyperlink{classvital_1_1_processor_router_a8d323f7284f5980af0575d09de995ef0}{areOrdered}}(first,\ second);}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00255\ \ \ \ \ \}}
+\DoxyCodeLine{00256\ }
+\DoxyCodeLine{00257\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_processor_a6109203f5da8f0c3a7413db829e13381}{ProcessorRouter::isPolyphonic}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_ace0e128ab619a92c4b2647b8157e1098}{router\_}})}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classvital_1_1_processor_ace0e128ab619a92c4b2647b8157e1098}{router\_}}-\/>\mbox{\hyperlink{classvital_1_1_processor_router_a560081c1bcecdef978baf5411cefa7b2}{isPolyphonic}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00261\ \ \ \ \ \}}
+\DoxyCodeLine{00262\ }
+\DoxyCodeLine{00263\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router}{ProcessorRouter}}*\ \mbox{\hyperlink{classvital_1_1_processor_router_a737c2d4614b288a18bfda203f23fb04f}{ProcessorRouter::getMonoRouter}}()\ \{}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_a6109203f5da8f0c3a7413db829e13381}{isPolyphonic}}(\textcolor{keyword}{this}))}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classvital_1_1_processor_ace0e128ab619a92c4b2647b8157e1098}{router\_}}-\/>\mbox{\hyperlink{classvital_1_1_processor_router_a737c2d4614b288a18bfda203f23fb04f}{getMonoRouter}}();}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{this};}
+\DoxyCodeLine{00267\ \ \ \ \ \}}
+\DoxyCodeLine{00268\ }
+\DoxyCodeLine{00269\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router}{ProcessorRouter}}*\ \mbox{\hyperlink{classvital_1_1_processor_router_a3fa90cbfd166bd59948cfb9a0dd66bc1}{ProcessorRouter::getPolyRouter}}()\ \{}
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{this};}
+\DoxyCodeLine{00271\ \ \ \ \ \}}
+\DoxyCodeLine{00272\ }
+\DoxyCodeLine{00273\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_ab064299dac2dfea05f18aeb91c5e22f7}{ProcessorRouter::resetFeedbacks}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask)\ \{}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\ feedback\ :\ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}})}
+\DoxyCodeLine{00275\ \ \ \ \ \ \ \ \ \ \ \ \ feedback-\/>\mbox{\hyperlink{classvital_1_1_processor_af96e6e12894fcc2cce9abe7d93ed4f99}{reset}}(reset\_mask);}
+\DoxyCodeLine{00276\ \ \ \ \ \}}
+\DoxyCodeLine{00277\ }
+\DoxyCodeLine{00278\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_a57792f6f08a068cdade56ca571b78e8e}{ProcessorRouter::addFeedback}}(\mbox{\hyperlink{classvital_1_1_feedback}{Feedback}}*\ feedback)\ \{}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ feedback-\/>\mbox{\hyperlink{classvital_1_1_processor_ad669f63d02cbbab8b33bbfb25be43e19}{router}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\_feedback\_order\_}}-\/>push\_back(feedback);}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}.push\_back(feedback);}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a064ca063a40b70ac3bd913f90cfb5b26}{feedback\_processors\_}}[feedback]\ =\ \{\ 0,\ std::unique\_ptr<Feedback>(feedback)\ \};}
+\DoxyCodeLine{00283\ \ \ \ \ \}}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00285\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_a6c80c8234c2dded315fb62415db7ca26}{ProcessorRouter::removeFeedback}}(\mbox{\hyperlink{classvital_1_1_feedback}{Feedback}}*\ feedback)\ \{}
+\DoxyCodeLine{00286\ \ \ \ \ \ \ \ \ (*global\_changes\_)++;}
+\DoxyCodeLine{00287\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a18ae154ff39a2b8656b90779ab8baa50}{local\_changes\_}}++;}
+\DoxyCodeLine{00288\ }
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ pos\ =\ std::find(\mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\_feedback\_order\_}}-\/>begin(),\ \mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\_feedback\_order\_}}-\/>end(),\ feedback);}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(pos\ !=\ \mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\_feedback\_order\_}}-\/>end());}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\_feedback\_order\_}}-\/>erase(pos,\ pos\ +\ 1);}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ local\_pos\ =\ std::find(\mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}.begin(),\ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}.end(),\ feedback);}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(local\_pos\ !=\ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}.end());}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}.erase(local\_pos,\ local\_pos\ +\ 1);}
+\DoxyCodeLine{00296\ }
+\DoxyCodeLine{00297\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a064ca063a40b70ac3bd913f90cfb5b26}{feedback\_processors\_}}.erase(feedback);}
+\DoxyCodeLine{00298\ \ \ \ \ \}}
+\DoxyCodeLine{00299\ }
+\DoxyCodeLine{00300\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_a064f6bdad96043512fd705a9a017c7a3}{ProcessorRouter::updateAllProcessors}}()\ \{}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_router_a18ae154ff39a2b8656b90779ab8baa50}{local\_changes\_}}\ ==\ *\mbox{\hyperlink{classvital_1_1_processor_router_a47473325d367640a685cbdafece68619}{global\_changes\_}})}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00303\ }
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a8ae875714d516809d6f9122201ac7b78}{createAddedProcessors}}();}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a266316372e5c54e7210aac8d4f2c207f}{deleteRemovedProcessors}}();}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a18ae154ff39a2b8656b90779ab8baa50}{local\_changes\_}}\ =\ *\mbox{\hyperlink{classvital_1_1_processor_router_a47473325d367640a685cbdafece68619}{global\_changes\_}};}
+\DoxyCodeLine{00307\ \ \ \ \ \}}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00309\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_a8ae875714d516809d6f9122201ac7b78}{ProcessorRouter::createAddedProcessors}}()\ \{}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>size()\ >\ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}}.capacity())}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}}.reserve(\mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>capacity());}
+\DoxyCodeLine{00312\ }
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}}.assign(\mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>size(),\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}.assign(\mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\_feedback\_order\_}}-\/>size(),\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00315\ }
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_processors\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>size();}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_processors;\ ++i)\ \{}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ next\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}}-\/>at(i);}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (next-\/>\mbox{\hyperlink{classvital_1_1_processor_a5f8c50d9a90045c173a2b0b91fcf796c}{hasState}}())\ \{}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}.count(next)\ ==\ 0)}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}[next]\ =\ \{\ 0,\ std::unique\_ptr<Processor>(next-\/>\mbox{\hyperlink{classvital_1_1_processor_ad5e74a9e2f6e2656b067843b302fe767}{clone}}())\ \};}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}}[i]\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}[next].second.get();}
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\_order\_}}[i]\ =\ next;}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00327\ }
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_feedbacks\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(\mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\_feedback\_order\_}}-\/>size());}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_feedbacks;\ ++i)\ \{}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_feedback}{Feedback}}*\ next\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\_feedback\_order\_}}-\/>at(i);}
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_router_a064ca063a40b70ac3bd913f90cfb5b26}{feedback\_processors\_}}.count(next)\ ==\ 0)}
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a064ca063a40b70ac3bd913f90cfb5b26}{feedback\_processors\_}}[next]\ =\ \{\ 0,\ std::unique\_ptr<Feedback>((\mbox{\hyperlink{classvital_1_1_feedback}{Feedback}}*)(next-\/>\mbox{\hyperlink{classvital_1_1_feedback_a5fce1bccaefc51cc5a03dbac9e4aac92}{clone}}()))\ \};}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}[i]\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a064ca063a40b70ac3bd913f90cfb5b26}{feedback\_processors\_}}[next].second.get();}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00335\ \ \ \ \ \}}
+\DoxyCodeLine{00336\ }
+\DoxyCodeLine{00337\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_a266316372e5c54e7210aac8d4f2c207f}{ProcessorRouter::deleteRemovedProcessors}}()\ \{}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ global\_processor\ :\ *\mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\_order\_}})}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}[global\_processor].first\ =\ *\mbox{\hyperlink{classvital_1_1_processor_router_a47473325d367640a685cbdafece68619}{global\_changes\_}};}
+\DoxyCodeLine{00340\ }
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\ iter\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}.cbegin();\ iter\ !=\ \mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}.cend();)\ \{}
+\DoxyCodeLine{00342\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (iter-\/>second.first\ !=\ *\mbox{\hyperlink{classvital_1_1_processor_router_a47473325d367640a685cbdafece68619}{global\_changes\_}})}
+\DoxyCodeLine{00343\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ iter\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}.erase(iter);}
+\DoxyCodeLine{00344\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00345\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ++iter;}
+\DoxyCodeLine{00346\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00347\ }
+\DoxyCodeLine{00348\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_feedback}{Feedback}}*\ global\_feedback\ :\ *\mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\_feedback\_order\_}})}
+\DoxyCodeLine{00349\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a064ca063a40b70ac3bd913f90cfb5b26}{feedback\_processors\_}}[global\_feedback].first\ =\ *\mbox{\hyperlink{classvital_1_1_processor_router_a47473325d367640a685cbdafece68619}{global\_changes\_}};}
+\DoxyCodeLine{00350\ }
+\DoxyCodeLine{00351\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\ iter\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a064ca063a40b70ac3bd913f90cfb5b26}{feedback\_processors\_}}.cbegin();\ iter\ !=\ \mbox{\hyperlink{classvital_1_1_processor_router_a064ca063a40b70ac3bd913f90cfb5b26}{feedback\_processors\_}}.cend();)\ \{}
+\DoxyCodeLine{00352\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (iter-\/>second.first\ !=\ *\mbox{\hyperlink{classvital_1_1_processor_router_a47473325d367640a685cbdafece68619}{global\_changes\_}})}
+\DoxyCodeLine{00353\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ iter\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a064ca063a40b70ac3bd913f90cfb5b26}{feedback\_processors\_}}.erase(iter);}
+\DoxyCodeLine{00354\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00355\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ++iter;}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00357\ }
+\DoxyCodeLine{00358\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_feedbacks\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(\mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\_feedback\_order\_}}-\/>size());}
+\DoxyCodeLine{00359\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}.clear();}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_feedbacks;\ ++i)\ \{}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_feedback}{Feedback}}*\ next\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\_feedback\_order\_}}-\/>at(i);}
+\DoxyCodeLine{00362\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\_feedback\_order\_}}.push\_back(\mbox{\hyperlink{classvital_1_1_processor_router_a064ca063a40b70ac3bd913f90cfb5b26}{feedback\_processors\_}}[next].second.get());}
+\DoxyCodeLine{00363\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00364\ \ \ \ \ \}}
+\DoxyCodeLine{00365\ }
+\DoxyCodeLine{00366\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ \mbox{\hyperlink{classvital_1_1_processor_router_aed399a6457c7206cf35d3c575b9d21d3}{ProcessorRouter::getContext}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00367\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ context\ =\ processor;}
+\DoxyCodeLine{00368\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (context\ \&\&\ \mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}.find(context)\ ==\ \mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}.end()\ \&\&}
+\DoxyCodeLine{00369\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a99f43b9da34a29911ed8df8f8839c1a1}{idle\_processors\_}}.find(context)\ ==\ \mbox{\hyperlink{classvital_1_1_processor_router_a99f43b9da34a29911ed8df8f8839c1a1}{idle\_processors\_}}.end())\ \{}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ \ \ \ \ \ \ context\ =\ context-\/>\mbox{\hyperlink{classvital_1_1_processor_ad669f63d02cbbab8b33bbfb25be43e19}{router}}();}
+\DoxyCodeLine{00371\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00372\ }
+\DoxyCodeLine{00373\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ context;}
+\DoxyCodeLine{00374\ \ \ \ \ \}}
+\DoxyCodeLine{00375\ }
+\DoxyCodeLine{00376\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ \mbox{\hyperlink{classvital_1_1_processor_router_af1221aabafb55e72099c46e094b75f72}{ProcessorRouter::getLocalProcessor}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ global\_processor)\ \{}
+\DoxyCodeLine{00377\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\_}}[global\_processor].second.get();}
+\DoxyCodeLine{00378\ \ \ \ \ \}}
+\DoxyCodeLine{00379\ }
+\DoxyCodeLine{00380\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_processor_router_ae9d882ba4884aad6e011488177885a56}{ProcessorRouter::getDependencies}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a0af6729c08f07e71c1d636a8318f2944}{dependencies\_}}-\/>clear();}
+\DoxyCodeLine{00382\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a9181b40895e99a7550efb14c6fdcf3e9}{dependencies\_visited\_}}-\/>clear();}
+\DoxyCodeLine{00383\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a96a105ef8c10efa5132b6c1cbdcdf196}{dependency\_inputs\_}}-\/>clear();}
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ context\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_aed399a6457c7206cf35d3c575b9d21d3}{getContext}}(processor);}
+\DoxyCodeLine{00385\ }
+\DoxyCodeLine{00386\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a96a105ef8c10efa5132b6c1cbdcdf196}{dependency\_inputs\_}}-\/>ensureSpace();}
+\DoxyCodeLine{00387\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a96a105ef8c10efa5132b6c1cbdcdf196}{dependency\_inputs\_}}-\/>push\_back(processor);}
+\DoxyCodeLine{00388\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_processor_router_a96a105ef8c10efa5132b6c1cbdcdf196}{dependency\_inputs\_}}-\/>size();\ ++i)\ \{}
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ dep\_processor\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_aed399a6457c7206cf35d3c575b9d21d3}{getContext}}(\mbox{\hyperlink{classvital_1_1_processor_router_a96a105ef8c10efa5132b6c1cbdcdf196}{dependency\_inputs\_}}-\/>at(i));}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00391\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (dep\_processor)\ \{}
+\DoxyCodeLine{00392\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{classvital_1_1_processor_router_a0af6729c08f07e71c1d636a8318f2944}{dependencies\_}}-\/>contains(dep\_processor))\ \{}
+\DoxyCodeLine{00393\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a0af6729c08f07e71c1d636a8318f2944}{dependencies\_}}-\/>ensureSpace();}
+\DoxyCodeLine{00394\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a0af6729c08f07e71c1d636a8318f2944}{dependencies\_}}-\/>push\_back(dep\_processor);}
+\DoxyCodeLine{00395\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00396\ }
+\DoxyCodeLine{00397\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ j\ =\ 0;\ j\ <\ \mbox{\hyperlink{classvital_1_1_processor_router_a96a105ef8c10efa5132b6c1cbdcdf196}{dependency\_inputs\_}}-\/>at(i)-\/>\mbox{\hyperlink{classvital_1_1_processor_a11d86444fb2fb200b11d54b5602b6f18}{numInputs}}();\ ++j)\ \{}
+\DoxyCodeLine{00398\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1_input}{Input}}*\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}\ =\ \mbox{\hyperlink{classvital_1_1_processor_router_a96a105ef8c10efa5132b6c1cbdcdf196}{dependency\_inputs\_}}-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(i)-\/>ownedInput(j);}
+\DoxyCodeLine{00399\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}\ \&\&\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ \&\&\ !\mbox{\hyperlink{classvital_1_1_processor_router_a9181b40895e99a7550efb14c6fdcf3e9}{dependencies\_visited\_}}-\/>contains(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}))\ \{}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a96a105ef8c10efa5132b6c1cbdcdf196}{dependency\_inputs\_}}-\/>ensureSpace();}
+\DoxyCodeLine{00401\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a96a105ef8c10efa5132b6c1cbdcdf196}{dependency\_inputs\_}}-\/>push\_back(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}});}
+\DoxyCodeLine{00402\ }
+\DoxyCodeLine{00403\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{classvital_1_1_processor_router_a9181b40895e99a7550efb14c6fdcf3e9}{dependencies\_visited\_}}-\/>contains(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}))\ \{}
+\DoxyCodeLine{00404\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a9181b40895e99a7550efb14c6fdcf3e9}{dependencies\_visited\_}}-\/>ensureSpace();}
+\DoxyCodeLine{00405\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a9181b40895e99a7550efb14c6fdcf3e9}{dependencies\_visited\_}}-\/>push\_back(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}});}
+\DoxyCodeLine{00406\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00407\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00408\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00409\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00410\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00411\ }
+\DoxyCodeLine{00412\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a0af6729c08f07e71c1d636a8318f2944}{dependencies\_}}-\/>removeAll(context);}
+\DoxyCodeLine{00413\ \ \ \ \ \}}
+\DoxyCodeLine{00414\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

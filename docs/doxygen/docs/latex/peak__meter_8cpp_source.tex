@@ -1,0 +1,76 @@
+\doxysection{peak\+\_\+meter.\+cpp}
+\hypertarget{peak__meter_8cpp_source}{}\label{peak__meter_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/utilities/peak\_meter.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/utilities/peak\_meter.cpp}}
+\mbox{\hyperlink{peak__meter_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{peak__meter_8h}{peak\_meter.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00014\ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kSampleDecay\ =\ 8096.0f;}
+\DoxyCodeLine{00016\ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kRememberedDecay\ =\ 20000.0f;}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kRememberedHold\ =\ 50000.0f;}
+\DoxyCodeLine{00019\ \ \ \ \ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_peak_meter_a88fb1499d594255cc9f468123accf0bf}{PeakMeter::PeakMeter}}()\ :}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}(1,\ 2),}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \ \ \ \ current\_peak\_(0.0f),}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \ \ \ \ current\_square\_sum\_(0.0f),}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \ \ \ \ remembered\_peak\_(0.0f),}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \ \ \ \ samples\_since\_remembered\_(0)\ \{\ \}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_peak_meter_af7efa5c9c2274772d2e9da8042f6fabb}{PeakMeter::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Get\ input\ audio\ buffer.}}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(0)-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ peak\ value\ of\ the\ current\ block.}}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ peak\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a32aafffbf175f9afa65eb570e724ecaa}{utils::peak}}(audio\_in,\ num\_samples);}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ sample-\/based\ decay\ rates\ depending\ on\ oversampling.}}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ samples\ =\ \mbox{\hyperlink{classvital_1_1_processor_a9781b732ace6aa715422754635b771ca}{getOversampleAmount}}()\ *\ kSampleDecay;}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ mult\ =\ (samples\ -\/\ 1.0f)\ /\ samples;}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_peak\ =\ \mbox{\hyperlink{classvital_1_1_peak_meter_ae5ba1e11bdef53c8bad3aa88784c97d0}{current\_peak\_}};}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ remembered\_samples\ =\ \mbox{\hyperlink{classvital_1_1_processor_a9781b732ace6aa715422754635b771ca}{getOversampleAmount}}()\ *\ kRememberedDecay;}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ remembered\_mult\ =\ (remembered\_samples\ -\/\ 1.0f)\ /\ remembered\_samples;}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_remembered\_peak\ =\ \mbox{\hyperlink{classvital_1_1_peak_meter_a30b85ddbcd4548896f36c88d89827083}{remembered\_peak\_}};}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_square\_sum\ =\ \mbox{\hyperlink{classvital_1_1_peak_meter_a21715493ed8ed278cdfc4485aae340fb}{current\_square\_sum\_}};}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Apply\ decay\ to\ peak\ and\ remembered\ peak,\ accumulate\ squared\ samples.}}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \ \ \ \ current\_peak\ *=\ mult;}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \ \ \ \ current\_remembered\_peak\ *=\ remembered\_mult;}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \ \ \ \ current\_square\_sum\ *=\ mult;}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ sample\ =\ audio\_in[i];}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \ \ \ \ current\_square\_sum\ +=\ sample\ *\ sample;}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_peak_meter_ae5ba1e11bdef53c8bad3aa88784c97d0}{current\_peak\_}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(current\_peak,\ peak);}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_peak_meter_a82b2c13bda962a65f344ec263153e2b3}{samples\_since\_remembered\_}}\ +=\ num\_samples;}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ remembered\ peak\ logic:}}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ the\ current\ peak\ is\ less\ than\ the\ remembered\ peak,\ we\ keep\ counting\ samples\ since\ remembered.}}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_peak_meter_a82b2c13bda962a65f344ec263153e2b3}{samples\_since\_remembered\_}}\ \&=\ \mbox{\hyperlink{structvital_1_1poly__float_a6d8428e12c1d3e637bbb4da39e8a5a86}{poly\_float::lessThan}}(\mbox{\hyperlink{classvital_1_1_peak_meter_ae5ba1e11bdef53c8bad3aa88784c97d0}{current\_peak\_}},\ current\_remembered\_peak);}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ remembered\_hold\_samples\ =\ \mbox{\hyperlink{classvital_1_1_processor_a9781b732ace6aa715422754635b771ca}{getOversampleAmount}}()\ *\ kRememberedHold;}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ hold\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__int_ad8eb925feb5a68bf52fd9346a67df6cf}{poly\_int::lessThan}}(\mbox{\hyperlink{classvital_1_1_peak_meter_a82b2c13bda962a65f344ec263153e2b3}{samples\_since\_remembered\_}},\ remembered\_hold\_samples);}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ current\_remembered\_peak\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(current\_remembered\_peak,\ \mbox{\hyperlink{classvital_1_1_peak_meter_a30b85ddbcd4548896f36c88d89827083}{remembered\_peak\_}},\ hold\_mask);}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_peak_meter_a30b85ddbcd4548896f36c88d89827083}{remembered\_peak\_}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(\mbox{\hyperlink{classvital_1_1_peak_meter_ae5ba1e11bdef53c8bad3aa88784c97d0}{current\_peak\_}},\ current\_remembered\_peak);}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_peak_meter_a21715493ed8ed278cdfc4485aae340fb}{current\_square\_sum\_}}\ =\ current\_square\_sum;}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ RMS\ as\ needed\ (though\ here\ we\ just\ store\ info).}}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ rms\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad7de0d300e948eb5cd8ec313c331fa0e}{utils::sqrt}}(\mbox{\hyperlink{classvital_1_1_peak_meter_a21715493ed8ed278cdfc4485aae340fb}{current\_square\_sum\_}}\ *\ (1.0f\ /\ samples));}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ prepped\_rms\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(rms);}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Write\ outputs:\ current\ peak\ and\ remembered\ peak.}}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_peak_meter_aed94b8bec4318b2c23d7b6a83f725d4ba4ab4e5a51027fec5c8e8f0755dafebcd}{kLevel}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(prepped\_rms,\ \mbox{\hyperlink{classvital_1_1_peak_meter_ae5ba1e11bdef53c8bad3aa88784c97d0}{current\_peak\_}},\ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}});}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_peak_meter_aed94b8bec4318b2c23d7b6a83f725d4ba13804c0c62c467c849f7b84f3bbe7263}{kMemoryPeak}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{classvital_1_1_peak_meter_a30b85ddbcd4548896f36c88d89827083}{remembered\_peak\_}};}
+\DoxyCodeLine{00076\ \ \ \ \ \}}
+\DoxyCodeLine{00077\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

@@ -1,0 +1,470 @@
+\doxysection{oscillator\+\_\+advanced\+\_\+section.\+cpp}
+\hypertarget{oscillator__advanced__section_8cpp_source}{}\label{oscillator__advanced__section_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/oscillator\_advanced\_section.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/oscillator\_advanced\_section.cpp}}
+\mbox{\hyperlink{oscillator__advanced__section_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{oscillator__advanced__section_8h}{oscillator\_advanced\_section.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{oscillator__section_8h}{oscillator\_section.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{bar__renderer_8h}{bar\_renderer.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__slider_8h}{synth\_slider.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__strings_8h}{synth\_strings.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__oscillator_8h}{synth\_oscillator.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__selector_8h}{text\_selector.h}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__look__and__feel_8h}{text\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00016\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_oscillator_options}{OscillatorOptions}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_synth_section}{SynthSection}}\ \{}
+\DoxyCodeLine{00017\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00022\ \ \ \ \ \mbox{\hyperlink{class_oscillator_options_aa0e026ad23dd540ecd9726d320734ae6}{OscillatorOptions}}(\textcolor{keywordtype}{int}\ index)\ :\ \mbox{\hyperlink{class_synth_section}{SynthSection}}(String(\textcolor{stringliteral}{"{}OSC\ "{}})\ +\ String(index)\ +\ \textcolor{stringliteral}{"{}\ OPTIONS"{}}),\ index\_(index)\ \{}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a1e54757e22a16cae2cc3ae929ca6fee4}{createOffOverlay}}();}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ oscillator\_active\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \ \ \ String\ number(index);}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ \ \ midi\_track\_\ =\ std::make\_unique<SynthButton>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_midi\_track"{}});}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a98013478e89ec21a3e488d2d81594f24}{addButton}}(midi\_track\_.get());}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ midi\_track\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ midi\_track\_-\/>setButtonText(\textcolor{stringliteral}{"{}NOTE\ TRACK"{}});}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \ \ \ \ smooth\_interpolation\_\ =\ std::make\_unique<SynthButton>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_smooth\_interpolation"{}});}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a98013478e89ec21a3e488d2d81594f24}{addButton}}(smooth\_interpolation\_.get());}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ smooth\_interpolation\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ smooth\_interpolation\_-\/>setButtonText(\textcolor{stringliteral}{"{}HI-\/RES\ WAVETABLE"{}});}
+\DoxyCodeLine{00037\ \ \ \ \ \}}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_oscillator_options_a9c529fba69c66fb8e03285f7d1b6f5a3}{\string~OscillatorOptions}}()\ \{\ \}}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_options_a27761f39580a5a4ca7742fd42abf1825}{paintBackground}}(Graphics\&\ g)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_aab234ab666f00b51df3dbf374a8a4e7d}{SynthSection::paintBackground}}(g);}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \ \ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cabd65945ec11172a49e96665d40361f05}{Skin::kTextComponentBackground}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ rounding\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180aa1b3bea00a02a7c9ce9f4e8f4afc4a7e}{Skin::kLabelBackgroundRounding}});}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ g.fillRoundedRectangle(midi\_track\_-\/>getBounds().toFloat(),\ rounding);}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ g.fillRoundedRectangle(smooth\_interpolation\_-\/>getBounds().toFloat(),\ rounding);}
+\DoxyCodeLine{00055\ \ \ \ \ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_options_aeb1a0779ebbba7c18a07e0aadbe85a0f}{paintBackgroundShadow}}(Graphics\&\ g)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_synth_section_aa69758e37d2860da80a1d6acdea0b419}{isActive}}())}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g);}
+\DoxyCodeLine{00064\ \ \ \ \ \}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_options_a96fd006f8c7563627ed0e5fa616ea851}{resized}}()\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a549f91a2b81b419368a578990cb2e6c2}{SynthSection::resized}}();}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ title\_width\ =\ \mbox{\hyperlink{class_synth_section_ae0397399d283628b325650e0b7b60c6f}{getTitleWidth}}();}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ widget\_margin\ =\ \mbox{\hyperlink{class_synth_section_afe5de4142a66eb31ff00c178fc4188e0}{getWidgetMargin}}();}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ x\ =\ title\_width\ +\ widget\_margin;}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ width\ =\ getWidth()\ -\/\ x\ -\/\ widget\_margin;}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ section\_height\ =\ \mbox{\hyperlink{class_synth_section_aab9bab4cc6657d3836887da39dc57e63}{getKnobSectionHeight}}();}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \ \ \ \ midi\_track\_-\/>setBounds(x,\ widget\_margin,\ width,\ section\_height\ -\/\ 2\ *\ widget\_margin);}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ smooth\_y\ =\ midi\_track\_-\/>getBottom()\ +\ widget\_margin;}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ smooth\_interpolation\_-\/>setBounds(x,\ smooth\_y,\ width,\ getHeight()\ -\/\ smooth\_y\ -\/\ widget\_margin);}
+\DoxyCodeLine{00082\ \ \ \ \ \}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_options_ae6fb014ab2dea59b4d3b41c47f8e348e}{setAllValues}}(\mbox{\hyperlink{namespacevital_aa714e9b3957a28c9eaf0105959aea482}{vital::control\_map}}\&\ controls)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_acb4d78d85add51ee11fe4ca8bdb2cdb5}{SynthSection::setAllValues}}(controls);}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (oscillator\_active\_)}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a731aed83dc75720d2f2e3951ed5310ba}{setActive}}(oscillator\_active\_-\/>getToggleState());}
+\DoxyCodeLine{00093\ \ \ \ \ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_options_a9c92a92f686a195e55d5a1fbe9415d39}{buttonClicked}}(Button*\ clicked\_button)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ oscillator\_active\_)}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a731aed83dc75720d2f2e3951ed5310ba}{setActive}}(oscillator\_active\_-\/>getToggleState());}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a0854a98f7e73eeffccfbd1e210787bbf}{SynthSection::buttonClicked}}(clicked\_button);}
+\DoxyCodeLine{00104\ \ \ \ \ \}}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_options_a14aaa9afe301f45bd2f26b0e952b54bb}{passOscillatorSection}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_oscillator_section}{OscillatorSection}}*\ oscillator)\ \{}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ oscillator\_active\_\ =\ oscillator-\/>\mbox{\hyperlink{class_synth_section_a55eccbdcd7bc0a634d5c9882fe914e20}{activator}}();}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ oscillator\_active\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a731aed83dc75720d2f2e3951ed5310ba}{setActive}}(oscillator\_active\_-\/>getToggleState());}
+\DoxyCodeLine{00114\ \ \ \ \ \}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{keywordtype}{int}\ index\_;\ }
+\DoxyCodeLine{00118\ \ \ \ \ ToggleButton*\ oscillator\_active\_;\ }
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \ \ std::unique\_ptr<SynthButton>\ midi\_track\_;\ }
+\DoxyCodeLine{00121\ \ \ \ \ std::unique\_ptr<SynthButton>\ smooth\_interpolation\_;\ }
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(\mbox{\hyperlink{class_oscillator_options}{OscillatorOptions}})}
+\DoxyCodeLine{00124\ \};}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00130\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_spread_visualizer}{SpreadVisualizer}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_bar_renderer}{BarRenderer}}\ \{}
+\DoxyCodeLine{00131\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00132\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_spread_visualizer_a721b24caf5528c3969df7e208071d3a3}{kNumSpreads}}\ =\ 3;\ }
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00140\ \ \ \ \ \mbox{\hyperlink{class_spread_visualizer_a85b97fcd428e527ff0201cc26bbda970}{SpreadVisualizer}}(\textcolor{keywordtype}{int}\ index,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ mono\_modulations,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ poly\_modulations)\ :}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer}{BarRenderer}}(\mbox{\hyperlink{class_spread_visualizer_a721b24caf5528c3969df7e208071d3a3}{kNumSpreads}}\ *\ \mbox{\hyperlink{namespacevital}{vital}}::SynthOscillator::kMaxUnison)\ \{}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a6318d26ce4ab8a2afded6a0cee00f870}{setAdditiveBlending}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ std::string\ number\ =\ std::to\_string(index);}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \textcolor{comment}{//\ Retrieve\ modulation\ outputs\ for\ various\ parameters}}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ std::string\ voices\_name\ =\ \textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_unison\_voices"{}};}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ voices\_outputs\_\ =\ \{}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ mono\_modulations.at(voices\_name),}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ poly\_modulations.at(voices\_name)}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \ \ \ \ std::string\ wave\_frame\_name\ =\ \textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_wave\_frame"{}};}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ wave\_frame\_outputs\_\ =\ \{}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ mono\_modulations.at(wave\_frame\_name),}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ poly\_modulations.at(wave\_frame\_name)}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \ \ \ \ \ \ std::string\ spectral\_morph\_name\ =\ \textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_spectral\_morph\_amount"{}};}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ spectral\_morph\_outputs\_\ =\ \{}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ mono\_modulations.at(spectral\_morph\_name),}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ poly\_modulations.at(spectral\_morph\_name)}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \ \ \ \ \ \ std::string\ distortion\_name\ =\ \textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_distortion\_amount"{}};}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ distortion\_outputs\_\ =\ \{}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ mono\_modulations.at(distortion\_name),}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ poly\_modulations.at(distortion\_name)}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \ \ \ \ \ \ std::string\ table\_spread\_name\ =\ \textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_frame\_spread"{}};}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ table\_spread\_outputs\_\ =\ \{}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ mono\_modulations.at(table\_spread\_name),}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ poly\_modulations.at(table\_spread\_name)}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \ \ \ \ \ \ std::string\ spectral\_spread\_name\ =\ \textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_spectral\_morph\_spread"{}};}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ spectral\_spread\_outputs\_\ =\ \{}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ mono\_modulations.at(spectral\_spread\_name),}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ poly\_modulations.at(spectral\_spread\_name)}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \ \ \ \ \ \ std::string\ distortion\_spread\_name\ =\ \textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_distortion\_spread"{}};}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ distortion\_spread\_outputs\_\ =\ \{}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ mono\_modulations.at(distortion\_spread\_name),}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ poly\_modulations.at(distortion\_spread\_name)}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \ \ \ \ \ \ voices\_slider\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \ \ \ \ \ \ wave\_frame\_slider\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ spectral\_morph\_slider\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ distortion\_slider\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \ \ \ \ \ \ table\_spread\_slider\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ spectral\_spread\_slider\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ distortion\_spread\_slider\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00197\ \ \ \ \ \}}
+\DoxyCodeLine{00198\ }
+\DoxyCodeLine{00203\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_spread_visualizer_ac7d8d373584bbf116a0b6bfe2a12b50a}{setVoicesSlider}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ voices\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00209\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_spread_visualizer_aab5cc45014612c5472c799f639f97cf7}{setFrameSlider}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ wave\_frame\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00215\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_spread_visualizer_acfe532087435ea1a20788252291c2d3a}{setSpectralMorphSlider}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ spectral\_morph\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00221\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_spread_visualizer_a35896591d9785704d400ddc84d70bc96}{setDistortionSlider}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ distortion\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00222\ }
+\DoxyCodeLine{00227\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_spread_visualizer_ac2b20fb5ead50724904f328d1689890c}{setTableSpreadSlider}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ table\_spread\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00228\ }
+\DoxyCodeLine{00233\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_spread_visualizer_a69c9fd88ca69a0cee76d221ccca649ed}{setSpectralSpreadSlider}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ spectral\_spread\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00234\ }
+\DoxyCodeLine{00239\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_spread_visualizer_a48928b76aaebcc16c17541c6789e20f6}{setDistortionSpreadSlider}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ distortion\_spread\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00240\ }
+\DoxyCodeLine{00248\ \ \ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ \mbox{\hyperlink{class_spread_visualizer_af3759f68203736d1c32500fadb7a182e}{getOutputsTotal}}(std::pair<vital::Output*,\ vital::Output*>\ outputs,}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ default\_value,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!outputs.first-\/>owner-\/>enabled()\ ||\ !animate)}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ default\_value;}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ outputs.first-\/>trigger\_value\ +\ outputs.second-\/>trigger\_value;}
+\DoxyCodeLine{00253\ \ \ \ \ \}}
+\DoxyCodeLine{00254\ }
+\DoxyCodeLine{00259\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_spread_visualizer_ad9fc4b841aad8da1e96f0519a3f9f91e}{paintBackground}}(Graphics\&\ g)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!isVisible())}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00262\ }
+\DoxyCodeLine{00263\ \ \ \ \ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5a30a22b4659bc04528e89d1759558a7}{Skin::kWidgetBackground}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ g.fillRoundedRectangle(getLocalBounds().toFloat(),\ \mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab3cb761113ca34ffe06c8ed64a7df2f1}{Skin::kWidgetRoundedCorner}}));}
+\DoxyCodeLine{00265\ \ \ \ \ \}}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00272\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_spread_visualizer_aadcbe17c619dc715053e5eef76165693}{render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00273\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voices\_slider\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00276\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ voices\ =\ \mbox{\hyperlink{class_spread_visualizer_af3759f68203736d1c32500fadb7a182e}{getOutputsTotal}}(voices\_outputs\_,\ voices\_slider\_-\/>getValue(),\ animate)[0];}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ voices\ =\ std::max(voices,\ 0);}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voices\ <=\ 2)}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00280\ }
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ frame\ =\ \mbox{\hyperlink{class_spread_visualizer_af3759f68203736d1c32500fadb7a182e}{getOutputsTotal}}(wave\_frame\_outputs\_,\ wave\_frame\_slider\_-\/>getValue(),\ animate);}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ morph\ =\ \mbox{\hyperlink{class_spread_visualizer_af3759f68203736d1c32500fadb7a182e}{getOutputsTotal}}(spectral\_morph\_outputs\_,\ spectral\_morph\_slider\_-\/>getValue(),\ animate);}
+\DoxyCodeLine{00283\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ distortion\ =\ \mbox{\hyperlink{class_spread_visualizer_af3759f68203736d1c32500fadb7a182e}{getOutputsTotal}}(distortion\_outputs\_,\ distortion\_slider\_-\/>getValue(),\ animate);}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00285\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ frame\_spread\ =\ \mbox{\hyperlink{class_spread_visualizer_af3759f68203736d1c32500fadb7a182e}{getOutputsTotal}}(table\_spread\_outputs\_,}
+\DoxyCodeLine{00286\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ table\_spread\_slider\_-\/>getValue(),\ animate);}
+\DoxyCodeLine{00287\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ morph\_spread\ =\ \mbox{\hyperlink{class_spread_visualizer_af3759f68203736d1c32500fadb7a182e}{getOutputsTotal}}(spectral\_spread\_outputs\_,}
+\DoxyCodeLine{00288\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ spectral\_spread\_slider\_-\/>getValue(),\ animate);}
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ distortion\_spread\ =\ \mbox{\hyperlink{class_spread_visualizer_af3759f68203736d1c32500fadb7a182e}{getOutputsTotal}}(distortion\_spread\_outputs\_,}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ distortion\_spread\_slider\_-\/>getValue(),\ animate);}
+\DoxyCodeLine{00291\ }
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a143e1c039e44e574cf4ca208ce50d6df}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca759c8acbffc8962e9ee2d8cba9677e73}{Skin::kWidgetSecondary1}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a8d38844e8c85367490b24ab2d05f2793}{setBarWidth}}(2.0f\ /\ getWidth());}
+\DoxyCodeLine{00294\ }
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ height\_buffer\ =\ 2.0f\ *\ \mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a045e9e21484c2d32d7835f44c7c161f9}{Skin::kWidgetMargin}})\ /\ getHeight();}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ height\ =\ (2.0f\ -\/\ height\_buffer)\ /\ \mbox{\hyperlink{class_spread_visualizer_a721b24caf5528c3969df7e208071d3a3}{kNumSpreads}}\ -\/\ height\_buffer;}
+\DoxyCodeLine{00297\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ height\_buffer\ -\/\ 1.0f;}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ s\ =\ 0;\ s\ <\ \mbox{\hyperlink{class_spread_visualizer_a721b24caf5528c3969df7e208071d3a3}{kNumSpreads}};\ ++s)\ \{}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ start\ =\ s\ *\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_adb1d1c3c9e78a762a291e41b559ed27c}{vital::SynthOscillator::kMaxUnison}};}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_adb1d1c3c9e78a762a291e41b559ed27c}{vital::SynthOscillator::kMaxUnison}};\ ++i)\ \{}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a5f8fb87049a81b7c48502e54990afbaf}{setBottom}}(start\ +\ i,\ y\ +\ height);}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_ae2668c540ae3be73425116b38209b863}{setY}}(start\ +\ i,\ y);}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00304\ }
+\DoxyCodeLine{00305\ \ \ \ \ \ \ \ \ y\ +=\ height\ +\ height\_buffer;}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00307\ }
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ buffer\ =\ 2.0f\ *\ \mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a045e9e21484c2d32d7835f44c7c161f9}{Skin::kWidgetMargin}})\ /\ getWidth();}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ mult\ =\ 2.0f\ -\/\ 2.0f\ *\ buffer;}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ offset\ =\ -\/1.0f\ +\ buffer\ -\/\ 1.0f\ /\ getWidth();}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ frame\_scale\ =\ 1.0f\ /\ (\mbox{\hyperlink{namespacevital_aa72aa67cd199ba84e12ec933d74ba400}{vital::kNumOscillatorWaveFrames}}\ -\/\ 1.0f);}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ voices\ +=\ voices\ \%\ 2;}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ voices;\ i\ +=\ 2)\ \{}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ 2.0f\ *\ i\ /\ (voices\ -\/\ 2.0f);}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ voice\_frame\ =\ frame\ +\ frame\_spread\ *\ t;}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ voice\_frame\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(voice\_frame\ *\ frame\_scale,\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ voice\_morph\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(morph\ +\ morph\_spread\ *\ t,\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ voice\_distortion\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(distortion\ +\ distortion\_spread\ *\ t,\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00319\ }
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a483ef36533d6e334f37b00765298a095}{setX}}(i,\ voice\_frame[0]\ *\ mult\ +\ offset);}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a483ef36533d6e334f37b00765298a095}{setX}}(i\ +\ 1,\ voice\_frame[1]\ *\ mult\ +\ offset);}
+\DoxyCodeLine{00322\ }
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a483ef36533d6e334f37b00765298a095}{setX}}(i\ +\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_adb1d1c3c9e78a762a291e41b559ed27c}{vital::SynthOscillator::kMaxUnison}},\ voice\_morph[0]\ *\ mult\ +\ offset);}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a483ef36533d6e334f37b00765298a095}{setX}}(i\ +\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_adb1d1c3c9e78a762a291e41b559ed27c}{vital::SynthOscillator::kMaxUnison}}\ +\ 1,\ voice\_morph[1]\ *\ mult\ +\ offset);}
+\DoxyCodeLine{00325\ }
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a483ef36533d6e334f37b00765298a095}{setX}}(i\ +\ 2\ *\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_adb1d1c3c9e78a762a291e41b559ed27c}{vital::SynthOscillator::kMaxUnison}},\ voice\_distortion[0]\ *\ mult\ +\ offset);}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a483ef36533d6e334f37b00765298a095}{setX}}(i\ +\ 2\ *\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_adb1d1c3c9e78a762a291e41b559ed27c}{vital::SynthOscillator::kMaxUnison}}\ +\ 1,\ voice\_distortion[1]\ *\ mult\ +\ offset);}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ s\ =\ 0;\ s\ <\ \mbox{\hyperlink{class_spread_visualizer_a721b24caf5528c3969df7e208071d3a3}{kNumSpreads}};\ ++s)\ \{}
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ start\ =\ s\ *\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_adb1d1c3c9e78a762a291e41b559ed27c}{vital::SynthOscillator::kMaxUnison}};}
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ voices;\ i\ <\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_adb1d1c3c9e78a762a291e41b559ed27c}{vital::SynthOscillator::kMaxUnison}};\ ++i)}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a483ef36533d6e334f37b00765298a095}{setX}}(start\ +\ i,\ -\/2.0f);}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00335\ }
+\DoxyCodeLine{00336\ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_acc4b3fa29ee13b2594f951b5f3cbb7ef}{BarRenderer::render}}(open\_gl,\ animate);}
+\DoxyCodeLine{00337\ \ \ \ \ \}}
+\DoxyCodeLine{00338\ }
+\DoxyCodeLine{00339\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00340\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ voices\_slider\_;\ }
+\DoxyCodeLine{00341\ }
+\DoxyCodeLine{00342\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ wave\_frame\_slider\_;\ }
+\DoxyCodeLine{00343\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ spectral\_morph\_slider\_;\ }
+\DoxyCodeLine{00344\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ distortion\_slider\_;\ }
+\DoxyCodeLine{00345\ }
+\DoxyCodeLine{00346\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ table\_spread\_slider\_;\ }
+\DoxyCodeLine{00347\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ spectral\_spread\_slider\_;\ }
+\DoxyCodeLine{00348\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ distortion\_spread\_slider\_;\ }
+\DoxyCodeLine{00349\ }
+\DoxyCodeLine{00350\ \ \ \ \ std::pair<vital::Output*,\ vital::Output*>\ voices\_outputs\_;\ }
+\DoxyCodeLine{00351\ }
+\DoxyCodeLine{00352\ \ \ \ \ std::pair<vital::Output*,\ vital::Output*>\ wave\_frame\_outputs\_;\ }
+\DoxyCodeLine{00353\ \ \ \ \ std::pair<vital::Output*,\ vital::Output*>\ spectral\_morph\_outputs\_;\ }
+\DoxyCodeLine{00354\ \ \ \ \ std::pair<vital::Output*,\ vital::Output*>\ distortion\_outputs\_;\ }
+\DoxyCodeLine{00355\ }
+\DoxyCodeLine{00356\ \ \ \ \ std::pair<vital::Output*,\ vital::Output*>\ table\_spread\_outputs\_;\ }
+\DoxyCodeLine{00357\ \ \ \ \ std::pair<vital::Output*,\ vital::Output*>\ spectral\_spread\_outputs\_;\ }
+\DoxyCodeLine{00358\ \ \ \ \ std::pair<vital::Output*,\ vital::Output*>\ distortion\_spread\_outputs\_;\ }
+\DoxyCodeLine{00359\ }
+\DoxyCodeLine{00360\ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(\mbox{\hyperlink{class_spread_visualizer}{SpreadVisualizer}})}
+\DoxyCodeLine{00361\ \};}
+\DoxyCodeLine{00362\ }
+\DoxyCodeLine{00367\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_oscillator_unison}{OscillatorUnison}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_synth_section}{SynthSection}}\ \{}
+\DoxyCodeLine{00368\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00375\ \ \ \ \ \mbox{\hyperlink{class_oscillator_unison_a42be7d0248d7efe8550582f4a342ad15}{OscillatorUnison}}(\textcolor{keywordtype}{int}\ index,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ mono\_modulations,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ poly\_modulations)\ :}
+\DoxyCodeLine{00376\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}(String(\textcolor{stringliteral}{"{}OSC\ "{}})\ +\ String(index)\ +\ \textcolor{stringliteral}{"{}\ UNISON"{}}),\ index\_(index)\ \{}
+\DoxyCodeLine{00377\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a1e54757e22a16cae2cc3ae929ca6fee4}{createOffOverlay}}();}
+\DoxyCodeLine{00378\ \ \ \ \ \ \ voices\_slider\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00379\ \ \ \ \ \ \ oscillator\_active\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00380\ }
+\DoxyCodeLine{00381\ \ \ \ \ \ \ String\ number(index);}
+\DoxyCodeLine{00382\ }
+\DoxyCodeLine{00383\ \ \ \ \ \ \ spectral\_unison\_\ =\ std::make\_unique<SynthButton>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_spectral\_unison"{}});}
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a98013478e89ec21a3e488d2d81594f24}{addButton}}(spectral\_unison\_.get());}
+\DoxyCodeLine{00385\ \ \ \ \ \ \ spectral\_unison\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00386\ \ \ \ \ \ \ spectral\_unison\_-\/>setButtonText(\textcolor{stringliteral}{"{}SPECTRAL\ UNISON"{}});}
+\DoxyCodeLine{00387\ }
+\DoxyCodeLine{00388\ \ \ \ \ \ \ stack\_style\_\ =\ std::make\_unique<TextSelector>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_stack\_style"{}});}
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(stack\_style\_.get());}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ stack\_style\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00391\ \ \ \ \ \ \ stack\_style\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00392\ \ \ \ \ \ \ stack\_style\_-\/>setLongStringLookup(\mbox{\hyperlink{namespacestrings_a7fbfe53caf5a89e27f41c611f49cd505}{strings::kUnisonStackNames}});}
+\DoxyCodeLine{00393\ }
+\DoxyCodeLine{00394\ \ \ \ \ \ \ blend\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_unison\_blend"{}});}
+\DoxyCodeLine{00395\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(blend\_.get());}
+\DoxyCodeLine{00396\ \ \ \ \ \ \ blend\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00397\ }
+\DoxyCodeLine{00398\ \ \ \ \ \ \ detune\_range\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_detune\_range"{}});}
+\DoxyCodeLine{00399\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(detune\_range\_.get());}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ detune\_range\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00401\ \ \ \ \ \ \ detune\_range\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00402\ }
+\DoxyCodeLine{00403\ \ \ \ \ \ \ frame\_spread\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_frame\_spread"{}});}
+\DoxyCodeLine{00404\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(frame\_spread\_.get());}
+\DoxyCodeLine{00405\ \ \ \ \ \ \ frame\_spread\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00406\ \ \ \ \ \ \ frame\_spread\_-\/>setBipolar(\textcolor{keyword}{true});}
+\DoxyCodeLine{00407\ }
+\DoxyCodeLine{00408\ \ \ \ \ \ \ distortion\_spread\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_distortion\_spread"{}});}
+\DoxyCodeLine{00409\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(distortion\_spread\_.get());}
+\DoxyCodeLine{00410\ \ \ \ \ \ \ distortion\_spread\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ distortion\_spread\_-\/>setBipolar(\textcolor{keyword}{true});}
+\DoxyCodeLine{00412\ }
+\DoxyCodeLine{00413\ \ \ \ \ \ \ spectral\_morph\_spread\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_spectral\_morph\_spread"{}});}
+\DoxyCodeLine{00414\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(spectral\_morph\_spread\_.get());}
+\DoxyCodeLine{00415\ \ \ \ \ \ \ spectral\_morph\_spread\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00416\ \ \ \ \ \ \ spectral\_morph\_spread\_-\/>setBipolar(\textcolor{keyword}{true});}
+\DoxyCodeLine{00417\ }
+\DoxyCodeLine{00418\ \ \ \ \ \ \ spread\_visualizer\_\ =\ std::make\_unique<SpreadVisualizer>(index,\ mono\_modulations,\ poly\_modulations);}
+\DoxyCodeLine{00419\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(spread\_visualizer\_.get());}
+\DoxyCodeLine{00420\ \ \ \ \ \ \ spread\_visualizer\_-\/>setTableSpreadSlider(frame\_spread\_.get());}
+\DoxyCodeLine{00421\ \ \ \ \ \ \ spread\_visualizer\_-\/>setSpectralSpreadSlider(spectral\_morph\_spread\_.get());}
+\DoxyCodeLine{00422\ \ \ \ \ \ \ spread\_visualizer\_-\/>setDistortionSpreadSlider(distortion\_spread\_.get());}
+\DoxyCodeLine{00423\ }
+\DoxyCodeLine{00424\ \ \ \ \ \ \ stereo\_spread\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_stereo\_spread"{}});}
+\DoxyCodeLine{00425\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(stereo\_spread\_.get());}
+\DoxyCodeLine{00426\ \ \ \ \ \ \ stereo\_spread\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00427\ \ \ \ \ \}}
+\DoxyCodeLine{00428\ }
+\DoxyCodeLine{00432\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_oscillator_unison_ad577abeae5d632a684ccbb50eea9ddac}{\string~OscillatorUnison}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00433\ }
+\DoxyCodeLine{00438\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_unison_ad9f9ba404122062a38723781076b1ef0}{paintBackground}}(Graphics\&\ g)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00439\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_aab234ab666f00b51df3dbf374a8a4e7d}{SynthSection::paintBackground}}(g);}
+\DoxyCodeLine{00440\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a87c021454e2c5d2207afa28af959a1fe}{setLabelFont}}(g);}
+\DoxyCodeLine{00441\ }
+\DoxyCodeLine{00442\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a03c774195fa401025d90987b176e4614}{drawTextComponentBackground}}(g,\ stack\_style\_-\/>getBounds(),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00443\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a03c774195fa401025d90987b176e4614}{drawTextComponentBackground}}(g,\ detune\_range\_-\/>getBounds(),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00444\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}STACK"{}}),\ stack\_style\_.get(),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00445\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}DETUNE\ RANGE"{}}),\ detune\_range\_.get(),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00446\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}UNISON\ BLEND"{}}),\ blend\_.get());}
+\DoxyCodeLine{00447\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}STEREO\ UNISON"{}}),\ stereo\_spread\_.get());}
+\DoxyCodeLine{00448\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}TABLE\ SPREAD"{}}),\ frame\_spread\_.get());}
+\DoxyCodeLine{00449\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}DIST\ SPREAD"{}}),\ distortion\_spread\_.get());}
+\DoxyCodeLine{00450\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}SPECT\ SPREAD"{}}),\ spectral\_morph\_spread\_.get());}
+\DoxyCodeLine{00451\ \ \ \ \ \}}
+\DoxyCodeLine{00452\ }
+\DoxyCodeLine{00457\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_unison_ad4e8062fcecff4114937e3c8a7c75a6e}{paintBackgroundShadow}}(Graphics\&\ g)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00458\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_synth_section_aa69758e37d2860da80a1d6acdea0b419}{isActive}}())}
+\DoxyCodeLine{00459\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g);}
+\DoxyCodeLine{00460\ \ \ \ \ \}}
+\DoxyCodeLine{00461\ }
+\DoxyCodeLine{00465\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_unison_a5957b8bacf1c2f56cbb72f2d3750e2d0}{resized}}()\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00466\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kTextComponentWidthRatio\ =\ 0.23f;}
+\DoxyCodeLine{00467\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a549f91a2b81b419368a578990cb2e6c2}{SynthSection::resized}}();}
+\DoxyCodeLine{00468\ }
+\DoxyCodeLine{00469\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ knob\_section\_height\ =\ \mbox{\hyperlink{class_synth_section_aab9bab4cc6657d3836887da39dc57e63}{getKnobSectionHeight}}();}
+\DoxyCodeLine{00470\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ title\_width\ =\ \mbox{\hyperlink{class_synth_section_ae0397399d283628b325650e0b7b60c6f}{getTitleWidth}}();}
+\DoxyCodeLine{00471\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ widget\_margin\ =\ \mbox{\hyperlink{class_synth_section_afe5de4142a66eb31ff00c178fc4188e0}{getWidgetMargin}}();}
+\DoxyCodeLine{00472\ }
+\DoxyCodeLine{00473\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ text\_width\ =\ getWidth()\ *\ kTextComponentWidthRatio\ -\/\ 2\ *\ widget\_margin;}
+\DoxyCodeLine{00474\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ text\_height\ =\ knob\_section\_height\ -\/\ 2\ *\ widget\_margin;}
+\DoxyCodeLine{00475\ \ \ \ \ \ \ stack\_style\_-\/>setBounds(title\_width\ +\ widget\_margin,\ widget\_margin,\ text\_width,\ text\_height);}
+\DoxyCodeLine{00476\ \ \ \ \ \ \ detune\_range\_-\/>setBounds(title\_width\ +\ widget\_margin,\ knob\_section\_height,\ text\_width,\ text\_height);}
+\DoxyCodeLine{00477\ }
+\DoxyCodeLine{00478\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ controls\_x\ =\ detune\_range\_-\/>getRight();}
+\DoxyCodeLine{00479\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a16e740094fb526018b139749cb6543c0}{placeKnobsInArea}}(Rectangle<int>(controls\_x,\ 0,\ getWidth()\ -\/\ controls\_x,\ knob\_section\_height),}
+\DoxyCodeLine{00480\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{\ blend\_.get(),\ \textcolor{keyword}{nullptr},\ \textcolor{keyword}{nullptr},\ \textcolor{keyword}{nullptr}\ \});}
+\DoxyCodeLine{00481\ \ \ \ \ \ \ stack\_style\_-\/>setBounds(stack\_style\_-\/>getBounds().withTop(widget\_margin));}
+\DoxyCodeLine{00482\ }
+\DoxyCodeLine{00483\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ knob\_y2\ =\ getHeight()\ -\/\ knob\_section\_height;}
+\DoxyCodeLine{00484\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a16e740094fb526018b139749cb6543c0}{placeKnobsInArea}}(Rectangle<int>(controls\_x,\ knob\_y2,\ getWidth()\ -\/\ controls\_x,\ knob\_section\_height),}
+\DoxyCodeLine{00485\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{\ stereo\_spread\_.get(),\ frame\_spread\_.get(),}
+\DoxyCodeLine{00486\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ spectral\_morph\_spread\_.get(),\ distortion\_spread\_.get()\ \});}
+\DoxyCodeLine{00487\ }
+\DoxyCodeLine{00488\ \ \ \ \ \ \ spread\_visualizer\_-\/>setBounds(frame\_spread\_-\/>getX(),\ widget\_margin,}
+\DoxyCodeLine{00489\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ distortion\_spread\_-\/>getRight()\ -\/\ frame\_spread\_-\/>getX(),\ text\_height);}
+\DoxyCodeLine{00490\ \ \ \ \ \}}
+\DoxyCodeLine{00491\ }
+\DoxyCodeLine{00496\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_unison_a6b4c93994e4fda66a0b83502cd0d2030}{passOscillatorSection}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_oscillator_section}{OscillatorSection}}*\ oscillator)\ \{}
+\DoxyCodeLine{00497\ \ \ \ \ \ \ voices\_slider\_\ =\ oscillator-\/>\mbox{\hyperlink{class_oscillator_section_afca49244cca4ae2b2e933e206eb86853}{getVoicesSlider}}();}
+\DoxyCodeLine{00498\ \ \ \ \ \ \ oscillator\_active\_\ =\ oscillator-\/>\mbox{\hyperlink{class_synth_section_a55eccbdcd7bc0a634d5c9882fe914e20}{activator}}();}
+\DoxyCodeLine{00499\ \ \ \ \ \ \ oscillator\_active\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00500\ \ \ \ \ \ \ voices\_slider\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00501\ }
+\DoxyCodeLine{00502\ \ \ \ \ \ \ spread\_visualizer\_-\/>setVoicesSlider(voices\_slider\_);}
+\DoxyCodeLine{00503\ \ \ \ \ \ \ spread\_visualizer\_-\/>setFrameSlider(oscillator-\/>\mbox{\hyperlink{class_oscillator_section_a8424ebe6c3cc273c16bbea899ca516d9}{getWaveFrameSlider}}());}
+\DoxyCodeLine{00504\ \ \ \ \ \ \ spread\_visualizer\_-\/>setSpectralMorphSlider(oscillator-\/>\mbox{\hyperlink{class_oscillator_section_af99fe070a38c6472f88600a27e392a72}{getSpectralMorphSlider}}());}
+\DoxyCodeLine{00505\ \ \ \ \ \ \ spread\_visualizer\_-\/>setDistortionSlider(oscillator-\/>\mbox{\hyperlink{class_oscillator_section_a3665927eb8ff4ef6f271936fcca76eb6}{getDistortionSlider}}());}
+\DoxyCodeLine{00506\ }
+\DoxyCodeLine{00507\ \ \ \ \ \ \ \mbox{\hyperlink{class_oscillator_unison_a123dd7e30457fd8c1eccdb7374eccea4}{checkActive}}();}
+\DoxyCodeLine{00508\ \ \ \ \ \}}
+\DoxyCodeLine{00509\ }
+\DoxyCodeLine{00513\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_unison_a123dd7e30457fd8c1eccdb7374eccea4}{checkActive}}()\ \{}
+\DoxyCodeLine{00514\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voices\_slider\_\ \&\&\ oscillator\_active\_)}
+\DoxyCodeLine{00515\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a731aed83dc75720d2f2e3951ed5310ba}{setActive}}(voices\_slider\_-\/>getValue()\ >\ 1.0\ \&\&\ oscillator\_active\_-\/>getToggleState());}
+\DoxyCodeLine{00516\ \ \ \ \ \}}
+\DoxyCodeLine{00517\ }
+\DoxyCodeLine{00522\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_unison_a62400b6951a035814ed31fa6321713e6}{sliderValueChanged}}(Slider*\ changed\_slider)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00523\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (changed\_slider\ ==\ voices\_slider\_)}
+\DoxyCodeLine{00524\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_oscillator_unison_a123dd7e30457fd8c1eccdb7374eccea4}{checkActive}}();}
+\DoxyCodeLine{00525\ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00526\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_ac7ee059bb6a4e6592d6bd6538a757d6c}{SynthSection::sliderValueChanged}}(changed\_slider);}
+\DoxyCodeLine{00527\ \ \ \ \ \}}
+\DoxyCodeLine{00528\ }
+\DoxyCodeLine{00533\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_unison_a808b057afc43f0351261fb5fdcd96041}{buttonClicked}}(Button*\ clicked\_button)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00534\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ oscillator\_active\_)}
+\DoxyCodeLine{00535\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_oscillator_unison_a123dd7e30457fd8c1eccdb7374eccea4}{checkActive}}();}
+\DoxyCodeLine{00536\ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00537\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_a0854a98f7e73eeffccfbd1e210787bbf}{SynthSection::buttonClicked}}(clicked\_button);}
+\DoxyCodeLine{00538\ \ \ \ \ \}}
+\DoxyCodeLine{00539\ }
+\DoxyCodeLine{00544\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_unison_a3aa7bd1646f139e5621c3d6c1c79ae71}{setAllValues}}(\mbox{\hyperlink{namespacevital_aa714e9b3957a28c9eaf0105959aea482}{vital::control\_map}}\&\ controls)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00545\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_section_acb4d78d85add51ee11fe4ca8bdb2cdb5}{SynthSection::setAllValues}}(controls);}
+\DoxyCodeLine{00546\ \ \ \ \ \ \ \mbox{\hyperlink{class_oscillator_unison_a123dd7e30457fd8c1eccdb7374eccea4}{checkActive}}();}
+\DoxyCodeLine{00547\ \ \ \ \ \}}
+\DoxyCodeLine{00548\ }
+\DoxyCodeLine{00549\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00550\ \ \ \ \ \textcolor{keywordtype}{int}\ index\_;\ }
+\DoxyCodeLine{00551\ }
+\DoxyCodeLine{00552\ \ \ \ \ std::unique\_ptr<SynthButton>\ spectral\_unison\_;\ }
+\DoxyCodeLine{00553\ \ \ \ \ std::unique\_ptr<TextSelector>\ stack\_style\_;\ }
+\DoxyCodeLine{00554\ \ \ \ \ std::unique\_ptr<SynthSlider>\ detune\_range\_;\ }
+\DoxyCodeLine{00555\ \ \ \ \ std::unique\_ptr<SynthSlider>\ stereo\_spread\_;\ }
+\DoxyCodeLine{00556\ \ \ \ \ std::unique\_ptr<SynthSlider>\ blend\_;\ }
+\DoxyCodeLine{00557\ }
+\DoxyCodeLine{00558\ \ \ \ \ std::unique\_ptr<SpreadVisualizer>\ spread\_visualizer\_;\ }
+\DoxyCodeLine{00559\ \ \ \ \ std::unique\_ptr<SynthSlider>\ frame\_spread\_;\ }
+\DoxyCodeLine{00560\ \ \ \ \ std::unique\_ptr<SynthSlider>\ distortion\_spread\_;\ }
+\DoxyCodeLine{00561\ \ \ \ \ std::unique\_ptr<SynthSlider>\ spectral\_morph\_spread\_;\ }
+\DoxyCodeLine{00562\ }
+\DoxyCodeLine{00563\ \ \ \ \ ToggleButton*\ oscillator\_active\_;\ }
+\DoxyCodeLine{00564\ \ \ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ voices\_slider\_;\ }
+\DoxyCodeLine{00565\ }
+\DoxyCodeLine{00566\ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(\mbox{\hyperlink{class_oscillator_unison}{OscillatorUnison}})}
+\DoxyCodeLine{00567\ \};}
+\DoxyCodeLine{00568\ }
+\DoxyCodeLine{00569\ \mbox{\hyperlink{class_oscillator_advanced_section_af4f83887f2c1e4edd6035f2828f1a0e0}{OscillatorAdvancedSection::OscillatorAdvancedSection}}(\textcolor{keywordtype}{int}\ index,}
+\DoxyCodeLine{00570\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ mono\_modulations,}
+\DoxyCodeLine{00571\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ poly\_modulations)\ :}
+\DoxyCodeLine{00572\ \ \ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}(String(\textcolor{stringliteral}{"{}OSC\ "{}})\ +\ String(index))\ \{}
+\DoxyCodeLine{00573\ \ \ oscillator\_options\_\ =\ std::make\_unique<OscillatorOptions>(index);}
+\DoxyCodeLine{00574\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(oscillator\_options\_.get());}
+\DoxyCodeLine{00575\ }
+\DoxyCodeLine{00576\ \ \ oscillator\_unison\_\ =\ std::make\_unique<OscillatorUnison>(index,\ mono\_modulations,\ poly\_modulations);}
+\DoxyCodeLine{00577\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(oscillator\_unison\_.get());}
+\DoxyCodeLine{00578\ \}}
+\DoxyCodeLine{00579\ }
+\DoxyCodeLine{00580\ \mbox{\hyperlink{class_oscillator_advanced_section_a9ba3974312e0d372ad0b332bf70f2bfa}{OscillatorAdvancedSection::\string~OscillatorAdvancedSection}}()\ \{\ \}}
+\DoxyCodeLine{00581\ }
+\DoxyCodeLine{00582\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_advanced_section_a90f5f0a0fd84f7709a425cc23efded76}{OscillatorAdvancedSection::resized}}()\ \{}
+\DoxyCodeLine{00583\ \ \ \mbox{\hyperlink{class_synth_section_a549f91a2b81b419368a578990cb2e6c2}{SynthSection::resized}}();}
+\DoxyCodeLine{00584\ \ \ \textcolor{keywordtype}{int}\ padding\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a793a976fcfe0aeae6301b19e45777bc0}{Skin::kPadding}});}
+\DoxyCodeLine{00585\ \ \ \textcolor{keywordtype}{int}\ options\_width\ =\ getWidth()\ *\ 0.22f;}
+\DoxyCodeLine{00586\ \ \ oscillator\_options\_-\/>setBounds(0,\ 0,\ options\_width,\ getHeight());}
+\DoxyCodeLine{00587\ }
+\DoxyCodeLine{00588\ \ \ \textcolor{keywordtype}{int}\ unison\_x\ =\ oscillator\_options\_-\/>getRight()\ +\ padding;}
+\DoxyCodeLine{00589\ \ \ oscillator\_unison\_-\/>setBounds(unison\_x,\ 0,\ getWidth()\ -\/\ unison\_x,\ getHeight());}
+\DoxyCodeLine{00590\ \}}
+\DoxyCodeLine{00591\ }
+\DoxyCodeLine{00592\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_advanced_section_a48ca49dd16b9c9465fbd9c0852c2ccd1}{OscillatorAdvancedSection::passOscillatorSection}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_oscillator_section}{OscillatorSection}}*\ oscillator)\ \{}
+\DoxyCodeLine{00593\ \ \ oscillator\_options\_-\/>passOscillatorSection(oscillator);}
+\DoxyCodeLine{00594\ \ \ oscillator\_unison\_-\/>passOscillatorSection(oscillator);}
+\DoxyCodeLine{00595\ \}}
+
+\end{DoxyCode}

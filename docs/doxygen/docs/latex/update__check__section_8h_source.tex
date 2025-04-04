@@ -1,0 +1,116 @@
+\doxysection{update\+\_\+check\+\_\+section.\+h}
+\hypertarget{update__check__section_8h_source}{}\label{update__check__section_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/update\_check\_section.h@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/update\_check\_section.h}}
+\mbox{\hyperlink{update__check__section_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}JuceHeader.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{overlay_8h}{overlay.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00014\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_update_memory}{UpdateMemory}}\ :\ \textcolor{keyword}{public}\ DeletedAtShutdown\ \{}
+\DoxyCodeLine{00015\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00020\ \ \ \ \ \mbox{\hyperlink{class_update_memory_ace0be0306da8b64a3c3bb3985dcc9adf}{UpdateMemory}}();}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_update_memory_adb0d1bbf2203a919fdbc599ba6154cc5}{\string~UpdateMemory}}();}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_update_memory_a5df4cdc4f4e559018fdf3665251495d3}{incrementChecker}}()\ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ ScopedLock\ lock(lock\_);}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ should\_check\ =\ (checkers\_\ ==\ 0);}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ checkers\_++;}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ should\_check;}
+\DoxyCodeLine{00034\ \ \ \ \ \}}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_update_memory_a6356997725d3096843fa3cc7adaed552}{decrementChecker}}()\ \{}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ ScopedLock\ lock(lock\_);}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ checkers\_-\/-\/;}
+\DoxyCodeLine{00042\ \ \ \ \ \}}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ \ \ JUCE\_DECLARE\_SINGLETON(\mbox{\hyperlink{class_update_memory}{UpdateMemory}},\ \textcolor{keyword}{false})}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ private:}
+\DoxyCodeLine{00047\ \ \ \ \ CriticalSection\ lock\_;\ }
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keywordtype}{int}\ checkers\_;\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00049\ \};}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00059\ class\ \mbox{\hyperlink{class_update_check_section}{UpdateCheckSection}}\ :\ public\ \mbox{\hyperlink{class_overlay}{Overlay}},\ public\ URL::DownloadTask::\mbox{\hyperlink{class_update_check_section_1_1_listener}{Listener}}\ \{}
+\DoxyCodeLine{00060\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kUpdateCheckWidth\ =\ 340;\ }
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kUpdateCheckHeight\ =\ 160;}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kPaddingX\ =\ 20;\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kPaddingY\ =\ 20;\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kButtonHeight\ =\ 30;\ \ \ \ \ \ }
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_update_check_section_1_1_version_request_thread}{VersionRequestThread}}\ :\ \textcolor{keyword}{public}\ Thread\ \{}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_update_check_section_1_1_version_request_thread_ad83f5ebaf061335506b09f381e47629f}{VersionRequestThread}}(\mbox{\hyperlink{class_update_check_section}{UpdateCheckSection}}*\ ref)\ :\ Thread(\textcolor{stringliteral}{"{}Vital\ Download\ Thread"{}}),\ ref\_(ref)\ \{\ \}}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_update_check_section_1_1_version_request_thread_ad33f2ddec6b2ab03f1be00be000833fb}{run}}()\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \ \ \ \ ref\_-\/>checkUpdate();}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_update_check_section}{UpdateCheckSection}}*\ ref\_;\ }
+\DoxyCodeLine{00090\ \ \ \ \ \};}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_update_check_section_1_1_listener}{Listener}}\ \{}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_update_check_section_1_1_listener_ab81f0cd4f0785b8a29d61aa0180b0799}{\string~Listener}}()\ \{\ \}}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_update_check_section_1_1_listener_aaaa785f8290a802b52e7e1fe56e67f80}{needsUpdate}}()\ =\ 0;}
+\DoxyCodeLine{00104\ \ \ \ \ \};}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00110\ \ \ \ \ \mbox{\hyperlink{class_update_check_section}{UpdateCheckSection}}(String\ name);}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00115\ \ \ \ \ \mbox{\hyperlink{class_update_check_section_aa7501355e7e29a581be3fb5fa79847d6}{\string~UpdateCheckSection}}()\ \{}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ version\_request\_.stopThread(350);}
+\DoxyCodeLine{00117\ \ \ \ \ \}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordtype}{void}\ resized()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keywordtype}{void}\ setVisible(\textcolor{keywordtype}{bool}\ should\_be\_visible)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keywordtype}{void}\ needsUpdate();}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{keywordtype}{void}\ buttonClicked(Button*\ clicked\_button)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{keywordtype}{void}\ mouseUp(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00152\ \ \ \ \ \textcolor{keywordtype}{void}\ finished(URL::DownloadTask*\ task,\ \textcolor{keywordtype}{bool}\ success)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_update_check_section_abfba6d58445acee1f28c0640c413e36b}{progress}}(URL::DownloadTask*\ task,\ int64\ bytesDownloaded,\ int64\ totalLength)\textcolor{keyword}{\ override\ }\{\ \}}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00165\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_update_check_section_ad47c897b90c5f7081cfe84a67fdcbad6}{startCheck}}()\ \{}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ version\_request\_.startThread();}
+\DoxyCodeLine{00167\ \ \ \ \ \}}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00172\ \ \ \ \ \textcolor{keywordtype}{void}\ checkUpdate();}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{keywordtype}{void}\ checkContentUpdate();}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00183\ \ \ \ \ Rectangle<int>\ getUpdateCheckRect();}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00189\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_update_check_section_a40f4d85e4bfe6d9a8f739d1791aa1d2b}{addListener}}(\mbox{\hyperlink{class_update_check_section_1_1_listener}{Listener}}*\ listener)\ \{\ listeners\_.push\_back(listener);\ \}}
+\DoxyCodeLine{00190\ }
+\DoxyCodeLine{00191\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00196\ \ \ \ \ \textcolor{keywordtype}{void}\ updateContent(String\ version);}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \ \ \ \ std::vector<Listener*>\ listeners\_;\ }
+\DoxyCodeLine{00199\ }
+\DoxyCodeLine{00200\ \ \ \ \ VersionRequestThread\ version\_request\_;\ \ \ \ \ \ \ }
+\DoxyCodeLine{00201\ \ \ \ \ std::unique\_ptr<URL::DownloadTask>\ download\_task\_;\ }
+\DoxyCodeLine{00202\ \ \ \ \ File\ version\_file\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \ \ \ \ \mbox{\hyperlink{class_open_gl_quad}{OpenGlQuad}}\ body\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00205\ \ \ \ \ std::unique\_ptr<PlainTextComponent>\ notify\_text\_;\ \ \ }
+\DoxyCodeLine{00206\ \ \ \ \ std::unique\_ptr<PlainTextComponent>\ version\_text\_;\ \ }
+\DoxyCodeLine{00207\ \ \ \ \ std::unique\_ptr<OpenGlToggleButton>\ download\_button\_;}
+\DoxyCodeLine{00208\ \ \ \ \ std::unique\_ptr<OpenGlToggleButton>\ nope\_button\_;\ \ \ \ }
+\DoxyCodeLine{00209\ }
+\DoxyCodeLine{00210\ \ \ \ \ String\ app\_version\_;\ \ \ \ }
+\DoxyCodeLine{00211\ \ \ \ \ String\ content\_version\_;}
+\DoxyCodeLine{00212\ \ \ \ \ \textcolor{keywordtype}{bool}\ content\_update\_;\ \ \ }
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00214\ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(\mbox{\hyperlink{class_update_check_section}{UpdateCheckSection}})}
+\DoxyCodeLine{00215\ \};}
+
+\end{DoxyCode}

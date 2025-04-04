@@ -1,0 +1,49 @@
+\doxysection{dc\+\_\+filter.\+cpp}
+\hypertarget{dc__filter_8cpp_source}{}\label{dc__filter_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/filters/dc\_filter.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/filters/dc\_filter.cpp}}
+\mbox{\hyperlink{dc__filter_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{dc__filter_8h}{dc\_filter.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00008\ \ \ \mbox{\hyperlink{classvital_1_1_dc_filter_a73ba8e6806279a3c72ef0504b861ce51}{DcFilter::DcFilter}}()\ :\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}(\mbox{\hyperlink{classvital_1_1_dc_filter}{DcFilter}}::kNumInputs,\ 1)\ \{}
+\DoxyCodeLine{00009\ \ \ \ \ coefficient\_\ =\ 0.0f;}
+\DoxyCodeLine{00010\ \ \ \ \ reset(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}});}
+\DoxyCodeLine{00011\ \ \ \}}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00018\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_dc_filter_a31756eb08c1bc51b4160e6e4daa72e7f}{DcFilter::setSampleRate}}(\textcolor{keywordtype}{int}\ sample\_rate)\ \{}
+\DoxyCodeLine{00019\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ac778f37e9b9e3c1c05fca568e8f8664c}{Processor::setSampleRate}}(sample\_rate);}
+\DoxyCodeLine{00020\ \ \ \ \ coefficient\_\ =\ 1.0f\ -\/\ \mbox{\hyperlink{classvital_1_1_dc_filter_a7cb4b4568b4768e298acebcbea414cc1}{kCoefficientToSrConstant}}\ /\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}();}
+\DoxyCodeLine{00021\ \ \ \}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00028\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_dc_filter_a6349ba97336b9608aa9bc30b84e32c08}{DcFilter::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{classvital_1_1_processor_a7e35d4d320b562f794d2e4028a04cf92}{inputMatchesBufferSize}}(\mbox{\hyperlink{classvital_1_1_dc_filter_a2f53b43606fd4e9b856936b57cd9305ca642923c52b62cf442a8ff33b8b4d0762}{kAudio}}));}
+\DoxyCodeLine{00030\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_dc_filter_a193b9d22c63b4b1b67c4b936cde990a2}{processWithInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_dc_filter_a2f53b43606fd4e9b856936b57cd9305ca642923c52b62cf442a8ff33b8b4d0762}{kAudio}})-\/>source-\/>buffer,\ num\_samples);}
+\DoxyCodeLine{00031\ \ \ \}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00039\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_dc_filter_a193b9d22c63b4b1b67c4b936cde990a2}{DcFilter::processWithInput}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{comment}{//\ Check\ if\ we\ need\ to\ reset\ any\ voices}}
+\DoxyCodeLine{00041\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask\ =\ \mbox{\hyperlink{classvital_1_1_processor_a7fed5dc3ae95e104c71f7ce7f570fab4}{getResetMask}}(\mbox{\hyperlink{classvital_1_1_dc_filter_a2f53b43606fd4e9b856936b57cd9305ca559f9d8472d23368baba07051ca50b14}{kReset}});}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordflow}{if}\ (reset\_mask.\mbox{\hyperlink{structvital_1_1poly__int_a2fab54be2efa9a05ed842b91e4bad62d}{anyMask}}())}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ reset(reset\_mask);}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_out\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_dc_filter_abd71815a0ba9441f65da99479ea4ffa2}{tick}}(audio\_in[i],\ audio\_out[i]);}
+\DoxyCodeLine{00048\ \ \ \}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00056\ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_dc_filter_abd71815a0ba9441f65da99479ea4ffa2}{DcFilter::tick}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ audio\_in,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ audio\_out)\ \{}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{comment}{//\ y[n]\ =\ y[n-\/1]\ +\ (x[n]\ -\/\ x[n-\/1])\ *\ coefficient}}
+\DoxyCodeLine{00058\ \ \ \ \ audio\_out\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a35863713535365219778ac997a789cf3}{utils::mulAdd}}(audio\_in\ -\/\ past\_in\_,\ past\_out\_,\ coefficient\_);}
+\DoxyCodeLine{00059\ \ \ \ \ past\_out\_\ =\ audio\_out;}
+\DoxyCodeLine{00060\ \ \ \ \ past\_in\_\ =\ audio\_in;}
+\DoxyCodeLine{00061\ \ \ \}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00068\ \ \ \textcolor{keywordtype}{void}\ DcFilter::reset(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask)\ \{}
+\DoxyCodeLine{00069\ \ \ \ \ past\_in\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(past\_in\_,\ 0.0f,\ reset\_mask);}
+\DoxyCodeLine{00070\ \ \ \ \ past\_out\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(past\_in\_,\ 0.0f,\ reset\_mask);}
+\DoxyCodeLine{00071\ \ \ \}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

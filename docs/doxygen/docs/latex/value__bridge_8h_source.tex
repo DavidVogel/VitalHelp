@@ -1,0 +1,169 @@
+\doxysection{value\+\_\+bridge.\+h}
+\hypertarget{value__bridge_8h_source}{}\label{value__bridge_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/plugin/value\_bridge.h@{/Users/davidvogel/repos/VitalHelp/src/plugin/value\_bridge.h}}
+\mbox{\hyperlink{value__bridge_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}JuceHeader.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{value_8h}{value.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__parameters_8h}{synth\_parameters.h}}"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00017\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_value_bridge}{ValueBridge}}\ :\ \textcolor{keyword}{public}\ AudioProcessorParameter\ \{}
+\DoxyCodeLine{00018\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_value_bridge_1_1_listener}{Listener}}\ \{}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_value_bridge_1_1_listener_af7307af0a4d77999d11040a7233701bb}{\string~Listener}}()\ \{\ \}}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_value_bridge_1_1_listener_a1e203ce97e20abed8f89e35149d3fe2b}{parameterChanged}}(std::string\ name,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ value)\ =\ 0;}
+\DoxyCodeLine{00041\ \ \ \ \ \};}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00046\ \ \ \ \ \mbox{\hyperlink{class_value_bridge_a884829e0279b5b8a7e7a3b8080324bd1}{ValueBridge}}()\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00054\ \ \ \ \ \mbox{\hyperlink{class_value_bridge_a7c04548a3622cfcb8b3fcfa857f2b262}{ValueBridge}}(std::string\ name,\ \mbox{\hyperlink{classvital_1_1_value}{vital::Value}}*\ value)\ :}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ AudioProcessorParameter(),\ name\_(name),\ value\_(value),\ listener\_(nullptr),}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ source\_changed\_(false)\ \{}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ details\_\ =\ \mbox{\hyperlink{classvital_1_1_parameters_add207875d97ce0cabc64a33e86a5ab24}{vital::Parameters::getDetails}}(name);}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ span\_\ =\ details\_.\mbox{\hyperlink{structvital_1_1_value_details_a08a1bdff3e41fb87c1ac6fd6708c7485}{max}}\ -\/\ details\_.\mbox{\hyperlink{structvital_1_1_value_details_a4ad22dfba428357429bcadc83e0b5a26}{min}};}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (details\_.\mbox{\hyperlink{structvital_1_1_value_details_ade11892603cd0d5c7104f115ee957d2a}{value\_scale}}\ ==\ \mbox{\hyperlink{structvital_1_1_value_details_a308c6862d36759c9339892e60e9f1d2eae81f3a3cd7802926291fa665f0560e6a}{vital::ValueDetails::kIndexed}})}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ span\_\ =\ std::round(span\_);}
+\DoxyCodeLine{00061\ \ \ \ \ \}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_value_bridge_a595efd8a8aba7dc9eb9b6603a7bfd817}{getValue}}()\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_value_bridge_a378fc2f69a8f442ad24d01a960dbd000}{convertToPluginValue}}(value\_-\/>\mbox{\hyperlink{classvital_1_1_value_abb1c46e9f067933eed8c3af6b11d0b9a}{value}}());}
+\DoxyCodeLine{00070\ \ \ \ \ \}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_value_bridge_a7992775c8a6fa7607ab50c003ae26d40}{setValue}}(\textcolor{keywordtype}{float}\ value)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (listener\_\ \&\&\ !source\_changed\_)\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ source\_changed\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ synth\_value\ =\ \mbox{\hyperlink{class_value_bridge_a0cc534306dbf12e0fbeca780ef4296d8}{convertToEngineValue}}(value);}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ listener\_-\/>\mbox{\hyperlink{class_value_bridge_1_1_listener_a1e203ce97e20abed8f89e35149d3fe2b}{parameterChanged}}(name\_.toStdString(),\ synth\_value);}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ source\_changed\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00087\ \ \ \ \ \}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_value_bridge_a90cd2eee0ac35ba37a83702cdecad980}{setListener}}(\mbox{\hyperlink{class_value_bridge_1_1_listener}{Listener}}*\ listener)\ \{}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ listener\_\ =\ listener;}
+\DoxyCodeLine{00096\ \ \ \ \ \}}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_value_bridge_ab32d9c78ac75f0b3ab95f47f639031fd}{getDefaultValue}}()\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_value_bridge_a378fc2f69a8f442ad24d01a960dbd000}{convertToPluginValue}}(details\_.\mbox{\hyperlink{structvital_1_1_value_details_aa77131baa318ce44d3e879e0908f46a5}{default\_value}});}
+\DoxyCodeLine{00105\ \ \ \ \ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00113\ \ \ \ \ String\ \mbox{\hyperlink{class_value_bridge_a9906c522ac933f3ca8ed0f61261835b4}{getName}}(\textcolor{keywordtype}{int}\ maximumStringLength)\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ String(details\_.\mbox{\hyperlink{structvital_1_1_value_details_a4c289f3978c5791758da1f2067bafaf0}{display\_name}}).substring(0,\ maximumStringLength);}
+\DoxyCodeLine{00115\ \ \ \ \ \}}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00124\ \ \ \ \ String\ \mbox{\hyperlink{class_value_bridge_abbad3d4f573dc8fc163eb32e16973781}{getLabel}}()\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00126\ \ \ \ \ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00139\ \ \ \ \ String\ \mbox{\hyperlink{class_value_bridge_a183a82599104833eeae497f8c2b9cdb6}{getText}}(\textcolor{keywordtype}{float}\ value,\ \textcolor{keywordtype}{int}\ maximumStringLength)\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ adjusted\ =\ \mbox{\hyperlink{class_value_bridge_a0cc534306dbf12e0fbeca780ef4296d8}{convertToEngineValue}}(value);}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ String\ result\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (details\_.\mbox{\hyperlink{structvital_1_1_value_details_aa1b9b38948e77c18779cca189f1ee055}{string\_lookup}})}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ result\ =\ details\_.\mbox{\hyperlink{structvital_1_1_value_details_aa1b9b38948e77c18779cca189f1ee055}{string\_lookup}}[std::max<int>(0,\ std::min(adjusted,\ details\_.\mbox{\hyperlink{structvital_1_1_value_details_a08a1bdff3e41fb87c1ac6fd6708c7485}{max}}))];}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ display\_value\ =\ details\_.\mbox{\hyperlink{structvital_1_1_value_details_a103ad757ac14c5b185fac9174331468b}{display\_multiply}}\ *\ skewValue(adjusted)\ +\ details\_.\mbox{\hyperlink{structvital_1_1_value_details_a2fefcb2c36f6eb0058ff0c76af8cc844}{post\_offset}};}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ result\ =\ String(display\_value)\ +\ details\_.\mbox{\hyperlink{structvital_1_1_value_details_af6a87ca4ee7432934b9d9050a0650265}{display\_units}};}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ result.substring(0,\ maximumStringLength).trim();}
+\DoxyCodeLine{00149\ \ \ \ \ \}}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_value_bridge_a86954134fc942f0a0b3d6a1b9a80ef54}{getValueForText}}(\textcolor{keyword}{const}\ String\ \&text)\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ unskewValue(text.getFloatValue()\ /\ details\_.\mbox{\hyperlink{structvital_1_1_value_details_a103ad757ac14c5b185fac9174331468b}{display\_multiply}});}
+\DoxyCodeLine{00161\ \ \ \ \ \}}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_value_bridge_a91e5abda2699f2cd93cb16cb5d9a5c34}{isAutomatable}}()\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00170\ \ \ \ \ \}}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_value_bridge_a38673253179ddaf84ef2e8e725bc1a7d}{getNumSteps}}()\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_value_bridge_a02cdc4d307013daaa461f9b4cb0a6e10}{isDiscrete}}())}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1\ +\ (int)span\_;}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ AudioProcessorParameter::getNumSteps();}
+\DoxyCodeLine{00184\ \ \ \ \ \}}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00191\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_value_bridge_a02cdc4d307013daaa461f9b4cb0a6e10}{isDiscrete}}()\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMaxIndexedSteps\ =\ 300;}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ details\_.\mbox{\hyperlink{structvital_1_1_value_details_ade11892603cd0d5c7104f115ee957d2a}{value\_scale}}\ ==\ \mbox{\hyperlink{structvital_1_1_value_details_a308c6862d36759c9339892e60e9f1d2eae81f3a3cd7802926291fa665f0560e6a}{vital::ValueDetails::kIndexed}}\ \&\&\ span\_\ <\ kMaxIndexedSteps;}
+\DoxyCodeLine{00194\ \ \ \ \ \}}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00201\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_value_bridge_af35569b433ea71c71e22044151666125}{isBoolean}}()\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_value_bridge_a02cdc4d307013daaa461f9b4cb0a6e10}{isDiscrete}}()\ \&\&\ span\_\ ==\ 1.0f;}
+\DoxyCodeLine{00203\ \ \ \ \ \}}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00211\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_value_bridge_a378fc2f69a8f442ad24d01a960dbd000}{convertToPluginValue}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ synth\_value)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (synth\_value\ -\/\ details\_.\mbox{\hyperlink{structvital_1_1_value_details_a4ad22dfba428357429bcadc83e0b5a26}{min}})\ /\ span\_;}
+\DoxyCodeLine{00213\ \ \ \ \ \}}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00223\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_value_bridge_a0cc534306dbf12e0fbeca780ef4296d8}{convertToEngineValue}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ plugin\_value)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ value\ =\ plugin\_value\ *\ span\_\ +\ details\_.\mbox{\hyperlink{structvital_1_1_value_details_a4ad22dfba428357429bcadc83e0b5a26}{min}};}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (details\_.\mbox{\hyperlink{structvital_1_1_value_details_ade11892603cd0d5c7104f115ee957d2a}{value\_scale}}\ ==\ \mbox{\hyperlink{structvital_1_1_value_details_a308c6862d36759c9339892e60e9f1d2eae81f3a3cd7802926291fa665f0560e6a}{vital::ValueDetails::kIndexed}})}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::round(value);}
+\DoxyCodeLine{00228\ }
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value;}
+\DoxyCodeLine{00230\ \ \ \ \ \}}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00237\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_value_bridge_a39a8ab545984c01249513694f2e1625d}{setValueNotifyHost}}(\textcolor{keywordtype}{float}\ new\_value)\ \{}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!source\_changed\_)\ \{}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ source\_changed\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ setValueNotifyingHost(new\_value);}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ source\_changed\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00243\ \ \ \ \ \}}
+\DoxyCodeLine{00244\ }
+\DoxyCodeLine{00245\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00251\ \ \ \ \ \textcolor{keywordtype}{float}\ getSkewedValue()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ skewValue(value\_-\/>\mbox{\hyperlink{classvital_1_1_value_abb1c46e9f067933eed8c3af6b11d0b9a}{value}}());}
+\DoxyCodeLine{00253\ \ \ \ \ \}}
+\DoxyCodeLine{00254\ }
+\DoxyCodeLine{00265\ \ \ \ \ \textcolor{keywordtype}{float}\ skewValue(\textcolor{keywordtype}{float}\ value)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (details\_.\mbox{\hyperlink{structvital_1_1_value_details_ade11892603cd0d5c7104f115ee957d2a}{value\_scale}})\ \{}
+\DoxyCodeLine{00267\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{structvital_1_1_value_details_a308c6862d36759c9339892e60e9f1d2eaf1092cb5325180981ceafb0486cd9b33}{vital::ValueDetails::kQuadratic}}:}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value\ *\ value;}
+\DoxyCodeLine{00269\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{structvital_1_1_value_details_a308c6862d36759c9339892e60e9f1d2ea7b7574a9d419e7af6a65af2b239a80d4}{vital::ValueDetails::kCubic}}:}
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value\ *\ value\ *\ value;}
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{structvital_1_1_value_details_a308c6862d36759c9339892e60e9f1d2ea12673c9e9ba510b44e55aa894b41a99b}{vital::ValueDetails::kQuartic}}:}
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \ \ \ \ value\ *=\ value;}
+\DoxyCodeLine{00273\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value\ *\ value;}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{structvital_1_1_value_details_a308c6862d36759c9339892e60e9f1d2eaba9e8e5d3c8f7fb113f7eb4f721adb66}{vital::ValueDetails::kExponential}}:}
+\DoxyCodeLine{00275\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (details\_.\mbox{\hyperlink{structvital_1_1_value_details_a250434bb19960ca07dbf5ba1e1d221bc}{display\_invert}})}
+\DoxyCodeLine{00276\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1.0f\ /\ powf(2.0f,\ value);}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ powf(2.0f,\ value);}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{structvital_1_1_value_details_a308c6862d36759c9339892e60e9f1d2ea21ff8e5516e5b062c7632b78b7e2ab05}{vital::ValueDetails::kSquareRoot}}:}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ sqrtf(value);}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value;}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00283\ \ \ \ \ \}}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00291\ \ \ \ \ \textcolor{keywordtype}{float}\ unskewValue(\textcolor{keywordtype}{float}\ value)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (details\_.\mbox{\hyperlink{structvital_1_1_value_details_ade11892603cd0d5c7104f115ee957d2a}{value\_scale}})\ \{}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{structvital_1_1_value_details_a308c6862d36759c9339892e60e9f1d2eaf1092cb5325180981ceafb0486cd9b33}{vital::ValueDetails::kQuadratic}}:}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ sqrtf(value);}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{structvital_1_1_value_details_a308c6862d36759c9339892e60e9f1d2ea7b7574a9d419e7af6a65af2b239a80d4}{vital::ValueDetails::kCubic}}:}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ powf(value,\ 1.0f\ /\ 3.0f);}
+\DoxyCodeLine{00297\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{structvital_1_1_value_details_a308c6862d36759c9339892e60e9f1d2ea12673c9e9ba510b44e55aa894b41a99b}{vital::ValueDetails::kQuartic}}:}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ powf(value,\ 1.0f\ /\ 4.0f);}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{structvital_1_1_value_details_a308c6862d36759c9339892e60e9f1d2eaba9e8e5d3c8f7fb113f7eb4f721adb66}{vital::ValueDetails::kExponential}}:}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (details\_.\mbox{\hyperlink{structvital_1_1_value_details_a250434bb19960ca07dbf5ba1e1d221bc}{display\_invert}})}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_a7a327ceafdcf035f71f3959db159e24c}{log2}}(1.0f\ /\ value);}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_a7a327ceafdcf035f71f3959db159e24c}{log2}}(value);}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value;}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00306\ \ \ \ \ \}}
+\DoxyCodeLine{00307\ }
+\DoxyCodeLine{00308\ \ \ \ \ String\ name\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00309\ \ \ \ \ \mbox{\hyperlink{structvital_1_1_value_details}{vital::ValueDetails}}\ details\_;\ }
+\DoxyCodeLine{00310\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ span\_;\ \ \ \ \ \ }
+\DoxyCodeLine{00311\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_value}{vital::Value}}*\ value\_;\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00312\ \ \ \ \ Listener*\ listener\_;\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00313\ \ \ \ \ \textcolor{keywordtype}{bool}\ source\_changed\_;\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00314\ }
+\DoxyCodeLine{00315\ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(\mbox{\hyperlink{class_value_bridge}{ValueBridge}})}
+\DoxyCodeLine{00316\ \};}
+\DoxyCodeLine{00317\ }
+
+\end{DoxyCode}

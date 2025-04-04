@@ -1,0 +1,571 @@
+\doxysection{equalizer\+\_\+response.\+cpp}
+\hypertarget{equalizer__response_8cpp_source}{}\label{equalizer__response_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/equalizer\_response.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/equalizer\_response.cpp}}
+\mbox{\hyperlink{equalizer__response_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{equalizer__response_8h}{equalizer\_response.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{shaders_8h}{shaders.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \mbox{\hyperlink{class_equalizer_response_a82b73e1c0d54a028eb7d018d3f9de400}{EqualizerResponse::EqualizerResponse}}()\ :\ \mbox{\hyperlink{class_open_gl_line_renderer}{OpenGlLineRenderer}}(kResolution),}
+\DoxyCodeLine{00008\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ unselected\_points\_(2,\ \mbox{\hyperlink{class_shaders}{Shaders}}::kRingFragment),}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ selected\_point\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kCircleFragment),}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dragging\_point\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kCircleFragment),\ shader\_(nullptr)\ \{}
+\DoxyCodeLine{00011\ \ \ unselected\_points\_.\mbox{\hyperlink{class_open_gl_multi_quad_a0e0f55028083ff593df1457f746a173a}{setThickness}}(1.0f);}
+\DoxyCodeLine{00012\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a2370751b939ff421b5ad9049ce7e008d}{setFill}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \ \ addAndMakeVisible(unselected\_points\_);}
+\DoxyCodeLine{00015\ \ \ addAndMakeVisible(selected\_point\_);}
+\DoxyCodeLine{00016\ \ \ addAndMakeVisible(dragging\_point\_);}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \ \ low\_cutoff\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00019\ \ \ low\_resonance\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00020\ \ \ low\_gain\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00021\ \ \ band\_cutoff\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00022\ \ \ band\_resonance\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00023\ \ \ band\_gain\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00024\ \ \ high\_cutoff\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00025\ \ \ high\_resonance\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00026\ \ \ high\_gain\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ low\_cutoff\_output\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00029\ \ \ low\_resonance\_output\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00030\ \ \ low\_gain\_output\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00031\ \ \ band\_cutoff\_output\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00032\ \ \ band\_resonance\_output\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00033\ \ \ band\_gain\_output\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00034\ \ \ high\_cutoff\_output\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00035\ \ \ high\_resonance\_output\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00036\ \ \ high\_gain\_output\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ current\_cutoff\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00039\ \ \ current\_gain\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ low\_filter\_.\mbox{\hyperlink{classvital_1_1_processor_ac778f37e9b9e3c1c05fca568e8f8664c}{setSampleRate}}(\mbox{\hyperlink{class_equalizer_response_aac9e34baca12640a85c6ce3af72d6b56}{kViewSampleRate}});}
+\DoxyCodeLine{00042\ \ \ band\_filter\_.\mbox{\hyperlink{classvital_1_1_processor_ac778f37e9b9e3c1c05fca568e8f8664c}{setSampleRate}}(\mbox{\hyperlink{class_equalizer_response_aac9e34baca12640a85c6ce3af72d6b56}{kViewSampleRate}});}
+\DoxyCodeLine{00043\ \ \ high\_filter\_.\mbox{\hyperlink{classvital_1_1_processor_ac778f37e9b9e3c1c05fca568e8f8664c}{setSampleRate}}(\mbox{\hyperlink{class_equalizer_response_aac9e34baca12640a85c6ce3af72d6b56}{kViewSampleRate}});}
+\DoxyCodeLine{00044\ \ \ low\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_a4af9bb1526338fe23cfbcab373e59937}{setDriveCompensation}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00045\ \ \ high\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_a4af9bb1526338fe23cfbcab373e59937}{setDriveCompensation}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ active\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00048\ \ \ high\_pass\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00049\ \ \ notch\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00050\ \ \ low\_pass\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00051\ \ \ animate\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00052\ \ \ draw\_frequency\_lines\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00053\ \ \ selected\_band\_\ =\ 0;}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ line\_data\_\ =\ std::make\_unique<float[]>(\mbox{\hyperlink{class_equalizer_response_aa7f29c94af75358f947d42ba76011897}{kResolution}});}
+\DoxyCodeLine{00056\ \ \ line\_buffer\_\ =\ 0;}
+\DoxyCodeLine{00057\ \ \ response\_buffer\_\ =\ 0;}
+\DoxyCodeLine{00058\ \ \ vertex\_array\_object\_\ =\ 0;}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_equalizer_response_aa7f29c94af75358f947d42ba76011897}{kResolution}};\ ++i)\ \{}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ i\ /\ (\mbox{\hyperlink{class_equalizer_response_aa7f29c94af75358f947d42ba76011897}{kResolution}}\ -\/\ 1.0f);}
+\DoxyCodeLine{00062\ \ \ \ \ line\_data\_[i]\ =\ 2.0f\ *\ t\ -\/\ 1.0f;}
+\DoxyCodeLine{00063\ \ \ \}}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ db\_buffer\_ratio\_\ =\ \mbox{\hyperlink{class_equalizer_response_a44d0a64bd88fee2427668e10e0d71f3e}{kDefaultDbBufferRatio}};}
+\DoxyCodeLine{00066\ \ \ min\_db\_\ =\ 0.0f;}
+\DoxyCodeLine{00067\ \ \ max\_db\_\ =\ 1.0f;}
+\DoxyCodeLine{00068\ \}}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \mbox{\hyperlink{class_equalizer_response_a7254e7328ace1480ecb99113371ea63a}{EqualizerResponse::\string~EqualizerResponse}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_a6862a2cd77e1133fbe1c1f9b018524f4}{EqualizerResponse::initEq}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ mono\_modulations)\ \{}
+\DoxyCodeLine{00073\ \ \ low\_cutoff\_output\_\ =\ mono\_modulations.at(\textcolor{stringliteral}{"{}eq\_low\_cutoff"{}});}
+\DoxyCodeLine{00074\ \ \ low\_resonance\_output\_\ =\ mono\_modulations.at(\textcolor{stringliteral}{"{}eq\_low\_resonance"{}});}
+\DoxyCodeLine{00075\ \ \ low\_gain\_output\_\ =\ mono\_modulations.at(\textcolor{stringliteral}{"{}eq\_low\_gain"{}});}
+\DoxyCodeLine{00076\ \ \ band\_cutoff\_output\_\ =\ mono\_modulations.at(\textcolor{stringliteral}{"{}eq\_band\_cutoff"{}});}
+\DoxyCodeLine{00077\ \ \ band\_resonance\_output\_\ =\ mono\_modulations.at(\textcolor{stringliteral}{"{}eq\_band\_resonance"{}});}
+\DoxyCodeLine{00078\ \ \ band\_gain\_output\_\ =\ mono\_modulations.at(\textcolor{stringliteral}{"{}eq\_band\_gain"{}});}
+\DoxyCodeLine{00079\ \ \ high\_cutoff\_output\_\ =\ mono\_modulations.at(\textcolor{stringliteral}{"{}eq\_high\_cutoff"{}});}
+\DoxyCodeLine{00080\ \ \ high\_resonance\_output\_\ =\ mono\_modulations.at(\textcolor{stringliteral}{"{}eq\_high\_resonance"{}});}
+\DoxyCodeLine{00081\ \ \ high\_gain\_output\_\ =\ mono\_modulations.at(\textcolor{stringliteral}{"{}eq\_high\_gain"{}});}
+\DoxyCodeLine{00082\ \}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_ac41cee4ed3d070efb335089c2f4b8897}{EqualizerResponse::initReverb}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ mono\_modulations)\ \{}
+\DoxyCodeLine{00085\ \ \ low\_cutoff\_output\_\ =\ mono\_modulations.at(\textcolor{stringliteral}{"{}reverb\_low\_shelf\_cutoff"{}});}
+\DoxyCodeLine{00086\ \ \ low\_gain\_output\_\ =\ mono\_modulations.at(\textcolor{stringliteral}{"{}reverb\_low\_shelf\_gain"{}});}
+\DoxyCodeLine{00087\ \ \ high\_cutoff\_output\_\ =\ mono\_modulations.at(\textcolor{stringliteral}{"{}reverb\_high\_shelf\_cutoff"{}});}
+\DoxyCodeLine{00088\ \ \ high\_gain\_output\_\ =\ mono\_modulations.at(\textcolor{stringliteral}{"{}reverb\_high\_shelf\_gain"{}});}
+\DoxyCodeLine{00089\ \}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_acd07dc54738c3ed5918015f9d4abebfc}{EqualizerResponse::init}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00092\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a0fa1ef67e942cb6dba85c5980cc3c544}{OpenGlLineRenderer::init}}(open\_gl);}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \ \ unselected\_points\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00095\ \ \ selected\_point\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00096\ \ \ dragging\_point\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenVertexArrays(1,\ \&vertex\_array\_object\_);}
+\DoxyCodeLine{00099\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindVertexArray(vertex\_array\_object\_);}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \ GLsizeiptr\ vert\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(\mbox{\hyperlink{class_equalizer_response_aa7f29c94af75358f947d42ba76011897}{kResolution}}\ *\ \textcolor{keyword}{sizeof}(float));}
+\DoxyCodeLine{00102\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenBuffers(1,\ \&line\_buffer\_);}
+\DoxyCodeLine{00103\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ line\_buffer\_);}
+\DoxyCodeLine{00104\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ARRAY\_BUFFER,\ vert\_size,\ line\_data\_.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenBuffers(1,\ \&response\_buffer\_);}
+\DoxyCodeLine{00107\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ response\_buffer\_);}
+\DoxyCodeLine{00108\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ARRAY\_BUFFER,\ vert\_size,\ \textcolor{keyword}{nullptr},\ GL\_STATIC\_READ);}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ \textcolor{keyword}{const}\ GLchar*\ varyings[]\ =\ \{\ \textcolor{stringliteral}{"{}response\_out"{}}\ \};}
+\DoxyCodeLine{00111\ \ \ shader\_\ =\ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_af70c9f649bbea5dfd68c376d1e2918ea}{shaders}}-\/>\mbox{\hyperlink{class_shaders_ae4644dfe46dda65994ede40a18e2747a}{getShaderProgram}}(\mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76aaa7ca83344e7f03d2af7914da057d152}{Shaders::kEqFilterResponseVertex}},\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45ac762b73020860296e14f3d37f71d369b}{Shaders::kColorFragment}},\ varyings);}
+\DoxyCodeLine{00112\ \ \ shader\_-\/>use();}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \ \ position\_attribute\_\ =\ \mbox{\hyperlink{class_open_gl_component_a59361984d78ce0542bfa722179d57f93}{getAttribute}}(open\_gl,\ *shader\_,\ \textcolor{stringliteral}{"{}position"{}});}
+\DoxyCodeLine{00115\ \ \ midi\_cutoff\_uniform\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *shader\_,\ \textcolor{stringliteral}{"{}midi\_cutoff"{}});}
+\DoxyCodeLine{00116\ \ \ resonance\_uniform\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *shader\_,\ \textcolor{stringliteral}{"{}resonance"{}});}
+\DoxyCodeLine{00117\ \ \ low\_amount\_uniform\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *shader\_,\ \textcolor{stringliteral}{"{}low\_amount"{}});}
+\DoxyCodeLine{00118\ \ \ band\_amount\_uniform\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *shader\_,\ \textcolor{stringliteral}{"{}band\_amount"{}});}
+\DoxyCodeLine{00119\ \ \ high\_amount\_uniform\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *shader\_,\ \textcolor{stringliteral}{"{}high\_amount"{}});}
+\DoxyCodeLine{00120\ \}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_af375c999d92b9cc5b507d59dfc112549}{EqualizerResponse::drawResponse}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00123\ \ \ glEnable(GL\_BLEND);}
+\DoxyCodeLine{00124\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_aa6fb221f264f39c93c973656445b5bea}{setLineWidth}}(\mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a0706c2f54d7b90b90c5e3141c4ea3e39}{Skin::kWidgetLineWidth}}));}
+\DoxyCodeLine{00125\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a189b7b9f30f4d7e46095ad96df34489e}{setFillCenter}}(1.0f\ -\/\ 2.0f\ *\ max\_db\_\ /\ (max\_db\_\ -\/\ min\_db\_));}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \ \ Colour\ color\_line\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00128\ \ \ Colour\ color\_fill\_to\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca759c8acbffc8962e9ee2d8cba9677e73}{Skin::kWidgetSecondary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00130\ \ \ \textcolor{keywordflow}{if}\ (!active\_)\ \{}
+\DoxyCodeLine{00131\ \ \ \ \ color\_line\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4f6dbca7fdb5224fc3d7e4beb68970fc}{Skin::kWidgetPrimaryDisabled}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00132\ \ \ \ \ color\_fill\_to\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca8c72cd53e923c259556519e2210b1d6a}{Skin::kWidgetSecondaryDisabled}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00133\ \ \ \}}
+\DoxyCodeLine{00134\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (index)\ \{}
+\DoxyCodeLine{00135\ \ \ \ \ color\_line\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca52527c370464bf967aac85bb7c22a5ab}{Skin::kWidgetPrimary2}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00136\ \ \ \ \ color\_fill\_to\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caf0e70a44ed7ab9d5dbef16a856b50cfb}{Skin::kWidgetSecondary2}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00137\ \ \ \}}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(color\_line);}
+\DoxyCodeLine{00140\ \ \ \textcolor{keywordtype}{float}\ fill\_fade\ =\ \mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a5268c3e135a7b246af15add8577ea3ac}{Skin::kWidgetFillFade}});}
+\DoxyCodeLine{00141\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a8f1edffc163ebb29305d10f4f91eef33}{setFillColors}}(color\_fill\_to.withMultipliedAlpha(1.0f\ -\/\ fill\_fade),\ color\_fill\_to);}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \ \ shader\_-\/>use();}
+\DoxyCodeLine{00144\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindVertexArray(vertex\_array\_object\_);}
+\DoxyCodeLine{00145\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ line\_buffer\_);}
+\DoxyCodeLine{00146\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glVertexAttribPointer(position\_attribute\_-\/>attributeID,\ 1,\ GL\_FLOAT,\ GL\_FALSE,}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00148\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glEnableVertexAttribArray(position\_attribute\_-\/>attributeID);}
+\DoxyCodeLine{00149\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBufferBase(GL\_TRANSFORM\_FEEDBACK\_BUFFER,\ 0,\ response\_buffer\_);}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \ \ midi\_cutoff\_uniform\_-\/>set(low\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_a92c02c1b19727c1d556c343146a6c304}{getMidiCutoff}}()[index],}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ band\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_a92c02c1b19727c1d556c343146a6c304}{getMidiCutoff}}()[index],}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ high\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_a92c02c1b19727c1d556c343146a6c304}{getMidiCutoff}}()[index]);}
+\DoxyCodeLine{00154\ \ \ resonance\_uniform\_-\/>set(low\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_a95a050f94000695eaa184041a6c24ff0}{getResonance}}()[index],}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ band\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_a95a050f94000695eaa184041a6c24ff0}{getResonance}}()[index],}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ high\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_a95a050f94000695eaa184041a6c24ff0}{getResonance}}()[index]);}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \ \ low\_amount\_uniform\_-\/>set(low\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_ac8abd122fb11e4a60adca49d56994212}{getLowAmount}}()[index],}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ band\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_ac8abd122fb11e4a60adca49d56994212}{getLowAmount}}()[index],}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ high\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_ac8abd122fb11e4a60adca49d56994212}{getLowAmount}}()[index]);}
+\DoxyCodeLine{00161\ \ \ band\_amount\_uniform\_-\/>set(low\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_a9ebaa9b10fbf66ec7b52dd1e54945482}{getBandAmount}}()[index],}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ band\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_a9ebaa9b10fbf66ec7b52dd1e54945482}{getBandAmount}}()[index],}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ high\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_a9ebaa9b10fbf66ec7b52dd1e54945482}{getBandAmount}}()[index]);}
+\DoxyCodeLine{00164\ \ \ high\_amount\_uniform\_-\/>set(low\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_abf1fad1cb360d96f07228155dd8abd9d}{getHighAmount}}()[index],}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ band\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_abf1fad1cb360d96f07228155dd8abd9d}{getHighAmount}}()[index],}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ high\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_abf1fad1cb360d96f07228155dd8abd9d}{getHighAmount}}()[index]);}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBeginTransformFeedback(GL\_POINTS);}
+\DoxyCodeLine{00169\ \ \ glDrawArrays(GL\_POINTS,\ 0,\ \mbox{\hyperlink{class_equalizer_response_aa7f29c94af75358f947d42ba76011897}{kResolution}});}
+\DoxyCodeLine{00170\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glEndTransformFeedback();}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00172\ \ \ \textcolor{keywordtype}{void}*\ buffer\ =\ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glMapBufferRange(GL\_TRANSFORM\_FEEDBACK\_BUFFER,\ 0,}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_equalizer_response_aa7f29c94af75358f947d42ba76011897}{kResolution}}\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ GL\_MAP\_READ\_BIT);}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ \ \ \textcolor{keywordtype}{float}*\ response\_data\ =\ (\textcolor{keywordtype}{float}*)buffer;}
+\DoxyCodeLine{00176\ \ \ \textcolor{keywordtype}{float}\ width\ =\ getWidth();}
+\DoxyCodeLine{00177\ \ \ \textcolor{keywordtype}{float}\ range\ =\ max\_db\_\ -\/\ min\_db\_;}
+\DoxyCodeLine{00178\ \ \ \textcolor{keywordtype}{float}\ y\_mult\ =\ getHeight()\ /\ range;}
+\DoxyCodeLine{00179\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_equalizer_response_aa7f29c94af75358f947d42ba76011897}{kResolution}};\ ++i)\ \{}
+\DoxyCodeLine{00180\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(i,\ i\ *\ width\ /\ (\mbox{\hyperlink{class_equalizer_response_aa7f29c94af75358f947d42ba76011897}{kResolution}}\ -\/\ 1.0f));}
+\DoxyCodeLine{00181\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(i,\ (max\_db\_\ -\/\ response\_data[i])\ *\ y\_mult);}
+\DoxyCodeLine{00182\ \ \ \}}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glUnmapBuffer(GL\_TRANSFORM\_FEEDBACK\_BUFFER);}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a190b43b9e98973f2bf94d8ba6a240a11}{OpenGlLineRenderer::render}}(open\_gl,\ animate\_);}
+\DoxyCodeLine{00187\ \}}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_af1ec9d01be5a8d5c3500d16321bd9b57}{EqualizerResponse::render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00190\ \ \ animate\_\ =\ animate;}
+\DoxyCodeLine{00191\ \ \ \mbox{\hyperlink{class_equalizer_response_ad94bb84c5311daa7f8332f4731ab4101}{computeFilterCoefficients}}();}
+\DoxyCodeLine{00192\ \ \ \textcolor{keywordflow}{if}\ (active\_\ \&\&\ animate\_)}
+\DoxyCodeLine{00193\ \ \ \ \ \mbox{\hyperlink{class_equalizer_response_af375c999d92b9cc5b507d59dfc112549}{drawResponse}}(open\_gl,\ 1);}
+\DoxyCodeLine{00194\ \ \ \mbox{\hyperlink{class_equalizer_response_af375c999d92b9cc5b507d59dfc112549}{drawResponse}}(open\_gl,\ 0);}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00196\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDisableVertexAttribArray(position\_attribute\_-\/>attributeID);}
+\DoxyCodeLine{00197\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ 0);}
+\DoxyCodeLine{00198\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBufferBase(GL\_TRANSFORM\_FEEDBACK\_BUFFER,\ 0,\ 0);}
+\DoxyCodeLine{00199\ }
+\DoxyCodeLine{00200\ \ \ \mbox{\hyperlink{class_open_gl_component_a6bbf52f60d21e165d6c22eaa9f1fb9fe}{checkGlError}}();}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00202\ \ \ \mbox{\hyperlink{class_equalizer_response_a085b2ca5f9c81e3f38e417b423ca39f1}{drawControlPoints}}(open\_gl);}
+\DoxyCodeLine{00203\ \ \ \mbox{\hyperlink{class_open_gl_component_a5c6aa6d7c8a20882ce3b621efbf7e18b}{renderCorners}}(open\_gl,\ animate);}
+\DoxyCodeLine{00204\ \}}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00206\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_a32ccffa5d6fd316a1d930c1098298269}{EqualizerResponse::destroy}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00207\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1207ac3c34fc00f5b39996a92eb030ae}{OpenGlLineRenderer::destroy}}(open\_gl);}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00209\ \ \ unselected\_points\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00210\ \ \ selected\_point\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00211\ \ \ dragging\_point\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00212\ }
+\DoxyCodeLine{00213\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDeleteBuffers(1,\ \&line\_buffer\_);}
+\DoxyCodeLine{00214\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDeleteBuffers(1,\ \&response\_buffer\_);}
+\DoxyCodeLine{00215\ \ \ line\_buffer\_\ =\ 0;}
+\DoxyCodeLine{00216\ \ \ response\_buffer\_\ =\ 0;}
+\DoxyCodeLine{00217\ }
+\DoxyCodeLine{00218\ \ \ shader\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00219\ \ \ position\_attribute\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00220\ \ \ midi\_cutoff\_uniform\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00221\ \ \ resonance\_uniform\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00222\ \ \ low\_amount\_uniform\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00223\ \ \ band\_amount\_uniform\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00224\ \ \ high\_amount\_uniform\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00225\ \}}
+\DoxyCodeLine{00226\ }
+\DoxyCodeLine{00227\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_a16fb5e5d42c37a1b2e0c417083be068f}{EqualizerResponse::setControlPointBounds}}(\textcolor{keywordtype}{float}\ selected\_x,\ \textcolor{keywordtype}{float}\ selected\_y,}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ unselected\_x1,\ \textcolor{keywordtype}{float}\ unselected\_y1,}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ unselected\_x2,\ \textcolor{keywordtype}{float}\ unselected\_y2)\ \{}
+\DoxyCodeLine{00230\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kHandleRadius\ =\ 0.06f;}
+\DoxyCodeLine{00231\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kDraggingRadius\ =\ 0.18f;}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00233\ \ \ \textcolor{keywordtype}{float}\ width\ =\ getWidth();}
+\DoxyCodeLine{00234\ \ \ \textcolor{keywordtype}{float}\ height\ =\ getHeight();}
+\DoxyCodeLine{00235\ \ \ \textcolor{keywordtype}{float}\ handle\_radius\ =\ kHandleRadius\ *\ height;}
+\DoxyCodeLine{00236\ \ \ \textcolor{keywordtype}{float}\ handle\_width\ =\ handle\_radius\ *\ 4.0f\ /\ width;}
+\DoxyCodeLine{00237\ \ \ \textcolor{keywordtype}{float}\ handle\_height\ =\ handle\_radius\ *\ 4.0f\ /\ height;}
+\DoxyCodeLine{00238\ }
+\DoxyCodeLine{00239\ \ \ \textcolor{keywordtype}{float}\ dragging\_radius\ =\ kDraggingRadius\ *\ height;}
+\DoxyCodeLine{00240\ \ \ \textcolor{keywordtype}{float}\ dragging\_width\ =\ dragging\_radius\ *\ 4.0f\ /\ width;}
+\DoxyCodeLine{00241\ \ \ \textcolor{keywordtype}{float}\ dragging\_height\ =\ dragging\_radius\ *\ 4.0f\ /\ height;}
+\DoxyCodeLine{00242\ }
+\DoxyCodeLine{00243\ \ \ selected\_point\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ selected\_x\ -\/\ handle\_width\ *\ 0.5f,\ selected\_y\ -\/\ handle\_height\ *\ 0.5f,}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ handle\_width,\ handle\_height);}
+\DoxyCodeLine{00245\ \ \ dragging\_point\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ selected\_x\ -\/\ dragging\_width\ *\ 0.5f,\ selected\_y\ -\/\ dragging\_height\ *\ 0.5f,}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dragging\_width,\ dragging\_height);}
+\DoxyCodeLine{00247\ \ \ unselected\_points\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ unselected\_x1\ -\/\ handle\_width\ *\ 0.5f,\ unselected\_y1\ -\/\ handle\_height\ *\ 0.5f,}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ handle\_width,\ handle\_height);}
+\DoxyCodeLine{00249\ \ \ unselected\_points\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(1,\ unselected\_x2\ -\/\ handle\_width\ *\ 0.5f,\ unselected\_y2\ -\/\ handle\_height\ *\ 0.5f,}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ handle\_width,\ handle\_height);}
+\DoxyCodeLine{00251\ \}}
+\DoxyCodeLine{00252\ }
+\DoxyCodeLine{00253\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_a085b2ca5f9c81e3f38e417b423ca39f1}{EqualizerResponse::drawControlPoints}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00254\ }
+\DoxyCodeLine{00255\ \ \ Point<float>\ low\_position\ =\ \mbox{\hyperlink{class_equalizer_response_af22b6293d7fcddb6d5ab0c066315abc9}{getLowPosition}}();}
+\DoxyCodeLine{00256\ \ \ Point<float>\ band\_position\ =\ \mbox{\hyperlink{class_equalizer_response_afb8b4108c2b9db367924bafa75d6c995}{getBandPosition}}();}
+\DoxyCodeLine{00257\ \ \ Point<float>\ high\_position\ =\ \mbox{\hyperlink{class_equalizer_response_af3f43dbf551770027eb35bac2735ef72}{getHighPosition}}();}
+\DoxyCodeLine{00258\ }
+\DoxyCodeLine{00259\ \ \ \textcolor{keywordtype}{float}\ width\ =\ getWidth();}
+\DoxyCodeLine{00260\ \ \ \textcolor{keywordtype}{float}\ height\ =\ getHeight();}
+\DoxyCodeLine{00261\ }
+\DoxyCodeLine{00262\ \ \ \textcolor{keywordtype}{float}\ low\_x\ =\ 2.0f\ *\ low\_position.x\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00263\ \ \ \textcolor{keywordtype}{float}\ band\_x\ =\ 2.0f\ *\ band\_position.x\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00264\ \ \ \textcolor{keywordtype}{float}\ high\_x\ =\ 2.0f\ *\ high\_position.x\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00265\ \ \ \textcolor{keywordtype}{float}\ low\_y\ =\ 1.0f\ -\/\ 2.0f\ *\ low\_position.y\ /\ height;}
+\DoxyCodeLine{00266\ \ \ \textcolor{keywordtype}{float}\ band\_y\ =\ 1.0f\ -\/\ 2.0f\ *\ band\_position.y\ /\ height;}
+\DoxyCodeLine{00267\ \ \ \textcolor{keywordtype}{float}\ high\_y\ =\ 1.0f\ -\/\ 2.0f\ *\ high\_position.y\ /\ height;}
+\DoxyCodeLine{00268\ }
+\DoxyCodeLine{00269\ \ \ \textcolor{keywordflow}{if}\ (band\_cutoff\_output\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00270\ \ \ \ \ band\_x\ =\ -\/2.0f;}
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00272\ \ \ \textcolor{keywordflow}{if}\ (selected\_band\_\ ==\ 0)}
+\DoxyCodeLine{00273\ \ \ \ \ \mbox{\hyperlink{class_equalizer_response_a16fb5e5d42c37a1b2e0c417083be068f}{setControlPointBounds}}(low\_x,\ low\_y,\ band\_x,\ band\_y,\ high\_x,\ high\_y);}
+\DoxyCodeLine{00274\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (band\_cutoff\_output\_\ \&\&\ selected\_band\_\ ==\ 1)}
+\DoxyCodeLine{00275\ \ \ \ \ \mbox{\hyperlink{class_equalizer_response_a16fb5e5d42c37a1b2e0c417083be068f}{setControlPointBounds}}(band\_x,\ band\_y,\ low\_x,\ low\_y,\ high\_x,\ high\_y);}
+\DoxyCodeLine{00276\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (selected\_band\_\ ==\ 2)}
+\DoxyCodeLine{00277\ \ \ \ \ \mbox{\hyperlink{class_equalizer_response_a16fb5e5d42c37a1b2e0c417083be068f}{setControlPointBounds}}(high\_x,\ high\_y,\ low\_x,\ low\_y,\ band\_x,\ band\_y);}
+\DoxyCodeLine{00278\ }
+\DoxyCodeLine{00279\ \ \ dragging\_point\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00280\ \ \ \textcolor{keywordflow}{if}\ (current\_cutoff\_\ \&\&\ current\_gain\_)}
+\DoxyCodeLine{00281\ \ \ \ \ dragging\_point\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00282\ \ \ selected\_point\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00283\ \ \ selected\_point\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00284\ \ \ unselected\_points\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00285\ \ \ unselected\_points\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00286\ \}}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00288\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_a8caa5aabe1afde2fbcb131538c038fc9}{EqualizerResponse::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00289\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kLineSpacing\ =\ 10;}
+\DoxyCodeLine{00290\ }
+\DoxyCodeLine{00291\ \ \ \mbox{\hyperlink{class_open_gl_component_ad2e8378b36d72fa4d728a611a6aa956f}{OpenGlLineRenderer::paintBackground}}(g);}
+\DoxyCodeLine{00292\ \ \ \textcolor{keywordflow}{if}\ (!draw\_frequency\_lines\_)}
+\DoxyCodeLine{00293\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00294\ }
+\DoxyCodeLine{00295\ \ \ \textcolor{keywordtype}{float}\ min\_frequency\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad576b73366d625ca0b47c8b92b81f7a4}{vital::utils::midiNoteToFrequency}}(low\_cutoff\_-\/>getMinimum());}
+\DoxyCodeLine{00296\ \ \ \textcolor{keywordtype}{float}\ max\_frequency\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad576b73366d625ca0b47c8b92b81f7a4}{vital::utils::midiNoteToFrequency}}(low\_cutoff\_-\/>getMaximum());}
+\DoxyCodeLine{00297\ }
+\DoxyCodeLine{00298\ \ \ \textcolor{keywordtype}{int}\ height\ =\ getHeight();}
+\DoxyCodeLine{00299\ \ \ \textcolor{keywordtype}{float}\ max\_octave\ =\ log2f(max\_frequency\ /\ min\_frequency);}
+\DoxyCodeLine{00300\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}).withMultipliedAlpha(0.5f));}
+\DoxyCodeLine{00301\ \ \ \textcolor{keywordtype}{float}\ frequency\ =\ 0.0f;}
+\DoxyCodeLine{00302\ \ \ \textcolor{keywordtype}{float}\ increment\ =\ 1.0f;}
+\DoxyCodeLine{00303\ }
+\DoxyCodeLine{00304\ \ \ \textcolor{keywordtype}{int}\ x\ =\ 0;}
+\DoxyCodeLine{00305\ \ \ \textcolor{keywordflow}{while}\ (frequency\ <\ max\_frequency)\ \{}
+\DoxyCodeLine{00306\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ kLineSpacing;\ ++i)\ \{}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ frequency\ +=\ increment;}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ log2f(frequency\ /\ min\_frequency)\ /\ max\_octave;}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ x\ =\ std::round(t\ *\ getWidth());}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ g.fillRect(x,\ 0,\ 1,\ height);}
+\DoxyCodeLine{00311\ \ \ \ \ \}}
+\DoxyCodeLine{00312\ \ \ \ \ g.fillRect(x,\ 0,\ 1,\ height);}
+\DoxyCodeLine{00313\ \ \ \ \ increment\ *=\ kLineSpacing;}
+\DoxyCodeLine{00314\ \ \ \}}
+\DoxyCodeLine{00315\ \}}
+\DoxyCodeLine{00316\ }
+\DoxyCodeLine{00317\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_aa52a23bb1a49e33a13ef802e6882c155}{EqualizerResponse::mouseWheelMove}}(\textcolor{keyword}{const}\ MouseEvent\&\ e,\ \textcolor{keyword}{const}\ MouseWheelDetails\&\ wheel)\ \{}
+\DoxyCodeLine{00318\ \ \ \textcolor{keywordtype}{int}\ band\ =\ \mbox{\hyperlink{class_equalizer_response_a990b88c15f3148dc8715f61efcccebfe}{getHoveredBand}}(e);}
+\DoxyCodeLine{00319\ }
+\DoxyCodeLine{00320\ \ \ \textcolor{keywordflow}{if}\ (band\ ==\ 0\ \&\&\ low\_resonance\_)}
+\DoxyCodeLine{00321\ \ \ \ \ low\_resonance\_-\/>\mbox{\hyperlink{class_synth_slider_ac56dc5dddae9587c447b7020d5dde7b0}{mouseWheelMove}}(e,\ wheel);}
+\DoxyCodeLine{00322\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (band\ ==\ 1\ \&\&\ band\_resonance\_)}
+\DoxyCodeLine{00323\ \ \ \ \ band\_resonance\_-\/>\mbox{\hyperlink{class_synth_slider_ac56dc5dddae9587c447b7020d5dde7b0}{mouseWheelMove}}(e,\ wheel);}
+\DoxyCodeLine{00324\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (band\ ==\ 2\ \&\&\ high\_resonance\_)}
+\DoxyCodeLine{00325\ \ \ \ \ high\_resonance\_-\/>\mbox{\hyperlink{class_synth_slider_ac56dc5dddae9587c447b7020d5dde7b0}{mouseWheelMove}}(e,\ wheel);}
+\DoxyCodeLine{00326\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00327\ \ \ \ \ OpenGlComponent::mouseWheelMove(e,\ wheel);}
+\DoxyCodeLine{00328\ \}}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00330\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_a64df2353cdefa2ff8f30d0af92407a02}{EqualizerResponse::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00331\ \ \ selected\_band\_\ =\ \mbox{\hyperlink{class_equalizer_response_a990b88c15f3148dc8715f61efcccebfe}{getHoveredBand}}(e);}
+\DoxyCodeLine{00332\ }
+\DoxyCodeLine{00333\ \ \ \textcolor{keywordflow}{if}\ (selected\_band\_\ ==\ 0)\ \{}
+\DoxyCodeLine{00334\ \ \ \ \ current\_cutoff\_\ =\ low\_cutoff\_;}
+\DoxyCodeLine{00335\ \ \ \ \ current\_gain\_\ =\ low\_gain\_;}
+\DoxyCodeLine{00336\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_equalizer_response_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ listener-\/>lowBandSelected();}
+\DoxyCodeLine{00338\ \ \ \}}
+\DoxyCodeLine{00339\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (selected\_band\_\ ==\ 1)\ \{}
+\DoxyCodeLine{00340\ \ \ \ \ current\_cutoff\_\ =\ band\_cutoff\_;}
+\DoxyCodeLine{00341\ \ \ \ \ current\_gain\_\ =\ band\_gain\_;}
+\DoxyCodeLine{00342\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_equalizer_response_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00343\ \ \ \ \ \ \ listener-\/>midBandSelected();}
+\DoxyCodeLine{00344\ \ \ \}}
+\DoxyCodeLine{00345\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (selected\_band\_\ ==\ 2)\ \{}
+\DoxyCodeLine{00346\ \ \ \ \ current\_cutoff\_\ =\ high\_cutoff\_;}
+\DoxyCodeLine{00347\ \ \ \ \ current\_gain\_\ =\ high\_gain\_;}
+\DoxyCodeLine{00348\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_equalizer_response_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00349\ \ \ \ \ \ \ listener-\/>highBandSelected();}
+\DoxyCodeLine{00350\ \ \ \}}
+\DoxyCodeLine{00351\ }
+\DoxyCodeLine{00352\ \ \ OpenGlLineRenderer::mouseDown(e);}
+\DoxyCodeLine{00353\ \}}
+\DoxyCodeLine{00354\ }
+\DoxyCodeLine{00355\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_a6813afcac032855178ffa07a0e03eef0}{EqualizerResponse::mouseDrag}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00356\ \ \ \mbox{\hyperlink{class_equalizer_response_a0dec8a4ec7298e50c694227940123234}{moveFilterSettings}}(e.position);}
+\DoxyCodeLine{00357\ \ \ OpenGlLineRenderer::mouseDrag(e);}
+\DoxyCodeLine{00358\ \}}
+\DoxyCodeLine{00359\ }
+\DoxyCodeLine{00360\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_a1662e9a90ca5b89e5cc084f246964c18}{EqualizerResponse::mouseUp}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00361\ \ \ \textcolor{keywordflow}{if}\ (current\_cutoff\_\ ==\ \textcolor{keyword}{nullptr}\ \&\&\ current\_gain\_\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00362\ \ \ \ \ OpenGlLineRenderer::mouseUp(e);}
+\DoxyCodeLine{00363\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00364\ \ \ \}}
+\DoxyCodeLine{00365\ }
+\DoxyCodeLine{00366\ \ \ current\_cutoff\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00367\ \ \ current\_gain\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00368\ \ \ OpenGlLineRenderer::mouseUp(e);}
+\DoxyCodeLine{00369\ \}}
+\DoxyCodeLine{00370\ }
+\DoxyCodeLine{00371\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_a385330e8f13fb2e9ca28b3d894679b47}{EqualizerResponse::mouseExit}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00372\ \ \ \textcolor{keywordflow}{if}\ (low\_cutoff\_)\ \{}
+\DoxyCodeLine{00373\ \ \ \ \ low\_cutoff\_-\/>\mbox{\hyperlink{class_synth_slider_a8ea275990cc48b5d0b67064816a201cd}{hidePopup}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00374\ \ \ \ \ low\_cutoff\_-\/>\mbox{\hyperlink{class_synth_slider_a8ea275990cc48b5d0b67064816a201cd}{hidePopup}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00375\ \ \ \}}
+\DoxyCodeLine{00376\ \ \ OpenGlLineRenderer::mouseExit(e);}
+\DoxyCodeLine{00377\ \}}
+\DoxyCodeLine{00378\ }
+\DoxyCodeLine{00379\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_equalizer_response_a990b88c15f3148dc8715f61efcccebfe}{EqualizerResponse::getHoveredBand}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00380\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ grab\_distance\ =\ 0.06f\ *\ getWidth();}
+\DoxyCodeLine{00381\ }
+\DoxyCodeLine{00382\ \ \ \textcolor{keywordtype}{float}\ delta\_low\ =\ e.position.getDistanceSquaredFrom(\mbox{\hyperlink{class_equalizer_response_af22b6293d7fcddb6d5ab0c066315abc9}{getLowPosition}}());}
+\DoxyCodeLine{00383\ \ \ \textcolor{keywordtype}{float}\ delta\_band\ =\ e.position.getDistanceSquaredFrom(\mbox{\hyperlink{class_equalizer_response_afb8b4108c2b9db367924bafa75d6c995}{getBandPosition}}());}
+\DoxyCodeLine{00384\ \ \ \textcolor{keywordtype}{float}\ delta\_high\ =\ e.position.getDistanceSquaredFrom(\mbox{\hyperlink{class_equalizer_response_af3f43dbf551770027eb35bac2735ef72}{getHighPosition}}());}
+\DoxyCodeLine{00385\ }
+\DoxyCodeLine{00386\ \ \ \textcolor{keywordtype}{float}\ min\_sqr\_dist\ =\ grab\_distance\ *\ grab\_distance;}
+\DoxyCodeLine{00387\ \ \ \textcolor{keywordtype}{float}\ min\ =\ std::min(std::min(min\_sqr\_dist,\ delta\_low),\ delta\_high);}
+\DoxyCodeLine{00388\ \ \ \textcolor{keywordflow}{if}\ (band\_cutoff\_output\_)}
+\DoxyCodeLine{00389\ \ \ \ \ min\ =\ std::min(min,\ delta\_band);}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00391\ \ \ \textcolor{keywordflow}{if}\ (delta\_low\ <=\ min)}
+\DoxyCodeLine{00392\ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00393\ \ \ \textcolor{keywordflow}{if}\ (band\_cutoff\_output\_\ \&\&\ delta\_band\ <=\ min)}
+\DoxyCodeLine{00394\ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{00395\ \ \ \textcolor{keywordflow}{if}\ (delta\_high\ <=\ min)}
+\DoxyCodeLine{00396\ \ \ \ \ \textcolor{keywordflow}{return}\ 2;}
+\DoxyCodeLine{00397\ }
+\DoxyCodeLine{00398\ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{00399\ \}}
+\DoxyCodeLine{00400\ }
+\DoxyCodeLine{00401\ Point<float>\ \mbox{\hyperlink{class_equalizer_response_af22b6293d7fcddb6d5ab0c066315abc9}{EqualizerResponse::getLowPosition}}()\ \{}
+\DoxyCodeLine{00402\ \ \ \textcolor{keywordtype}{float}\ cutoff\_range\ =\ low\_cutoff\_-\/>getMaximum()\ -\/\ low\_cutoff\_-\/>getMinimum();}
+\DoxyCodeLine{00403\ \ \ \textcolor{keywordtype}{float}\ min\_cutoff\ =\ low\_cutoff\_-\/>getMinimum();}
+\DoxyCodeLine{00404\ \ \ \textcolor{keywordtype}{float}\ gain\_range\ =\ max\_db\_\ -\/\ min\_db\_;}
+\DoxyCodeLine{00405\ }
+\DoxyCodeLine{00406\ \ \ \textcolor{keywordtype}{float}\ low\_x\ =\ getWidth()\ *\ (low\_cutoff\_-\/>getValue()\ -\/\ min\_cutoff)\ /\ cutoff\_range;}
+\DoxyCodeLine{00407\ \ \ \textcolor{keywordtype}{float}\ low\_y\ =\ getHeight()\ *\ (max\_db\_\ -\/\ low\_gain\_-\/>getValue())\ /\ gain\_range;}
+\DoxyCodeLine{00408\ \ \ \textcolor{keywordflow}{return}\ Point<float>(low\_x,\ low\_y);}
+\DoxyCodeLine{00409\ \}}
+\DoxyCodeLine{00410\ }
+\DoxyCodeLine{00411\ Point<float>\ \mbox{\hyperlink{class_equalizer_response_afb8b4108c2b9db367924bafa75d6c995}{EqualizerResponse::getBandPosition}}()\ \{}
+\DoxyCodeLine{00412\ \ \ \textcolor{keywordflow}{if}\ (band\_cutoff\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00413\ \ \ \ \ \textcolor{keywordflow}{return}\ Point<float>(0.0f,\ 0.0f);}
+\DoxyCodeLine{00414\ }
+\DoxyCodeLine{00415\ \ \ \textcolor{keywordtype}{float}\ cutoff\_range\ =\ band\_cutoff\_-\/>getMaximum()\ -\/\ band\_cutoff\_-\/>getMinimum();}
+\DoxyCodeLine{00416\ \ \ \textcolor{keywordtype}{float}\ min\_cutoff\ =\ band\_cutoff\_-\/>getMinimum();}
+\DoxyCodeLine{00417\ \ \ \textcolor{keywordtype}{float}\ gain\_range\ =\ max\_db\_\ -\/\ min\_db\_;}
+\DoxyCodeLine{00418\ }
+\DoxyCodeLine{00419\ \ \ \textcolor{keywordtype}{float}\ band\_x\ =\ getWidth()\ *\ (band\_cutoff\_-\/>getValue()\ -\/\ min\_cutoff)\ /\ cutoff\_range;}
+\DoxyCodeLine{00420\ \ \ \textcolor{keywordtype}{float}\ band\_y\ =\ getHeight()\ *\ (max\_db\_\ -\/\ band\_gain\_-\/>getValue())\ /\ gain\_range;}
+\DoxyCodeLine{00421\ \ \ \textcolor{keywordflow}{return}\ Point<float>(band\_x,\ band\_y);}
+\DoxyCodeLine{00422\ \}}
+\DoxyCodeLine{00423\ }
+\DoxyCodeLine{00424\ Point<float>\ \mbox{\hyperlink{class_equalizer_response_af3f43dbf551770027eb35bac2735ef72}{EqualizerResponse::getHighPosition}}()\ \{}
+\DoxyCodeLine{00425\ \ \ \textcolor{keywordtype}{float}\ cutoff\_range\ =\ high\_cutoff\_-\/>getMaximum()\ -\/\ high\_cutoff\_-\/>getMinimum();}
+\DoxyCodeLine{00426\ \ \ \textcolor{keywordtype}{float}\ min\_cutoff\ =\ high\_cutoff\_-\/>getMinimum();}
+\DoxyCodeLine{00427\ \ \ \textcolor{keywordtype}{float}\ gain\_range\ =\ max\_db\_\ -\/\ min\_db\_;}
+\DoxyCodeLine{00428\ }
+\DoxyCodeLine{00429\ \ \ \textcolor{keywordtype}{float}\ high\_x\ =\ getWidth()\ *\ (high\_cutoff\_-\/>getValue()\ -\/\ min\_cutoff)\ /\ cutoff\_range;}
+\DoxyCodeLine{00430\ \ \ \textcolor{keywordtype}{float}\ high\_y\ =\ getHeight()\ *\ (max\_db\_\ -\/\ high\_gain\_-\/>getValue())\ /\ gain\_range;}
+\DoxyCodeLine{00431\ \ \ \textcolor{keywordflow}{return}\ Point<float>(high\_x,\ high\_y);}
+\DoxyCodeLine{00432\ \}}
+\DoxyCodeLine{00433\ }
+\DoxyCodeLine{00434\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_ad94bb84c5311daa7f8332f4731ab4101}{EqualizerResponse::computeFilterCoefficients}}()\ \{}
+\DoxyCodeLine{00435\ \ \ low\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a9532c1022d7f2bd019e391852d6bb5b9}{midi\_cutoff}}\ =\ getOutputTotal(low\_cutoff\_output\_,\ low\_cutoff\_);}
+\DoxyCodeLine{00436\ \ \ low\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_ab36a4ba7cfc2cdf20f9df4b64266103d}{resonance\_percent}}\ =\ getOutputTotal(low\_resonance\_output\_,\ low\_resonance\_);}
+\DoxyCodeLine{00437\ \ \ low\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a87a060d9aa7c6217b587a8fe39e94354}{gain}}\ =\ getOutputTotal(low\_gain\_output\_,\ low\_gain\_);}
+\DoxyCodeLine{00438\ \ \ \textcolor{keywordflow}{if}\ (high\_pass\_)\ \{}
+\DoxyCodeLine{00439\ \ \ \ \ low\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a612dfb5faa8c432ed85a59e7f42ccd8b}{style}}\ =\ \mbox{\hyperlink{classvital_1_1_synth_filter_adac93c0eaece607daba78f0af356d87bad2b77bdbebe3b92b68909835078b1fdd}{vital::DigitalSvf::k12Db}};}
+\DoxyCodeLine{00440\ \ \ \ \ low\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a3b9e6699bdd4ff6f2b48a28d08e390f3}{pass\_blend}}\ =\ 2.0f;}
+\DoxyCodeLine{00441\ \ \ \}}
+\DoxyCodeLine{00442\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00443\ \ \ \ \ low\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a612dfb5faa8c432ed85a59e7f42ccd8b}{style}}\ =\ \mbox{\hyperlink{classvital_1_1_synth_filter_adac93c0eaece607daba78f0af356d87baa414e15a207a6f5748ede6da762840a8}{vital::DigitalSvf::kShelving}};}
+\DoxyCodeLine{00444\ \ \ \ \ low\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a3b9e6699bdd4ff6f2b48a28d08e390f3}{pass\_blend}}\ =\ 0.0f;}
+\DoxyCodeLine{00445\ \ \ \}}
+\DoxyCodeLine{00446\ \ \ low\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_a9a45e6c2a45538fafa1a6ffd5ecca020}{setupFilter}}(low\_filter\_state\_);}
+\DoxyCodeLine{00447\ }
+\DoxyCodeLine{00448\ \ \ band\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a9532c1022d7f2bd019e391852d6bb5b9}{midi\_cutoff}}\ =\ getOutputTotal(band\_cutoff\_output\_,\ band\_cutoff\_);}
+\DoxyCodeLine{00449\ \ \ band\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_ab36a4ba7cfc2cdf20f9df4b64266103d}{resonance\_percent}}\ =\ getOutputTotal(band\_resonance\_output\_,\ band\_resonance\_);}
+\DoxyCodeLine{00450\ \ \ band\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a87a060d9aa7c6217b587a8fe39e94354}{gain}}\ =\ getOutputTotal(band\_gain\_output\_,\ band\_gain\_);}
+\DoxyCodeLine{00451\ \ \ band\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a3b9e6699bdd4ff6f2b48a28d08e390f3}{pass\_blend}}\ =\ 1.0f;}
+\DoxyCodeLine{00452\ \ \ \textcolor{keywordflow}{if}\ (notch\_)}
+\DoxyCodeLine{00453\ \ \ \ \ band\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a612dfb5faa8c432ed85a59e7f42ccd8b}{style}}\ =\ \mbox{\hyperlink{classvital_1_1_synth_filter_adac93c0eaece607daba78f0af356d87ba5205d6b5701d14240a054113b27cb779}{vital::DigitalSvf::kNotchPassSwap}};}
+\DoxyCodeLine{00454\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00455\ \ \ \ \ band\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a612dfb5faa8c432ed85a59e7f42ccd8b}{style}}\ =\ \mbox{\hyperlink{classvital_1_1_synth_filter_adac93c0eaece607daba78f0af356d87baa414e15a207a6f5748ede6da762840a8}{vital::DigitalSvf::kShelving}};}
+\DoxyCodeLine{00456\ \ \ band\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_a9a45e6c2a45538fafa1a6ffd5ecca020}{setupFilter}}(band\_filter\_state\_);}
+\DoxyCodeLine{00457\ }
+\DoxyCodeLine{00458\ \ \ high\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a9532c1022d7f2bd019e391852d6bb5b9}{midi\_cutoff}}\ =\ getOutputTotal(high\_cutoff\_output\_,\ high\_cutoff\_);}
+\DoxyCodeLine{00459\ \ \ high\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_ab36a4ba7cfc2cdf20f9df4b64266103d}{resonance\_percent}}\ =\ getOutputTotal(high\_resonance\_output\_,\ high\_resonance\_);}
+\DoxyCodeLine{00460\ \ \ high\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a87a060d9aa7c6217b587a8fe39e94354}{gain}}\ =\ getOutputTotal(high\_gain\_output\_,\ high\_gain\_);}
+\DoxyCodeLine{00461\ \ \ \textcolor{keywordflow}{if}\ (low\_pass\_)\ \{}
+\DoxyCodeLine{00462\ \ \ \ \ high\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a612dfb5faa8c432ed85a59e7f42ccd8b}{style}}\ =\ \mbox{\hyperlink{classvital_1_1_synth_filter_adac93c0eaece607daba78f0af356d87bad2b77bdbebe3b92b68909835078b1fdd}{vital::DigitalSvf::k12Db}};}
+\DoxyCodeLine{00463\ \ \ \ \ high\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a3b9e6699bdd4ff6f2b48a28d08e390f3}{pass\_blend}}\ =\ 0.0f;}
+\DoxyCodeLine{00464\ \ \ \}}
+\DoxyCodeLine{00465\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00466\ \ \ \ \ high\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a612dfb5faa8c432ed85a59e7f42ccd8b}{style}}\ =\ \mbox{\hyperlink{classvital_1_1_synth_filter_adac93c0eaece607daba78f0af356d87baa414e15a207a6f5748ede6da762840a8}{vital::DigitalSvf::kShelving}};}
+\DoxyCodeLine{00467\ \ \ \ \ high\_filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a3b9e6699bdd4ff6f2b48a28d08e390f3}{pass\_blend}}\ =\ 2.0f;}
+\DoxyCodeLine{00468\ \ \ \}}
+\DoxyCodeLine{00469\ }
+\DoxyCodeLine{00470\ \ \ high\_filter\_.\mbox{\hyperlink{classvital_1_1_digital_svf_a9a45e6c2a45538fafa1a6ffd5ecca020}{setupFilter}}(high\_filter\_state\_);}
+\DoxyCodeLine{00471\ \}}
+\DoxyCodeLine{00472\ }
+\DoxyCodeLine{00473\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_a0dec8a4ec7298e50c694227940123234}{EqualizerResponse::moveFilterSettings}}(Point<float>\ position)\ \{}
+\DoxyCodeLine{00474\ \ \ \textcolor{keywordflow}{if}\ (current\_cutoff\_)\ \{}
+\DoxyCodeLine{00475\ \ \ \ \ \textcolor{keywordtype}{float}\ ratio\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(position.x\ /\ getWidth(),\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00476\ \ \ \ \ \textcolor{keywordtype}{float}\ min\ =\ current\_cutoff\_-\/>getMinimum();}
+\DoxyCodeLine{00477\ \ \ \ \ \textcolor{keywordtype}{float}\ max\ =\ current\_cutoff\_-\/>getMaximum();}
+\DoxyCodeLine{00478\ \ \ \ \ \textcolor{keywordtype}{float}\ new\_cutoff\ =\ ratio\ *\ (max\ -\/\ min)\ +\ min;}
+\DoxyCodeLine{00479\ \ \ \ \ current\_cutoff\_-\/>\mbox{\hyperlink{class_synth_slider_a971cbd259f47fa91acb50c23bbf1c7f2}{showPopup}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00480\ \ \ \ \ current\_cutoff\_-\/>setValue(new\_cutoff);}
+\DoxyCodeLine{00481\ \ \ \}}
+\DoxyCodeLine{00482\ \ \ \textcolor{keywordflow}{if}\ (current\_gain\_)\ \{}
+\DoxyCodeLine{00483\ \ \ \ \ \textcolor{keywordtype}{float}\ local\_position\ =\ position.y\ -\/\ 0.5f\ *\ db\_buffer\_ratio\_\ *\ getHeight();}
+\DoxyCodeLine{00484\ \ \ \ \ \textcolor{keywordtype}{float}\ ratio\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(local\_position\ /\ ((1.0f\ -\/\ db\_buffer\_ratio\_)\ *\ getHeight()),\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00485\ \ \ \ \ \textcolor{keywordtype}{float}\ min\ =\ current\_gain\_-\/>getMinimum();}
+\DoxyCodeLine{00486\ \ \ \ \ \textcolor{keywordtype}{float}\ max\ =\ current\_gain\_-\/>getMaximum();}
+\DoxyCodeLine{00487\ \ \ \ \ \textcolor{keywordtype}{float}\ new\_db\ =\ ratio\ *\ (min\ -\/\ max)\ +\ max;}
+\DoxyCodeLine{00488\ \ \ \ \ current\_gain\_-\/>setValue(new\_db);}
+\DoxyCodeLine{00489\ \ \ \ \ current\_gain\_-\/>\mbox{\hyperlink{class_synth_slider_a971cbd259f47fa91acb50c23bbf1c7f2}{showPopup}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00490\ \ \ \}}
+\DoxyCodeLine{00491\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00492\ \ \ \ \ low\_gain\_-\/>\mbox{\hyperlink{class_synth_slider_a8ea275990cc48b5d0b67064816a201cd}{hidePopup}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00493\ \}}
+\DoxyCodeLine{00494\ }
+\DoxyCodeLine{00495\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_aa9f68f9f0d48f3388155191d57c6964a}{EqualizerResponse::setLowSliders}}(\mbox{\hyperlink{class_synth_slider}{SynthSlider}}\ *cutoff,}
+\DoxyCodeLine{00496\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}\ *\mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}},\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}\ *\mbox{\hyperlink{formant__filter_8cpp_a17ef5650d770eecdb2b915f7b7854f03}{gain}})\ \{}
+\DoxyCodeLine{00497\ \ \ \textcolor{keywordtype}{float}\ buffer\ =\ \mbox{\hyperlink{formant__filter_8cpp_a17ef5650d770eecdb2b915f7b7854f03}{gain}}-\/>getRange().getLength()\ *\ db\_buffer\_ratio\_;}
+\DoxyCodeLine{00498\ \ \ min\_db\_\ =\ \mbox{\hyperlink{formant__filter_8cpp_a17ef5650d770eecdb2b915f7b7854f03}{gain}}-\/>getMinimum()\ -\/\ buffer;}
+\DoxyCodeLine{00499\ \ \ max\_db\_\ =\ \mbox{\hyperlink{formant__filter_8cpp_a17ef5650d770eecdb2b915f7b7854f03}{gain}}-\/>getMaximum()\ +\ buffer;}
+\DoxyCodeLine{00500\ \ \ low\_cutoff\_\ =\ cutoff;}
+\DoxyCodeLine{00501\ \ \ low\_resonance\_\ =\ \mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}};}
+\DoxyCodeLine{00502\ \ \ low\_gain\_\ =\ \mbox{\hyperlink{formant__filter_8cpp_a17ef5650d770eecdb2b915f7b7854f03}{gain}};}
+\DoxyCodeLine{00503\ \ \ low\_cutoff\_-\/>\mbox{\hyperlink{class_synth_slider_a88c1d8906c28ca6f5186e920cc42b851}{addSliderListener}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00504\ \ \ \textcolor{keywordflow}{if}\ (low\_resonance\_)}
+\DoxyCodeLine{00505\ \ \ \ \ low\_resonance\_-\/>\mbox{\hyperlink{class_synth_slider_a88c1d8906c28ca6f5186e920cc42b851}{addSliderListener}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00506\ \ \ low\_gain\_-\/>\mbox{\hyperlink{class_synth_slider_a88c1d8906c28ca6f5186e920cc42b851}{addSliderListener}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00507\ \ \ repaint();}
+\DoxyCodeLine{00508\ \}}
+\DoxyCodeLine{00509\ }
+\DoxyCodeLine{00510\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_ace31023346eb0c031f307c6caca0a7f6}{EqualizerResponse::setBandSliders}}(\mbox{\hyperlink{class_synth_slider}{SynthSlider}}\ *cutoff,}
+\DoxyCodeLine{00511\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}\ *\mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}},\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}\ *\mbox{\hyperlink{formant__filter_8cpp_a17ef5650d770eecdb2b915f7b7854f03}{gain}})\ \{}
+\DoxyCodeLine{00512\ \ \ band\_cutoff\_\ =\ cutoff;}
+\DoxyCodeLine{00513\ \ \ band\_resonance\_\ =\ \mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}};}
+\DoxyCodeLine{00514\ \ \ band\_gain\_\ =\ \mbox{\hyperlink{formant__filter_8cpp_a17ef5650d770eecdb2b915f7b7854f03}{gain}};}
+\DoxyCodeLine{00515\ \ \ band\_cutoff\_-\/>\mbox{\hyperlink{class_synth_slider_a88c1d8906c28ca6f5186e920cc42b851}{addSliderListener}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00516\ \ \ \textcolor{keywordflow}{if}\ (band\_resonance\_)}
+\DoxyCodeLine{00517\ \ \ \ \ band\_resonance\_-\/>\mbox{\hyperlink{class_synth_slider_a88c1d8906c28ca6f5186e920cc42b851}{addSliderListener}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00518\ \ \ band\_gain\_-\/>\mbox{\hyperlink{class_synth_slider_a88c1d8906c28ca6f5186e920cc42b851}{addSliderListener}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00519\ \ \ repaint();}
+\DoxyCodeLine{00520\ \}}
+\DoxyCodeLine{00521\ }
+\DoxyCodeLine{00522\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_a10cebb46fc73cd177b4406f6cd66e6de}{EqualizerResponse::setHighSliders}}(\mbox{\hyperlink{class_synth_slider}{SynthSlider}}\ *cutoff,}
+\DoxyCodeLine{00523\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}\ *\mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}},\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}\ *\mbox{\hyperlink{formant__filter_8cpp_a17ef5650d770eecdb2b915f7b7854f03}{gain}})\ \{}
+\DoxyCodeLine{00524\ \ \ high\_cutoff\_\ =\ cutoff;}
+\DoxyCodeLine{00525\ \ \ high\_resonance\_\ =\ \mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}};}
+\DoxyCodeLine{00526\ \ \ high\_gain\_\ =\ \mbox{\hyperlink{formant__filter_8cpp_a17ef5650d770eecdb2b915f7b7854f03}{gain}};}
+\DoxyCodeLine{00527\ \ \ high\_cutoff\_-\/>\mbox{\hyperlink{class_synth_slider_a88c1d8906c28ca6f5186e920cc42b851}{addSliderListener}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00528\ \ \ \textcolor{keywordflow}{if}\ (high\_resonance\_)}
+\DoxyCodeLine{00529\ \ \ \ \ high\_resonance\_-\/>\mbox{\hyperlink{class_synth_slider_a88c1d8906c28ca6f5186e920cc42b851}{addSliderListener}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00530\ \ \ high\_gain\_-\/>\mbox{\hyperlink{class_synth_slider_a88c1d8906c28ca6f5186e920cc42b851}{addSliderListener}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00531\ \ \ repaint();}
+\DoxyCodeLine{00532\ \}}
+\DoxyCodeLine{00533\ }
+\DoxyCodeLine{00534\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_ad471aebc4a57b226a885e5f32f4adef8}{EqualizerResponse::setSelectedBand}}(\textcolor{keywordtype}{int}\ selected\_band)\ \{}
+\DoxyCodeLine{00535\ \ \ selected\_band\_\ =\ selected\_band;}
+\DoxyCodeLine{00536\ \ \ repaint();}
+\DoxyCodeLine{00537\ \}}
+\DoxyCodeLine{00538\ }
+\DoxyCodeLine{00539\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_a2bb2b38c47897338963bbe16440854a9}{EqualizerResponse::setActive}}(\textcolor{keywordtype}{bool}\ active)\ \{}
+\DoxyCodeLine{00540\ \ \ active\_\ =\ active;}
+\DoxyCodeLine{00541\ \ \ repaint();}
+\DoxyCodeLine{00542\ \}}
+\DoxyCodeLine{00543\ }
+\DoxyCodeLine{00544\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_a67b74b8f0b09d282a8452cd4a71c981c}{EqualizerResponse::setHighPass}}(\textcolor{keywordtype}{bool}\ high\_pass)\ \{}
+\DoxyCodeLine{00545\ \ \ high\_pass\_\ =\ high\_pass;}
+\DoxyCodeLine{00546\ \ \ repaint();}
+\DoxyCodeLine{00547\ \}}
+\DoxyCodeLine{00548\ }
+\DoxyCodeLine{00549\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_a5800c1744a34021b7f670939b049c456}{EqualizerResponse::setNotch}}(\textcolor{keywordtype}{bool}\ notch)\ \{}
+\DoxyCodeLine{00550\ \ \ notch\_\ =\ notch;}
+\DoxyCodeLine{00551\ \ \ repaint();}
+\DoxyCodeLine{00552\ \}}
+\DoxyCodeLine{00553\ }
+\DoxyCodeLine{00554\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_equalizer_response_a8af97c75a59b900c258c5dc29fe33d26}{EqualizerResponse::setLowPass}}(\textcolor{keywordtype}{bool}\ low\_pass)\ \{}
+\DoxyCodeLine{00555\ \ \ low\_pass\_\ =\ low\_pass;}
+\DoxyCodeLine{00556\ \ \ repaint();}
+\DoxyCodeLine{00557\ \}}
+\DoxyCodeLine{00558\ }
+\DoxyCodeLine{00559\ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ EqualizerResponse::getOutputTotal(\mbox{\hyperlink{structvital_1_1_output}{vital::Output}}*\ output,\ Slider*\ slider)\ \{}
+\DoxyCodeLine{00560\ \ \ \textcolor{keywordflow}{if}\ (output\ ==\ \textcolor{keyword}{nullptr}\ ||\ slider\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00561\ \ \ \ \ \textcolor{keywordflow}{return}\ 0.0f;}
+\DoxyCodeLine{00562\ \ \ \textcolor{keywordflow}{if}\ (!active\_\ ||\ !animate\_\ ||\ !output-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}-\/>\mbox{\hyperlink{classvital_1_1_processor_a74b147c92221c428c49a767fdc8364dd}{enabled}}())}
+\DoxyCodeLine{00563\ \ \ \ \ \textcolor{keywordflow}{return}\ slider-\/>getValue();}
+\DoxyCodeLine{00564\ \ \ \textcolor{keywordflow}{return}\ output-\/>\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}};}
+\DoxyCodeLine{00565\ \}}
+
+\end{DoxyCode}

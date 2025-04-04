@@ -1,0 +1,159 @@
+\doxysection{wavetable\+\_\+component\+\_\+list.\+h}
+\hypertarget{wavetable__component__list_8h_source}{}\label{wavetable__component__list_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/wavetable\_component\_list.h@{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/wavetable\_component\_list.h}}
+\mbox{\hyperlink{wavetable__component__list_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}JuceHeader.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{open__gl__multi__image_8h}{open\_gl\_multi\_image.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__section_8h}{synth\_section.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable__component__factory_8h}{wavetable\_component\_factory.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_wavetable_component}{WavetableComponent}};}
+\DoxyCodeLine{00009\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_wavetable_creator}{WavetableCreator}};}
+\DoxyCodeLine{00010\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_wavetable_group}{WavetableGroup}};}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00020\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_wavetable_component_viewport}{WavetableComponentViewport}}\ :\ \textcolor{keyword}{public}\ Viewport\ \{}
+\DoxyCodeLine{00021\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_wavetable_component_viewport_1_1_listener}{Listener}}\ \{}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_wavetable_component_viewport_1_1_listener_a32fce3dc02e83f66d0ec55fd45a1fb68}{\string~Listener}}()\ \{\ \}}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_viewport_1_1_listener_abd5288fd8be37f7c6764235fe2419ea4}{componentsScrolled}}()\ =\ 0;}
+\DoxyCodeLine{00033\ \ \ \ \ \};}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_viewport_ae7d89dfd027da5e9a45cbc75ce330c93}{addListener}}(\mbox{\hyperlink{class_wavetable_component_viewport_1_1_listener}{Listener}}*\ listener)\ \{\ listeners\_.push\_back(listener);\ \}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_viewport_a84cde5c66f4758395810cf1445b30e4f}{visibleAreaChanged}}(\textcolor{keyword}{const}\ Rectangle<int>\&\ newVisibleArea)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_wavetable_component_viewport_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ listener-\/>componentsScrolled();}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \ \ \ \ \ \ Viewport::visibleAreaChanged(newVisibleArea);}
+\DoxyCodeLine{00050\ \ \ \ \ \}}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00053\ \ \ \ \ std::vector<Listener*>\ listeners\_;}
+\DoxyCodeLine{00054\ \};}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00064\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_wavetable_component_list}{WavetableComponentList}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_synth_section}{SynthSection}},\ ScrollBar::Listener,}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_wavetable_component_viewport_1_1_listener}{WavetableComponentViewport::Listener}}\ \{}
+\DoxyCodeLine{00066\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_wavetable_component_list_ad7c14abc0f1481e68a3d6eac1fcef56c}{kMaxRows}}\ =\ 128;\ \ \ }
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_wavetable_component_list_a844eb9493c4e048deac63f80912576ee}{kMaxSources}}\ =\ 16;\ }
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keyword}{enum}\ \mbox{\hyperlink{class_wavetable_component_list_af518274569e46ba0bdc1c1bd92734e4d}{ComponentRowMenu}}\ \{}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_list_af518274569e46ba0bdc1c1bd92734e4da79c6e2e7df1509632bb989f4cf6fe2f8}{kRowCancel}}\ =\ 0,}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_list_af518274569e46ba0bdc1c1bd92734e4da38da8f456c75d27cc19ddbe9d89b9372}{kReset}},}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_list_af518274569e46ba0bdc1c1bd92734e4da125ad0ec01ae6e2b728afee170f849e5}{kMoveUp}},}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_list_af518274569e46ba0bdc1c1bd92734e4dab31cac83bc893364c3a6980e7239aefe}{kMoveDown}},}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_list_af518274569e46ba0bdc1c1bd92734e4da616ce4537b06a1d8c6009d9898849a40}{kRemove}}}
+\DoxyCodeLine{00080\ \ \ \ \ \};}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_wavetable_component_list_1_1_listener}{Listener}}\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_wavetable_component_list_1_1_listener_ab06fddf1cf45686783b3735f2aa546e9}{\string~Listener}}()\ \{\ \}}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_1_1_listener_a05360573150316c0d08629305b8e3306}{componentAdded}}(\mbox{\hyperlink{class_wavetable_component}{WavetableComponent}}*\ component)\ =\ 0;}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_1_1_listener_a854daf86929d72928dad81eed6af2ede}{componentRemoved}}(\mbox{\hyperlink{class_wavetable_component}{WavetableComponent}}*\ component)\ =\ 0;}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_1_1_listener_a2d7495be194ac6c8d8733ecd73e78901}{componentsReordered}}()\ =\ 0;}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_1_1_listener_a05b2f6592442f7794f132d99549c02fd}{componentsChanged}}()\ =\ 0;}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_1_1_listener_a2cbcbf29061444daf4be739f04a2aa28}{componentsScrolled}}(\textcolor{keywordtype}{int}\ offset)\ \{\ \}}
+\DoxyCodeLine{00117\ \ \ \ \ \};}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00123\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_list_a6641b468e81d048a2924c13eb8e68fde}{WavetableComponentList}}(\mbox{\hyperlink{class_wavetable_creator}{WavetableCreator}}*\ wavetable\_creator);}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_aeca8203edd0ffd5748c2a8e2381e7d3a}{clear}}();}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a7bc1aeb1964ae5b8b08bf70119dd2e71}{init}}();}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00138\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_ae739bf70edfccc6b35c568e0b2df9b97}{resized}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a0f06126e99fe8b0013f99f79ce0297f6}{paintBackground}}(Graphics\&\ g)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a436cae410a4ad099ece4dda831928171}{addListener}}(\mbox{\hyperlink{class_wavetable_component_list_1_1_listener}{Listener}}*\ listener)\ \{\ \mbox{\hyperlink{class_wavetable_component_list_a8b2ff154820362d3a6c27685bd1be74f}{listeners\_}}.push\_back(listener);\ \}}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_ab957f36fb030b046ce04bb903b05ae26}{setRowHeight}}(\textcolor{keywordtype}{int}\ row\_height)\ \{}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_list_a3762f2cf73071cfa115b5c9181c7b6ac}{row\_height\_}}\ =\ row\_height;}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_list_ad902a424fb9203270f16f9de2768f290}{resetGroups}}();}
+\DoxyCodeLine{00159\ \ \ \ \ \}}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00166\ \ \ \ \ std::pair<int,\ int>\ \mbox{\hyperlink{class_wavetable_component_list_abeda182c3ea9e72773f897d746d4fda9}{getIndicesForRow}}(\textcolor{keywordtype}{int}\ row\_index);}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00172\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a73bc17043cc326f565d74ff44f0d7970}{groupMenuClicked}}(\textcolor{keywordtype}{int}\ row\_index);}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00178\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a3ef1230a4209dfb5437e4d63da8111be}{modifierMenuClicked}}(\textcolor{keywordtype}{int}\ row\_index);}
+\DoxyCodeLine{00179\ }
+\DoxyCodeLine{00184\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a5d56f5586db0079edd24d509ef700017}{menuClicked}}(\textcolor{keywordtype}{int}\ row\_index);}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00190\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a99c4db649c10b7a5f1f461a75c4fddd2}{addModifierClicked}}(\textcolor{keywordtype}{int}\ group\_index);}
+\DoxyCodeLine{00194\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_ad9f690f57a83d09f5490b8f71e04ffde}{addSourceClicked}}();}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00200\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a64b42d45f4f23c4c2777d095aff086c6}{buttonClicked}}(Button*\ button)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00205\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a97d6b556a79ea1f0ebc7426421969139}{componentsScrolled}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00206\ }
+\DoxyCodeLine{00211\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a8be16a209bed2ea29844acdda9afb806}{addSource}}(\textcolor{keywordtype}{int}\ index);}
+\DoxyCodeLine{00212\ }
+\DoxyCodeLine{00217\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a948369a96dc9252380244cacc58657d8}{removeGroup}}(\textcolor{keywordtype}{int}\ index);}
+\DoxyCodeLine{00218\ }
+\DoxyCodeLine{00223\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a41b6ee7c82e5a95e4b60a5c6a35f3621}{addComponent}}(\textcolor{keywordtype}{int}\ type);}
+\DoxyCodeLine{00224\ }
+\DoxyCodeLine{00228\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a9ca2ee58b7731bae503300f5c01f5339}{removeComponent}}();}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00233\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_afd08213d21006fc02a57affaa9bd17ca}{resetComponent}}();}
+\DoxyCodeLine{00234\ }
+\DoxyCodeLine{00238\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a948369a96dc9252380244cacc58657d8}{removeGroup}}();}
+\DoxyCodeLine{00239\ }
+\DoxyCodeLine{00243\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_ab1e476384241eeaa403e2c224e49128d}{moveGroupUp}}();}
+\DoxyCodeLine{00244\ }
+\DoxyCodeLine{00248\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_ad432a5417455df3af6682028e5a31dfd}{moveGroupDown}}();}
+\DoxyCodeLine{00252\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a175197b3ea6b78acdd5d8b8848e2ddf3}{moveModifierUp}}();}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00257\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a4fba739c636ed03db1d61369b7e9a68a}{moveModifierDown}}();}
+\DoxyCodeLine{00258\ }
+\DoxyCodeLine{00262\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_wavetable_component_list_a3443e91e937be53ed2ec8dcac155f051}{numGroups}}()\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wavetable_component_list_a98ebf98d639698d4b31be16cfb948c62}{wavetable\_creator\_}}-\/>\mbox{\hyperlink{class_wavetable_creator_a999deb2d90ba845a5c3d15f0bcc617f5}{numGroups}}();\ \}}
+\DoxyCodeLine{00263\ }
+\DoxyCodeLine{00268\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a994f20d5903237383e8a4cef9ab4679b}{notifyComponentAdded}}(\mbox{\hyperlink{class_wavetable_component}{WavetableComponent}}*\ component);}
+\DoxyCodeLine{00269\ }
+\DoxyCodeLine{00274\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_ab3dd8e6d6da4aa018ea0a989259bdb07}{notifyComponentRemoved}}(\mbox{\hyperlink{class_wavetable_component}{WavetableComponent}}*\ component);}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00279\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_adcdbc877168fe5b6707d261c76a7ebb7}{notifyComponentsReordered}}();}
+\DoxyCodeLine{00280\ }
+\DoxyCodeLine{00284\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_aecd5d96412bd96f7a03974fc287dfd76}{notifyComponentsChanged}}();}
+\DoxyCodeLine{00285\ }
+\DoxyCodeLine{00291\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_ae7e71fd778820a7ad85df7ea055436be}{scrollBarMoved}}(ScrollBar*\ scroll\_bar,\ \textcolor{keywordtype}{double}\ range\_start)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00298\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a7241eea69a88bbc66e594e3a7f96b93a}{scroll}}(\textcolor{keyword}{const}\ MouseEvent\&\ e,\ \textcolor{keyword}{const}\ MouseWheelDetails\&\ wheel)\ \{}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_list_a3bbedea06cfaed3f68957ee40f6aa797}{viewport\_}}.mouseWheelMove(e,\ wheel);}
+\DoxyCodeLine{00300\ \ \ \ \ \}}
+\DoxyCodeLine{00301\ }
+\DoxyCodeLine{00302\ \ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00306\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_ad902a424fb9203270f16f9de2768f290}{resetGroups}}();}
+\DoxyCodeLine{00307\ }
+\DoxyCodeLine{00311\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_a4c15637bf1eeb301111a83bb13abcc58}{positionGroups}}();}
+\DoxyCodeLine{00312\ }
+\DoxyCodeLine{00316\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_list_ac544cdbc296a56ffbb566a2210e6f73d}{setScrollBarRange}}();}
+\DoxyCodeLine{00317\ }
+\DoxyCodeLine{00318\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_viewport}{WavetableComponentViewport}}\ \mbox{\hyperlink{class_wavetable_component_list_a3bbedea06cfaed3f68957ee40f6aa797}{viewport\_}};\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00319\ \ \ \ \ Component\ \mbox{\hyperlink{class_wavetable_component_list_a9c5d65f054157a2ed58f27c4177af80a}{component\_container\_}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00320\ \ \ \ \ std::unique\_ptr<OpenGlScrollBar>\ \mbox{\hyperlink{class_wavetable_component_list_a4eda87a84379b141ca7b666137576b62}{scroll\_bar\_}};\ \ \ \ }
+\DoxyCodeLine{00321\ }
+\DoxyCodeLine{00322\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator}{WavetableCreator}}*\ \mbox{\hyperlink{class_wavetable_component_list_a98ebf98d639698d4b31be16cfb948c62}{wavetable\_creator\_}};\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00323\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_wavetable_component_list_accef99480f34df407dd6178a9b12c216}{current\_group\_index\_}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00324\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_wavetable_component_list_a273d2c6a9f9fd0e604b5d72637dcdbab}{current\_component\_index\_}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00325\ \ \ \ \ std::vector<Listener*>\ \mbox{\hyperlink{class_wavetable_component_list_a8b2ff154820362d3a6c27685bd1be74f}{listeners\_}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00326\ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad}{OpenGlMultiQuad}}\ \mbox{\hyperlink{class_wavetable_component_list_ab951b7a2a2b5551946be7b3ff47fb6c4}{component\_backgrounds\_}};\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00327\ \ \ \ \ std::unique\_ptr<PlainTextComponent>\ \mbox{\hyperlink{class_wavetable_component_list_a66ad60c33d07cd9d9da6770c0128e7d6}{names\_}}[\mbox{\hyperlink{class_wavetable_component_list_ad7c14abc0f1481e68a3d6eac1fcef56c}{kMaxRows}}];\ \ \ \ \ \ }
+\DoxyCodeLine{00328\ \ \ \ \ std::unique\_ptr<OpenGlShapeButton>\ \mbox{\hyperlink{class_wavetable_component_list_a53f8f6c3de1e507f45569a7cf99f84cc}{menu\_buttons\_}}[\mbox{\hyperlink{class_wavetable_component_list_ad7c14abc0f1481e68a3d6eac1fcef56c}{kMaxRows}}];}
+\DoxyCodeLine{00329\ \ \ \ \ std::unique\_ptr<OpenGlToggleButton>\ \mbox{\hyperlink{class_wavetable_component_list_ab380aafba5053b4d69e5cc8f125ed80a}{create\_component\_button\_}};\ }
+\DoxyCodeLine{00330\ \ \ \ \ std::unique\_ptr<OpenGlToggleButton>\ \mbox{\hyperlink{class_wavetable_component_list_a14c9863bd428cb15a0139b5745318c3b}{add\_modifier\_buttons\_}}[\mbox{\hyperlink{class_wavetable_component_list_a844eb9493c4e048deac63f80912576ee}{kMaxSources}}];\ }
+\DoxyCodeLine{00331\ \ \ \ \ std::unique\_ptr<PlainShapeComponent>\ \mbox{\hyperlink{class_wavetable_component_list_a2b9335300e7dd47e48570eab7cb24e89}{plus\_icons\_}}[\mbox{\hyperlink{class_wavetable_component_list_a844eb9493c4e048deac63f80912576ee}{kMaxSources}}\ +\ 1];\ \ \ \ \ \ \ }
+\DoxyCodeLine{00332\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_wavetable_component_list_a3762f2cf73071cfa115b5c9181c7b6ac}{row\_height\_}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00333\ }
+\DoxyCodeLine{00334\ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(\mbox{\hyperlink{class_wavetable_component_list}{WavetableComponentList}})}
+\DoxyCodeLine{00335\ \};}
+
+\end{DoxyCode}

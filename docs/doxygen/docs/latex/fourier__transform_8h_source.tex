@@ -1,0 +1,181 @@
+\doxysection{fourier\+\_\+transform.\+h}
+\hypertarget{fourier__transform_8h_source}{}\label{fourier__transform_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/fourier\_transform.h@{/Users/davidvogel/repos/VitalHelp/src/common/fourier\_transform.h}}
+\mbox{\hyperlink{fourier__transform_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}JuceHeader.h"{}}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#if\ INTEL\_IPP}}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\ \ \ \ \#include\ "{}ipps.h"{}}}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00025\ \textcolor{keyword}{class\ }FourierTransform\ \{}
+\DoxyCodeLine{00026\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00035\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_fourier_transform_a39510b0c3842178eb71bad28e2066e5d}{FourierTransform}}(\textcolor{keywordtype}{int}\ bits)\ :\ size\_(1\ <<\ bits)\ \{}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ spec\_size\ =\ 0;}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ spec\_buffer\_size\ =\ 0;}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ buffer\_size\ =\ 0;}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ ippsFFTGetSize\_R\_32f(bits,\ IPP\_FFT\_DIV\_INV\_BY\_N,\ ippAlgHintNone,\ \&spec\_size,\ \&spec\_buffer\_size,\ \&buffer\_size);}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \ \ \ \ spec\_\ =\ std::make\_unique<Ipp8u[]>(spec\_size);}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ spec\_buffer\_\ =\ std::make\_unique<Ipp8u[]>(spec\_buffer\_size);}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ buffer\_\ =\ std::make\_unique<Ipp8u[]>(buffer\_size);}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \ \ \ \ ippsFFTInit\_R\_32f(\&ipp\_specs\_,\ bits,\ IPP\_FFT\_DIV\_INV\_BY\_N,\ ippAlgHintNone,\ spec\_.get(),\ spec\_buffer\_.get());}
+\DoxyCodeLine{00046\ \ \ \ \ \}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_fourier_transform_a20f55f365c06d40fc63b2e31efb118e1}{transformRealForward}}(\textcolor{keywordtype}{float}*\ data)\ \{}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ data[size\_]\ =\ 0.0f;}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ ippsFFTFwd\_RToPerm\_32f\_I((Ipp32f*)data,\ ipp\_specs\_,\ buffer\_.get());}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ data[size\_]\ =\ data[1];}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ data[size\_\ +\ 1]\ =\ 0.0f;}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ data[1]\ =\ 0.0f;}
+\DoxyCodeLine{00062\ \ \ \ \ \}}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_fourier_transform_a324e5f4dec2ffa53b77b256e3e4d1ec7}{transformRealInverse}}(\textcolor{keywordtype}{float}*\ data)\ \{}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ data[1]\ =\ data[size\_];}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ ippsFFTInv\_PermToR\_32f\_I((Ipp32f*)data,\ ipp\_specs\_,\ buffer\_.get());}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ memset(data\ +\ size\_,\ 0,\ size\_\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}));}
+\DoxyCodeLine{00076\ \ \ \ \ \}}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{keywordtype}{int}\ size\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00080\ \ \ \ \ IppsFFTSpec\_R\_32f*\ ipp\_specs\_;\ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00081\ \ \ \ \ std::unique\_ptr<Ipp8u[]>\ spec\_;\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00082\ \ \ \ \ std::unique\_ptr<Ipp8u[]>\ spec\_buffer\_;\ \ \ }
+\DoxyCodeLine{00083\ \ \ \ \ std::unique\_ptr<Ipp8u[]>\ buffer\_;\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \ \ JUCE\_LEAK\_DETECTOR(\mbox{\hyperlink{classvital_1_1_fourier_transform_a39510b0c3842178eb71bad28e2066e5d}{FourierTransform}})}
+\DoxyCodeLine{00086\ \};}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \textcolor{preprocessor}{\#elif\ JUCE\_MODULE\_AVAILABLE\_juce\_dsp}}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keyword}{class\ }FourierTransform\ \{}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_fourier_transform_a39510b0c3842178eb71bad28e2066e5d}{FourierTransform}}(\textcolor{keywordtype}{int}\ bits)\ :\ fft\_(bits)\ \{\ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_fourier_transform_a20f55f365c06d40fc63b2e31efb118e1}{transformRealForward}}(\textcolor{keywordtype}{float}*\ data)\ \{\ fft\_.performRealOnlyForwardTransform(data,\ \textcolor{keyword}{true});\ \}}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_fourier_transform_a324e5f4dec2ffa53b77b256e3e4d1ec7}{transformRealInverse}}(\textcolor{keywordtype}{float}*\ data)\ \{\ fft\_.performRealOnlyInverseTransform(data);\ \}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ dsp::FFT\ fft\_;\ }
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ JUCE\_LEAK\_DETECTOR(\mbox{\hyperlink{classvital_1_1_fourier_transform_a39510b0c3842178eb71bad28e2066e5d}{FourierTransform}})}
+\DoxyCodeLine{00126\ \ \ \ \ \};}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \textcolor{preprocessor}{\#elif\ \_\_APPLE\_\_}}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00130\ \textcolor{preprocessor}{\ \ \ \ \#define\ VIMAGE\_H}}
+\DoxyCodeLine{00131\ \textcolor{preprocessor}{\#include\ <Accelerate/Accelerate.h>}}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00141\ \textcolor{keyword}{class\ }FourierTransform\ \{}
+\DoxyCodeLine{00142\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00148\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_fourier_transform_a39510b0c3842178eb71bad28e2066e5d}{FourierTransform}}(vDSP\_Length\ bits)\ :\ setup\_(vDSP\_create\_fftsetup(bits,\ 2)),\ bits\_(bits),\ size\_(1\ <<\ bits)\ \{\ \}}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00153\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_fourier_transform_a7587cfb5dc8cf0888025078595821e67}{\string~FourierTransform}}()\ \{}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ vDSP\_destroy\_fftsetup(setup\_);}
+\DoxyCodeLine{00155\ \ \ \ \ \}}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_fourier_transform_a20f55f365c06d40fc63b2e31efb118e1}{transformRealForward}}(\textcolor{keywordtype}{float}*\ data)\ \{}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ kMult\ =\ 0.5f;}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ data[size\_]\ =\ 0.0f;}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ DSPSplitComplex\ split\ =\ \{\ data,\ data\ +\ 1\ \};}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ vDSP\_fft\_zrip(setup\_,\ \&split,\ 2,\ bits\_,\ kFFTDirection\_Forward);}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ vDSP\_vsmul(data,\ 1,\ \&kMult,\ data,\ 1,\ size\_);}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \ \ \ \ \ \ data[size\_]\ =\ data[1];}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ data[size\_\ +\ 1]\ =\ 0.0f;}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ data[1]\ =\ 0.0f;}
+\DoxyCodeLine{00172\ \ \ \ \ \}}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00179\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_fourier_transform_a324e5f4dec2ffa53b77b256e3e4d1ec7}{transformRealInverse}}(\textcolor{keywordtype}{float}*\ data)\ \{}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ multiplier\ =\ 1.0f\ /\ size\_;}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ DSPSplitComplex\ split\ =\ \{\ data,\ data\ +\ 1\ \};}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ data[1]\ =\ data[size\_];}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \ \ \ \ \ \ vDSP\_fft\_zrip(setup\_,\ \&split,\ 2,\ bits\_,\ kFFTDirection\_Inverse);}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ vDSP\_vsmul(data,\ 1,\ \&multiplier,\ data,\ 1,\ size\_\ *\ 2);}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ memset(data\ +\ size\_,\ 0,\ size\_\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}));}
+\DoxyCodeLine{00187\ \ \ \ \ \}}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00190\ \ \ \ \ FFTSetup\ setup\_;\ \ \ \ \ \ }
+\DoxyCodeLine{00191\ \ \ \ \ vDSP\_Length\ bits\_;\ \ \ \ }
+\DoxyCodeLine{00192\ \ \ \ \ vDSP\_Length\ size\_;\ \ \ \ }
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \ \ \ \ JUCE\_LEAK\_DETECTOR(\mbox{\hyperlink{classvital_1_1_fourier_transform_a39510b0c3842178eb71bad28e2066e5d}{FourierTransform}})}
+\DoxyCodeLine{00195\ \};}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00198\ }
+\DoxyCodeLine{00199\ \textcolor{preprocessor}{\#include\ "{}kissfft/kissfft.h"{}}}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00210\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classvital_1_1_fourier_transform}{FourierTransform}}\ \{}
+\DoxyCodeLine{00211\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00217\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_fourier_transform_a39510b0c3842178eb71bad28e2066e5d}{FourierTransform}}(\textcolor{keywordtype}{size\_t}\ bits)\ :\ bits\_(bits),\ size\_(1\ <<\ bits),\ forward\_(size\_,\ false),\ inverse\_(size\_,\ true)\ \{}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ buffer\_\ =\ std::make\_unique<std::complex<float>[]>(size\_);}
+\DoxyCodeLine{00219\ \ \ \ \ \}}
+\DoxyCodeLine{00220\ }
+\DoxyCodeLine{00224\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_fourier_transform_a7587cfb5dc8cf0888025078595821e67}{\string~FourierTransform}}()\ \{\ \}}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00234\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_fourier_transform_a20f55f365c06d40fc63b2e31efb118e1}{transformRealForward}}(\textcolor{keywordtype}{float}*\ data)\ \{}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ size\_\ -\/\ 1;\ i\ >=\ 0;\ -\/-\/i)\ \{}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \ \ data[2\ *\ i]\ =\ data[i];}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \ \ data[2\ *\ i\ +\ 1]\ =\ 0.0f;}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00239\ }
+\DoxyCodeLine{00240\ \ \ \ \ \ \ forward\_.transform((std::complex<float>*)data,\ buffer\_.get());}
+\DoxyCodeLine{00241\ }
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_floats\ =\ size\_\ *\ 2;}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ memcpy(data,\ buffer\_.get(),\ num\_floats\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}));}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ data[size\_]\ =\ data[1];}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ data[size\_\ +\ 1]\ =\ 0.0f;}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ data[1]\ =\ 0.0f;}
+\DoxyCodeLine{00247\ \ \ \ \ \}}
+\DoxyCodeLine{00248\ }
+\DoxyCodeLine{00257\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_fourier_transform_a324e5f4dec2ffa53b77b256e3e4d1ec7}{transformRealInverse}}(\textcolor{keywordtype}{float}*\ data)\ \{}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ data[0]\ *=\ 0.5f;}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ data[1]\ =\ data[size\_];}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ inverse\_.transform((std::complex<float>*)data,\ buffer\_.get());}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_floats\ =\ size\_\ *\ 2;}
+\DoxyCodeLine{00262\ }
+\DoxyCodeLine{00263\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ multiplier\ =\ 2.0f\ /\ size\_;}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ size\_;\ ++i)}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ data[i]\ =\ buffer\_[i].real()\ *\ multiplier;}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00267\ \ \ \ \ \ \ memset(data\ +\ size\_,\ 0,\ size\_\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}));}
+\DoxyCodeLine{00268\ \ \ \ \ \}}
+\DoxyCodeLine{00269\ }
+\DoxyCodeLine{00270\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00271\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bits\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00272\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ size\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00273\ \ \ \ \ std::unique\_ptr<std::complex<float>[]>\ buffer\_;\ \ \ \ }
+\DoxyCodeLine{00274\ \ \ \ \ kissfft<float>\ forward\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00275\ \ \ \ \ kissfft<float>\ inverse\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00276\ }
+\DoxyCodeLine{00277\ \ \ \ \ JUCE\_LEAK\_DETECTOR(\mbox{\hyperlink{classvital_1_1_fourier_transform}{FourierTransform}})}
+\DoxyCodeLine{00278\ \};}
+\DoxyCodeLine{00279\ }
+\DoxyCodeLine{00280\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00281\ }
+\DoxyCodeLine{00290\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keywordtype}{size\_t}\ bits>}
+\DoxyCodeLine{00291\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{classvital_1_1_f_f_t}{FFT}}\ \{}
+\DoxyCodeLine{00292\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{classvital_1_1_fourier_transform}{FourierTransform}}*\ \mbox{\hyperlink{classvital_1_1_f_f_t_aeda0db77a9473b941c1ce1a5b2d5ee9e}{transform}}()\ \{}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{classvital_1_1_f_f_t}{FFT<bits>}}\ instance;}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \&instance.fourier\_transform\_;}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00302\ }
+\DoxyCodeLine{00303\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_f_f_t}{FFT}}()\ :\ fourier\_transform\_(bits)\ \{\ \}}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \ \ FourierTransform\ fourier\_transform\_;\ }
+\DoxyCodeLine{00310\ \ \ \ \ \};}
+\DoxyCodeLine{00311\ }
+\DoxyCodeLine{00312\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

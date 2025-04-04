@@ -1,0 +1,125 @@
+\doxysection{wave\+\_\+line\+\_\+source.\+cpp}
+\hypertarget{wave__line__source_8cpp_source}{}\label{wave__line__source_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/wave\_line\_source.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/wave\_line\_source.cpp}}
+\mbox{\hyperlink{wave__line__source_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{WaveLineSource\ constructs\ wavetables\ using\ a\ line\ generator\ that\ defines\ a\ waveform\ through\ a\ set\ of\ points.\ By\ adjusting\ the\ points’\ positions\ and\ power\ values,\ and\ optionally\ smoothing\ the\ line,\ it\ produces\ a\ custom\ waveform\ shape.\ Keyframes\ store\ configurations\ of\ these\ line-\/based\ shapes,\ and\ interpolation\ (including\ nonlinear\ “pull\_power”\ effects)\ allows\ the\ waveform\ to\ evolve\ smoothly\ from\ one\ shape\ to\ another\ across\ the\ wavetable’s\ dimension.}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__line__source_8h}{wave\_line\_source.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{futils_8h}{futils.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{poly__utils_8h}{poly\_utils.h}}"{}}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__frame_8h}{wave\_frame.h}}"{}}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable__component__factory_8h}{wavetable\_component\_factory.h}}"{}}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_a4786fd0e790e05567ae7fad8ed5322c7}{WaveLineSource::WaveLineSourceKeyframe::WaveLineSourceKeyframe}}()\ :}
+\DoxyCodeLine{00015\ \ \ \ \ line\_generator\_(\mbox{\hyperlink{namespacevital}{vital}}::WaveFrame::kWaveformSize)\ \{}
+\DoxyCodeLine{00016\ \ \ \mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_a43ebc6ded8d620406d757555b063be35}{pull\_power\_}}\ =\ 0.0f;}
+\DoxyCodeLine{00017\ \}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_a49a58ee06f1cdbc64e56a30e6a494676}{WaveLineSource::WaveLineSourceKeyframe::copy}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00020\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe}{WaveLineSourceKeyframe}}*\ source\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe}{WaveLineSourceKeyframe}}*\textcolor{keyword}{>}(keyframe);}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_line_generator}{LineGenerator}}*\ source\_generator\ =\ source-\/>\mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_a64d826f56d5bb88388e1a1f0d7609078}{getLineGenerator}}();}
+\DoxyCodeLine{00023\ \ \ line\_generator\_.\mbox{\hyperlink{class_line_generator_acdb39dc84482a37f744bbf60dc1a9a87}{setNumPoints}}(source\_generator-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}());}
+\DoxyCodeLine{00024\ \ \ line\_generator\_.setSmooth(source\_generator-\/>\mbox{\hyperlink{class_line_generator_a2e1674a8c96e24da8d489cf28d6e92dd}{smooth}}());}
+\DoxyCodeLine{00025\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ line\_generator\_.getNumPoints();\ ++i)\ \{}
+\DoxyCodeLine{00026\ \ \ \ \ line\_generator\_.setPoint(i,\ source\_generator-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(i));}
+\DoxyCodeLine{00027\ \ \ \ \ line\_generator\_.setPower(i,\ source\_generator-\/>\mbox{\hyperlink{class_line_generator_ae437c231493f083a30cba07a135e81e9}{getPower}}(i));}
+\DoxyCodeLine{00028\ \ \ \}}
+\DoxyCodeLine{00029\ \}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_ad6196aa362acbcbcf4229d205d585496}{WaveLineSource::WaveLineSourceKeyframe::interpolate}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ from\_keyframe,}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ to\_keyframe,}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t)\ \{}
+\DoxyCodeLine{00034\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe}{WaveLineSourceKeyframe}}*\ from\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe}{WaveLineSourceKeyframe}}*\textcolor{keyword}{>}(from\_keyframe);}
+\DoxyCodeLine{00035\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe}{WaveLineSourceKeyframe}}*\ to\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe}{WaveLineSourceKeyframe}}*\textcolor{keyword}{>}(to\_keyframe);}
+\DoxyCodeLine{00036\ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(from-\/>\mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_a266e4536854f935c7b9d5128ecac8964}{getNumPoints}}()\ ==\ to-\/>\mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_a266e4536854f935c7b9d5128ecac8964}{getNumPoints}}());}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \textcolor{comment}{//\ Use\ pull\_power\_\ to\ nonlinearize\ interpolation\ parameter\ 't'.}}
+\DoxyCodeLine{00039\ \ \ \textcolor{keywordtype}{float}\ relative\_power\ =\ from-\/>\mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_a667d55436271a9185f9566ec7a18c5cc}{getPullPower}}()\ -\/\ to-\/>\mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_a667d55436271a9185f9566ec7a18c5cc}{getPullPower}}();}
+\DoxyCodeLine{00040\ \ \ \textcolor{keywordtype}{float}\ adjusted\_t\ =\ \mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{vital::futils::powerScale}}(t,\ relative\_power);}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_line_generator}{LineGenerator}}*\ from\_generator\ =\ from-\/>\mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_a64d826f56d5bb88388e1a1f0d7609078}{getLineGenerator}}();}
+\DoxyCodeLine{00043\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_line_generator}{LineGenerator}}*\ to\_generator\ =\ to-\/>\mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_a64d826f56d5bb88388e1a1f0d7609078}{getLineGenerator}}();}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordtype}{int}\ num\_points\ =\ from\_generator-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}();}
+\DoxyCodeLine{00045\ \ \ line\_generator\_.setNumPoints(num\_points);}
+\DoxyCodeLine{00046\ \ \ line\_generator\_.setSmooth(from\_generator-\/>\mbox{\hyperlink{class_line_generator_a2e1674a8c96e24da8d489cf28d6e92dd}{smooth}}());}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \textcolor{comment}{//\ Interpolate\ each\ point\ and\ power\ value\ based\ on\ adjusted\_t.}}
+\DoxyCodeLine{00049\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_points;\ ++i)\ \{}
+\DoxyCodeLine{00050\ \ \ \ \ std::pair<float,\ float>\ from\_point\ =\ from\_generator-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(i);}
+\DoxyCodeLine{00051\ \ \ \ \ std::pair<float,\ float>\ to\_point\ =\ to\_generator-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(i);}
+\DoxyCodeLine{00052\ \ \ \ \ line\_generator\_.setPoint(i,\ \{}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ linearTween(from\_point.first,\ to\_point.first,\ adjusted\_t),}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ linearTween(from\_point.second,\ to\_point.second,\ adjusted\_t),}
+\DoxyCodeLine{00055\ \ \ \ \ \});}
+\DoxyCodeLine{00056\ \ \ \ \ line\_generator\_.setPower(i,\ linearTween(from\_generator-\/>\mbox{\hyperlink{class_line_generator_ae437c231493f083a30cba07a135e81e9}{getPower}}(i),\ to\_generator-\/>\mbox{\hyperlink{class_line_generator_ae437c231493f083a30cba07a135e81e9}{getPower}}(i),\ adjusted\_t));}
+\DoxyCodeLine{00057\ \ \ \}}
+\DoxyCodeLine{00058\ \}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_a3926c3e8f285e6e2934c555cfa8dacc4}{WaveLineSource::WaveLineSourceKeyframe::render}}(\mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ wave\_frame)\ \{}
+\DoxyCodeLine{00061\ \ \ \textcolor{comment}{//\ Render\ the\ line-\/based\ waveform\ and\ map\ it\ from\ [0,1]\ to\ [-\/1,1].}}
+\DoxyCodeLine{00062\ \ \ line\_generator\_.render();}
+\DoxyCodeLine{00063\ \ \ memcpy(wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}},\ line\_generator\_.getBuffer(),\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}}\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}));}
+\DoxyCodeLine{00064\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};\ ++i)}
+\DoxyCodeLine{00065\ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i]\ =\ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i]\ *\ 2.0f\ -\/\ 1.0f;}
+\DoxyCodeLine{00066\ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a55389465c6dd32414e034d10834ff0ee}{toFrequencyDomain}}();}
+\DoxyCodeLine{00067\ \}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_ac0927b43adb651f33383410bd32de411}{WaveLineSource::WaveLineSourceKeyframe::stateToJson}}()\ \{}
+\DoxyCodeLine{00070\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_wavetable_keyframe_ab12d53e98f7188d011cd3c69e86d2bda}{WavetableKeyframe::stateToJson}}();}
+\DoxyCodeLine{00071\ \ \ data[\textcolor{stringliteral}{"{}pull\_power"{}}]\ =\ pull\_power\_;}
+\DoxyCodeLine{00072\ \ \ data[\textcolor{stringliteral}{"{}line"{}}]\ =\ line\_generator\_.stateToJson();}
+\DoxyCodeLine{00073\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00074\ \}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_a38a1a5845e3a93a3714504e6042591b2}{WaveLineSource::WaveLineSourceKeyframe::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00077\ \ \ \mbox{\hyperlink{class_wavetable_keyframe_ad0e81b3bdc5fe9a3d901dec69d9b7b5b}{WavetableKeyframe::jsonToState}}(data);}
+\DoxyCodeLine{00078\ \ \ pull\_power\_\ =\ 0.0f;}
+\DoxyCodeLine{00079\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}pull\_power"{}}))}
+\DoxyCodeLine{00080\ \ \ \ \ pull\_power\_\ =\ data[\textcolor{stringliteral}{"{}pull\_power"{}}];}
+\DoxyCodeLine{00081\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}line"{}}))}
+\DoxyCodeLine{00082\ \ \ \ \ line\_generator\_.jsonToState(data[\textcolor{stringliteral}{"{}line"{}}]);}
+\DoxyCodeLine{00083\ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ \mbox{\hyperlink{class_wave_line_source_ae211cead29520a8e5f44e7ba7d580f52}{WaveLineSource::createKeyframe}}(\textcolor{keywordtype}{int}\ position)\ \{}
+\DoxyCodeLine{00086\ \ \ \mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe}{WaveLineSourceKeyframe}}*\ keyframe\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe}{WaveLineSourceKeyframe}}();}
+\DoxyCodeLine{00087\ \ \ \mbox{\hyperlink{class_wavetable_component_a59b735ee67cc2281379418304de76b6d}{interpolate}}(keyframe,\ position);}
+\DoxyCodeLine{00088\ \ \ \textcolor{keywordflow}{return}\ keyframe;}
+\DoxyCodeLine{00089\ \}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_line_source_af664ba947cd398c9fa7c77ec8b8a6ff1}{WaveLineSource::render}}(\mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ wave\_frame,\ \textcolor{keywordtype}{float}\ position)\ \{}
+\DoxyCodeLine{00092\ \ \ \textcolor{comment}{//\ Interpolate\ the\ compute\_frame\_\ and\ render\ the\ final\ line-\/based\ waveform.}}
+\DoxyCodeLine{00093\ \ \ \mbox{\hyperlink{class_wavetable_component_a59b735ee67cc2281379418304de76b6d}{interpolate}}(\&\mbox{\hyperlink{class_wave_line_source_aedc6f6aacf5655d2d6d9ef60e72276d1}{compute\_frame\_}},\ position);}
+\DoxyCodeLine{00094\ \ \ \mbox{\hyperlink{class_wave_line_source_aedc6f6aacf5655d2d6d9ef60e72276d1}{compute\_frame\_}}.\mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_a3926c3e8f285e6e2934c555cfa8dacc4}{render}}(wave\_frame);}
+\DoxyCodeLine{00095\ \}}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bd}{WavetableComponentFactory::ComponentType}}\ \mbox{\hyperlink{class_wave_line_source_a45adc20d7b7a61d99715fd484b1e2b73}{WaveLineSource::getType}}()\ \{}
+\DoxyCodeLine{00098\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bdaaa29985432e2786c2d63859e9b4e2495}{WavetableComponentFactory::kLineSource}};}
+\DoxyCodeLine{00099\ \}}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_wave_line_source_a95da491511009996c3a94d0ed3b3ed4c}{WaveLineSource::stateToJson}}()\ \{}
+\DoxyCodeLine{00102\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_wavetable_component_a1c7bd3ba09cf3093d5aea225ee876b02}{WavetableComponent::stateToJson}}();}
+\DoxyCodeLine{00103\ \ \ data[\textcolor{stringliteral}{"{}num\_points"{}}]\ =\ \mbox{\hyperlink{class_wave_line_source_a3acfb3f1a008423e45a7bfccbdf0981a}{num\_points\_}};}
+\DoxyCodeLine{00104\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00105\ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_line_source_add89d59d6ade6ea1909d9f1e72f54ecb}{WaveLineSource::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00108\ \ \ \mbox{\hyperlink{class_wavetable_component_a656616fbc4a9d37b7e76c4179f496196}{WavetableComponent::jsonToState}}(data);}
+\DoxyCodeLine{00109\ \ \ \mbox{\hyperlink{class_wave_line_source_ae07b5a5b3cdd95eba8964d8ed4a4f44f}{setNumPoints}}(data[\textcolor{stringliteral}{"{}num\_points"{}}]);}
+\DoxyCodeLine{00110\ \}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_line_source_ae07b5a5b3cdd95eba8964d8ed4a4f44f}{WaveLineSource::setNumPoints}}(\textcolor{keywordtype}{int}\ num\_points)\ \{}
+\DoxyCodeLine{00113\ \ \ \mbox{\hyperlink{class_wave_line_source_a3acfb3f1a008423e45a7bfccbdf0981a}{num\_points\_}}\ =\ num\_points;}
+\DoxyCodeLine{00114\ \}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe}{WaveLineSource::WaveLineSourceKeyframe}}*\ \mbox{\hyperlink{class_wave_line_source_a066b415c30d478e8bf90f2783f4ba1da}{WaveLineSource::getKeyframe}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00117\ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ wavetable\_keyframe\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[index].get();}
+\DoxyCodeLine{00118\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe}{WaveLineSource::WaveLineSourceKeyframe}}*\textcolor{keyword}{>}(wavetable\_keyframe);}
+\DoxyCodeLine{00119\ \}}
+
+\end{DoxyCode}

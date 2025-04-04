@@ -1,0 +1,337 @@
+\doxysection{modulation\+\_\+matrix.\+h}
+\hypertarget{modulation__matrix_8h_source}{}\label{modulation__matrix_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/modulation\_matrix.h@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/modulation\_matrix.h}}
+\mbox{\hyperlink{modulation__matrix_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}JuceHeader.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{line__map__editor_8h}{line\_map\_editor.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{open__gl__image_8h}{open\_gl\_image.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{overlay_8h}{overlay.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{preset__selector_8h}{preset\_selector.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__section_8h}{synth\_section.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_modulation_matrix_row}{ModulationMatrixRow}};}
+\DoxyCodeLine{00012\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_modulation_meter_readouts}{ModulationMeterReadouts}};}
+\DoxyCodeLine{00013\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_synth_button}{SynthButton}};}
+\DoxyCodeLine{00014\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}};}
+\DoxyCodeLine{00015\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_paint_pattern_selector}{PaintPatternSelector}};}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00021\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_modulation_selector}{ModulationSelector}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_open_gl_slider}{OpenGlSlider}}\ \{}
+\DoxyCodeLine{00022\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_selector_a9deba40028ce3431335472cb698edc83}{modulationSelectionCallback}}(\textcolor{keywordtype}{int}\ result,\ \mbox{\hyperlink{class_modulation_selector}{ModulationSelector}}*\ selector)\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (selector\ !=\ \textcolor{keyword}{nullptr}\ \&\&\ result\ !=\ 0)}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ selector-\/>setValue(result\ -\/\ 1);}
+\DoxyCodeLine{00031\ \ \ \ \ \}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00040\ \ \ \ \ \mbox{\hyperlink{class_modulation_selector_ab702f2cc06b37b3af3fac8f88fe08afb}{ModulationSelector}}(String\ name,\ \textcolor{keyword}{const}\ std::vector<String>*\ selections,\ \mbox{\hyperlink{struct_popup_items}{PopupItems}}*\ popup\_items,\ \textcolor{keywordtype}{bool}\ dual\_menu)\ :}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_slider}{OpenGlSlider}}(std::move(name)),\ selections\_(selections),\ popup\_items\_(popup\_items),\ dual\_menu\_(dual\_menu)\ \{}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ setRange(0.0,\ selections\_-\/>size()\ -\/\ 1.0,\ 1.0);}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ setTextBoxStyle(Slider::NoTextBox,\ \textcolor{keyword}{true},\ 0,\ 0);}
+\DoxyCodeLine{00044\ \ \ \ \ \}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00051\ \ \ \ \ String\ \mbox{\hyperlink{class_modulation_selector_aa294ee23b0cef931048129e09f4ebcd8}{getTextFromValue}}(\textcolor{keywordtype}{double}\ value)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00057\ \ \ \ \ String\ \mbox{\hyperlink{class_modulation_selector_a954c4e354b1bb0bbced699a21a50a069}{getSelection}}()\ \{}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ std::round(getValue());}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ selections\_-\/>at(index);}
+\DoxyCodeLine{00060\ \ \ \ \ \}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_modulation_selector_a1813a842b8928bfdf1ecd39ebf916df1}{connected}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ getValue()\ !=\ 0.0f;}
+\DoxyCodeLine{00068\ \ \ \ \ \}}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_selector_ab3cc2cbbe97c72b6a2f502212b5e9e76}{setValueFromName}}(\textcolor{keyword}{const}\ String\&\ name,\ NotificationType\ notification\_type);}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_selector_a088d7507bbb40f02faa5dd73b1a50877}{mouseDown}}(\textcolor{keyword}{const}\ juce::MouseEvent\ \&e)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keyword}{const}\ std::vector<String>*\ selections\_;\ }
+\DoxyCodeLine{00085\ \ \ \ \ \mbox{\hyperlink{struct_popup_items}{PopupItems}}*\ popup\_items\_;\ }
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordtype}{bool}\ dual\_menu\_;\ }
+\DoxyCodeLine{00087\ \};}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00093\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_modulation_viewport}{ModulationViewport}}\ :\ \textcolor{keyword}{public}\ Viewport\ \{}
+\DoxyCodeLine{00094\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_modulation_viewport_1_1_listener}{Listener}}\ \{}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_modulation_viewport_1_1_listener_ab4c0a1f5e61f22d4b8b2b44640e86ba0}{\string~Listener}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_viewport_1_1_listener_a02dab75703647e74f909b9615588a7ac}{modulationScrolled}}(\textcolor{keywordtype}{int}\ position)\ =\ 0;}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_viewport_1_1_listener_a16898f315009122cd14de8ec1c2142cd}{startScroll}}()\ =\ 0;}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_viewport_1_1_listener_af089aec697a5c7651d48488b90ae3212}{endScroll}}()\ =\ 0;}
+\DoxyCodeLine{00118\ \ \ \ \ \};}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_viewport_aac8781a0d4a54db870d730a59398dbd1}{mouseWheelMove}}(\textcolor{keyword}{const}\ MouseEvent\&\ e,\ \textcolor{keyword}{const}\ MouseWheelDetails\&\ wheel)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_modulation_viewport_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ listener-\/>startScroll();}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ \ \ \ \ Viewport::mouseWheelMove(e,\ wheel);}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_modulation_viewport_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ listener-\/>endScroll();}
+\DoxyCodeLine{00133\ \ \ \ \ \}}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_viewport_a6f6c6e10ad585b33bd5a0c7c0df6f6b0}{addListener}}(\mbox{\hyperlink{class_modulation_viewport_1_1_listener}{Listener}}*\ listener)\ \{\ listeners\_.push\_back(listener);\ \}}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_viewport_a2b43aec2182c77620736696ba5638851}{visibleAreaChanged}}(\textcolor{keyword}{const}\ Rectangle<int>\&\ visible\_area)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_modulation_viewport_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ listener-\/>modulationScrolled(visible\_area.getY());}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \ \ \ \ \ \ Viewport::visibleAreaChanged(visible\_area);}
+\DoxyCodeLine{00150\ \ \ \ \ \}}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00153\ \ \ \ \ std::vector<Listener*>\ listeners\_;\ }
+\DoxyCodeLine{00154\ \};}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00160\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_modulation_matrix_row}{ModulationMatrixRow}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_synth_section}{SynthSection}}\ \{}
+\DoxyCodeLine{00161\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00166\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_modulation_matrix_row_1_1_listener}{Listener}}\ \{}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_modulation_matrix_row_1_1_listener_a76b16f2ab29f26466169cfdf05a419ee}{\string~Listener}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_row_1_1_listener_aeae2446cc825db38a6906f69ca2d91fc}{rowSelected}}(\mbox{\hyperlink{class_modulation_matrix_row}{ModulationMatrixRow}}*\ selected\_row)\ =\ 0;}
+\DoxyCodeLine{00175\ \ \ \ \ \};}
+\DoxyCodeLine{00176\ }
+\DoxyCodeLine{00185\ \ \ \ \ \mbox{\hyperlink{class_modulation_matrix_row_a0941cdb846b3b42bb2cd1af7089aec37}{ModulationMatrixRow}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_modulation_matrix_row_a6abf095da9ee6200adfdc2744428be0d}{index}},\ \mbox{\hyperlink{struct_popup_items}{PopupItems}}*\ source\_items,\ \mbox{\hyperlink{struct_popup_items}{PopupItems}}*\ destination\_items,}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<String>*\ sources,\ \textcolor{keyword}{const}\ std::vector<String>*\ destinations);}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00191\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_row_a3b49749c67eb4094fb4dfdda1872562e}{resized}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00192\ }
+\DoxyCodeLine{00196\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_row_af9ee593146acf2941016b88003500c3d}{repaintBackground}}()\textcolor{keyword}{\ override\ }\{\ \}}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00202\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_row_ac558e6721954f5b463a7cfb35858f20e}{setGuiParent}}(\mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ parent)\ \{\ \mbox{\hyperlink{class_modulation_matrix_row_aa3e5785671d192efb4ba067565445a77}{parent\_}}\ =\ parent;\ \}}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00208\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_row_aa67cbc49c08c430d113a6619ce042a8c}{setConnection}}(\mbox{\hyperlink{structvital_1_1_modulation_connection}{vital::ModulationConnection}}*\ connection)\ \{\ \mbox{\hyperlink{class_modulation_matrix_row_ac31915100dab97f55a57bbaa3e29f8f2}{connection\_}}\ =\ connection;\ \}}
+\DoxyCodeLine{00209\ }
+\DoxyCodeLine{00214\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_row_ad57c3f9bddb21d501a2b778867e3c601}{paintBackground}}(Graphics\&\ g)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00215\ }
+\DoxyCodeLine{00220\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_row_a25b856111f5176ec76ce77b5d09bfcef}{sliderValueChanged}}(Slider*\ changed\_slider)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_row_abe126eb300b5bf083718189efb868d17}{buttonClicked}}(Button*\ button)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00231\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_row_ace91b0588adcbc4d19e6960780fc507a}{updateDisplay}}();}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00236\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_row_ab577a9a97b8e63cd3e928bb8023c679e}{updateDisplayValue}}();}
+\DoxyCodeLine{00237\ }
+\DoxyCodeLine{00242\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_modulation_matrix_row_a512668013e7d0e388200536afbe9af89}{connected}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00243\ }
+\DoxyCodeLine{00250\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_modulation_matrix_row_a55eac3b31ca67cac47db918176396f3f}{matchesSourceAndDestination}}(\textcolor{keyword}{const}\ std::string\&\ \mbox{\hyperlink{class_modulation_matrix_row_a998da488056410783ba6cbb365a40736}{source}},\ \textcolor{keyword}{const}\ std::string\&\ \mbox{\hyperlink{class_modulation_matrix_row_abd02c977e7da02bed3bb31d0e55261dd}{destination}})\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00251\ }
+\DoxyCodeLine{00256\ \ \ \ \ Rectangle<int>\ \mbox{\hyperlink{class_modulation_matrix_row_a760c6f7290e68e4a68956adba28221e8}{getMeterBounds}}();}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00261\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_row_a8160243625e139169f23fafa6960d8ee}{select}}()\ \{}
+\DoxyCodeLine{00262\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_modulation_matrix_row_1_1_listener}{Listener}}*\ listener\ :\ \mbox{\hyperlink{class_modulation_matrix_row_a7c12cd0b9fb83ab6b5698ad18b00f71e}{listeners\_}})}
+\DoxyCodeLine{00263\ \ \ \ \ \ \ \ \ listener-\/>rowSelected(\textcolor{keyword}{this});}
+\DoxyCodeLine{00264\ \ \ \ \ \}}
+\DoxyCodeLine{00265\ }
+\DoxyCodeLine{00270\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_row_a77b1a2fb380f42ff7a9ffde6ab59e403}{mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\textcolor{keyword}{\ override\ }\{\ \mbox{\hyperlink{class_modulation_matrix_row_a8160243625e139169f23fafa6960d8ee}{select}}();\ \}}
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00276\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_row_a8160243625e139169f23fafa6960d8ee}{select}}(\textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_modulation_matrix_row_a8160243625e139169f23fafa6960d8ee}{select}});}
+\DoxyCodeLine{00277\ }
+\DoxyCodeLine{00282\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_modulation_matrix_row_aade44f9dd99466684c1bcff2a2c56976}{selected}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_modulation_matrix_row_a8723fac84c8febab752665677f09b233}{selected\_}};\ \}}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00288\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_row_a93e2e3ef422cd93e4f93a5a8260ad3b0}{addListener}}(\mbox{\hyperlink{class_modulation_matrix_row_1_1_listener}{Listener}}*\ listener)\ \{\ \mbox{\hyperlink{class_modulation_matrix_row_a7c12cd0b9fb83ab6b5698ad18b00f71e}{listeners\_}}.push\_back(listener);\ \}}
+\DoxyCodeLine{00289\ }
+\DoxyCodeLine{00294\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_modulation_matrix_row_a6abf095da9ee6200adfdc2744428be0d}{index}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_modulation_matrix_row_a34a8440260edfb652848e97bbbfdc734}{index\_}};\ \}}
+\DoxyCodeLine{00295\ }
+\DoxyCodeLine{00300\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_modulation_matrix_row_a998da488056410783ba6cbb365a40736}{source}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_modulation_matrix_row_a3698b16f7b6647753fd606aafd2b248c}{source\_}}-\/>getValue();\ \}}
+\DoxyCodeLine{00301\ }
+\DoxyCodeLine{00306\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_modulation_matrix_row_abd02c977e7da02bed3bb31d0e55261dd}{destination}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_modulation_matrix_row_ade2078ce3fca7dd657cebf4ea0c97b57}{destination\_}}-\/>getValue();\ \}}
+\DoxyCodeLine{00307\ }
+\DoxyCodeLine{00312\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_modulation_matrix_row_a2b1d0097b3f1ef13903104157663c7cd}{stereo}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_modulation_matrix_row_a97206b70579738d3f7fe03ad2ba2e4f6}{stereo\_}}-\/>getToggleState();\ \}}
+\DoxyCodeLine{00313\ }
+\DoxyCodeLine{00318\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_modulation_matrix_row_a5ed69c29e59a9ce0ad68a3ebed839385}{bipolar}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_modulation_matrix_row_abb40d8c26f48ee561a36ef795d662aa7}{bipolar\_}}-\/>getToggleState();\ \}}
+\DoxyCodeLine{00319\ }
+\DoxyCodeLine{00324\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_modulation_matrix_row_a29d9097ff778c73eecb80a17874ca596}{morph}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_modulation_matrix_row_a224ae0e8b6027474dcb11412c1c26930}{power\_slider\_}}-\/>getValue();\ \}}
+\DoxyCodeLine{00325\ }
+\DoxyCodeLine{00330\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_modulation_matrix_row_ab4970334e82cb23e009bcfc78864051d}{amount}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_modulation_matrix_row_a0d7cea2d32d8572c6db44e2990666a3b}{amount\_slider\_}}-\/>getValue();\ \}}
+\DoxyCodeLine{00331\ }
+\DoxyCodeLine{00332\ \ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00333\ \ \ \ \ std::vector<Listener*>\ \mbox{\hyperlink{class_modulation_matrix_row_a7c12cd0b9fb83ab6b5698ad18b00f71e}{listeners\_}};\ }
+\DoxyCodeLine{00334\ }
+\DoxyCodeLine{00335\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_modulation_matrix_row_a34a8440260edfb652848e97bbbfdc734}{index\_}};\ }
+\DoxyCodeLine{00336\ \ \ \ \ \mbox{\hyperlink{structvital_1_1_modulation_connection}{vital::ModulationConnection}}*\ \mbox{\hyperlink{class_modulation_matrix_row_ac31915100dab97f55a57bbaa3e29f8f2}{connection\_}};\ }
+\DoxyCodeLine{00337\ \ \ \ \ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ \mbox{\hyperlink{class_modulation_matrix_row_aa3e5785671d192efb4ba067565445a77}{parent\_}};\ }
+\DoxyCodeLine{00338\ }
+\DoxyCodeLine{00339\ \ \ \ \ std::unique\_ptr<ModulationSelector>\ \mbox{\hyperlink{class_modulation_matrix_row_a3698b16f7b6647753fd606aafd2b248c}{source\_}};\ }
+\DoxyCodeLine{00340\ \ \ \ \ std::unique\_ptr<ModulationSelector>\ \mbox{\hyperlink{class_modulation_matrix_row_ade2078ce3fca7dd657cebf4ea0c97b57}{destination\_}};\ }
+\DoxyCodeLine{00341\ \ \ \ \ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{class_modulation_matrix_row_a51fca9bd1644e68ffa49e1f448a2acca}{last\_source\_value\_}};\ }
+\DoxyCodeLine{00342\ \ \ \ \ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{class_modulation_matrix_row_a23ae25703d96b2e0b28c08baa3f7b4ac}{last\_destination\_value\_}};\ }
+\DoxyCodeLine{00343\ \ \ \ \ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{class_modulation_matrix_row_ad1685227a3ec697fd9072872758addf5}{last\_amount\_value\_}};\ }
+\DoxyCodeLine{00344\ \ \ \ \ std::unique\_ptr<SynthSlider>\ \mbox{\hyperlink{class_modulation_matrix_row_a0d7cea2d32d8572c6db44e2990666a3b}{amount\_slider\_}};\ }
+\DoxyCodeLine{00345\ \ \ \ \ std::unique\_ptr<SynthSlider>\ \mbox{\hyperlink{class_modulation_matrix_row_a224ae0e8b6027474dcb11412c1c26930}{power\_slider\_}};\ }
+\DoxyCodeLine{00346\ \ \ \ \ std::unique\_ptr<OpenGlShapeButton>\ \mbox{\hyperlink{class_modulation_matrix_row_abb40d8c26f48ee561a36ef795d662aa7}{bipolar\_}};\ }
+\DoxyCodeLine{00347\ \ \ \ \ std::unique\_ptr<SynthButton>\ \mbox{\hyperlink{class_modulation_matrix_row_a97206b70579738d3f7fe03ad2ba2e4f6}{stereo\_}};\ }
+\DoxyCodeLine{00348\ \ \ \ \ std::unique\_ptr<SynthButton>\ \mbox{\hyperlink{class_modulation_matrix_row_ae56e04d6ab8c1a4db84b54a042c45816}{bypass\_}};\ }
+\DoxyCodeLine{00349\ \ \ \ \ \mbox{\hyperlink{class_overlay_background_renderer}{OverlayBackgroundRenderer}}\ \mbox{\hyperlink{class_modulation_matrix_row_a885d43e71a218a3da4d7a262d92e7459}{highlight\_}};\ }
+\DoxyCodeLine{00350\ }
+\DoxyCodeLine{00351\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_modulation_matrix_row_adce0fc6258a1f3cd1181d3925037e777}{updating\_}};\ }
+\DoxyCodeLine{00352\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_modulation_matrix_row_a8723fac84c8febab752665677f09b233}{selected\_}};\ }
+\DoxyCodeLine{00353\ \};}
+\DoxyCodeLine{00354\ }
+\DoxyCodeLine{00359\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_modulation_matrix}{ModulationMatrix}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_synth_section}{SynthSection}},\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_modulation_viewport_1_1_listener}{ModulationViewport::Listener}},}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_modulation_matrix_row_1_1_listener}{ModulationMatrixRow::Listener}},\ \textcolor{keyword}{public}\ ScrollBar::Listener,}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_preset_selector_1_1_listener}{PresetSelector::Listener}},\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_line_editor_1_1_listener}{LineEditor::Listener}}\ \{}
+\DoxyCodeLine{00362\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00364\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_modulation_matrix_a7b40a61b670363a32da21e95118b01fe}{kRowPadding}}\ =\ 1;}
+\DoxyCodeLine{00366\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_modulation_matrix_a6845c7ef6fb2dc15c17384c29e62027f}{kDefaultGridSizeX}}\ =\ 8;}
+\DoxyCodeLine{00367\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_modulation_matrix_ae4d956dcf6d8beb73c3638c6d3623ccf}{kDefaultGridSizeY}}\ =\ 1;}
+\DoxyCodeLine{00368\ }
+\DoxyCodeLine{00374\ \ \ \ \ \textcolor{keyword}{static}\ String\ \mbox{\hyperlink{class_modulation_matrix_a8e9769beea50bae8d38c6b6b692cf8d6}{getMenuSourceDisplayName}}(\textcolor{keyword}{const}\ String\&\ original);}
+\DoxyCodeLine{00375\ }
+\DoxyCodeLine{00381\ \ \ \ \ \textcolor{keyword}{static}\ String\ \mbox{\hyperlink{class_modulation_matrix_ab281cbaab4286d30b5615623a185b133}{getUiSourceDisplayName}}(\textcolor{keyword}{const}\ String\&\ original);}
+\DoxyCodeLine{00382\ }
+\DoxyCodeLine{00387\ \ \ \ \ \textcolor{keyword}{enum}\ \mbox{\hyperlink{class_modulation_matrix_a0a7934307978dcc53bafa61b98dc4a6c}{SortColumn}}\ \{}
+\DoxyCodeLine{00388\ \ \ \ \ \ \ \mbox{\hyperlink{class_modulation_matrix_a0a7934307978dcc53bafa61b98dc4a6ca501822af2eed7ec25ec99e4c69cd62bd}{kNumber}},}
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \mbox{\hyperlink{class_modulation_matrix_a0a7934307978dcc53bafa61b98dc4a6ca97f788246df5045d9ddd9a4367c050fc}{kSource}},}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ \mbox{\hyperlink{class_modulation_matrix_a0a7934307978dcc53bafa61b98dc4a6cab29b3d7f46c8fa0de6426debfa7c53f7}{kBipolar}},}
+\DoxyCodeLine{00391\ \ \ \ \ \ \ \mbox{\hyperlink{class_modulation_matrix_a0a7934307978dcc53bafa61b98dc4a6cad162f21bdc377d63f6c73cb601ae8d4e}{kStereo}},}
+\DoxyCodeLine{00392\ \ \ \ \ \ \ \mbox{\hyperlink{class_modulation_matrix_a0a7934307978dcc53bafa61b98dc4a6cac10f562dccfcdfd6d7f0d465ad86f908}{kMorph}},}
+\DoxyCodeLine{00393\ \ \ \ \ \ \ \mbox{\hyperlink{class_modulation_matrix_a0a7934307978dcc53bafa61b98dc4a6ca1f5f0fa311b8a5cde4456987f0c9a8b5}{kAmount}},}
+\DoxyCodeLine{00394\ \ \ \ \ \ \ \mbox{\hyperlink{class_modulation_matrix_a0a7934307978dcc53bafa61b98dc4a6ca35d91dbc42cc451d751ab19c8b545532}{kDestination}},}
+\DoxyCodeLine{00395\ \ \ \ \ \ \ \mbox{\hyperlink{class_modulation_matrix_a0a7934307978dcc53bafa61b98dc4a6caddb54c4182b36cd905503f86ed09cb9a}{kNumColumns}}}
+\DoxyCodeLine{00396\ \ \ \ \ \};}
+\DoxyCodeLine{00397\ }
+\DoxyCodeLine{00402\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_modulation_matrix_1_1_listener}{Listener}}\ \{}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00404\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_modulation_matrix_1_1_listener_a998d66fb94b3d4463722f27b04a74934}{\string~Listener}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00408\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_1_1_listener_a26798232c148428f7152f912e9987eb8}{modulationsScrolled}}()\ =\ 0;}
+\DoxyCodeLine{00409\ \ \ \ \ \};}
+\DoxyCodeLine{00410\ }
+\DoxyCodeLine{00416\ \ \ \ \ \mbox{\hyperlink{class_modulation_matrix_ade9d3920f87bdb5fe0198863747aceaf}{ModulationMatrix}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ sources,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ destinations);}
+\DoxyCodeLine{00417\ }
+\DoxyCodeLine{00421\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_modulation_matrix_a90da5361bc940d8fb9bfdbe0e3d5729a}{\string~ModulationMatrix}}();}
+\DoxyCodeLine{00422\ }
+\DoxyCodeLine{00427\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a7e50762a300ac78f495faeb7138fde20}{paintBackground}}(Graphics\&\ g)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00428\ }
+\DoxyCodeLine{00433\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a879fa7a7847ce4d3ce618c0a099f8617}{paintBackgroundShadow}}(Graphics\&\ g)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00434\ }
+\DoxyCodeLine{00438\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_ac628f6d3f669c0c9527b170b8b8096d0}{paintScrollableBackground}}();}
+\DoxyCodeLine{00439\ }
+\DoxyCodeLine{00443\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a18abb3c6d9140a6c9ac20db3570499ac}{resized}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00444\ }
+\DoxyCodeLine{00448\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a955178b5f5aa946bf856c4b44fbd284c}{setMeterBounds}}();}
+\DoxyCodeLine{00449\ }
+\DoxyCodeLine{00454\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a335fd5c00dd30a84817786a3587d105f}{setVisible}}(\textcolor{keywordtype}{bool}\ should\_be\_visible)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00455\ \ \ \ \ \ \ SynthSection::setVisible(should\_be\_visible);}
+\DoxyCodeLine{00456\ \ \ \ \ \ \ \mbox{\hyperlink{class_modulation_matrix_aebad24c194ed93585a9b27933ce901a9}{updateModulations}}();}
+\DoxyCodeLine{00457\ \ \ \ \ \}}
+\DoxyCodeLine{00458\ }
+\DoxyCodeLine{00462\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_aa1a384af1ef33cbb5c8c54fa5cb19bff}{setRowPositions}}();}
+\DoxyCodeLine{00463\ }
+\DoxyCodeLine{00467\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_af2d574ee62c888d395220be468993761}{parentHierarchyChanged}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00468\ }
+\DoxyCodeLine{00473\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a96fcddfcacaa054c0fb1a908b6a06556}{sliderValueChanged}}(Slider*\ changed\_slider)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00474\ }
+\DoxyCodeLine{00479\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_acba0759cb08e97138efeec1f414552ba}{buttonClicked}}(Button*\ button)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00480\ }
+\DoxyCodeLine{00485\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a4a6f7c64d7c4c054ebd752f6a3fd1eec}{setAllValues}}(\mbox{\hyperlink{namespacevital_aa714e9b3957a28c9eaf0105959aea482}{vital::control\_map}}\&\ controls)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00486\ }
+\DoxyCodeLine{00491\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a4ac90741458edeba88f73de5da0d370c}{initOpenGlComponents}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00492\ }
+\DoxyCodeLine{00498\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a883a0532800dd69c308c7f0b93165e79}{renderOpenGlComponents}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_synth_section_a23ece0b1a7ac3a7a3ffb8623875d7220}{animate}})\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00499\ }
+\DoxyCodeLine{00504\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_accca4619c4a84055afbc79b4a7e578a0}{destroyOpenGlComponents}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00505\ }
+\DoxyCodeLine{00509\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a748896813b877855989417c87f8d8373}{prevClicked}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00510\ }
+\DoxyCodeLine{00514\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a6049eacc0076b9b35051819fda337f0a}{nextClicked}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00515\ }
+\DoxyCodeLine{00520\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_ac66aa5a0852c68104b1cfe161586df66}{textMouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00521\ }
+\DoxyCodeLine{00526\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_ae4569b6c657514ec23f545f44d46609e}{setPhase}}(\textcolor{keywordtype}{float}\ phase)\textcolor{keyword}{\ override\ }\{\ \}}
+\DoxyCodeLine{00527\ }
+\DoxyCodeLine{00533\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a788cacc6b633b5d4178aaea6474dd2ff}{lineEditorScrolled}}(\textcolor{keyword}{const}\ MouseEvent\&\ e,\ \textcolor{keyword}{const}\ MouseWheelDetails\&\ wheel)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00534\ }
+\DoxyCodeLine{00540\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a8d8563b149720a408348eb0539b5b1bb}{togglePaintMode}}(\textcolor{keywordtype}{bool}\ enabled,\ \textcolor{keywordtype}{bool}\ temporary\_switch)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00541\ }
+\DoxyCodeLine{00545\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a5c5fcc6a956f4dbf0fedccd6d001e77c}{importLfo}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00546\ }
+\DoxyCodeLine{00550\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_aaaf80337e29c1a77966a8df80c0bcd45}{exportLfo}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00551\ }
+\DoxyCodeLine{00555\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_af40996c7d1475aef9e13a22e9d79bf1f}{fileLoaded}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00556\ }
+\DoxyCodeLine{00561\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a85493661fd99a8caf5f26421988e1a9a}{loadFile}}(\textcolor{keyword}{const}\ File\&\ file)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00562\ }
+\DoxyCodeLine{00567\ \ \ \ \ File\ \mbox{\hyperlink{class_modulation_matrix_ab1d759b79f59d64d0aff49fab53db744}{getCurrentFile}}()\textcolor{keyword}{\ override\ }\{\ \textcolor{keywordflow}{return}\ current\_file\_;\ \}}
+\DoxyCodeLine{00568\ }
+\DoxyCodeLine{00574\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_abda9ce2e573cd10ac8d4b859c29e28d0}{scrollBarMoved}}(ScrollBar*\ scroll\_bar,\ \textcolor{keywordtype}{double}\ range\_start)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00575\ }
+\DoxyCodeLine{00579\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a6a3648c17357cd95aa5f2b0eb0b86261}{setScrollBarRange}}();}
+\DoxyCodeLine{00580\ }
+\DoxyCodeLine{00584\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_aebad24c194ed93585a9b27933ce901a9}{updateModulations}}();}
+\DoxyCodeLine{00585\ }
+\DoxyCodeLine{00590\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_aef4cc083e8c4e2d3effe34b522cb137d}{updateModulationValue}}(\textcolor{keywordtype}{int}\ index);}
+\DoxyCodeLine{00591\ }
+\DoxyCodeLine{00595\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_af0349146483c44da0357c3033b7cb242}{checkNumModulationsShown}}();}
+\DoxyCodeLine{00596\ }
+\DoxyCodeLine{00601\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a54b85bd689204a210611e8f26d6de27c}{addListener}}(\mbox{\hyperlink{class_modulation_matrix_1_1_listener}{Listener}}*\ listener)\ \{\ listeners\_.push\_back(listener);\ \}}
+\DoxyCodeLine{00602\ }
+\DoxyCodeLine{00606\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a791edb81a4e3a5e25d358643822381b8}{startScroll}}()\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00607\ \ \ \ \ \ \ open\_gl\_critical\_section\_.enter();}
+\DoxyCodeLine{00608\ \ \ \ \ \}}
+\DoxyCodeLine{00609\ }
+\DoxyCodeLine{00613\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_ab1a0e11803ebc4958e4d3ea346f6db73}{endScroll}}()\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00614\ \ \ \ \ \ \ open\_gl\_critical\_section\_.exit();}
+\DoxyCodeLine{00615\ \ \ \ \ \}}
+\DoxyCodeLine{00616\ }
+\DoxyCodeLine{00621\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a92e591c064257b2a5b60cb7c06ce8875}{modulationScrolled}}(\textcolor{keywordtype}{int}\ position)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00622\ \ \ \ \ \ \ \mbox{\hyperlink{class_modulation_matrix_a6a3648c17357cd95aa5f2b0eb0b86261}{setScrollBarRange}}();}
+\DoxyCodeLine{00623\ \ \ \ \ \ \ scroll\_bar\_-\/>setCurrentRange(position,\ viewport\_.getHeight());}
+\DoxyCodeLine{00624\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_modulation_matrix_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00625\ \ \ \ \ \ \ \ \ listener-\/>modulationsScrolled();}
+\DoxyCodeLine{00626\ \ \ \ \ \}}
+\DoxyCodeLine{00627\ }
+\DoxyCodeLine{00632\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_afaad7dbc61ef2ff2cab237b08dd09de1}{rowSelected}}(\mbox{\hyperlink{class_modulation_matrix_row}{ModulationMatrixRow}}*\ selected\_row)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00633\ }
+\DoxyCodeLine{00638\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_matrix_a7edbbe9c124da2adcf43d6ccc93f31c2}{mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00639\ }
+\DoxyCodeLine{00640\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00644\ \ \ \ \ \textcolor{keywordtype}{void}\ sort();}
+\DoxyCodeLine{00645\ }
+\DoxyCodeLine{00650\ \ \ \ \ \textcolor{keywordtype}{int}\ getRowHeight()\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_synth_section_aba2f74f948fd7114c12bdc06f4da60e9}{getSizeRatio}}()\ *\ 34.0f;\ \}}
+\DoxyCodeLine{00651\ }
+\DoxyCodeLine{00652\ \ \ \ \ std::vector<Listener*>\ listeners\_;\ }
+\DoxyCodeLine{00653\ }
+\DoxyCodeLine{00654\ \ \ \ \ \mbox{\hyperlink{struct_popup_items}{PopupItems}}\ source\_popup\_items\_;\ }
+\DoxyCodeLine{00655\ \ \ \ \ \mbox{\hyperlink{struct_popup_items}{PopupItems}}\ destination\_popup\_items\_;\ }
+\DoxyCodeLine{00656\ }
+\DoxyCodeLine{00657\ \ \ \ \ File\ current\_file\_;\ }
+\DoxyCodeLine{00658\ \ \ \ \ \mbox{\hyperlink{class_modulation_matrix_a0a7934307978dcc53bafa61b98dc4a6c}{SortColumn}}\ sort\_column\_;\ }
+\DoxyCodeLine{00659\ \ \ \ \ \textcolor{keywordtype}{bool}\ sort\_ascending\_;\ }
+\DoxyCodeLine{00660\ \ \ \ \ \textcolor{keywordtype}{int}\ selected\_index\_;\ }
+\DoxyCodeLine{00661\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_shown\_;\ }
+\DoxyCodeLine{00662\ \ \ \ \ std::vector<ModulationMatrixRow*>\ row\_order\_;\ }
+\DoxyCodeLine{00663\ \ \ \ \ std::unique\_ptr<OpenGlScrollBar>\ scroll\_bar\_;\ }
+\DoxyCodeLine{00664\ }
+\DoxyCodeLine{00665\ \ \ \ \ CriticalSection\ open\_gl\_critical\_section\_;\ }
+\DoxyCodeLine{00666\ \ \ \ \ std::unique\_ptr<ModulationMatrixRow>\ rows\_[\mbox{\hyperlink{namespacevital_abcbdb48fbd4d9f98b90cae346ee22044}{vital::kMaxModulationConnections}}];\ }
+\DoxyCodeLine{00667\ \ \ \ \ std::unique\_ptr<LineMapEditor>\ map\_editors\_[\mbox{\hyperlink{namespacevital_abcbdb48fbd4d9f98b90cae346ee22044}{vital::kMaxModulationConnections}}];\ }
+\DoxyCodeLine{00668\ \ \ \ \ std::vector<String>\ source\_strings\_;\ }
+\DoxyCodeLine{00669\ \ \ \ \ std::vector<String>\ destination\_strings\_;\ }
+\DoxyCodeLine{00670\ \ \ \ \ std::unique\_ptr<ModulationMeterReadouts>\ readouts\_;\ }
+\DoxyCodeLine{00671\ }
+\DoxyCodeLine{00672\ \ \ \ \ \mbox{\hyperlink{class_modulation_viewport}{ModulationViewport}}\ viewport\_;\ }
+\DoxyCodeLine{00673\ \ \ \ \ Component\ container\_;\ }
+\DoxyCodeLine{00674\ }
+\DoxyCodeLine{00675\ \ \ \ \ \mbox{\hyperlink{class_open_gl_image}{OpenGlImage}}\ background\_;\ }
+\DoxyCodeLine{00676\ }
+\DoxyCodeLine{00677\ \ \ \ \ std::unique\_ptr<PlainTextComponent>\ remap\_name\_;\ }
+\DoxyCodeLine{00678\ \ \ \ \ std::unique\_ptr<PresetSelector>\ preset\_selector\_;\ }
+\DoxyCodeLine{00679\ \ \ \ \ std::unique\_ptr<PaintPatternSelector>\ paint\_pattern\_;\ }
+\DoxyCodeLine{00680\ }
+\DoxyCodeLine{00681\ \ \ \ \ std::unique\_ptr<SynthSlider>\ grid\_size\_x\_;\ }
+\DoxyCodeLine{00682\ \ \ \ \ std::unique\_ptr<SynthSlider>\ grid\_size\_y\_;\ }
+\DoxyCodeLine{00683\ \ \ \ \ std::unique\_ptr<OpenGlShapeButton>\ paint\_;\ }
+\DoxyCodeLine{00684\ \ \ \ \ std::unique\_ptr<OpenGlShapeButton>\ smooth\_;\ }
+\DoxyCodeLine{00685\ }
+\DoxyCodeLine{00686\ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(\mbox{\hyperlink{class_modulation_matrix}{ModulationMatrix}})}
+\DoxyCodeLine{00687\ \};}
+\DoxyCodeLine{00688\ }
+
+\end{DoxyCode}

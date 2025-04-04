@@ -1,0 +1,28 @@
+var namespacevital_1_1cr =
+[
+    [ "Add", "classvital_1_1cr_1_1_add.html", "classvital_1_1cr_1_1_add" ],
+    [ "BilinearInterpolate", "classvital_1_1cr_1_1_bilinear_interpolate.html", "classvital_1_1cr_1_1_bilinear_interpolate" ],
+    [ "Clamp", "classvital_1_1cr_1_1_clamp.html", "classvital_1_1cr_1_1_clamp" ],
+    [ "Cube", "classvital_1_1cr_1_1_cube.html", "classvital_1_1cr_1_1_cube" ],
+    [ "Cubic", "classvital_1_1cr_1_1_cubic.html", "classvital_1_1cr_1_1_cubic" ],
+    [ "ExponentialScale", "classvital_1_1cr_1_1_exponential_scale.html", "classvital_1_1cr_1_1_exponential_scale" ],
+    [ "Feedback", "classvital_1_1cr_1_1_feedback.html", "classvital_1_1cr_1_1_feedback" ],
+    [ "FrequencyToPhase", "classvital_1_1cr_1_1_frequency_to_phase.html", "classvital_1_1cr_1_1_frequency_to_phase" ],
+    [ "FrequencyToSamples", "classvital_1_1cr_1_1_frequency_to_samples.html", "classvital_1_1cr_1_1_frequency_to_samples" ],
+    [ "Interpolate", "classvital_1_1cr_1_1_interpolate.html", "classvital_1_1cr_1_1_interpolate" ],
+    [ "LowerBound", "classvital_1_1cr_1_1_lower_bound.html", "classvital_1_1cr_1_1_lower_bound" ],
+    [ "MagnitudeScale", "classvital_1_1cr_1_1_magnitude_scale.html", "classvital_1_1cr_1_1_magnitude_scale" ],
+    [ "MidiScale", "classvital_1_1cr_1_1_midi_scale.html", "classvital_1_1cr_1_1_midi_scale" ],
+    [ "Multiply", "classvital_1_1cr_1_1_multiply.html", "classvital_1_1cr_1_1_multiply" ],
+    [ "Output", "structvital_1_1cr_1_1_output.html", "structvital_1_1cr_1_1_output" ],
+    [ "Quadratic", "classvital_1_1cr_1_1_quadratic.html", "classvital_1_1cr_1_1_quadratic" ],
+    [ "Quart", "classvital_1_1cr_1_1_quart.html", "classvital_1_1cr_1_1_quart" ],
+    [ "Quartic", "classvital_1_1cr_1_1_quartic.html", "classvital_1_1cr_1_1_quartic" ],
+    [ "Root", "classvital_1_1cr_1_1_root.html", "classvital_1_1cr_1_1_root" ],
+    [ "SmoothValue", "classvital_1_1cr_1_1_smooth_value.html", "classvital_1_1cr_1_1_smooth_value" ],
+    [ "Square", "classvital_1_1cr_1_1_square.html", "classvital_1_1cr_1_1_square" ],
+    [ "TimeToSamples", "classvital_1_1cr_1_1_time_to_samples.html", "classvital_1_1cr_1_1_time_to_samples" ],
+    [ "UpperBound", "classvital_1_1cr_1_1_upper_bound.html", "classvital_1_1cr_1_1_upper_bound" ],
+    [ "Value", "classvital_1_1cr_1_1_value.html", "classvital_1_1cr_1_1_value" ],
+    [ "VariableAdd", "classvital_1_1cr_1_1_variable_add.html", "classvital_1_1cr_1_1_variable_add" ]
+];

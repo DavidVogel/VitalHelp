@@ -1,0 +1,171 @@
+\doxysection{bend\+\_\+section.\+cpp}
+\hypertarget{bend__section_8cpp_source}{}\label{bend__section_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/bend\_section.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/bend\_section.cpp}}
+\mbox{\hyperlink{bend__section_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{bend__section_8h}{bend\_section.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__gui__interface_8h}{synth\_gui\_interface.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}sound\_engine.h"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__slider_8h}{synth\_slider.h}}"{}}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00013\ \mbox{\hyperlink{class_control_wheel_a069e37629345d8eff5a7ce9e4618f653}{ControlWheel::ControlWheel}}(String\ name)\ :\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}(std::move(name)),\ parent\_(nullptr)\ \{}
+\DoxyCodeLine{00014\ \ \ \mbox{\hyperlink{class_open_gl_slider_a9624b9fc60af29fc9c4830d2c400a767}{paintToImage}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00015\ \ \ setValue(0.0f);}
+\DoxyCodeLine{00016\ \ \ setSliderStyle(LinearBarVertical);}
+\DoxyCodeLine{00017\ \ \ \mbox{\hyperlink{class_synth_slider_a8dfb709bf31cb49ed2790ee7878b6fd6}{setSensitivity}}(0.5f);}
+\DoxyCodeLine{00018\ \}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00021\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_control_wheel_aaacd69b41cc16c60641dcb91c8484c99}{ControlWheel::paintLine}}(Graphics\&\ g,\ \textcolor{keywordtype}{float}\ y\_percent,\ Colour\ line\_color,\ Colour\ fill\_color)\ \{}
+\DoxyCodeLine{00022\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kLineWidthRatio\ =\ 0.165f;}
+\DoxyCodeLine{00023\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kFadeRatio\ =\ 0.12f;}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \ \ \textcolor{keywordtype}{float}\ buffer\ =\ getWidth()\ *\ \mbox{\hyperlink{class_control_wheel_a06c580ba2cb2d43a9a98fdeda0464a68}{kBufferWidthRatio}};}
+\DoxyCodeLine{00026\ \ \ \textcolor{keywordtype}{float}\ width\ =\ getWidth()\ -\/\ 2.0f\ *\ buffer;}
+\DoxyCodeLine{00027\ \ \ \textcolor{keywordtype}{float}\ height\ =\ getHeight()\ -\/\ 4.0f\ *\ buffer;}
+\DoxyCodeLine{00028\ \ \ \textcolor{keywordtype}{float}\ end\_radians\ =\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{vital::kPi}}\ /\ 2.0f;}
+\DoxyCodeLine{00029\ \ \ \textcolor{keywordtype}{float}\ radians\ =\ 2.0f\ *\ end\_radians\ *\ y\_percent\ -\/\ end\_radians;}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \ \ \textcolor{keywordflow}{if}\ (radians\ >\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{vital::kPi}}\ *\ 0.6f\ ||\ radians\ <\ -\/\mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{vital::kPi}}\ *\ 0.6f)}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \textcolor{keywordtype}{float}\ sin\_value\ =\ sinf(radians);}
+\DoxyCodeLine{00035\ \ \ \textcolor{keywordtype}{float}\ cos\_value\ =\ cosf(radians);}
+\DoxyCodeLine{00036\ \ \ \textcolor{keywordtype}{float}\ y\ =\ 2.0f\ *\ buffer\ +\ height\ *\ 0.5f\ +\ sin\_value\ *\ height\ *\ 0.45f;}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \textcolor{keywordtype}{float}\ round\_amount\ =\ fabsf(sin\_value)\ *\ getWidth()\ *\ \mbox{\hyperlink{class_control_wheel_adf890ea8474c1bf4ed7a7de8edf0f4a5}{kWheelRoundAmountRatio}};}
+\DoxyCodeLine{00039\ \ \ \textcolor{keywordtype}{float}\ line\_height\ =\ cos\_value\ *\ height\ *\ kLineWidthRatio;}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \textcolor{keywordtype}{float}\ distance\_from\_edge\ =\ std::min(y\ -\/\ 2.0f\ *\ buffer,\ height\ +\ 2.0f\ *\ buffer\ -\/\ y);}
+\DoxyCodeLine{00042\ \ \ \textcolor{keywordtype}{float}\ alpha\ =\ std::max(0.0f,\ std::min(1.0f,\ distance\_from\_edge\ /\ (height\ *\ kFadeRatio)));}
+\DoxyCodeLine{00043\ \ \ g.setColour(fill\_color.interpolatedWith(line\_color,\ alpha));}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordtype}{float}\ offset\ =\ (line\_height\ +\ round\_amount)\ /\ 2.0f;}
+\DoxyCodeLine{00045\ \ \ g.fillRoundedRectangle(buffer,\ y\ -\/\ offset,\ width,\ std::max(0.0f,\ line\_height\ +\ round\_amount),\ round\_amount);}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ g.setColour(fill\_color);}
+\DoxyCodeLine{00048\ \ \ \textcolor{keywordflow}{if}\ (sin\_value\ >\ 0.0f)}
+\DoxyCodeLine{00049\ \ \ \ \ y\ -\/=\ round\_amount;}
+\DoxyCodeLine{00050\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00051\ \ \ \ \ y\ +=\ line\_height;}
+\DoxyCodeLine{00052\ \ \ g.fillRoundedRectangle(buffer,\ y\ -\/\ offset,\ width,\ 2.0f\ *\ round\_amount,\ round\_amount);}
+\DoxyCodeLine{00053\ \}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00056\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_control_wheel_aad691ba30209c84301139d218dc0190c}{ControlWheel::paint}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00057\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kNumLines\ =\ 6;}
+\DoxyCodeLine{00058\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kRotatePercent\ =\ 0.8f;}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \textcolor{keywordtype}{float}\ round\_amount\ =\ getWidth()\ *\ \mbox{\hyperlink{class_control_wheel_ac3725f5f3a33a67673645629672132f6}{kContainerRoundAmountRatio}};}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ Colour\ background\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca759c8acbffc8962e9ee2d8cba9677e73}{Skin::kWidgetSecondary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00063\ \ \ Colour\ line\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca2dbe5efa84f5aaa45d87a00fbfdb54e2}{Skin::kWidgetAccent1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00064\ \ \ Colour\ fill\_color\ =\ background;}
+\DoxyCodeLine{00065\ \ \ Colour\ marker\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \textcolor{keywordtype}{float}\ buffer\ =\ getWidth()\ *\ \mbox{\hyperlink{class_control_wheel_a06c580ba2cb2d43a9a98fdeda0464a68}{kBufferWidthRatio}};}
+\DoxyCodeLine{00068\ \ \ g.setColour(background);}
+\DoxyCodeLine{00069\ \ \ g.fillRoundedRectangle(getLocalBounds().toFloat().reduced(buffer,\ buffer),\ round\_amount);}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \textcolor{keywordtype}{float}\ t\ =\ 1.0f\ -\/\ (getValue()\ -\/\ getMinimum())\ /\ (getMaximum()\ -\/\ getMinimum());}
+\DoxyCodeLine{00072\ \ \ t\ =\ (t\ -\/\ 0.5f)\ *\ kRotatePercent\ +\ 0.5f;}
+\DoxyCodeLine{00073\ \ \ \textcolor{keywordtype}{float}\ ratio\_spacing\ =\ 1.0f\ /\ kNumLines;}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \textcolor{comment}{//\ Draw\ lines\ above\ center}}
+\DoxyCodeLine{00076\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ kNumLines;\ t\ +\ ratio\_spacing\ *\ i\ >=\ 0.5f;\ -\/-\/i)\ \{}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{keywordtype}{float}\ ratio\ =\ t\ +\ ratio\_spacing\ *\ i;}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ ==\ 0)}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \mbox{\hyperlink{class_control_wheel_aaacd69b41cc16c60641dcb91c8484c99}{paintLine}}(g,\ ratio,\ marker\_color,\ fill\_color);}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \mbox{\hyperlink{class_control_wheel_aaacd69b41cc16c60641dcb91c8484c99}{paintLine}}(g,\ ratio,\ line\_color,\ fill\_color);}
+\DoxyCodeLine{00082\ \ \ \}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \textcolor{comment}{//\ Draw\ lines\ below\ center}}
+\DoxyCodeLine{00085\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ -\/kNumLines;\ t\ +\ ratio\_spacing\ *\ i\ <\ 0.5f;\ ++i)\ \{}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordtype}{float}\ ratio\ =\ t\ +\ ratio\_spacing\ *\ i;}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ ==\ 0)}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \mbox{\hyperlink{class_control_wheel_aaacd69b41cc16c60641dcb91c8484c99}{paintLine}}(g,\ ratio,\ marker\_color,\ fill\_color);}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \mbox{\hyperlink{class_control_wheel_aaacd69b41cc16c60641dcb91c8484c99}{paintLine}}(g,\ ratio,\ line\_color,\ fill\_color);}
+\DoxyCodeLine{00091\ \ \ \}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caffad88f44cd2bcaaf60dbe0032955def}{Skin::kBody}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00094\ \ \ Path\ erase;}
+\DoxyCodeLine{00095\ \ \ erase.addRectangle(getLocalBounds().toFloat());}
+\DoxyCodeLine{00096\ \ \ erase.setUsingNonZeroWinding(\textcolor{keyword}{false});}
+\DoxyCodeLine{00097\ \ \ erase.addRoundedRectangle(getLocalBounds().toFloat().reduced(buffer,\ buffer),\ round\_amount);}
+\DoxyCodeLine{00098\ \ \ g.fillPath(erase);}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cac49d1cbc59ffea2e95181cfba8111055}{Skin::kShadow}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00101\ \ \ Path\ shadow;}
+\DoxyCodeLine{00102\ \ \ shadow.addRoundedRectangle(getLocalBounds().toFloat(),\ round\_amount);}
+\DoxyCodeLine{00103\ \ \ shadow.setUsingNonZeroWinding(\textcolor{keyword}{false});}
+\DoxyCodeLine{00104\ \ \ shadow.addRoundedRectangle(getLocalBounds().toFloat().reduced(buffer,\ buffer),\ round\_amount);}
+\DoxyCodeLine{00105\ \ \ g.fillPath(shadow);}
+\DoxyCodeLine{00106\ \}}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00109\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_control_wheel_a6de44635a448d53517c83d8c1fc0dc4c}{ControlWheel::parentHierarchyChanged}}()\ \{}
+\DoxyCodeLine{00110\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_control_wheel_a5ec5e7cdcc3766e0ecf68859139e4d23}{parent\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00111\ \ \ \ \ \mbox{\hyperlink{class_control_wheel_a5ec5e7cdcc3766e0ecf68859139e4d23}{parent\_}}\ =\ findParentComponentOfClass<SynthGuiInterface>();}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \mbox{\hyperlink{class_synth_slider_a1ff9fe52d7fa7334872344493cd9e62e}{SynthSlider::parentHierarchyChanged}}();}
+\DoxyCodeLine{00114\ \}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00117\ \mbox{\hyperlink{class_mod_wheel_a15e02b6d6cf12cedcbb12aac28916e7e}{ModWheel::ModWheel}}()\ :\ \mbox{\hyperlink{class_control_wheel}{ControlWheel}}(\textcolor{stringliteral}{"{}mod\_wheel"{}})\ \{\ \}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00120\ \mbox{\hyperlink{class_pitch_wheel_a4edae15d8930a782803eeb36cd520689}{PitchWheel::PitchWheel}}()\ :\ \mbox{\hyperlink{class_control_wheel}{ControlWheel}}(\textcolor{stringliteral}{"{}pitch\_wheel"{}})\ \{\ \}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00123\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pitch_wheel_a3aa73ce9f2d437c5a1acc7f514a7e86d}{PitchWheel::mouseUp}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00124\ \ \ \mbox{\hyperlink{class_synth_slider_a987ed615051dd6948c6aed66368c6c4c}{SynthSlider::mouseUp}}(e);}
+\DoxyCodeLine{00125\ \ \ setValue(0.0,\ sendNotification);}
+\DoxyCodeLine{00126\ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00129\ \mbox{\hyperlink{class_bend_section_a09d0cec3195cfa4478594b901dec9b67}{BendSection::BendSection}}(\textcolor{keyword}{const}\ String\&\ name)\ :\ \mbox{\hyperlink{class_synth_section}{SynthSection}}(name)\ \{}
+\DoxyCodeLine{00130\ \ \ pitch\_wheel\_\ =\ std::make\_unique<PitchWheel>();}
+\DoxyCodeLine{00131\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(pitch\_wheel\_.get());}
+\DoxyCodeLine{00132\ \ \ pitch\_wheel\_-\/>setPopupPlacement(BubbleComponent::above);}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ \ \ mod\_wheel\_\ =\ std::make\_unique<ModWheel>();}
+\DoxyCodeLine{00135\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(mod\_wheel\_.get());}
+\DoxyCodeLine{00136\ \ \ mod\_wheel\_-\/>setPopupPlacement(BubbleComponent::above);}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ \mbox{\hyperlink{class_synth_section_ae4b092420f64f8d195dd2fdb406bfccf}{setSkinOverride}}(\mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a3f9475f215a010100493fcc9e848c3bf}{Skin::kKeyboard}});}
+\DoxyCodeLine{00139\ \}}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00142\ \mbox{\hyperlink{class_bend_section_a925024cabc567cacdc75403b3dfecccd}{BendSection::\string~BendSection}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00145\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bend_section_a3b4c3ef3a653d8e25b8f8975805d827f}{BendSection::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00146\ \ \ \mbox{\hyperlink{class_synth_section_a5966e97ed0f688f9910f24a4f3bfa9ec}{paintBody}}(g);}
+\DoxyCodeLine{00147\ \ \ \mbox{\hyperlink{class_synth_section_aa0e18b52d386e2575c51e6e4f540b392}{paintBorder}}(g);}
+\DoxyCodeLine{00148\ \ \ \mbox{\hyperlink{class_synth_section_a2744ac0e3ccb692bfe657238cdcafe30}{paintOpenGlChildrenBackgrounds}}(g);}
+\DoxyCodeLine{00149\ \ \ \mbox{\hyperlink{class_synth_section_a6f8f31ab8b431df4757cbd3026d236d7}{paintKnobShadows}}(g);}
+\DoxyCodeLine{00150\ \}}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00153\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bend_section_acd76885d25fea3dac0c43a89118cea20}{BendSection::resized}}()\ \{}
+\DoxyCodeLine{00154\ \ \ \textcolor{keywordtype}{int}\ widget\_margin\ =\ \mbox{\hyperlink{class_synth_section_afe5de4142a66eb31ff00c178fc4188e0}{getWidgetMargin}}();}
+\DoxyCodeLine{00155\ \ \ \textcolor{keywordtype}{int}\ x\_padding\ =\ getWidth()\ *\ 0.16f;}
+\DoxyCodeLine{00156\ \ \ x\_padding\ -\/=\ (getWidth()\ +\ x\_padding)\ \%\ 2;}
+\DoxyCodeLine{00157\ \ \ \textcolor{keywordtype}{int}\ wheel\_height\ =\ getHeight()\ -\/\ 2\ *\ widget\_margin;}
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \ \ \textcolor{keywordtype}{int}\ right1\ =\ (getWidth()\ -\/\ x\_padding)\ /\ 2;}
+\DoxyCodeLine{00160\ \ \ pitch\_wheel\_-\/>setBounds(x\_padding,\ widget\_margin,\ right1\ -\/\ x\_padding,\ wheel\_height);}
+\DoxyCodeLine{00161\ \ \ \textcolor{keywordtype}{int}\ x2\ =\ right1\ +\ x\_padding;}
+\DoxyCodeLine{00162\ \ \ mod\_wheel\_-\/>setBounds(x2,\ widget\_margin,\ getWidth()\ -\/\ x\_padding\ -\/\ x2,\ wheel\_height);}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \ \ \mbox{\hyperlink{class_synth_section_a549f91a2b81b419368a578990cb2e6c2}{SynthSection::resized}}();}
+\DoxyCodeLine{00165\ \}}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00168\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bend_section_a8aaa90e0761f0b00503ba67b10e4c72b}{BendSection::sliderValueChanged}}(Slider*\ changed\_slider)\ \{}
+\DoxyCodeLine{00169\ \ \ \mbox{\hyperlink{class_synth_section_ac7ee059bb6a4e6592d6bd6538a757d6c}{SynthSection::sliderValueChanged}}(changed\_slider);}
+\DoxyCodeLine{00170\ \ \ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ parent\ =\ findParentComponentOfClass<SynthGuiInterface>();}
+\DoxyCodeLine{00171\ \ \ \textcolor{keywordflow}{if}\ (parent\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00172\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ \textcolor{keywordflow}{if}\ (changed\_slider\ ==\ mod\_wheel\_.get())}
+\DoxyCodeLine{00175\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_a98c20b4fb3cf40730cff88704344b547}{modWheelGuiChanged}}(changed\_slider-\/>getValue());}
+\DoxyCodeLine{00176\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (changed\_slider\ ==\ pitch\_wheel\_.get())}
+\DoxyCodeLine{00177\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_abb3337b638ca689b06839647bb39411d}{pitchWheelGuiChanged}}(changed\_slider-\/>getValue());}
+\DoxyCodeLine{00178\ \}}
+
+\end{DoxyCode}

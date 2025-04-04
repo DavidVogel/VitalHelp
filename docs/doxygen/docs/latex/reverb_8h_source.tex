@@ -1,0 +1,176 @@
+\doxysection{reverb.\+h}
+\hypertarget{reverb_8h_source}{}\label{reverb_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/effects/reverb.h@{/Users/davidvogel/repos/VitalHelp/src/synthesis/effects/reverb.h}}
+\mbox{\hyperlink{reverb_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{processor_8h}{processor.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{one__pole__filter_8h}{one\_pole\_filter.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00016\ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{classvital_1_1_reverb}{Reverb}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_reverb_a1e0c98286a57154189e6a90d9c2712ab}{kT60Amplitude}}\ =\ 0.001f;}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_reverb_aa20f47a74634f8db92bd2dfa098df01a}{kAllpassFeedback}}\ =\ 0.6f;}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{classvital_1_1_reverb_a07a250709a458c90f19d756800436d8e}{kMinDelay}}\ =\ 3.0f;}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_reverb_abb3ccd671d36022fcbdf4d37a9e4be59}{kBaseSampleRate}}\ =\ 44100;}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_reverb_a247f355df577186c0703f945b4330f09}{kDefaultSampleRate}}\ =\ 88200;}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_reverb_af2926ad162c909a5ca1a57e77ac15ce7}{kNetworkSize}}\ =\ 16;}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_reverb_ad75432475304d830ede4f861af82f3d2}{kBaseFeedbackBits}}\ =\ 14;}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_reverb_a4edfcb2dc27cf8d90fbabeb6764e4983}{kExtraLookupSample}}\ =\ 4;}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_reverb_ad1793a03ce342fb871fd508ebbff3304}{kBaseAllpassBits}}\ =\ 10;}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_reverb_a71ac7d9470797a474cf53ab33d6ced78}{kNetworkContainers}}\ =\ \mbox{\hyperlink{classvital_1_1_reverb_af2926ad162c909a5ca1a57e77ac15ce7}{kNetworkSize}}\ /\ poly\_float::kSize;}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_reverb_a33852d6904662b6f7f63a0d71f1371f6}{kMinSizePower}}\ =\ -\/3;}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_reverb_ad8dc4dcd0f82de58b63b457f8e7e405c}{kMaxSizePower}}\ =\ 1;}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{classvital_1_1_reverb_adbf15223dae9c7e1abf5476c9ec4c743}{kSizePowerRange}}\ =\ \mbox{\hyperlink{classvital_1_1_reverb_ad8dc4dcd0f82de58b63b457f8e7e405c}{kMaxSizePower}}\ -\/\ \mbox{\hyperlink{classvital_1_1_reverb_a33852d6904662b6f7f63a0d71f1371f6}{kMinSizePower}};}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{classvital_1_1_reverb_ac50a607e7abcc999ca53ccdda903f864}{kAllpassDelays}}[\mbox{\hyperlink{classvital_1_1_reverb_a71ac7d9470797a474cf53ab33d6ced78}{kNetworkContainers}}];}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{classvital_1_1_reverb_a7f5b807e80b714a6687b1b25ba4cf60d}{kFeedbackDelays}}[\mbox{\hyperlink{classvital_1_1_reverb_a71ac7d9470797a474cf53ab33d6ced78}{kNetworkContainers}}];}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a613c76043c55848a16e80e12e4fa2f05}{kAudio}},\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499ad26fcd6119ed6d43feac1c9ab9d21832}{kDecayTime}},\ \ \ \ \ \ }
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a85f4ccae881463abc36aaf1f9dc41135}{kPreLowCutoff}},\ \ \ }
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a38412c0a208daf58cc6089cb6b264b6d}{kPreHighCutoff}},\ \ }
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499acfd0a533dbeeca277de1cd9c81d10d5f}{kLowCutoff}},\ \ \ \ \ \ }
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499ad3230fb58c2bdec51bf88af878b06a81}{kLowGain}},\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499ab5cdc3e3b7d378d4bbb85ceba3c4a8f0}{kHighCutoff}},\ \ \ \ \ }
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a638cd041b33885130e23991377fdea92}{kHighGain}},\ \ \ \ \ \ \ }
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a48d604ff536f01bf6b604f4956f88f6d}{kChorusAmount}},\ \ \ }
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a20a205e07a6bc6d619a4feda56742868}{kChorusFrequency}},}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a4cf413ec479b50763d5e1b8b82cb6a43}{kStereoWidth}},\ \ \ \ }
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a4654024fb43efaa68230663b92f99353}{kSize}},\ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a64c4b9ae88ba1fc4c00db9cc1c6d4323}{kDelay}},\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499af0cf3d7e68e827c2431b6f53937be6bc}{kWet}},\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a0aa62d11d5410e3e994c0b2e7ad6dd9b}{kNumInputs}}\ \ \ \ \ \ \ }
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_ad84eef84d66ad2e707eb002ab542619b}{Reverb}}();}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classvital_1_1_reverb_a4eede1bc3daf53bc8e67064fcbcd13c1}{\string~Reverb}}()\ \{\ \}}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_reverb_ada32f4fac9a1e2515db8e893712143ab}{process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00131\ }
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_reverb_ae6b9ee4fc9c0d49ae2c01aa0cbd1ea6c}{processWithInput}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in,\ \textcolor{keywordtype}{int}\ num\_samples)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{classvital_1_1_reverb_a5cd1fbce63e29f76b3b51a8058b04053}{getSampleRateRatio}}(\textcolor{keywordtype}{int}\ sample\_rate)\ \{\ \textcolor{keywordflow}{return}\ sample\_rate\ /\ (1.0f\ *\ \mbox{\hyperlink{classvital_1_1_reverb_abb3ccd671d36022fcbdf4d37a9e4be59}{kBaseSampleRate}});\ \}}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_reverb_a2904eecb07642e9851446856443b2002}{getBufferScale}}(\textcolor{keywordtype}{int}\ sample\_rate)\ \{}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ scale\ =\ 1;}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ ratio\ =\ \mbox{\hyperlink{classvital_1_1_reverb_a5cd1fbce63e29f76b3b51a8058b04053}{getSampleRateRatio}}(sample\_rate);}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (scale\ <\ ratio)}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \ \ scale\ *=\ 2;}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ scale;}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_reverb_a07c78049284fc6502de333012022ffa4}{setSampleRate}}(\textcolor{keywordtype}{int}\ sample\_rate)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_reverb_a657852171b697999d086ae86ae3f65ce}{setOversampleAmount}}(\textcolor{keywordtype}{int}\ oversample\_amount)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_reverb_a868cd131fffe0c8911bbf82f14cb0603}{setupBuffersForSampleRate}}(\textcolor{keywordtype}{int}\ sample\_rate);}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_reverb_a066c3df579fa1ae9553d3710ad75aa3b}{hardReset}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{classvital_1_1_reverb_a55c0ed7e825f713089c9d8523bef490e}{readFeedback}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ \textcolor{keyword}{const}*\ lookups,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ offset)\ \{}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ write\_offset\ =\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(write\_index\_)\ -\/\ offset;}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ floored\_offset\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a4eb599d3b993166f53c0f769b0b1acd9}{utils::floor}}(write\_offset);}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ t\ =\ write\_offset\ -\/\ floored\_offset;}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1matrix}{matrix}}\ interpolation\_matrix\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a72052df2c021a50c70d7c835d1fe0fa3}{utils::getPolynomialInterpolationMatrix}}(t);}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ indices\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad78f0e7d254bdef79f99ff199f8cbd9f}{utils::toInt}}(floored\_offset)\ \&\ feedback\_mask\_;}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1matrix}{matrix}}\ value\_matrix\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ac395090a16e639959e02aa2ff9527202}{utils::getValueMatrix}}(lookups,\ indices);}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ value\_matrix.\mbox{\hyperlink{structvital_1_1matrix_a6c21356aed14f6074aba63a9a4e6ce2c}{transpose}}();}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ interpolation\_matrix.\mbox{\hyperlink{structvital_1_1matrix_a453c475add0774341fd36d8adf3f0a32}{multiplyAndSumRows}}(value\_matrix);}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00207\ }
+\DoxyCodeLine{00215\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{classvital_1_1_reverb_a166d8b2ab7e1d6178ea6f36c293e9366}{readAllpass}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ lookup,\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ offset)\ \{}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ indices\ =\ (\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}(write\_index\_\ *\ poly\_float::kSize)\ -\/\ offset)\ \&\ allpass\_mask\_;}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(lookup[indices[0]],\ lookup[indices[1]],\ lookup[indices[2]],\ lookup[indices[3]]);}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00219\ }
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_reverb_af88c8664908bb08bfc96a8b142bf5818}{wrapFeedbackBuffer}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ buffer)\ \{}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ buffer[0]\ =\ buffer[max\_feedback\_size\_];}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ buffer[max\_feedback\_size\_\ +\ 1]\ =\ buffer[1];}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \ \ buffer[max\_feedback\_size\_\ +\ 2]\ =\ buffer[2];}
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \ \ buffer[max\_feedback\_size\_\ +\ 3]\ =\ buffer[3];}
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00233\ }
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ \mbox{\hyperlink{classvital_1_1_reverb_ac00cb95fe9ec8b1de340c6d6e29c69a9}{clone}}()\textcolor{keyword}{\ const\ override\ }\{\ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\textcolor{keyword}{false});\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};\ \}}
+\DoxyCodeLine{00239\ }
+\DoxyCodeLine{00240\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ std::unique\_ptr<StereoMemory>\ memory\_;}
+\DoxyCodeLine{00245\ }
+\DoxyCodeLine{00249\ \ \ \ \ \ \ std::unique\_ptr<poly\_float[]>\ allpass\_lookups\_[\mbox{\hyperlink{classvital_1_1_reverb_a71ac7d9470797a474cf53ab33d6ced78}{kNetworkContainers}}];}
+\DoxyCodeLine{00250\ }
+\DoxyCodeLine{00254\ \ \ \ \ \ \ std::unique\_ptr<mono\_float[]>\ feedback\_memories\_[\mbox{\hyperlink{classvital_1_1_reverb_af2926ad162c909a5ca1a57e77ac15ce7}{kNetworkSize}}];}
+\DoxyCodeLine{00255\ }
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ feedback\_lookups\_[\mbox{\hyperlink{classvital_1_1_reverb_af2926ad162c909a5ca1a57e77ac15ce7}{kNetworkSize}}];}
+\DoxyCodeLine{00260\ }
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ decays\_[\mbox{\hyperlink{classvital_1_1_reverb_a71ac7d9470797a474cf53ab33d6ced78}{kNetworkContainers}}];}
+\DoxyCodeLine{00265\ }
+\DoxyCodeLine{00269\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_one_pole_filter}{OnePoleFilter<>}}\ low\_shelf\_filters\_[\mbox{\hyperlink{classvital_1_1_reverb_a71ac7d9470797a474cf53ab33d6ced78}{kNetworkContainers}}];}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_one_pole_filter}{OnePoleFilter<>}}\ high\_shelf\_filters\_[\mbox{\hyperlink{classvital_1_1_reverb_a71ac7d9470797a474cf53ab33d6ced78}{kNetworkContainers}}];}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_one_pole_filter}{OnePoleFilter<>}}\ low\_pre\_filter\_;}
+\DoxyCodeLine{00280\ }
+\DoxyCodeLine{00284\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_one_pole_filter}{OnePoleFilter<>}}\ high\_pre\_filter\_;}
+\DoxyCodeLine{00285\ }
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_pre\_coefficient\_;}
+\DoxyCodeLine{00290\ }
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_pre\_coefficient\_;}
+\DoxyCodeLine{00295\ }
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_coefficient\_;}
+\DoxyCodeLine{00300\ }
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_amplitude\_;}
+\DoxyCodeLine{00305\ }
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_coefficient\_;}
+\DoxyCodeLine{00310\ }
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_amplitude\_;}
+\DoxyCodeLine{00315\ }
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ chorus\_phase\_;}
+\DoxyCodeLine{00320\ }
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ chorus\_amount\_;}
+\DoxyCodeLine{00325\ }
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ feedback\_;}
+\DoxyCodeLine{00330\ }
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ damping\_;}
+\DoxyCodeLine{00335\ }
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ sample\_delay\_;}
+\DoxyCodeLine{00340\ }
+\DoxyCodeLine{00344\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ sample\_delay\_increment\_;}
+\DoxyCodeLine{00345\ }
+\DoxyCodeLine{00349\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ dry\_;}
+\DoxyCodeLine{00350\ }
+\DoxyCodeLine{00354\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ wet\_;}
+\DoxyCodeLine{00355\ }
+\DoxyCodeLine{00359\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ write\_index\_;}
+\DoxyCodeLine{00360\ }
+\DoxyCodeLine{00364\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ max\_allpass\_size\_;}
+\DoxyCodeLine{00365\ }
+\DoxyCodeLine{00369\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ max\_feedback\_size\_;}
+\DoxyCodeLine{00370\ }
+\DoxyCodeLine{00374\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ feedback\_mask\_;}
+\DoxyCodeLine{00375\ }
+\DoxyCodeLine{00379\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ allpass\_mask\_;}
+\DoxyCodeLine{00380\ }
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ poly\_allpass\_mask\_;}
+\DoxyCodeLine{00385\ }
+\DoxyCodeLine{00386\ \ \ \ \ \ \ JUCE\_LEAK\_DETECTOR(\mbox{\hyperlink{classvital_1_1_reverb}{Reverb}})}
+\DoxyCodeLine{00387\ \ \ \};}
+\DoxyCodeLine{00388\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

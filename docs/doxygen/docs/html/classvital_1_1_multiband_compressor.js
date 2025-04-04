@@ -1,0 +1,48 @@
+var classvital_1_1_multiband_compressor =
+[
+    [ "BandOptions", "classvital_1_1_multiband_compressor.html#af96095570341cf5a6feee506e6e50bda", [
+      [ "kMultiband", "classvital_1_1_multiband_compressor.html#af96095570341cf5a6feee506e6e50bdaa9b25ed09ae5651d28ea5c3440da25d6a", null ],
+      [ "kLowBand", "classvital_1_1_multiband_compressor.html#af96095570341cf5a6feee506e6e50bdaa40722039a451be32b3478ef368ebf57a", null ],
+      [ "kHighBand", "classvital_1_1_multiband_compressor.html#af96095570341cf5a6feee506e6e50bdaa18ea48657b6c6729a276c9632c849d51", null ],
+      [ "kSingleBand", "classvital_1_1_multiband_compressor.html#af96095570341cf5a6feee506e6e50bdaa5cec1539aa7b8092588f0b1aa14759aa", null ],
+      [ "kNumBandOptions", "classvital_1_1_multiband_compressor.html#af96095570341cf5a6feee506e6e50bdaa7e2be2e31cb3b289ef57cd64f525a696", null ]
+    ] ],
+    [ "OutputType", "classvital_1_1_multiband_compressor.html#a1f569818640ff85531606832f7e647c9", [
+      [ "kAudioOut", "classvital_1_1_multiband_compressor.html#a1f569818640ff85531606832f7e647c9aa82f426eaa1261de997e3b3b05729f6c", null ],
+      [ "kLowInputMeanSquared", "classvital_1_1_multiband_compressor.html#a1f569818640ff85531606832f7e647c9a920d046f999a26d6c84fab17af459749", null ],
+      [ "kBandInputMeanSquared", "classvital_1_1_multiband_compressor.html#a1f569818640ff85531606832f7e647c9aa1d6d12a3e5fb8ed415a0993f7c26e48", null ],
+      [ "kHighInputMeanSquared", "classvital_1_1_multiband_compressor.html#a1f569818640ff85531606832f7e647c9acc874dacd57c2e7275e2528e8fcf21bb", null ],
+      [ "kLowOutputMeanSquared", "classvital_1_1_multiband_compressor.html#a1f569818640ff85531606832f7e647c9a657e5d0694e0a3bea0bc2ad158b56e83", null ],
+      [ "kBandOutputMeanSquared", "classvital_1_1_multiband_compressor.html#a1f569818640ff85531606832f7e647c9a905d8622914791bae025917673b6b83e", null ],
+      [ "kHighOutputMeanSquared", "classvital_1_1_multiband_compressor.html#a1f569818640ff85531606832f7e647c9a3d3d5ccbb51bc94ef7997472bf35b428", null ],
+      [ "kNumOutputs", "classvital_1_1_multiband_compressor.html#a1f569818640ff85531606832f7e647c9a025b0b1d3ffb2130fc5333145acab30c", null ]
+    ] ],
+    [ "MultibandCompressor", "classvital_1_1_multiband_compressor.html#a2f2e350fda38daeeae4870b0c1a6eec6", null ],
+    [ "~MultibandCompressor", "classvital_1_1_multiband_compressor.html#ad90d41cc53391eb4bfd44aac5db92d7b", null ],
+    [ "clone", "classvital_1_1_multiband_compressor.html#a5274a3658b28919e6fd61f127ab8074e", null ],
+    [ "packFilterOutput", "classvital_1_1_multiband_compressor.html#ac2d2fadb7a0f02161329ce8428feed42", null ],
+    [ "packLowBandCompressor", "classvital_1_1_multiband_compressor.html#a6c7dd630739cf384954b6d5283027ab9", null ],
+    [ "process", "classvital_1_1_multiband_compressor.html#a939ce67ed2fc73d53deb924637fa062d", null ],
+    [ "processWithInput", "classvital_1_1_multiband_compressor.html#a73f474525b7cf4a8a02d0f68eff40254", null ],
+    [ "reset", "classvital_1_1_multiband_compressor.html#ac91f69d01c13807572634e3569130ba6", null ],
+    [ "setOversampleAmount", "classvital_1_1_multiband_compressor.html#a35f8f6c1d5fc3da28bf3a6b4771c5042", null ],
+    [ "setSampleRate", "classvital_1_1_multiband_compressor.html#a49fa704707e994113a424018002a30a2", null ],
+    [ "writeAllCompressorOutputs", "classvital_1_1_multiband_compressor.html#a938288951a1a21f633b7539ee7a634b8", null ],
+    [ "writeCompressorOutputs", "classvital_1_1_multiband_compressor.html#a8f2dc1da079ee7055edfd91e694ea677", null ],
+    [ "band_high_compressor_", "classvital_1_1_multiband_compressor.html#a657aab8c775acb5944b815c5edbae181", null ],
+    [ "band_high_filter_", "classvital_1_1_multiband_compressor.html#a0abcb2a0046d90cc40270291e18d13b3", null ],
+    [ "band_high_lower_ratio_", "classvital_1_1_multiband_compressor.html#a99995519dfc0c846bd1e8112cbbc18e8", null ],
+    [ "band_high_lower_threshold_", "classvital_1_1_multiband_compressor.html#af518d6ee41b0285a6b74d641f70f1b25", null ],
+    [ "band_high_output_gain_", "classvital_1_1_multiband_compressor.html#aecfe26be437d59889219e8f49229b61b", null ],
+    [ "band_high_upper_ratio_", "classvital_1_1_multiband_compressor.html#a634a72bd149f5761398def0017ecccdc", null ],
+    [ "band_high_upper_threshold_", "classvital_1_1_multiband_compressor.html#a70db166d005947f33bab971a9a8616a3", null ],
+    [ "low_band_compressor_", "classvital_1_1_multiband_compressor.html#a9483cebd888d1c878fa893e0cd7b6b45", null ],
+    [ "low_band_filter_", "classvital_1_1_multiband_compressor.html#a8f7370b8f6680e4e6ea4dc1739c51faf", null ],
+    [ "low_band_lower_ratio_", "classvital_1_1_multiband_compressor.html#ac02f6e0cf5d55d7c424daeb84b66e402", null ],
+    [ "low_band_lower_threshold_", "classvital_1_1_multiband_compressor.html#adb74a2ab8b4b0920f6c81b09ad7dedac", null ],
+    [ "low_band_output_gain_", "classvital_1_1_multiband_compressor.html#ae28f11648d516f6005cb90c5a198a503", null ],
+    [ "low_band_upper_ratio_", "classvital_1_1_multiband_compressor.html#a855295aede56869a5ebb64545e31e2e3", null ],
+    [ "low_band_upper_threshold_", "classvital_1_1_multiband_compressor.html#a24f62d5ecec72449a8cb2cdd748c152d", null ],
+    [ "was_high_enabled_", "classvital_1_1_multiband_compressor.html#a4cce689aaf10d72768f5c47e60431d4c", null ],
+    [ "was_low_enabled_", "classvital_1_1_multiband_compressor.html#a94e0464403c0631061bd935a26217b22", null ]
+];

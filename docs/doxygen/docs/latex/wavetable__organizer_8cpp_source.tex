@@ -1,0 +1,557 @@
+\doxysection{wavetable\+\_\+organizer.\+cpp}
+\hypertarget{wavetable__organizer_8cpp_source}{}\label{wavetable__organizer_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/wavetable\_organizer.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/wavetable\_organizer.cpp}}
+\mbox{\hyperlink{wavetable__organizer_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable__organizer_8h}{wavetable\_organizer.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{default__look__and__feel_8h}{default\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{comment}{//\ Internal\ callback\ triggered\ by\ organizer\ context\ menu\ actions.}}
+\DoxyCodeLine{00007\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00008\ \ \ \textcolor{keywordtype}{void}\ organizerCallback(\textcolor{keywordtype}{int}\ result,\ \mbox{\hyperlink{class_wavetable_organizer}{WavetableOrganizer}}*\ organizer)\ \{}
+\DoxyCodeLine{00009\ \ \ \ \ \textcolor{keywordflow}{if}\ (result\ ==\ \mbox{\hyperlink{class_wavetable_organizer_aac693895cfc726cf3558ab3b8c903297a2fecb9cb0c829b61ca4bdadde59614a0}{WavetableOrganizer::kCreate}})}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ organizer-\/>\mbox{\hyperlink{class_wavetable_organizer_a3fc307fbbee56304a58bbe85ccaf04ab}{createKeyframeAtMenu}}();}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (result\ ==\ \mbox{\hyperlink{class_wavetable_organizer_aac693895cfc726cf3558ab3b8c903297aff4a9cae9ae220950f41c19430e938e1}{WavetableOrganizer::kRemove}})}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ organizer-\/>\mbox{\hyperlink{class_wavetable_organizer_aabf7773cd71d352eb1d6a9b4867339da}{deleteSelectedKeyframes}}();}
+\DoxyCodeLine{00013\ \ \ \}}
+\DoxyCodeLine{00014\ \}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_draggable_frame_af55e940946432c91eee2ad5cdfe29902}{DraggableFrame::isInside}}(\textcolor{keywordtype}{int}\ x,\ \textcolor{keywordtype}{int}\ y)\ \{}
+\DoxyCodeLine{00017\ \ \ \textcolor{keywordtype}{int}\ x\_distance\ =\ std::min(x,\ getWidth()\ -\/\ x);}
+\DoxyCodeLine{00018\ \ \ \textcolor{keywordtype}{int}\ y\_distance\ =\ std::min(y,\ getWidth()\ -\/\ y);}
+\DoxyCodeLine{00019\ \ \ \textcolor{keywordflow}{return}\ x\_distance\ +\ y\_distance\ >=\ getWidth()\ /\ 2;}
+\DoxyCodeLine{00020\ \}}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \mbox{\hyperlink{class_wavetable_organizer_a75ab440fbc9fb07c59e7623b357ff4a2}{WavetableOrganizer::WavetableOrganizer}}(\mbox{\hyperlink{class_wavetable_creator}{WavetableCreator}}*\ wavetable\_creator,\ \textcolor{keywordtype}{int}\ max\_frames)\ :}
+\DoxyCodeLine{00023\ \ \ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}(\textcolor{stringliteral}{"{}Wavetable\ Organizer"{}}),}
+\DoxyCodeLine{00024\ \ \ \ \ unselected\_frame\_quads\_(kMaxKeyframes,\ \mbox{\hyperlink{class_shaders}{Shaders}}::kDiamondFragment),}
+\DoxyCodeLine{00025\ \ \ \ \ selected\_frame\_quads\_(kMaxKeyframes,\ \mbox{\hyperlink{class_shaders}{Shaders}}::kDiamondFragment),}
+\DoxyCodeLine{00026\ \ \ \ \ active\_rows\_(\mbox{\hyperlink{class_wavetable_component_list}{WavetableComponentList}}::kMaxRows,\ \mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment),}
+\DoxyCodeLine{00027\ \ \ \ \ selection\_quad\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment),\ playhead\_quad\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment)\ \{}
+\DoxyCodeLine{00028\ \ \ \textcolor{comment}{//\ Constructor\ sets\ up\ OpenGL\ quads\ and\ initial\ states.}}
+\DoxyCodeLine{00029\ \ \ unselected\_frame\_quads\_.\mbox{\hyperlink{class_open_gl_multi_quad_a400b44f0d176e32e9a3014be91816808}{setTargetComponent}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00030\ \ \ selected\_frame\_quads\_.\mbox{\hyperlink{class_open_gl_multi_quad_a400b44f0d176e32e9a3014be91816808}{setTargetComponent}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00031\ \ \ active\_rows\_.\mbox{\hyperlink{class_open_gl_multi_quad_a400b44f0d176e32e9a3014be91816808}{setTargetComponent}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ unselected\_frame\_quads\_.\mbox{\hyperlink{class_open_gl_multi_quad_a0e0f55028083ff593df1457f746a173a}{setThickness}}(2.0f);}
+\DoxyCodeLine{00034\ \ \ selected\_frame\_quads\_.\mbox{\hyperlink{class_open_gl_multi_quad_a0e0f55028083ff593df1457f746a173a}{setThickness}}(2.0f);}
+\DoxyCodeLine{00035\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&active\_rows\_);}
+\DoxyCodeLine{00036\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&unselected\_frame\_quads\_);}
+\DoxyCodeLine{00037\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&selected\_frame\_quads\_);}
+\DoxyCodeLine{00038\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&selection\_quad\_);}
+\DoxyCodeLine{00039\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&playhead\_quad\_);}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ wavetable\_creator\_\ =\ wavetable\_creator;}
+\DoxyCodeLine{00042\ \ \ max\_frames\_\ =\ max\_frames;}
+\DoxyCodeLine{00043\ \ \ frame\_width\_\ =\ 0.0f;}
+\DoxyCodeLine{00044\ \ \ currently\_dragged\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00045\ \ \ dragged\_start\_x\_\ =\ 0;}
+\DoxyCodeLine{00046\ \ \ mouse\_mode\_\ =\ \mbox{\hyperlink{class_wavetable_organizer_a68006f33abd8762d89090bf317e48ee7ac979eb387c5f88a8145a68fd5c51511d}{kWaiting}};}
+\DoxyCodeLine{00047\ \ \ playhead\_position\_\ =\ 0;}
+\DoxyCodeLine{00048\ \ \ draw\_vertical\_offset\_\ =\ 0;}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ recreateVisibleFrames();}
+\DoxyCodeLine{00051\ \}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \mbox{\hyperlink{class_wavetable_organizer_a9355d38068dcd47d75d28380f7235e01}{WavetableOrganizer::\string~WavetableOrganizer}}()\ \{}
+\DoxyCodeLine{00054\ \ \ listeners\_.clear();}
+\DoxyCodeLine{00055\ \ \ clearVisibleFrames();}
+\DoxyCodeLine{00056\ \}}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \textcolor{comment}{//\ Draws\ background\ grid\ and\ sets\ colors\ for\ frame\ quads.}}
+\DoxyCodeLine{00059\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_organizer_a6591b391d8df9f1ad9a110faecb31a1d}{WavetableOrganizer::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00060\ \ \ g.fillAll(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4bf89cbdbad7dd4c1a837af2473389ee}{Skin::kBackground}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ Colour\ lighten\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00063\ \ \ g.setColour(lighten.withMultipliedAlpha(0.5f));}
+\DoxyCodeLine{00064\ \ \ \textcolor{keywordtype}{int}\ half\_handle\ =\ 0.5f\ *\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}();}
+\DoxyCodeLine{00065\ \ \ g.fillRect(0,\ 0,\ half\_handle,\ getHeight());}
+\DoxyCodeLine{00066\ \ \ g.fillRect(getWidth()\ -\/\ half\_handle,\ 0,\ half\_handle,\ getHeight());}
+\DoxyCodeLine{00067\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ \mbox{\hyperlink{class_wavetable_organizer_a733d2df32f0a73d6bcd621ea9b0c0775}{kDrawSkip}};\ i\ <\ max\_frames\_\ -\/\ 1;\ i\ +=\ \mbox{\hyperlink{class_wavetable_organizer_a733d2df32f0a73d6bcd621ea9b0c0775}{kDrawSkip}})\ \{}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ \%\ \mbox{\hyperlink{class_wavetable_organizer_a6a30a857d03f2a0694a9c0680b0e48b3}{kDrawSkipLarge}}\ ==\ 0)}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ g.setColour(lighten);}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ g.setColour(lighten.withMultipliedAlpha(0.5f));}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keywordtype}{int}\ x\ =\ i\ *\ frame\_width\_\ +\ half\_handle;}
+\DoxyCodeLine{00074\ \ \ \ \ g.fillRect(x,\ 0,\ 1,\ getHeight());}
+\DoxyCodeLine{00075\ \ \ \}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ g.setColour(lighten);}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \ Colour\ edge\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4bf89cbdbad7dd4c1a837af2473389ee}{Skin::kBackground}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00080\ \ \ Colour\ primary\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00081\ \ \ unselected\_frame\_quads\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(edge);}
+\DoxyCodeLine{00082\ \ \ unselected\_frame\_quads\_.\mbox{\hyperlink{class_open_gl_multi_quad_a46dfe42ce452467df0b7b2faeee64c03}{setAltColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4f6dbca7fdb5224fc3d7e4beb68970fc}{Skin::kWidgetPrimaryDisabled}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00083\ \ \ selected\_frame\_quads\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(edge);}
+\DoxyCodeLine{00084\ \ \ selected\_frame\_quads\_.\mbox{\hyperlink{class_open_gl_multi_quad_a46dfe42ce452467df0b7b2faeee64c03}{setAltColor}}(primary);}
+\DoxyCodeLine{00085\ \ \ selection\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(lighten);}
+\DoxyCodeLine{00086\ \ \ playhead\_quad\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(primary);}
+\DoxyCodeLine{00087\ \ \ active\_rows\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(lighten);}
+\DoxyCodeLine{00088\ \}}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \textcolor{comment}{//\ Repositions\ frames\ and\ updates\ visuals\ after\ size\ changes.}}
+\DoxyCodeLine{00091\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_organizer_a505b2b3a54d7ca0a782e28b05c344a98}{WavetableOrganizer::resized}}()\ \{}
+\DoxyCodeLine{00092\ \ \ repositionVisibleFrames();}
+\DoxyCodeLine{00093\ \ \ \mbox{\hyperlink{class_wavetable_organizer_a9908e0dff23a12a519b46549a23e8b09}{playheadMoved}}(playhead\_position\_);}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ setFrameQuads();}
+\DoxyCodeLine{00096\ \ \ setRowQuads();}
+\DoxyCodeLine{00097\ \}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \textcolor{keywordtype}{void}\ WavetableOrganizer::deselect()\ \{}
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe\ :\ currently\_selected\_)\ \{}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keywordflow}{if}\ (frame\_lookup\_.count(keyframe))}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ frame\_lookup\_[keyframe]-\/>select(\textcolor{keyword}{false});}
+\DoxyCodeLine{00103\ \ \ \}}
+\DoxyCodeLine{00104\ \ \ currently\_selected\_.clear();}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00107\ \ \ \ \ listener-\/>frameSelected(\textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ setFrameQuads();}
+\DoxyCodeLine{00110\ \}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \textcolor{keywordtype}{void}\ WavetableOrganizer::deleteKeyframe(\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00113\ \ \ keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a568088f16dde91e6f8ae8d0f3fa5b755}{owner}}()-\/>\mbox{\hyperlink{class_wavetable_component_ac48217f5669d6896915f896f8ebd7656}{remove}}(keyframe);}
+\DoxyCodeLine{00114\ \ \ frame\_lookup\_.erase(keyframe);}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00117\ \ \ \ \ listener-\/>positionsUpdated();}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ setRowQuads();}
+\DoxyCodeLine{00120\ \}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \textcolor{keywordtype}{void}\ WavetableOrganizer::createKeyframeAtPosition(Point<int>\ position)\ \{}
+\DoxyCodeLine{00123\ \ \ \textcolor{keywordtype}{int}\ row\_index\ =\ getRowFromY(position.y);}
+\DoxyCodeLine{00124\ \ \ \mbox{\hyperlink{class_wavetable_component}{WavetableComponent}}*\ component\ =\ getComponentAtRow(row\_index);}
+\DoxyCodeLine{00125\ \ \ \textcolor{keywordflow}{if}\ (component\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \textcolor{keywordtype}{int}\ x\_position\ =\ getPositionFromX(position.x\ -\/\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}()\ /\ 2);}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00130\ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ new\_keyframe\ =\ component-\/>\mbox{\hyperlink{class_wavetable_component_a6311d3537ca55c3399a8dce144600bf0}{insertNewKeyframe}}(x\_position);}
+\DoxyCodeLine{00131\ \ \ std::unique\_ptr<DraggableFrame>\ new\_frame\ =\ std::make\_unique<DraggableFrame>(!component-\/>\mbox{\hyperlink{class_wavetable_component_ac95929ba0a375893ac0e701fece6d8ac}{hasKeyframes}}());}
+\DoxyCodeLine{00132\ \ \ \textcolor{keywordtype}{int}\ x\ =\ frame\_width\_\ *\ new\_keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}();}
+\DoxyCodeLine{00133\ \ \ new\_frame-\/>setBounds(x,\ row\_index\ *\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}()\ +\ draw\_vertical\_offset\_,\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}(),\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}());}
+\DoxyCodeLine{00134\ \ \ addAndMakeVisible(new\_frame.get());}
+\DoxyCodeLine{00135\ \ \ frame\_lookup\_[new\_keyframe]\ =\ std::move(new\_frame);}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \ \ selectFrame(new\_keyframe);}
+\DoxyCodeLine{00138\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00139\ \ \ \ \ listener-\/>positionsUpdated();}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ setFrameQuads();}
+\DoxyCodeLine{00142\ \ \ setRowQuads();}
+\DoxyCodeLine{00143\ \}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_organizer_a5a26e5f3535f686632d236d7513da9c9}{WavetableOrganizer::selectDefaultFrame}}()\ \{}
+\DoxyCodeLine{00146\ \ \ \textcolor{keywordflow}{if}\ (wavetable\_creator\_-\/>\mbox{\hyperlink{class_wavetable_creator_a999deb2d90ba845a5c3d15f0bcc617f5}{numGroups}}())\ \{}
+\DoxyCodeLine{00147\ \ \ \ \ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}*\ group\ =\ wavetable\_creator\_-\/>\mbox{\hyperlink{class_wavetable_creator_a344c07f003fdc49613c62e38a92be6c0}{getGroup}}(0);}
+\DoxyCodeLine{00148\ \ \ \ \ \textcolor{keywordflow}{if}\ (group-\/>\mbox{\hyperlink{class_wavetable_group_ad380a5a59254f9b2b3e24a56dc97d23b}{numComponents}}())\ \{}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_component}{WavetableComponent}}*\ component\ =\ group-\/>\mbox{\hyperlink{class_wavetable_group_a1a52e17e66837848ac7e059ab34b4e8a}{getComponent}}(0);}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (component-\/>\mbox{\hyperlink{class_wavetable_component_a05ca43822b7adf62273544e4b1708c3c}{numFrames}}())}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ selectFrame(component-\/>\mbox{\hyperlink{class_wavetable_component_a17b6ccd233f49ae1e9ca908968d158d6}{getFrameAt}}(0));}
+\DoxyCodeLine{00152\ \ \ \ \ \}}
+\DoxyCodeLine{00153\ \ \ \}}
+\DoxyCodeLine{00154\ \}}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00156\ \textcolor{keywordtype}{void}\ WavetableOrganizer::selectFrame(\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00157\ \ \ selectFrames(\{keyframe\});}
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00160\ \ \ \ \ listener-\/>frameSelected(keyframe);}
+\DoxyCodeLine{00161\ \}}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \textcolor{keywordtype}{void}\ WavetableOrganizer::selectFrames(std::vector<WavetableKeyframe*>\ keyframes)\ \{}
+\DoxyCodeLine{00164\ \ \ deselect();}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe\ :\ keyframes)\ \{}
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{keywordflow}{if}\ (frame\_lookup\_.count(keyframe))\ \{}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \mbox{\hyperlink{class_draggable_frame}{DraggableFrame}}*\ frame\ =\ frame\_lookup\_[keyframe].get();}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ frame-\/>\mbox{\hyperlink{class_draggable_frame_ac698734fb35230759fb3a3fee07bf4d8}{select}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ frame-\/>toFront(\textcolor{keyword}{false});}
+\DoxyCodeLine{00171\ \ \ \ \ \}}
+\DoxyCodeLine{00172\ }
+\DoxyCodeLine{00173\ \ \ \ \ currently\_selected\_.push\_back(keyframe);}
+\DoxyCodeLine{00174\ \ \ \}}
+\DoxyCodeLine{00175\ \ \ setFrameQuads();}
+\DoxyCodeLine{00176\ \}}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \textcolor{keywordtype}{void}\ WavetableOrganizer::positionSelectionBox(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00179\ \ \ \textcolor{keywordtype}{int}\ position\_end\ =\ getPositionFromX(e.x\ -\/\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}()\ /\ 2);}
+\DoxyCodeLine{00180\ \ \ \textcolor{keywordtype}{int}\ position\_start\ =\ getPositionFromX(mouse\_down\_position\_.x\ -\/\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}()\ /\ 2);}
+\DoxyCodeLine{00181\ \ \ \textcolor{keywordtype}{int}\ row\_end\ =\ getRowFromY(e.y);}
+\DoxyCodeLine{00182\ \ \ \textcolor{keywordtype}{int}\ row\_start\ =\ getRowFromY(mouse\_down\_position\_.y);}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \ \ \textcolor{keywordtype}{int}\ position\_left\ =\ std::min(position\_start,\ position\_end);}
+\DoxyCodeLine{00185\ \ \ \textcolor{keywordtype}{int}\ position\_right\ =\ std::max(position\_start,\ position\_end);}
+\DoxyCodeLine{00186\ \ \ \textcolor{keywordtype}{int}\ row\_top\ =\ std::min(row\_start,\ row\_end);}
+\DoxyCodeLine{00187\ \ \ \textcolor{keywordtype}{int}\ row\_bottom\ =\ std::max(row\_start,\ row\_end)\ +\ 1;}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \ \ \textcolor{keywordtype}{int}\ x\ =\ std::roundf(position\_left\ *\ frame\_width\_);}
+\DoxyCodeLine{00190\ \ \ \textcolor{keywordtype}{int}\ y\ =\ std::roundf(row\_top\ *\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}())\ +\ draw\_vertical\_offset\_\ +\ 1;}
+\DoxyCodeLine{00191\ \ \ \textcolor{keywordtype}{int}\ width\ =\ std::roundf(position\_right\ *\ frame\_width\_)\ -\/\ x;}
+\DoxyCodeLine{00192\ \ \ \textcolor{keywordtype}{int}\ height\ =\ std::roundf(row\_bottom\ *\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}())\ +\ draw\_vertical\_offset\_\ -\/\ y;}
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \ \ selection\_quad\_.setBounds(x\ +\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}()\ /\ 2\ -\/\ 1,\ y,\ width\ +\ 2,\ height);}
+\DoxyCodeLine{00195\ \}}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \textcolor{keywordtype}{void}\ WavetableOrganizer::setRowQuads()\ \{}
+\DoxyCodeLine{00198\ \ \ \textcolor{keywordtype}{float}\ height\ =\ getHeight();}
+\DoxyCodeLine{00199\ \ \ \textcolor{keywordtype}{int}\ handle\_width\ =\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}();}
+\DoxyCodeLine{00200\ \ \ \textcolor{keywordtype}{float}\ row\_height\ =\ handle\_width\ *\ 2.0f\ /\ height;}
+\DoxyCodeLine{00201\ \ \ \textcolor{keywordtype}{float}\ buffer\ =\ 2.0f\ /\ height;}
+\DoxyCodeLine{00202\ \ \ \textcolor{keywordtype}{float}\ y\ =\ 1.0f\ -\/\ draw\_vertical\_offset\_\ *\ 2.0f\ /\ height\ -\/\ buffer;}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \ \ \textcolor{keywordtype}{int}\ index\ =\ 0;}
+\DoxyCodeLine{00205\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ g\ =\ 0;\ g\ <\ wavetable\_creator\_-\/>\mbox{\hyperlink{class_wavetable_creator_a999deb2d90ba845a5c3d15f0bcc617f5}{numGroups}}();\ ++g)\ \{}
+\DoxyCodeLine{00206\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_components\ =\ wavetable\_creator\_-\/>\mbox{\hyperlink{class_wavetable_creator_a344c07f003fdc49613c62e38a92be6c0}{getGroup}}(g)-\/>\mbox{\hyperlink{class_wavetable_group_ad380a5a59254f9b2b3e24a56dc97d23b}{numComponents}}();}
+\DoxyCodeLine{00207\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ n\ =\ 0;\ n\ <\ num\_components;\ ++n)\ \{}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ active\_rows\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(index,\ -\/1.0f,\ y\ -\/\ row\_height\ +\ buffer,\ 2.0f,\ row\_height\ -\/\ 2.0f\ *\ buffer);}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ y\ -\/=\ row\_height;}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ index++;}
+\DoxyCodeLine{00211\ \ \ \ \ \}}
+\DoxyCodeLine{00212\ \ \ \ \ y\ -\/=\ row\_height;}
+\DoxyCodeLine{00213\ \ \ \}}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00215\ \ \ active\_rows\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4107db47ccf0c13befdb137e7e98cdfd}{setNumQuads}}(index);}
+\DoxyCodeLine{00216\ \}}
+\DoxyCodeLine{00217\ }
+\DoxyCodeLine{00218\ \textcolor{keywordtype}{void}\ WavetableOrganizer::setFrameQuads()\ \{}
+\DoxyCodeLine{00219\ \ \ \textcolor{keywordtype}{int}\ num\_selected\ =\ 0;}
+\DoxyCodeLine{00220\ \ \ \textcolor{keywordtype}{int}\ num\_unselected\ =\ 0;}
+\DoxyCodeLine{00221\ \ \ \textcolor{keywordtype}{float}\ gl\_width\_scale\ =\ 2.0f\ /\ getWidth();}
+\DoxyCodeLine{00222\ \ \ \textcolor{keywordtype}{float}\ gl\_height\_scale\ =\ 2.0f\ /\ getHeight();}
+\DoxyCodeLine{00223\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ frame\ :\ frame\_lookup\_)\ \{}
+\DoxyCodeLine{00224\ \ \ \ \ \textcolor{keywordflow}{if}\ (frame.second\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00226\ }
+\DoxyCodeLine{00227\ \ \ \ \ Rectangle<int>\ bounds\ =\ frame.second-\/>getBounds();}
+\DoxyCodeLine{00228\ \ \ \ \ \textcolor{keywordtype}{float}\ x\ =\ bounds.getX()\ *\ gl\_width\_scale\ -\/\ 1.0f;}
+\DoxyCodeLine{00229\ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ 1.0f\ -\/\ bounds.getBottom()\ *\ gl\_height\_scale;}
+\DoxyCodeLine{00230\ \ \ \ \ \textcolor{keywordtype}{float}\ width\ =\ bounds.getWidth()\ *\ gl\_width\_scale;}
+\DoxyCodeLine{00231\ \ \ \ \ \textcolor{keywordtype}{float}\ height\ =\ bounds.getHeight()\ *\ gl\_height\_scale;}
+\DoxyCodeLine{00232\ \ \ \ \ \textcolor{keywordflow}{if}\ (frame.second-\/>\mbox{\hyperlink{class_draggable_frame_aa9726841ab32d1d9e8f8656158312ecc}{selected}}())\ \{}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ selected\_frame\_quads\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(num\_selected,\ x,\ y,\ width,\ height);}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ num\_selected++;}
+\DoxyCodeLine{00235\ \ \ \ \ \}}
+\DoxyCodeLine{00236\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ unselected\_frame\_quads\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(num\_unselected,\ x,\ y,\ width,\ height);}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ num\_unselected++;}
+\DoxyCodeLine{00239\ \ \ \ \ \}}
+\DoxyCodeLine{00240\ \ \ \}}
+\DoxyCodeLine{00241\ }
+\DoxyCodeLine{00242\ \ \ selected\_frame\_quads\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4107db47ccf0c13befdb137e7e98cdfd}{setNumQuads}}(num\_selected);}
+\DoxyCodeLine{00243\ \ \ unselected\_frame\_quads\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4107db47ccf0c13befdb137e7e98cdfd}{setNumQuads}}(num\_unselected);}
+\DoxyCodeLine{00244\ \}}
+\DoxyCodeLine{00245\ }
+\DoxyCodeLine{00246\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{WavetableOrganizer::handleWidth}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00247\ \ \ \textcolor{keywordflow}{return}\ 1\ +\ 2\ *\ (int)(getHeight()\ *\ \mbox{\hyperlink{class_wavetable_organizer_aadce5ffb817512b28381bf89471e5e67}{kHandleHeightPercent}}\ *\ 0.5f);}
+\DoxyCodeLine{00248\ \}}
+\DoxyCodeLine{00249\ }
+\DoxyCodeLine{00250\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_organizer_aabf7773cd71d352eb1d6a9b4867339da}{WavetableOrganizer::deleteSelectedKeyframes}}()\ \{}
+\DoxyCodeLine{00251\ \ \ std::vector<WavetableKeyframe*>\ selected\ =\ currently\_selected\_;}
+\DoxyCodeLine{00252\ \ \ deselect();}
+\DoxyCodeLine{00253\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe\ :\ selected)}
+\DoxyCodeLine{00254\ \ \ \ \ deleteKeyframe(keyframe);}
+\DoxyCodeLine{00255\ }
+\DoxyCodeLine{00256\ \ \ setFrameQuads();}
+\DoxyCodeLine{00257\ \}}
+\DoxyCodeLine{00258\ }
+\DoxyCodeLine{00259\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_organizer_a3fc307fbbee56304a58bbe85ccaf04ab}{WavetableOrganizer::createKeyframeAtMenu}}()\ \{}
+\DoxyCodeLine{00260\ \ \ createKeyframeAtPosition(menu\_created\_position\_);}
+\DoxyCodeLine{00261\ \}}
+\DoxyCodeLine{00262\ }
+\DoxyCodeLine{00263\ \textcolor{keywordtype}{int}\ WavetableOrganizer::getRowFromY(\textcolor{keywordtype}{int}\ y)\ \{}
+\DoxyCodeLine{00264\ \ \ \textcolor{keywordflow}{return}\ std::max(0.0f,\ (y\ -\/\ draw\_vertical\_offset\_)\ *\ 1.0f\ /\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}());}
+\DoxyCodeLine{00265\ \}}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00267\ \textcolor{keywordtype}{int}\ WavetableOrganizer::getPositionFromX(\textcolor{keywordtype}{int}\ x)\ \{}
+\DoxyCodeLine{00268\ \ \ \textcolor{keywordflow}{return}\ std::min(std::max(0,\ getUnclampedPositionFromX(x)),\ max\_frames\_\ -\/\ 1);}
+\DoxyCodeLine{00269\ \}}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00271\ \textcolor{keywordtype}{int}\ WavetableOrganizer::getUnclampedPositionFromX(\textcolor{keywordtype}{int}\ x)\ \{}
+\DoxyCodeLine{00272\ \ \ \textcolor{keywordflow}{return}\ x\ /\ frame\_width\_;}
+\DoxyCodeLine{00273\ \}}
+\DoxyCodeLine{00274\ }
+\DoxyCodeLine{00275\ \textcolor{keywordtype}{bool}\ WavetableOrganizer::isSelected(\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00276\ \ \ \textcolor{keyword}{auto}\ found\ =\ std::find(currently\_selected\_.begin(),\ currently\_selected\_.end(),\ keyframe);}
+\DoxyCodeLine{00277\ \ \ \textcolor{keywordflow}{return}\ found\ !=\ currently\_selected\_.end();}
+\DoxyCodeLine{00278\ \}}
+\DoxyCodeLine{00279\ }
+\DoxyCodeLine{00280\ \textcolor{keywordtype}{void}\ WavetableOrganizer::clearVisibleFrames()\ \{}
+\DoxyCodeLine{00281\ \ \ frame\_lookup\_.clear();}
+\DoxyCodeLine{00282\ \}}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00284\ \textcolor{keywordtype}{void}\ WavetableOrganizer::recreateVisibleFrames()\ \{}
+\DoxyCodeLine{00285\ \ \ clearVisibleFrames();}
+\DoxyCodeLine{00286\ }
+\DoxyCodeLine{00287\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ g\ =\ 0;\ g\ <\ wavetable\_creator\_-\/>\mbox{\hyperlink{class_wavetable_creator_a999deb2d90ba845a5c3d15f0bcc617f5}{numGroups}}();\ ++g)\ \{}
+\DoxyCodeLine{00288\ \ \ \ \ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}*\ group\ =\ wavetable\_creator\_-\/>\mbox{\hyperlink{class_wavetable_creator_a344c07f003fdc49613c62e38a92be6c0}{getGroup}}(g);}
+\DoxyCodeLine{00289\ }
+\DoxyCodeLine{00290\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ group-\/>\mbox{\hyperlink{class_wavetable_group_ad380a5a59254f9b2b3e24a56dc97d23b}{numComponents}}();\ ++i)\ \{}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_component}{WavetableComponent}}*\ component\ =\ group-\/>\mbox{\hyperlink{class_wavetable_group_a1a52e17e66837848ac7e059ab34b4e8a}{getComponent}}(i);}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ f\ =\ 0;\ f\ <\ component-\/>\mbox{\hyperlink{class_wavetable_component_a05ca43822b7adf62273544e4b1708c3c}{numFrames}}();\ ++f)\ \{}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe\ =\ component-\/>\mbox{\hyperlink{class_wavetable_component_a17b6ccd233f49ae1e9ca908968d158d6}{getFrameAt}}(f);}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \ \ std::unique\_ptr<DraggableFrame>\ frame\ =\ std::make\_unique<DraggableFrame>(!component-\/>\mbox{\hyperlink{class_wavetable_component_ac95929ba0a375893ac0e701fece6d8ac}{hasKeyframes}}());}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \ \ addAndMakeVisible(frame.get());}
+\DoxyCodeLine{00297\ \ \ \ \ \ \ \ \ frame\_lookup\_[keyframe]\ =\ std::move(frame);}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00299\ \ \ \ \ \}}
+\DoxyCodeLine{00300\ \ \ \}}
+\DoxyCodeLine{00301\ \ \ repositionVisibleFrames();}
+\DoxyCodeLine{00302\ \ \ \textcolor{keywordflow}{if}\ (currently\_selected\_.size()\ ==\ 1)}
+\DoxyCodeLine{00303\ \ \ \ \ selectFrame(currently\_selected\_[0]);}
+\DoxyCodeLine{00304\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (currently\_selected\_.size()\ >\ 1)}
+\DoxyCodeLine{00305\ \ \ \ \ selectFrames(currently\_selected\_);}
+\DoxyCodeLine{00306\ \}}
+\DoxyCodeLine{00307\ }
+\DoxyCodeLine{00308\ \textcolor{keywordtype}{void}\ WavetableOrganizer::repositionVisibleFrames()\ \{}
+\DoxyCodeLine{00309\ \ \ frame\_width\_\ =\ (getWidth()\ -\/\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}()\ +\ 1)\ /\ (max\_frames\_\ -\/\ 1.0f);}
+\DoxyCodeLine{00310\ }
+\DoxyCodeLine{00311\ \ \ \textcolor{keywordtype}{int}\ y\ =\ draw\_vertical\_offset\_;}
+\DoxyCodeLine{00312\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ g\ =\ 0;\ g\ <\ wavetable\_creator\_-\/>\mbox{\hyperlink{class_wavetable_creator_a999deb2d90ba845a5c3d15f0bcc617f5}{numGroups}}();\ ++g)\ \{}
+\DoxyCodeLine{00313\ \ \ \ \ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}*\ group\ =\ wavetable\_creator\_-\/>\mbox{\hyperlink{class_wavetable_creator_a344c07f003fdc49613c62e38a92be6c0}{getGroup}}(g);}
+\DoxyCodeLine{00314\ }
+\DoxyCodeLine{00315\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ group-\/>\mbox{\hyperlink{class_wavetable_group_ad380a5a59254f9b2b3e24a56dc97d23b}{numComponents}}();\ ++i)\ \{}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_component}{WavetableComponent}}*\ component\ =\ group-\/>\mbox{\hyperlink{class_wavetable_group_a1a52e17e66837848ac7e059ab34b4e8a}{getComponent}}(i);}
+\DoxyCodeLine{00317\ }
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ f\ =\ 0;\ f\ <\ component-\/>\mbox{\hyperlink{class_wavetable_component_a05ca43822b7adf62273544e4b1708c3c}{numFrames}}();\ ++f)\ \{}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe\ =\ component-\/>\mbox{\hyperlink{class_wavetable_component_a17b6ccd233f49ae1e9ca908968d158d6}{getFrameAt}}(f);}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ x\ =\ frame\_width\_\ *\ keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}();}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_draggable_frame}{DraggableFrame}}*\ frame\ =\ frame\_lookup\_[keyframe].get();}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (frame)\ \{}
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (frame-\/>\mbox{\hyperlink{class_draggable_frame_a63939d1415d6ed12159d323fd91c7e59}{fullFrame}}())}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \ \ \ \ \ \ frame-\/>setBounds(0,\ y,\ getWidth(),\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}());}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ \ \ \ \ frame-\/>setBounds(x,\ y,\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}(),\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}());}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00330\ \ \ \ \ \ \ y\ +=\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}();}
+\DoxyCodeLine{00331\ \ \ \ \ \}}
+\DoxyCodeLine{00332\ }
+\DoxyCodeLine{00333\ \ \ \ \ y\ +=\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}();}
+\DoxyCodeLine{00334\ \ \ \}}
+\DoxyCodeLine{00335\ \ \ setFrameQuads();}
+\DoxyCodeLine{00336\ \}}
+\DoxyCodeLine{00337\ }
+\DoxyCodeLine{00338\ \mbox{\hyperlink{class_wavetable_component}{WavetableComponent}}*\ WavetableOrganizer::getComponentAtRow(\textcolor{keywordtype}{int}\ row)\ \{}
+\DoxyCodeLine{00339\ \ \ \textcolor{keywordtype}{int}\ internal\_row\ =\ row;}
+\DoxyCodeLine{00340\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ g\ =\ 0;\ g\ <\ wavetable\_creator\_-\/>\mbox{\hyperlink{class_wavetable_creator_a999deb2d90ba845a5c3d15f0bcc617f5}{numGroups}}()\ \&\&\ internal\_row\ >=\ 0;\ ++g)\ \{}
+\DoxyCodeLine{00341\ \ \ \ \ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}*\ group\ =\ wavetable\_creator\_-\/>\mbox{\hyperlink{class_wavetable_creator_a344c07f003fdc49613c62e38a92be6c0}{getGroup}}(g);}
+\DoxyCodeLine{00342\ }
+\DoxyCodeLine{00343\ \ \ \ \ \textcolor{keywordflow}{if}\ (internal\_row\ <\ group-\/>numComponents())}
+\DoxyCodeLine{00344\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ group-\/>\mbox{\hyperlink{class_wavetable_group_a1a52e17e66837848ac7e059ab34b4e8a}{getComponent}}(internal\_row);}
+\DoxyCodeLine{00345\ }
+\DoxyCodeLine{00346\ \ \ \ \ internal\_row\ -\/=\ group-\/>\mbox{\hyperlink{class_wavetable_group_ad380a5a59254f9b2b3e24a56dc97d23b}{numComponents}}()\ +\ 1;}
+\DoxyCodeLine{00347\ \ \ \}}
+\DoxyCodeLine{00348\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00349\ \}}
+\DoxyCodeLine{00350\ }
+\DoxyCodeLine{00351\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ WavetableOrganizer::getFrameAtMouseEvent(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00352\ \ \ \mbox{\hyperlink{class_wavetable_component}{WavetableComponent}}*\ component\ =\ getComponentAtRow(getRowFromY(e.y));}
+\DoxyCodeLine{00353\ \ \ \textcolor{keywordflow}{if}\ (component\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00354\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00355\ }
+\DoxyCodeLine{00356\ \ \ \textcolor{keywordtype}{int}\ position\ =\ getUnclampedPositionFromX(e.x\ -\/\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}());}
+\DoxyCodeLine{00357\ \ \ \textcolor{keywordflow}{if}\ (!component-\/>\mbox{\hyperlink{class_wavetable_component_ac95929ba0a375893ac0e701fece6d8ac}{hasKeyframes}}())}
+\DoxyCodeLine{00358\ \ \ \ \ \textcolor{keywordflow}{return}\ component-\/>\mbox{\hyperlink{class_wavetable_component_a944323ea0630ec59d7805a348228dc8e}{getFrameAtPosition}}(-\/1);}
+\DoxyCodeLine{00359\ }
+\DoxyCodeLine{00360\ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe\ =\ component-\/>\mbox{\hyperlink{class_wavetable_component_a944323ea0630ec59d7805a348228dc8e}{getFrameAtPosition}}(position);}
+\DoxyCodeLine{00361\ \ \ \mbox{\hyperlink{class_draggable_frame}{DraggableFrame}}*\ frame\ =\ frame\_lookup\_[keyframe].get();}
+\DoxyCodeLine{00362\ }
+\DoxyCodeLine{00363\ \ \ \textcolor{keywordflow}{if}\ (frame\ \&\&\ frame-\/>\mbox{\hyperlink{class_draggable_frame_af55e940946432c91eee2ad5cdfe29902}{isInside}}(e.x\ -\/\ frame-\/>getX(),\ e.y\ -\/\ frame-\/>getY()))}
+\DoxyCodeLine{00364\ \ \ \ \ \textcolor{keywordflow}{return}\ keyframe;}
+\DoxyCodeLine{00365\ }
+\DoxyCodeLine{00366\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00367\ \}}
+\DoxyCodeLine{00368\ }
+\DoxyCodeLine{00369\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_organizer_ada4016e48ae22c2562cc957ce10711ae}{WavetableOrganizer::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00370\ \ \ \textcolor{comment}{//\ Handles\ selection,\ dragging\ initiation,\ and\ context\ menu\ starting\ positions.}}
+\DoxyCodeLine{00371\ \ \ Component::mouseDown(e);}
+\DoxyCodeLine{00372\ \ \ mouse\_down\_position\_\ =\ e.position.toInt();}
+\DoxyCodeLine{00373\ }
+\DoxyCodeLine{00374\ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe\ =\ getFrameAtMouseEvent(e);}
+\DoxyCodeLine{00375\ \ \ \textcolor{keywordflow}{if}\ (keyframe)\ \{}
+\DoxyCodeLine{00376\ \ \ \ \ \mbox{\hyperlink{class_draggable_frame}{DraggableFrame}}*\ frame\ =\ frame\_lookup\_[keyframe].get();}
+\DoxyCodeLine{00377\ }
+\DoxyCodeLine{00378\ \ \ \ \ mouse\_mode\_\ =\ \mbox{\hyperlink{class_wavetable_organizer_a68006f33abd8762d89090bf317e48ee7a5d8a02b983eb418c12590192cef25e59}{kDragging}};}
+\DoxyCodeLine{00379\ \ \ \ \ currently\_dragged\_\ =\ keyframe;}
+\DoxyCodeLine{00380\ \ \ \ \ dragged\_start\_x\_\ =\ frame-\/>getX();}
+\DoxyCodeLine{00381\ }
+\DoxyCodeLine{00382\ \ \ \ \ \textcolor{keywordflow}{if}\ (!isSelected(keyframe))}
+\DoxyCodeLine{00383\ \ \ \ \ \ \ selectFrame(keyframe);}
+\DoxyCodeLine{00384\ \ \ \}}
+\DoxyCodeLine{00385\ \}}
+\DoxyCodeLine{00386\ }
+\DoxyCodeLine{00387\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_organizer_a451109284502690201f1dc02fb504032}{WavetableOrganizer::mouseDrag}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00388\ \ \ \textcolor{comment}{//\ Handles\ dragging\ frames\ or\ updating\ selection\ boxes.}}
+\DoxyCodeLine{00389\ \ \ Component::mouseDrag(e);}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00391\ \ \ \textcolor{keywordtype}{int}\ x\_movement\ =\ e.x\ -\/\ mouse\_down\_position\_.x;}
+\DoxyCodeLine{00392\ \ \ \textcolor{keywordflow}{if}\ (mouse\_mode\_\ ==\ \mbox{\hyperlink{class_wavetable_organizer_a68006f33abd8762d89090bf317e48ee7ac979eb387c5f88a8145a68fd5c51511d}{kWaiting}})\ \{}
+\DoxyCodeLine{00393\ \ \ \ \ \textcolor{keywordflow}{if}\ (x\_movement)\ \{}
+\DoxyCodeLine{00394\ \ \ \ \ \ \ selection\_quad\_.setVisible(\textcolor{keyword}{true});}
+\DoxyCodeLine{00395\ \ \ \ \ \ \ mouse\_mode\_\ =\ \mbox{\hyperlink{class_wavetable_organizer_a68006f33abd8762d89090bf317e48ee7a95c56edb8dfc813c5f718586a60739eb}{kSelecting}};}
+\DoxyCodeLine{00396\ \ \ \ \ \ \ positionSelectionBox(e);}
+\DoxyCodeLine{00397\ \ \ \ \ \}}
+\DoxyCodeLine{00398\ \ \ \}}
+\DoxyCodeLine{00399\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (mouse\_mode\_\ ==\ \mbox{\hyperlink{class_wavetable_organizer_a68006f33abd8762d89090bf317e48ee7a5d8a02b983eb418c12590192cef25e59}{kDragging}})\ \{}
+\DoxyCodeLine{00400\ \ \ \ \ \textcolor{keywordtype}{int}\ new\_frame\_position\ =\ getUnclampedPositionFromX(dragged\_start\_x\_\ +\ x\_movement);}
+\DoxyCodeLine{00401\ \ \ \ \ \textcolor{keywordtype}{int}\ delta\_frame\_position\ =\ new\_frame\_position\ -\/\ currently\_dragged\_-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}();}
+\DoxyCodeLine{00402\ }
+\DoxyCodeLine{00403\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe\ :\ currently\_selected\_)\ \{}
+\DoxyCodeLine{00404\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a568088f16dde91e6f8ae8d0f3fa5b755}{owner}}()-\/>\mbox{\hyperlink{class_wavetable_component_ac95929ba0a375893ac0e701fece6d8ac}{hasKeyframes}}())}
+\DoxyCodeLine{00405\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00406\ }
+\DoxyCodeLine{00407\ \ \ \ \ \ \ \mbox{\hyperlink{class_draggable_frame}{DraggableFrame}}*\ frame\ =\ frame\_lookup\_[keyframe].get();}
+\DoxyCodeLine{00408\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ frame\_position\ =\ keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}()\ +\ delta\_frame\_position;}
+\DoxyCodeLine{00409\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ show\_frame\_position\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a0096680ab20a53e9eade83f4f2ee1895}{vital::utils::iclamp}}(frame\_position,\ 0,\ max\_frames\_\ -\/\ 1);}
+\DoxyCodeLine{00410\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ x\ =\ show\_frame\_position\ *\ frame\_width\_;}
+\DoxyCodeLine{00411\ }
+\DoxyCodeLine{00412\ \ \ \ \ \ \ keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a66ba4445e56c387f4c8e48192e0039fb}{setPosition}}(show\_frame\_position);}
+\DoxyCodeLine{00413\ \ \ \ \ \ \ frame-\/>setTopLeftPosition(x,\ frame-\/>getY());}
+\DoxyCodeLine{00414\ \ \ \ \ \}}
+\DoxyCodeLine{00415\ }
+\DoxyCodeLine{00416\ \ \ \ \ \textcolor{keywordtype}{int}\ clamped\_position\ =\ getPositionFromX(dragged\_start\_x\_\ +\ x\_movement);}
+\DoxyCodeLine{00417\ }
+\DoxyCodeLine{00418\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_wavetable_organizer_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00419\ \ \ \ \ \ \ listener-\/>frameDragged(currently\_dragged\_,\ clamped\_position);}
+\DoxyCodeLine{00420\ }
+\DoxyCodeLine{00421\ \ \ \ \ setFrameQuads();}
+\DoxyCodeLine{00422\ \ \ \}}
+\DoxyCodeLine{00423\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (mouse\_mode\_\ ==\ \mbox{\hyperlink{class_wavetable_organizer_a68006f33abd8762d89090bf317e48ee7a95c56edb8dfc813c5f718586a60739eb}{kSelecting}})}
+\DoxyCodeLine{00424\ \ \ \ \ positionSelectionBox(e);}
+\DoxyCodeLine{00425\ \}}
+\DoxyCodeLine{00426\ }
+\DoxyCodeLine{00427\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_organizer_aa76957ffa3c9da586437c010f11ae373}{WavetableOrganizer::mouseUp}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00428\ \ \ \textcolor{comment}{//\ Finalizes\ drags,\ completes\ selection,\ and\ handles\ context\ menus.}}
+\DoxyCodeLine{00429\ \ \ Component::mouseUp(e);}
+\DoxyCodeLine{00430\ }
+\DoxyCodeLine{00431\ \ \ \textcolor{keywordflow}{if}\ (mouse\_mode\_\ ==\ \mbox{\hyperlink{class_wavetable_organizer_a68006f33abd8762d89090bf317e48ee7ac979eb387c5f88a8145a68fd5c51511d}{kWaiting}})}
+\DoxyCodeLine{00432\ \ \ \ \ deselect();}
+\DoxyCodeLine{00433\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (mouse\_mode\_\ ==\ \mbox{\hyperlink{class_wavetable_organizer_a68006f33abd8762d89090bf317e48ee7a95c56edb8dfc813c5f718586a60739eb}{kSelecting}})\ \{}
+\DoxyCodeLine{00434\ \ \ \ \ std::vector<WavetableKeyframe*>\ selection;}
+\DoxyCodeLine{00435\ \ \ \ \ \textcolor{keywordtype}{int}\ row\_start\_index\ =\ getRowFromY(selection\_quad\_.getY());}
+\DoxyCodeLine{00436\ \ \ \ \ \textcolor{keywordtype}{int}\ row\_end\_index\ =\ getRowFromY(selection\_quad\_.getBottom());}
+\DoxyCodeLine{00437\ }
+\DoxyCodeLine{00438\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ row\_index\ =\ row\_start\_index;\ row\_index\ <\ row\_end\_index;\ ++row\_index)\ \{}
+\DoxyCodeLine{00439\ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_component}{WavetableComponent}}*\ component\ =\ getComponentAtRow(row\_index);}
+\DoxyCodeLine{00440\ }
+\DoxyCodeLine{00441\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (component)\ \{}
+\DoxyCodeLine{00442\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ start\_position\ =\ getPositionFromX(selection\_quad\_.getX()\ -\/\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}()\ /\ 2);}
+\DoxyCodeLine{00443\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ end\_position\ =\ getPositionFromX(selection\_quad\_.getRight()\ -\/\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}()\ /\ 2);}
+\DoxyCodeLine{00444\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ start\ =\ component-\/>\mbox{\hyperlink{class_wavetable_component_ac2af3dd97667e8f2d17205aee1258393}{getIndexFromPosition}}(start\_position\ -\/\ 1);}
+\DoxyCodeLine{00445\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ end\ =\ component-\/>\mbox{\hyperlink{class_wavetable_component_ac2af3dd97667e8f2d17205aee1258393}{getIndexFromPosition}}(end\_position);}
+\DoxyCodeLine{00446\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ start;\ i\ <\ end;\ ++i)}
+\DoxyCodeLine{00447\ \ \ \ \ \ \ \ \ \ \ selection.push\_back(component-\/>\mbox{\hyperlink{class_wavetable_component_a17b6ccd233f49ae1e9ca908968d158d6}{getFrameAt}}(i));}
+\DoxyCodeLine{00448\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00449\ \ \ \ \ \}}
+\DoxyCodeLine{00450\ \ \ \ \ selectFrames(selection);}
+\DoxyCodeLine{00451\ \ \ \ \ selection\_quad\_.setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00452\ \ \ \}}
+\DoxyCodeLine{00453\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (mouse\_mode\_\ ==\ \mbox{\hyperlink{class_wavetable_organizer_a68006f33abd8762d89090bf317e48ee7a5d8a02b983eb418c12590192cef25e59}{kDragging}})\ \{}
+\DoxyCodeLine{00454\ \ \ \ \ currently\_dragged\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00455\ }
+\DoxyCodeLine{00456\ }
+\DoxyCodeLine{00457\ \ \ \ \ \textcolor{keywordtype}{int}\ start\_position\ =\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}}\ -\/\ 1;}
+\DoxyCodeLine{00458\ \ \ \ \ \textcolor{keywordtype}{int}\ end\_position\ =\ 0;}
+\DoxyCodeLine{00459\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe\ :\ currently\_selected\_)\ \{}
+\DoxyCodeLine{00460\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a568088f16dde91e6f8ae8d0f3fa5b755}{owner}}()-\/>\mbox{\hyperlink{class_wavetable_component_ac95929ba0a375893ac0e701fece6d8ac}{hasKeyframes}}())}
+\DoxyCodeLine{00461\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00462\ }
+\DoxyCodeLine{00463\ \ \ \ \ \ \ keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a66ba4445e56c387f4c8e48192e0039fb}{setPosition}}(\mbox{\hyperlink{namespacevital_1_1utils_a0096680ab20a53e9eade83f4f2ee1895}{vital::utils::iclamp}}(keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}(),\ 0,\ max\_frames\_\ -\/\ 1));}
+\DoxyCodeLine{00464\ \ \ \ \ \ \ keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a568088f16dde91e6f8ae8d0f3fa5b755}{owner}}()-\/>\mbox{\hyperlink{class_wavetable_component_ada888cf15019ad788c5939e58e055157}{reposition}}(keyframe);}
+\DoxyCodeLine{00465\ \ \ \ \ \ \ start\_position\ =\ std::min(start\_position,\ keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}());}
+\DoxyCodeLine{00466\ \ \ \ \ \ \ end\_position\ =\ std::max(end\_position,\ keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}());}
+\DoxyCodeLine{00467\ \ \ \ \ \}}
+\DoxyCodeLine{00468\ }
+\DoxyCodeLine{00469\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_wavetable_organizer_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00470\ \ \ \ \ \ \ listener-\/>positionsUpdated();}
+\DoxyCodeLine{00471\ \ \ \}}
+\DoxyCodeLine{00472\ }
+\DoxyCodeLine{00473\ \ \ \textcolor{keywordflow}{if}\ (e.mods.isPopupMenu())\ \{}
+\DoxyCodeLine{00474\ \ \ \ \ \textcolor{keywordtype}{int}\ row\_index\ =\ getRowFromY(e.y);}
+\DoxyCodeLine{00475\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component}{WavetableComponent}}*\ component\ =\ getComponentAtRow(row\_index);}
+\DoxyCodeLine{00476\ \ \ \ \ \textcolor{keywordflow}{if}\ (component\ ==\ \textcolor{keyword}{nullptr}\ ||\ !component-\/>\mbox{\hyperlink{class_wavetable_component_ac95929ba0a375893ac0e701fece6d8ac}{hasKeyframes}}())\ \{}
+\DoxyCodeLine{00477\ \ \ \ \ \ \ mouse\_mode\_\ =\ \mbox{\hyperlink{class_wavetable_organizer_a68006f33abd8762d89090bf317e48ee7ac979eb387c5f88a8145a68fd5c51511d}{kWaiting}};}
+\DoxyCodeLine{00478\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00479\ \ \ \ \ \}}
+\DoxyCodeLine{00480\ }
+\DoxyCodeLine{00481\ \ \ \ \ menu\_created\_position\_\ =\ e.getPosition();}
+\DoxyCodeLine{00482\ \ \ \ \ \mbox{\hyperlink{struct_popup_items}{PopupItems}}\ options;}
+\DoxyCodeLine{00483\ }
+\DoxyCodeLine{00484\ \ \ \ \ \textcolor{keywordflow}{if}\ (!currently\_selected\_.empty())\ \{}
+\DoxyCodeLine{00485\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (currently\_selected\_.size()\ >\ 1)}
+\DoxyCodeLine{00486\ \ \ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_wavetable_organizer_aac693895cfc726cf3558ab3b8c903297aff4a9cae9ae220950f41c19430e938e1}{kRemove}},\ \textcolor{stringliteral}{"{}Remove\ Keyframes"{}});}
+\DoxyCodeLine{00487\ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00488\ \ \ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_wavetable_organizer_aac693895cfc726cf3558ab3b8c903297aff4a9cae9ae220950f41c19430e938e1}{kRemove}},\ \textcolor{stringliteral}{"{}Remove\ Keyframe"{}});}
+\DoxyCodeLine{00489\ \ \ \ \ \}}
+\DoxyCodeLine{00490\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00491\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (getComponentAtRow(row\_index))}
+\DoxyCodeLine{00492\ \ \ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_wavetable_organizer_aac693895cfc726cf3558ab3b8c903297a2fecb9cb0c829b61ca4bdadde59614a0}{kCreate}},\ \textcolor{stringliteral}{"{}Create\ Keyframe"{}});}
+\DoxyCodeLine{00493\ \ \ \ \ \}}
+\DoxyCodeLine{00494\ }
+\DoxyCodeLine{00495\ \ \ \ \ \mbox{\hyperlink{class_synth_section_a9424df12646a0b756b1b58904b9be6ff}{showPopupSelector}}(\textcolor{keyword}{this},\ e.getPosition(),\ options,\ [=](\textcolor{keywordtype}{int}\ selection)\ \{\ organizerCallback(selection,\ this);\ \});}
+\DoxyCodeLine{00496\ \ \ \}}
+\DoxyCodeLine{00497\ }
+\DoxyCodeLine{00498\ \ \ mouse\_mode\_\ =\ \mbox{\hyperlink{class_wavetable_organizer_a68006f33abd8762d89090bf317e48ee7ac979eb387c5f88a8145a68fd5c51511d}{kWaiting}};}
+\DoxyCodeLine{00499\ \}}
+\DoxyCodeLine{00500\ }
+\DoxyCodeLine{00501\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_organizer_ad7aa4d765582bb827c6bb73ab41d2400}{WavetableOrganizer::mouseDoubleClick}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00502\ \ \ \textcolor{comment}{//\ Double-\/click\ can\ quickly\ add\ or\ remove\ a\ keyframe\ at\ a\ position.}}
+\DoxyCodeLine{00503\ \ \ \textcolor{keywordtype}{int}\ row\_index\ =\ getRowFromY(e.y);}
+\DoxyCodeLine{00504\ \ \ \mbox{\hyperlink{class_wavetable_component}{WavetableComponent}}*\ component\ =\ getComponentAtRow(row\_index);}
+\DoxyCodeLine{00505\ \ \ \textcolor{keywordflow}{if}\ (component\ ==\ \textcolor{keyword}{nullptr}\ ||\ !component-\/>\mbox{\hyperlink{class_wavetable_component_ac95929ba0a375893ac0e701fece6d8ac}{hasKeyframes}}())}
+\DoxyCodeLine{00506\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00507\ }
+\DoxyCodeLine{00508\ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe\ =\ getFrameAtMouseEvent(e);}
+\DoxyCodeLine{00509\ \ \ \textcolor{keywordflow}{if}\ (keyframe)\ \{}
+\DoxyCodeLine{00510\ \ \ \ \ deselect();}
+\DoxyCodeLine{00511\ \ \ \ \ deleteKeyframe(keyframe);}
+\DoxyCodeLine{00512\ \ \ \ \ setFrameQuads();}
+\DoxyCodeLine{00513\ \ \ \}}
+\DoxyCodeLine{00514\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00515\ \ \ \ \ createKeyframeAtPosition(e.getPosition());}
+\DoxyCodeLine{00516\ \}}
+\DoxyCodeLine{00517\ }
+\DoxyCodeLine{00518\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_organizer_a9908e0dff23a12a519b46549a23e8b09}{WavetableOrganizer::playheadMoved}}(\textcolor{keywordtype}{int}\ position)\ \{}
+\DoxyCodeLine{00519\ \ \ \textcolor{comment}{//\ Updates\ a\ visual\ marker\ to\ show\ where\ the\ playhead\ is\ currently\ located.}}
+\DoxyCodeLine{00520\ \ \ playhead\_position\_\ =\ position;}
+\DoxyCodeLine{00521\ \ \ \textcolor{keywordtype}{int}\ x\ =\ \mbox{\hyperlink{class_wavetable_organizer_aebd1a86df7aebf79dee970dc748fcfb1}{handleWidth}}()\ /\ 2\ +\ position\ *\ frame\_width\_;}
+\DoxyCodeLine{00522\ \ \ playhead\_quad\_.setBounds(x,\ 0,\ 1,\ getHeight());}
+\DoxyCodeLine{00523\ \}}
+\DoxyCodeLine{00524\ }
+\DoxyCodeLine{00525\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_organizer_aae338bc94394640431f96815b5369b94}{WavetableOrganizer::componentRemoved}}(\mbox{\hyperlink{class_wavetable_component}{WavetableComponent}}*\ component)\ \{}
+\DoxyCodeLine{00526\ \ \ \textcolor{comment}{//\ Ensures\ the\ organizer\ updates\ selection\ if\ a\ component\ is\ removed.}}
+\DoxyCodeLine{00527\ \ \ std::vector<WavetableKeyframe*>\ new\_selected;}
+\DoxyCodeLine{00528\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ selected\ :\ currently\_selected\_)\ \{}
+\DoxyCodeLine{00529\ \ \ \ \ \textcolor{keywordflow}{if}\ (selected-\/>owner()\ !=\ component)}
+\DoxyCodeLine{00530\ \ \ \ \ \ \ new\_selected.push\_back(selected);}
+\DoxyCodeLine{00531\ \ \ \}}
+\DoxyCodeLine{00532\ \ \ \textcolor{keywordflow}{if}\ (!new\_selected.empty())}
+\DoxyCodeLine{00533\ \ \ \ \ selectFrames(new\_selected);}
+\DoxyCodeLine{00534\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00535\ \ \ \ \ deselect();}
+\DoxyCodeLine{00536\ \}}
+\DoxyCodeLine{00537\ }
+\DoxyCodeLine{00538\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_organizer_a6ac34d9073e545c74e386e6483633c59}{WavetableOrganizer::componentAdded}}(\mbox{\hyperlink{class_wavetable_component}{WavetableComponent}}*\ component)\ \{}
+\DoxyCodeLine{00539\ \ \ \textcolor{comment}{//\ Adds\ frames\ for\ the\ new\ component\ and\ selects\ its\ first\ frame\ if\ any.}}
+\DoxyCodeLine{00540\ \ \ recreateVisibleFrames();}
+\DoxyCodeLine{00541\ }
+\DoxyCodeLine{00542\ \ \ \textcolor{keywordflow}{if}\ (component-\/>\mbox{\hyperlink{class_wavetable_component_a05ca43822b7adf62273544e4b1708c3c}{numFrames}}())}
+\DoxyCodeLine{00543\ \ \ \ \ selectFrame(component-\/>\mbox{\hyperlink{class_wavetable_component_a17b6ccd233f49ae1e9ca908968d158d6}{getFrameAt}}(0));}
+\DoxyCodeLine{00544\ \}}
+\DoxyCodeLine{00545\ }
+\DoxyCodeLine{00546\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_organizer_a3eaab2253bf70c2569e4c9145674def7}{WavetableOrganizer::componentsScrolled}}(\textcolor{keywordtype}{int}\ offset)\ \{}
+\DoxyCodeLine{00547\ \ \ \textcolor{comment}{//\ Adjusts\ vertical\ offset\ after\ scrolling,\ repositioning\ frames\ accordingly.}}
+\DoxyCodeLine{00548\ \ \ draw\_vertical\_offset\_\ =\ offset;}
+\DoxyCodeLine{00549\ \ \ repositionVisibleFrames();}
+\DoxyCodeLine{00550\ \ \ setRowQuads();}
+\DoxyCodeLine{00551\ \}}
+
+\end{DoxyCode}

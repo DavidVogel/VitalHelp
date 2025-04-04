@@ -1,0 +1,99 @@
+\doxysection{synth\+\_\+computer\+\_\+keyboard.\+cpp}
+\hypertarget{synth__computer__keyboard_8cpp_source}{}\label{synth__computer__keyboard_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/standalone/synth\_computer\_keyboard.cpp@{/Users/davidvogel/repos/VitalHelp/src/standalone/synth\_computer\_keyboard.cpp}}
+\mbox{\hyperlink{synth__computer__keyboard_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__computer__keyboard_8h}{synth\_computer\_keyboard.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}sound\_engine.h"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \mbox{\hyperlink{class_synth_computer_keyboard_ab6e786463a42cae4f969395475e82fc4}{SynthComputerKeyboard::SynthComputerKeyboard}}(\mbox{\hyperlink{classvital_1_1_sound_engine}{vital::SoundEngine}}*\ synth,}
+\DoxyCodeLine{00007\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MidiKeyboardState*\ keyboard\_state)\ \{}
+\DoxyCodeLine{00008\ \ \ synth\_\ =\ synth;}
+\DoxyCodeLine{00009\ \ \ keyboard\_state\_\ =\ keyboard\_state;}
+\DoxyCodeLine{00010\ \ \ computer\_keyboard\_offset\_\ =\ \mbox{\hyperlink{namespacevital_a6f6b4a14e791211e2365da10b4e6c49e}{vital::kDefaultKeyboardOffset}};}
+\DoxyCodeLine{00011\ \ \ \mbox{\hyperlink{classvital_1_1_string_layout_a56c7b9bb66a67d525acc7788bff3605e}{layout\_}}\ =\ \mbox{\hyperlink{namespacevital_a56bc0cf128b157c538371580d4803f44}{vital::kDefaultKeyboard}};}
+\DoxyCodeLine{00012\ \ \ \mbox{\hyperlink{classvital_1_1_string_layout_a2193e2d71a03820f7b83a06fa5c57e6d}{up\_key\_}}\ =\ \mbox{\hyperlink{namespacevital_a323171007af46015e54806cd71adbeb0}{vital::kDefaultKeyboardOctaveUp}};}
+\DoxyCodeLine{00013\ \ \ \mbox{\hyperlink{classvital_1_1_string_layout_a9310e939d91193bbc872a45bccdcbf19}{down\_key\_}}\ =\ \mbox{\hyperlink{namespacevital_aa9d9f7db397753d33653638db5eefe56}{vital::kDefaultKeyboardOctaveDown}};}
+\DoxyCodeLine{00014\ \}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \mbox{\hyperlink{class_synth_computer_keyboard_a981c761e6419d02039a59517d24be1ef}{SynthComputerKeyboard::\string~SynthComputerKeyboard}}()\ \{}
+\DoxyCodeLine{00017\ \}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_computer_keyboard_a609708aeb6c28410ebff9ba2f8ce3b14}{SynthComputerKeyboard::changeKeyboardOffset}}(\textcolor{keywordtype}{int}\ new\_offset)\ \{}
+\DoxyCodeLine{00020\ \ \ \textcolor{comment}{//\ Turn\ off\ all\ currently\ active\ notes\ at\ the\ old\ offset}}
+\DoxyCodeLine{00021\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_string_layout_a56c7b9bb66a67d525acc7788bff3605e}{layout\_}}.length();\ ++i)\ \{}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keywordtype}{int}\ note\ =\ computer\_keyboard\_offset\_\ +\ i;}
+\DoxyCodeLine{00023\ \ \ \ \ keyboard\_state\_-\/>noteOff(\mbox{\hyperlink{class_synth_computer_keyboard_a6647e903088d8d5bbf4eb16052657de3}{kKeyboardMidiChannel}},\ note,\ 0.5f);}
+\DoxyCodeLine{00024\ \ \ \ \ keys\_pressed\_.erase(\mbox{\hyperlink{classvital_1_1_string_layout_a56c7b9bb66a67d525acc7788bff3605e}{layout\_}}[i]);}
+\DoxyCodeLine{00025\ \ \ \}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \textcolor{comment}{//\ Clamp\ the\ new\ offset\ to\ a\ valid\ MIDI\ note\ range}}
+\DoxyCodeLine{00028\ \ \ \textcolor{keywordtype}{int}\ max\ =\ (\mbox{\hyperlink{namespacevital_a7be9efa423f42230b10924b0f69b3b03}{vital::kMidiSize}}\ /\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}}\ -\/\ 1)\ *\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}};}
+\DoxyCodeLine{00029\ \ \ computer\_keyboard\_offset\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a0096680ab20a53e9eade83f4f2ee1895}{vital::utils::iclamp}}(new\_offset,\ 0,\ max);}
+\DoxyCodeLine{00030\ \}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_synth_computer_keyboard_a3f5014125a0bbe32be31069a346dc8ce}{SynthComputerKeyboard::keyPressed}}(\textcolor{keyword}{const}\ KeyPress\ \&key,\ Component\ *origin)\ \{}
+\DoxyCodeLine{00033\ \ \ \textcolor{comment}{//\ This\ method\ doesn't\ handle\ note-\/on\ logic\ directly,\ it's\ handled\ in\ keyStateChanged.}}
+\DoxyCodeLine{00034\ \ \ \textcolor{comment}{//\ Return\ false\ to\ indicate\ the\ event\ was\ not\ consumed\ here.}}
+\DoxyCodeLine{00035\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00036\ \}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_synth_computer_keyboard_a340b6b5671271c925cf5ec77db66aa61}{SynthComputerKeyboard::keyStateChanged}}(\textcolor{keywordtype}{bool}\ isKeyDown,\ Component\ *origin)\ \{}
+\DoxyCodeLine{00039\ \ \ \textcolor{keywordtype}{bool}\ consumed\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00040\ \ \ \textcolor{comment}{//\ Check\ through\ each\ character\ in\ the\ keyboard\ layout}}
+\DoxyCodeLine{00041\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_string_layout_a56c7b9bb66a67d525acc7788bff3605e}{layout\_}}.length();\ ++i)\ \{}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordtype}{int}\ note\ =\ computer\_keyboard\_offset\_\ +\ i;}
+\DoxyCodeLine{00043\ \ \ \ \ ModifierKeys\ modifiers\ =\ ModifierKeys::getCurrentModifiersRealtime();}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{comment}{//\ If\ a\ key\ mapped\ to\ a\ note\ is\ currently\ down\ and\ wasn't\ previously\ registered\ as\ pressed:}}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keywordflow}{if}\ (KeyPress::isKeyCurrentlyDown(\mbox{\hyperlink{classvital_1_1_string_layout_a56c7b9bb66a67d525acc7788bff3605e}{layout\_}}[i])\ \&\&}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ !keys\_pressed\_.count(\mbox{\hyperlink{classvital_1_1_string_layout_a56c7b9bb66a67d525acc7788bff3605e}{layout\_}}[i])\ \&\&\ isKeyDown\ \&\&\ !modifiers.isCommandDown())\ \{}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ keys\_pressed\_.insert(\mbox{\hyperlink{classvital_1_1_string_layout_a56c7b9bb66a67d525acc7788bff3605e}{layout\_}}[i]);}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ keyboard\_state\_-\/>noteOn(\mbox{\hyperlink{class_synth_computer_keyboard_a6647e903088d8d5bbf4eb16052657de3}{kKeyboardMidiChannel}},\ note,\ 1.0f);}
+\DoxyCodeLine{00050\ \ \ \ \ \}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ If\ a\ key\ mapped\ to\ a\ note\ was\ previously\ pressed\ but\ is\ now\ released:}}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (!KeyPress::isKeyCurrentlyDown(\mbox{\hyperlink{classvital_1_1_string_layout_a56c7b9bb66a67d525acc7788bff3605e}{layout\_}}[i])\ \&\&\ keys\_pressed\_.count(\mbox{\hyperlink{classvital_1_1_string_layout_a56c7b9bb66a67d525acc7788bff3605e}{layout\_}}[i]))\ \{}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ keys\_pressed\_.erase(\mbox{\hyperlink{classvital_1_1_string_layout_a56c7b9bb66a67d525acc7788bff3605e}{layout\_}}[i]);}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ keyboard\_state\_-\/>noteOff(\mbox{\hyperlink{class_synth_computer_keyboard_a6647e903088d8d5bbf4eb16052657de3}{kKeyboardMidiChannel}},\ note,\ 0.5f);}
+\DoxyCodeLine{00055\ \ \ \ \ \}}
+\DoxyCodeLine{00056\ \ \ \ \ consumed\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00057\ \ \ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \textcolor{comment}{//\ Handle\ octave\ down\ key}}
+\DoxyCodeLine{00060\ \ \ \textcolor{keywordflow}{if}\ (KeyPress::isKeyCurrentlyDown(\mbox{\hyperlink{classvital_1_1_string_layout_a9310e939d91193bbc872a45bccdcbf19}{down\_key\_}}))\ \{}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordflow}{if}\ (!keys\_pressed\_.count(\mbox{\hyperlink{classvital_1_1_string_layout_a9310e939d91193bbc872a45bccdcbf19}{down\_key\_}}))\ \{}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ keys\_pressed\_.insert(\mbox{\hyperlink{classvital_1_1_string_layout_a9310e939d91193bbc872a45bccdcbf19}{down\_key\_}});}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_computer_keyboard_a609708aeb6c28410ebff9ba2f8ce3b14}{changeKeyboardOffset}}(computer\_keyboard\_offset\_\ -\/\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}});}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ consumed\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00065\ \ \ \ \ \}}
+\DoxyCodeLine{00066\ \ \ \}}
+\DoxyCodeLine{00067\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00068\ \ \ \ \ keys\_pressed\_.erase(\mbox{\hyperlink{classvital_1_1_string_layout_a9310e939d91193bbc872a45bccdcbf19}{down\_key\_}});}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \textcolor{comment}{//\ Handle\ octave\ up\ key}}
+\DoxyCodeLine{00071\ \ \ \textcolor{keywordflow}{if}\ (KeyPress::isKeyCurrentlyDown(\mbox{\hyperlink{classvital_1_1_string_layout_a2193e2d71a03820f7b83a06fa5c57e6d}{up\_key\_}}))\ \{}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keywordflow}{if}\ (!keys\_pressed\_.count(\mbox{\hyperlink{classvital_1_1_string_layout_a2193e2d71a03820f7b83a06fa5c57e6d}{up\_key\_}}))\ \{}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ keys\_pressed\_.insert(\mbox{\hyperlink{classvital_1_1_string_layout_a2193e2d71a03820f7b83a06fa5c57e6d}{up\_key\_}});}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_computer_keyboard_a609708aeb6c28410ebff9ba2f8ce3b14}{changeKeyboardOffset}}(computer\_keyboard\_offset\_\ +\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}});}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ consumed\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00076\ \ \ \ \ \}}
+\DoxyCodeLine{00077\ \ \ \}}
+\DoxyCodeLine{00078\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00079\ \ \ \ \ keys\_pressed\_.erase(\mbox{\hyperlink{classvital_1_1_string_layout_a2193e2d71a03820f7b83a06fa5c57e6d}{up\_key\_}});}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ \textcolor{comment}{//\ Handle\ space\ key\ to\ resync\ synth\ time}}
+\DoxyCodeLine{00082\ \ \ \textcolor{keywordflow}{if}\ (KeyPress::isKeyCurrentlyDown(KeyPress::spaceKey))\ \{}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{keywordflow}{if}\ (!keys\_pressed\_.count(\textcolor{charliteral}{'\ '}))\ \{}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ keys\_pressed\_.insert(\textcolor{charliteral}{'\ '});}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ synth\_-\/>\mbox{\hyperlink{classvital_1_1_sound_engine_a1e25c896f5434fb040178cfc76757602}{correctToTime}}(0.0);}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ consumed\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00087\ \ \ \ \ \}}
+\DoxyCodeLine{00088\ \ \ \}}
+\DoxyCodeLine{00089\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00090\ \ \ \ \ keys\_pressed\_.erase(\textcolor{charliteral}{'\ '});}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \textcolor{keywordflow}{return}\ consumed;}
+\DoxyCodeLine{00093\ \}}
+
+\end{DoxyCode}

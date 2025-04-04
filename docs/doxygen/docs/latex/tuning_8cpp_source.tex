@@ -1,0 +1,444 @@
+\doxysection{tuning.\+cpp}
+\hypertarget{tuning_8cpp_source}{}\label{tuning_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/tuning.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/tuning.cpp}}
+\mbox{\hyperlink{tuning_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{The\ Tuning\ class\ provides\ a\ flexible\ microtonal\ tuning\ system\ for\ Vital.\ It\ can\ load\ multiple\ file\ formats,\ define\ custom\ scales,\ and\ set\ reference\ notes\ and\ frequencies.\ The\ code\ handles\ reading\ and\ interpreting\ different\ tuning\ standards\ (Scala,\ Tun),\ as\ well\ as\ mapping\ notes\ via\ keyboard\ mapping\ files.\ This\ allows\ Vital\ users\ to\ easily\ explore\ alternate\ tunings\ beyond\ standard\ equal\ temperament.}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{tuning_8h}{tuning.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00011\ \ \ \textcolor{comment}{//\ File\ extensions\ supported}}
+\DoxyCodeLine{00012\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{char}\ kScalaFileExtension[]\ =\ \textcolor{stringliteral}{"{}.scl"{}};}
+\DoxyCodeLine{00013\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{char}\ kKeyboardMapExtension[]\ =\ \textcolor{stringliteral}{"{}.kbm"{}};}
+\DoxyCodeLine{00014\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{char}\ kTunFileExtension[]\ =\ \textcolor{stringliteral}{"{}.tun"{}};}
+\DoxyCodeLine{00015\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kDefaultMidiReference\ =\ 60;\ \textcolor{comment}{//\ Common\ reference\ is\ middle\ C\ (MIDI\ note\ 60)}}
+\DoxyCodeLine{00016\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{char}\ kScalaKbmComment\ =\ \textcolor{charliteral}{'!'};}
+\DoxyCodeLine{00017\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{char}\ kTunComment\ =\ \textcolor{charliteral}{';'};}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \ \ \textcolor{comment}{//\ Parsing\ states\ for\ Scala\ files}}
+\DoxyCodeLine{00020\ \ \ \textcolor{keyword}{enum}\ ScalaReadingState\ \{}
+\DoxyCodeLine{00021\ \ \ \ \ kDescription,}
+\DoxyCodeLine{00022\ \ \ \ \ kScaleLength,}
+\DoxyCodeLine{00023\ \ \ \ \ kScaleRatios}
+\DoxyCodeLine{00024\ \ \ \};}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \textcolor{comment}{//\ Positions\ in\ KBM\ (keyboard\ map)\ header}}
+\DoxyCodeLine{00027\ \ \ \textcolor{keyword}{enum}\ KbmPositions\ \{}
+\DoxyCodeLine{00028\ \ \ \ \ kMapSizePosition,}
+\DoxyCodeLine{00029\ \ \ \ \ kStartMidiMapPosition,}
+\DoxyCodeLine{00030\ \ \ \ \ kEndMidiMapPosition,}
+\DoxyCodeLine{00031\ \ \ \ \ kMidiMapMiddlePosition,}
+\DoxyCodeLine{00032\ \ \ \ \ kReferenceNotePosition,}
+\DoxyCodeLine{00033\ \ \ \ \ kReferenceFrequencyPosition,}
+\DoxyCodeLine{00034\ \ \ \ \ kScaleDegreePosition,}
+\DoxyCodeLine{00035\ \ \ \};}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \textcolor{comment}{//\ Parsing\ states\ for\ .tun\ files}}
+\DoxyCodeLine{00038\ \ \ \textcolor{keyword}{enum}\ TunReadingState\ \{}
+\DoxyCodeLine{00039\ \ \ \ \ kScanningForSection,}
+\DoxyCodeLine{00040\ \ \ \ \ kTuning,}
+\DoxyCodeLine{00041\ \ \ \ \ kExactTuning}
+\DoxyCodeLine{00042\ \ \ \};}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ String\ extractFirstToken(\textcolor{keyword}{const}\ String\&\ source)\ \{}
+\DoxyCodeLine{00045\ \ \ \ \ StringArray\ tokens;}
+\DoxyCodeLine{00046\ \ \ \ \ tokens.addTokens(source,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordflow}{return}\ tokens[0];}
+\DoxyCodeLine{00048\ \ \ \}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \textcolor{comment}{//\ Converts\ cents\ to\ semitones}}
+\DoxyCodeLine{00051\ \ \ \textcolor{keywordtype}{float}\ readCentsToTranspose(\textcolor{keyword}{const}\ String\&\ cents)\ \{}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordflow}{return}\ cents.getFloatValue()\ /\ \mbox{\hyperlink{namespacevital_aa694a99702996caa6c0b0a1bc363b297}{vital::kCentsPerNote}};}
+\DoxyCodeLine{00053\ \ \ \}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \textcolor{comment}{//\ Converts\ a\ ratio\ like\ "{}3/2"{}\ or\ "{}2"{}\ to\ a\ MIDI\ transpose\ value}}
+\DoxyCodeLine{00056\ \ \ \textcolor{keywordtype}{float}\ readRatioToTranspose(\textcolor{keyword}{const}\ String\&\ ratio)\ \{}
+\DoxyCodeLine{00057\ \ \ \ \ StringArray\ tokens;}
+\DoxyCodeLine{00058\ \ \ \ \ tokens.addTokens(ratio,\ \textcolor{stringliteral}{"{}/"{}},\ \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keywordtype}{float}\ value\ =\ tokens[0].getIntValue();}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordflow}{if}\ (tokens.size()\ ==\ 2)}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ value\ /=\ tokens[1].getIntValue();}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_aafcfea1a9e704d0f480de5e63fe36cc7}{vital::utils::ratioToMidiTranspose}}(value);}
+\DoxyCodeLine{00065\ \ \ \}}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ String\ readTunSection(\textcolor{keyword}{const}\ String\&\ line)\ \{}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordflow}{return}\ line.substring(1,\ line.length()\ -\/\ 1).toLowerCase();}
+\DoxyCodeLine{00069\ \ \ \}}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \textcolor{keywordtype}{bool}\ isBaseFrequencyAssignment(\textcolor{keyword}{const}\ String\&\ line)\ \{}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keywordflow}{return}\ line.upToFirstOccurrenceOf(\textcolor{stringliteral}{"{}="{}},\ \textcolor{keyword}{false},\ \textcolor{keyword}{true}).toLowerCase().trim()\ ==\ \textcolor{stringliteral}{"{}basefreq"{}};}
+\DoxyCodeLine{00073\ \ \ \}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \textcolor{keywordtype}{int}\ getNoteAssignmentIndex(\textcolor{keyword}{const}\ String\&\ line)\ \{}
+\DoxyCodeLine{00076\ \ \ \ \ String\ variable\ =\ line.upToFirstOccurrenceOf(\textcolor{stringliteral}{"{}="{}},\ \textcolor{keyword}{false},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00077\ \ \ \ \ StringArray\ tokens;}
+\DoxyCodeLine{00078\ \ \ \ \ tokens.addTokens(variable,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{keywordflow}{if}\ (tokens.size()\ <=\ 1\ ||\ tokens[0].toLowerCase()\ !=\ \textcolor{stringliteral}{"{}note"{}})}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ tokens[1].getIntValue();}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keywordflow}{if}\ (index\ <\ 0\ ||\ index\ >=\ \mbox{\hyperlink{namespacevital_a7be9efa423f42230b10924b0f69b3b03}{vital::kMidiSize}})}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordflow}{return}\ index;}
+\DoxyCodeLine{00085\ \ \ \}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \textcolor{keywordtype}{float}\ getAssignmentValue(\textcolor{keyword}{const}\ String\&\ line)\ \{}
+\DoxyCodeLine{00088\ \ \ \ \ String\ value\ =\ line.fromLastOccurrenceOf(\textcolor{stringliteral}{"{}="{}},\ \textcolor{keyword}{false},\ \textcolor{keyword}{true}).trim();}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordflow}{return}\ value.getFloatValue();}
+\DoxyCodeLine{00090\ \ \ \}}
+\DoxyCodeLine{00091\ \}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ String\ \mbox{\hyperlink{class_tuning_a412287c91d884fbb50e013babedc01c6}{Tuning::allFileExtensions}}()\ \{}
+\DoxyCodeLine{00094\ \ \ \textcolor{keywordflow}{return}\ String(\textcolor{stringliteral}{"{}*"{}})\ +\ kScalaFileExtension\ +\ String(\textcolor{stringliteral}{"{};"{}})\ +}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \ String(\textcolor{stringliteral}{"{}*"{}})\ +\ kKeyboardMapExtension\ +\ String(\textcolor{stringliteral}{"{};"{}})\ +}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ String(\textcolor{stringliteral}{"{}*"{}})\ +\ kTunFileExtension;}
+\DoxyCodeLine{00097\ \}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_tuning_a8975d1798d38a2931b7f9fa1410e77e7}{Tuning::noteToMidiKey}}(\textcolor{keyword}{const}\ String\&\ note\_text)\ \{}
+\DoxyCodeLine{00100\ \ \ \textcolor{comment}{//\ Converts\ textual\ note\ names\ to\ MIDI\ keys\ (e.g.,\ "{}A4"{}\ to\ 69)}}
+\DoxyCodeLine{00101\ \ \ \textcolor{comment}{//\ Implementation\ is\ a\ heuristic\ that\ attempts\ to\ parse\ note\ name\ and\ octave.}}
+\DoxyCodeLine{00102\ \ \ \textcolor{comment}{//\ Returns\ -\/1\ on\ failure.}}
+\DoxyCodeLine{00103\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kNotesInScale\ =\ 7;}
+\DoxyCodeLine{00104\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kOctaveStart\ =\ -\/1;}
+\DoxyCodeLine{00105\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kScale[kNotesInScale]\ =\ \{\ -\/3,\ -\/1,\ 0,\ 2,\ 4,\ 5,\ 7\ \};}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ String\ text\ =\ note\_text.toLowerCase().removeCharacters(\textcolor{stringliteral}{"{}\ "{}});}
+\DoxyCodeLine{00108\ \ \ \textcolor{keywordflow}{if}\ (note\_text.length()\ <\ 2)}
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ \textcolor{keywordtype}{char}\ note\_in\_scale\ =\ text[0]\ -\/\ \textcolor{charliteral}{'a'};}
+\DoxyCodeLine{00112\ \ \ \textcolor{keywordflow}{if}\ (note\_in\_scale\ <\ 0\ ||\ note\_in\_scale\ >=\ kNotesInScale)}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \ \ \textcolor{keywordtype}{int}\ offset\ =\ kScale[note\_in\_scale];}
+\DoxyCodeLine{00116\ \ \ text\ =\ text.substring(1);}
+\DoxyCodeLine{00117\ \ \ \textcolor{keywordflow}{if}\ (text[0]\ ==\ \textcolor{charliteral}{'\#'})\ \{}
+\DoxyCodeLine{00118\ \ \ \ \ text\ =\ text.substring(1);}
+\DoxyCodeLine{00119\ \ \ \ \ offset++;}
+\DoxyCodeLine{00120\ \ \ \}}
+\DoxyCodeLine{00121\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (text[0]\ ==\ \textcolor{charliteral}{'b'})\ \{}
+\DoxyCodeLine{00122\ \ \ \ \ text\ =\ text.substring(1);}
+\DoxyCodeLine{00123\ \ \ \ \ offset-\/-\/;}
+\DoxyCodeLine{00124\ \ \ \}}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \ \ \textcolor{keywordflow}{if}\ (text.length()\ ==\ 0)}
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ \textcolor{keywordtype}{bool}\ negative\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00130\ \ \ \textcolor{keywordflow}{if}\ (text[0]\ ==\ \textcolor{charliteral}{'-\/'})\ \{}
+\DoxyCodeLine{00131\ \ \ \ \ text\ =\ text.substring(1);}
+\DoxyCodeLine{00132\ \ \ \ \ negative\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keywordflow}{if}\ (text.length()\ ==\ 0)}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{00135\ \ \ \}}
+\DoxyCodeLine{00136\ \ \ \textcolor{keywordtype}{int}\ octave\ =\ text[0]\ -\/\ \textcolor{charliteral}{'0'};}
+\DoxyCodeLine{00137\ \ \ \textcolor{keywordflow}{if}\ (negative)}
+\DoxyCodeLine{00138\ \ \ \ \ octave\ =\ -\/octave;}
+\DoxyCodeLine{00139\ \ \ octave\ =\ octave\ -\/\ kOctaveStart;}
+\DoxyCodeLine{00140\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}}\ *\ octave\ +\ offset;}
+\DoxyCodeLine{00141\ \}}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \mbox{\hyperlink{class_tuning}{Tuning}}\ \mbox{\hyperlink{class_tuning_a958a4470fd2c57a0f34769f09144cbfc}{Tuning::getTuningForFile}}(File\ file)\ \{}
+\DoxyCodeLine{00144\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_tuning_a02fae50199cc274b770b2b612a9676bd}{Tuning}}(file);}
+\DoxyCodeLine{00145\ \}}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_tuning_a901f61466d9017fa4913b853e57c8648}{Tuning::loadFile}}(File\ file)\ \{}
+\DoxyCodeLine{00148\ \ \ \textcolor{comment}{//\ Detect\ file\ extension\ and\ load\ accordingly}}
+\DoxyCodeLine{00149\ \ \ String\ extension\ =\ file.getFileExtension().toLowerCase();}
+\DoxyCodeLine{00150\ \ \ \textcolor{keywordflow}{if}\ (extension\ ==\ String(kScalaFileExtension))}
+\DoxyCodeLine{00151\ \ \ \ \ \mbox{\hyperlink{class_tuning_a8130fffbb0f24aef866bba59a11d6028}{loadScalaFile}}(file);}
+\DoxyCodeLine{00152\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (extension\ ==\ String(kTunFileExtension))}
+\DoxyCodeLine{00153\ \ \ \ \ loadTunFile(file);}
+\DoxyCodeLine{00154\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (extension\ ==\ String(kKeyboardMapExtension))}
+\DoxyCodeLine{00155\ \ \ \ \ loadKeyboardMapFile(file);}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00157\ \ \ default\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00158\ \}}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_tuning_a8130fffbb0f24aef866bba59a11d6028}{Tuning::loadScalaFile}}(\textcolor{keyword}{const}\ StringArray\&\ scala\_lines)\ \{}
+\DoxyCodeLine{00161\ \ \ \textcolor{comment}{//\ Parse\ a\ Scala\ file\ from\ in-\/memory\ lines.}}
+\DoxyCodeLine{00162\ \ \ ScalaReadingState\ state\ =\ kDescription;}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \ \ \textcolor{keywordtype}{int}\ scale\_length\ =\ 1;}
+\DoxyCodeLine{00165\ \ \ std::vector<float>\ scale;}
+\DoxyCodeLine{00166\ \ \ scale.push\_back(0.0f);\ \textcolor{comment}{//\ Root\ note\ is\ always\ 0.0f}}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ String\&\ line\ :\ scala\_lines)\ \{}
+\DoxyCodeLine{00169\ \ \ \ \ String\ trimmed\_line\ =\ line.trim();}
+\DoxyCodeLine{00170\ \ \ \ \ \textcolor{comment}{//\ Skip\ comments}}
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{keywordflow}{if}\ (trimmed\_line.length()\ >\ 0\ \&\&\ trimmed\_line[0]\ ==\ kScalaKbmComment)}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ \ \ \textcolor{keywordflow}{if}\ (scale.size()\ >=\ scale\_length\ +\ 1)}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00176\ }
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{keywordflow}{switch}\ (state)\ \{}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kDescription:}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ state\ =\ kScaleLength;}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kScaleLength:}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ scale\_length\ =\ extractFirstToken(trimmed\_line).getIntValue();}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ state\ =\ kScaleRatios;}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ kScaleRatios:\ \{}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ String\ tuning\ =\ extractFirstToken(trimmed\_line);}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (tuning.contains(\textcolor{stringliteral}{"{}."{}}))}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \ \ scale.push\_back(readCentsToTranspose(tuning));}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ \ \ scale.push\_back(readRatioToTranspose(tuning));}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00193\ \ \ \ \ \}}
+\DoxyCodeLine{00194\ \ \ \}}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00196\ \ \ keyboard\_mapping\_.clear();}
+\DoxyCodeLine{00197\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ scale.size()\ -\/\ 1;\ ++i)}
+\DoxyCodeLine{00198\ \ \ \ \ keyboard\_mapping\_.push\_back(i);}
+\DoxyCodeLine{00199\ \ \ scale\_start\_midi\_note\_\ =\ kDefaultMidiReference;}
+\DoxyCodeLine{00200\ \ \ reference\_midi\_note\_\ =\ 0;}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00202\ \ \ \mbox{\hyperlink{class_tuning_a965a681fe28238094c92f1f5c4fbd625}{loadScale}}(scale);}
+\DoxyCodeLine{00203\ \ \ default\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00204\ \}}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00206\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_tuning_a8130fffbb0f24aef866bba59a11d6028}{Tuning::loadScalaFile}}(File\ scala\_file)\ \{}
+\DoxyCodeLine{00207\ \ \ StringArray\ lines;}
+\DoxyCodeLine{00208\ \ \ scala\_file.readLines(lines);}
+\DoxyCodeLine{00209\ \ \ \mbox{\hyperlink{class_tuning_a8130fffbb0f24aef866bba59a11d6028}{loadScalaFile}}(lines);}
+\DoxyCodeLine{00210\ \ \ tuning\_name\_\ =\ scala\_file.getFileNameWithoutExtension().toStdString();}
+\DoxyCodeLine{00211\ \}}
+\DoxyCodeLine{00212\ }
+\DoxyCodeLine{00213\ \textcolor{keywordtype}{void}\ Tuning::loadKeyboardMapFile(File\ kbm\_file)\ \{}
+\DoxyCodeLine{00214\ \ \ \textcolor{comment}{//\ Loads\ a\ keyboard\ mapping\ (.kbm)\ file\ that\ remaps\ scale\ degrees\ to\ MIDI\ keys.}}
+\DoxyCodeLine{00215\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kHeaderSize\ =\ 7;}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00217\ \ \ StringArray\ lines;}
+\DoxyCodeLine{00218\ \ \ kbm\_file.readLines(lines);}
+\DoxyCodeLine{00219\ }
+\DoxyCodeLine{00220\ \ \ \textcolor{keywordtype}{float}\ header\_data[kHeaderSize];}
+\DoxyCodeLine{00221\ \ \ memset(header\_data,\ 0,\ kHeaderSize\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}));}
+\DoxyCodeLine{00222\ \ \ \textcolor{keywordtype}{int}\ header\_position\ =\ 0;}
+\DoxyCodeLine{00223\ \ \ \textcolor{keywordtype}{int}\ map\_size\ =\ 0;}
+\DoxyCodeLine{00224\ \ \ \textcolor{keywordtype}{int}\ last\_scale\_value\ =\ 0;}
+\DoxyCodeLine{00225\ \ \ keyboard\_mapping\_.clear();}
+\DoxyCodeLine{00226\ }
+\DoxyCodeLine{00227\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ String\&\ line\ :\ lines)\ \{}
+\DoxyCodeLine{00228\ \ \ \ \ String\ trimmed\_line\ =\ line.trim();}
+\DoxyCodeLine{00229\ \ \ \ \ \textcolor{keywordflow}{if}\ (trimmed\_line.length()\ >\ 0\ \&\&\ trimmed\_line[0]\ ==\ kScalaKbmComment)}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00232\ \ \ \ \ \textcolor{keywordflow}{if}\ (header\_position\ >=\ kHeaderSize)\ \{}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ String\ token\ =\ extractFirstToken(trimmed\_line);}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (token.toLowerCase()[0]\ !=\ \textcolor{charliteral}{'x'})}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ last\_scale\_value\ =\ token.getIntValue();}
+\DoxyCodeLine{00236\ }
+\DoxyCodeLine{00237\ \ \ \ \ \ \ keyboard\_mapping\_.push\_back(last\_scale\_value);}
+\DoxyCodeLine{00238\ }
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (keyboard\_mapping\_.size()\ >=\ map\_size)}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00241\ \ \ \ \ \}}
+\DoxyCodeLine{00242\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ header\_data[header\_position]\ =\ extractFirstToken(trimmed\_line).getFloatValue();}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (header\_position\ ==\ kMapSizePosition)}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ map\_size\ =\ header\_data[header\_position];}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ header\_position++;}
+\DoxyCodeLine{00247\ \ \ \ \ \}}
+\DoxyCodeLine{00248\ \ \ \}}
+\DoxyCodeLine{00249\ }
+\DoxyCodeLine{00250\ \ \ \mbox{\hyperlink{class_tuning_a61ab506d6d1e177d33e76f16dc4c68d9}{setStartMidiNote}}(header\_data[kMidiMapMiddlePosition]);}
+\DoxyCodeLine{00251\ \ \ \mbox{\hyperlink{class_tuning_a0459bdd8c0d527bd0fe82e46c5d9e472}{setReferenceNoteFrequency}}(header\_data[kReferenceNotePosition],\ header\_data[kReferenceFrequencyPosition]);}
+\DoxyCodeLine{00252\ \ \ \mbox{\hyperlink{class_tuning_a965a681fe28238094c92f1f5c4fbd625}{loadScale}}(scale\_);}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \ \ mapping\_name\_\ =\ kbm\_file.getFileNameWithoutExtension().toStdString();}
+\DoxyCodeLine{00255\ \}}
+\DoxyCodeLine{00256\ }
+\DoxyCodeLine{00257\ \textcolor{keywordtype}{void}\ Tuning::loadTunFile(File\ tun\_file)\ \{}
+\DoxyCodeLine{00258\ \ \ \textcolor{comment}{//\ Loads\ a\ .tun\ file\ for\ tunings,\ a\ different\ format\ than\ Scala\ and\ KBM.}}
+\DoxyCodeLine{00259\ \ \ keyboard\_mapping\_.clear();}
+\DoxyCodeLine{00260\ }
+\DoxyCodeLine{00261\ \ \ TunReadingState\ state\ =\ kScanningForSection;}
+\DoxyCodeLine{00262\ \ \ StringArray\ lines;}
+\DoxyCodeLine{00263\ \ \ tun\_file.readLines(lines);}
+\DoxyCodeLine{00264\ }
+\DoxyCodeLine{00265\ \ \ \textcolor{keywordtype}{int}\ last\_read\_note\ =\ 0;}
+\DoxyCodeLine{00266\ \ \ \textcolor{keywordtype}{float}\ base\_frequency\ =\ \mbox{\hyperlink{namespacevital_a2afffc5a403d14d42fdd0b15ebdb0db3}{vital::kMidi0Frequency}};}
+\DoxyCodeLine{00267\ \ \ std::vector<float>\ scale;}
+\DoxyCodeLine{00268\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a7be9efa423f42230b10924b0f69b3b03}{vital::kMidiSize}};\ ++i)}
+\DoxyCodeLine{00269\ \ \ \ \ scale.push\_back(i);\ \textcolor{comment}{//\ start\ linear}}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00271\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ String\&\ line\ :\ lines)\ \{}
+\DoxyCodeLine{00272\ \ \ \ \ String\ trimmed\_line\ =\ line.trim();}
+\DoxyCodeLine{00273\ \ \ \ \ \textcolor{keywordflow}{if}\ (trimmed\_line.length()\ ==\ 0\ ||\ trimmed\_line[0]\ ==\ kTunComment)}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00276\ \ \ \ \ \textcolor{keywordflow}{if}\ (trimmed\_line[0]\ ==\ \textcolor{charliteral}{'['})\ \{}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ String\ section\ =\ readTunSection(trimmed\_line);}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (section\ ==\ \textcolor{stringliteral}{"{}tuning"{}})}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ state\ =\ kTuning;}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (section\ ==\ \textcolor{stringliteral}{"{}exact\ tuning"{}})}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \ \ state\ =\ kExactTuning;}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00283\ \ \ \ \ \ \ \ \ state\ =\ kScanningForSection;}
+\DoxyCodeLine{00284\ \ \ \ \ \}}
+\DoxyCodeLine{00285\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (state\ ==\ kTuning\ ||\ state\ ==\ kExactTuning)\ \{}
+\DoxyCodeLine{00286\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (isBaseFrequencyAssignment(trimmed\_line))}
+\DoxyCodeLine{00287\ \ \ \ \ \ \ \ \ base\_frequency\ =\ getAssignmentValue(trimmed\_line);}
+\DoxyCodeLine{00288\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ getNoteAssignmentIndex(trimmed\_line);}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ last\_read\_note\ =\ std::max(last\_read\_note,\ index);}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (index\ >=\ 0)}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \ \ \ \ scale[index]\ =\ getAssignmentValue(trimmed\_line)\ /\ \mbox{\hyperlink{namespacevital_aa694a99702996caa6c0b0a1bc363b297}{vital::kCentsPerNote}};}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00294\ \ \ \ \ \}}
+\DoxyCodeLine{00295\ \ \ \}}
+\DoxyCodeLine{00296\ }
+\DoxyCodeLine{00297\ \ \ scale.resize(last\_read\_note\ +\ 1);}
+\DoxyCodeLine{00298\ }
+\DoxyCodeLine{00299\ \ \ \mbox{\hyperlink{class_tuning_a965a681fe28238094c92f1f5c4fbd625}{loadScale}}(scale);}
+\DoxyCodeLine{00300\ \ \ \mbox{\hyperlink{class_tuning_a61ab506d6d1e177d33e76f16dc4c68d9}{setStartMidiNote}}(0);}
+\DoxyCodeLine{00301\ \ \ \mbox{\hyperlink{class_tuning_abfe8f2f01e1336ae8806922bbf04876e}{setReferenceFrequency}}(base\_frequency);}
+\DoxyCodeLine{00302\ \ \ tuning\_name\_\ =\ tun\_file.getFileNameWithoutExtension().toStdString();}
+\DoxyCodeLine{00303\ \}}
+\DoxyCodeLine{00304\ }
+\DoxyCodeLine{00305\ \mbox{\hyperlink{class_tuning_a02fae50199cc274b770b2b612a9676bd}{Tuning::Tuning}}()\ :\ default\_(true)\ \{}
+\DoxyCodeLine{00306\ \ \ scale\_start\_midi\_note\_\ =\ kDefaultMidiReference;}
+\DoxyCodeLine{00307\ \ \ reference\_midi\_note\_\ =\ 0;}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00309\ \ \ \mbox{\hyperlink{class_tuning_ab2b239b203c45c353ac94741e4af7dde}{setDefaultTuning}}();}
+\DoxyCodeLine{00310\ \}}
+\DoxyCodeLine{00311\ }
+\DoxyCodeLine{00312\ \mbox{\hyperlink{class_tuning_a02fae50199cc274b770b2b612a9676bd}{Tuning::Tuning}}(File\ file)\ :\ \mbox{\hyperlink{class_tuning}{Tuning}}()\ \{}
+\DoxyCodeLine{00313\ \ \ \mbox{\hyperlink{class_tuning_a901f61466d9017fa4913b853e57c8648}{loadFile}}(file);}
+\DoxyCodeLine{00314\ \}}
+\DoxyCodeLine{00315\ }
+\DoxyCodeLine{00316\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_tuning_a965a681fe28238094c92f1f5c4fbd625}{Tuning::loadScale}}(std::vector<float>\ scale)\ \{}
+\DoxyCodeLine{00317\ \ \ scale\_\ =\ scale;}
+\DoxyCodeLine{00318\ \ \ \textcolor{keywordflow}{if}\ (scale.size()\ <=\ 1)\ \{}
+\DoxyCodeLine{00319\ \ \ \ \ \textcolor{comment}{//\ If\ no\ meaningful\ scale\ loaded,\ set\ to\ constant}}
+\DoxyCodeLine{00320\ \ \ \ \ \mbox{\hyperlink{class_tuning_a7bf18cbe84282231d38b8125b0f1b0e7}{setConstantTuning}}(kDefaultMidiReference);}
+\DoxyCodeLine{00321\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00322\ \ \ \}}
+\DoxyCodeLine{00323\ }
+\DoxyCodeLine{00324\ \ \ \textcolor{keywordtype}{int}\ scale\_size\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(scale.size()\ -\/\ 1);}
+\DoxyCodeLine{00325\ \ \ \textcolor{keywordtype}{int}\ mapping\_size\ =\ scale\_size;}
+\DoxyCodeLine{00326\ \ \ \textcolor{keywordflow}{if}\ (keyboard\_mapping\_.size())}
+\DoxyCodeLine{00327\ \ \ \ \ mapping\_size\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(keyboard\_mapping\_.size());}
+\DoxyCodeLine{00328\ }
+\DoxyCodeLine{00329\ \ \ \textcolor{keywordtype}{float}\ octave\_offset\ =\ scale[scale\_size];}
+\DoxyCodeLine{00330\ \ \ \textcolor{keywordtype}{int}\ start\_octave\ =\ -\/\mbox{\hyperlink{class_tuning_a117d1feb0ce03713ef29a9639188e55b}{kTuningCenter}}\ /\ mapping\_size\ -\/\ 1;}
+\DoxyCodeLine{00331\ \ \ \textcolor{keywordtype}{int}\ mapping\_position\ =\ -\/\mbox{\hyperlink{class_tuning_a117d1feb0ce03713ef29a9639188e55b}{kTuningCenter}}\ -\/\ start\_octave\ *\ mapping\_size;}
+\DoxyCodeLine{00332\ }
+\DoxyCodeLine{00333\ \ \ \textcolor{keywordtype}{float}\ current\_offset\ =\ start\_octave\ *\ octave\_offset;}
+\DoxyCodeLine{00334\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_tuning_a7608a015bc024933cffc9eb9833e527f}{kTuningSize}};\ ++i)\ \{}
+\DoxyCodeLine{00335\ \ \ \ \ \textcolor{keywordflow}{if}\ (mapping\_position\ >=\ mapping\_size)\ \{}
+\DoxyCodeLine{00336\ \ \ \ \ \ \ current\_offset\ +=\ octave\_offset;}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ mapping\_position\ =\ 0;}
+\DoxyCodeLine{00338\ \ \ \ \ \}}
+\DoxyCodeLine{00339\ }
+\DoxyCodeLine{00340\ \ \ \ \ \textcolor{keywordtype}{int}\ note\_in\_scale\ =\ mapping\_position;}
+\DoxyCodeLine{00341\ \ \ \ \ \textcolor{keywordflow}{if}\ (keyboard\_mapping\_.size())}
+\DoxyCodeLine{00342\ \ \ \ \ \ \ note\_in\_scale\ =\ keyboard\_mapping\_[mapping\_position];}
+\DoxyCodeLine{00343\ }
+\DoxyCodeLine{00344\ \ \ \ \ tuning\_[i]\ =\ current\_offset\ +\ scale[note\_in\_scale];}
+\DoxyCodeLine{00345\ \ \ \ \ mapping\_position++;}
+\DoxyCodeLine{00346\ \ \ \}}
+\DoxyCodeLine{00347\ \}}
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00349\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_tuning_a7bf18cbe84282231d38b8125b0f1b0e7}{Tuning::setConstantTuning}}(\textcolor{keywordtype}{float}\ note)\ \{}
+\DoxyCodeLine{00350\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_tuning_a7608a015bc024933cffc9eb9833e527f}{kTuningSize}};\ ++i)}
+\DoxyCodeLine{00351\ \ \ \ \ tuning\_[i]\ =\ note;}
+\DoxyCodeLine{00352\ \}}
+\DoxyCodeLine{00353\ }
+\DoxyCodeLine{00354\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_tuning_ab2b239b203c45c353ac94741e4af7dde}{Tuning::setDefaultTuning}}()\ \{}
+\DoxyCodeLine{00355\ \ \ \textcolor{comment}{//\ Default:\ 12-\/TET\ standard\ tuning}}
+\DoxyCodeLine{00356\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_tuning_a7608a015bc024933cffc9eb9833e527f}{kTuningSize}};\ ++i)}
+\DoxyCodeLine{00357\ \ \ \ \ tuning\_[i]\ =\ i\ -\/\ \mbox{\hyperlink{class_tuning_a117d1feb0ce03713ef29a9639188e55b}{kTuningCenter}};}
+\DoxyCodeLine{00358\ }
+\DoxyCodeLine{00359\ \ \ scale\_.clear();}
+\DoxyCodeLine{00360\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <=\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}};\ ++i)}
+\DoxyCodeLine{00361\ \ \ \ \ scale\_.push\_back(i);}
+\DoxyCodeLine{00362\ }
+\DoxyCodeLine{00363\ \ \ keyboard\_mapping\_.clear();}
+\DoxyCodeLine{00364\ }
+\DoxyCodeLine{00365\ \ \ default\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00366\ \ \ tuning\_name\_\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00367\ \ \ mapping\_name\_\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00368\ \}}
+\DoxyCodeLine{00369\ }
+\DoxyCodeLine{00370\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ \mbox{\hyperlink{class_tuning_ab34205c4e40e8dfa6d1eaca84e2253dc}{Tuning::convertMidiNote}}(\textcolor{keywordtype}{int}\ note)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00371\ \ \ \textcolor{keywordtype}{int}\ scale\_offset\ =\ note\ -\/\ scale\_start\_midi\_note\_;}
+\DoxyCodeLine{00372\ \ \ \textcolor{keywordflow}{return}\ tuning\_[\mbox{\hyperlink{class_tuning_a117d1feb0ce03713ef29a9639188e55b}{kTuningCenter}}\ +\ scale\_offset]\ +\ scale\_start\_midi\_note\_\ +\ reference\_midi\_note\_;}
+\DoxyCodeLine{00373\ \}}
+\DoxyCodeLine{00374\ }
+\DoxyCodeLine{00375\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_tuning_abfe8f2f01e1336ae8806922bbf04876e}{Tuning::setReferenceFrequency}}(\textcolor{keywordtype}{float}\ frequency)\ \{}
+\DoxyCodeLine{00376\ \ \ \mbox{\hyperlink{class_tuning_a0459bdd8c0d527bd0fe82e46c5d9e472}{setReferenceNoteFrequency}}(0,\ frequency);}
+\DoxyCodeLine{00377\ \}}
+\DoxyCodeLine{00378\ }
+\DoxyCodeLine{00379\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_tuning_a0459bdd8c0d527bd0fe82e46c5d9e472}{Tuning::setReferenceNoteFrequency}}(\textcolor{keywordtype}{int}\ midi\_note,\ \textcolor{keywordtype}{float}\ frequency)\ \{}
+\DoxyCodeLine{00380\ \ \ reference\_midi\_note\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a9865f59f6cbc94b414d68dd16d7dbd95}{vital::utils::frequencyToMidiNote}}(frequency)\ -\/\ midi\_note;}
+\DoxyCodeLine{00381\ \}}
+\DoxyCodeLine{00382\ }
+\DoxyCodeLine{00383\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_tuning_a2774aa3437b2956d32da5d89076c6c18}{Tuning::setReferenceRatio}}(\textcolor{keywordtype}{float}\ ratio)\ \{}
+\DoxyCodeLine{00384\ \ \ reference\_midi\_note\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_aafcfea1a9e704d0f480de5e63fe36cc7}{vital::utils::ratioToMidiTranspose}}(ratio);}
+\DoxyCodeLine{00385\ \}}
+\DoxyCodeLine{00386\ }
+\DoxyCodeLine{00387\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_tuning_a7f1430ef3f49e9d0d39cb8d67fe185fc}{Tuning::stateToJson}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00388\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data;}
+\DoxyCodeLine{00389\ \ \ data[\textcolor{stringliteral}{"{}scale\_start\_midi\_note"{}}]\ =\ scale\_start\_midi\_note\_;}
+\DoxyCodeLine{00390\ \ \ data[\textcolor{stringliteral}{"{}reference\_midi\_note"{}}]\ =\ reference\_midi\_note\_;}
+\DoxyCodeLine{00391\ \ \ data[\textcolor{stringliteral}{"{}tuning\_name"{}}]\ =\ tuning\_name\_;}
+\DoxyCodeLine{00392\ \ \ data[\textcolor{stringliteral}{"{}mapping\_name"{}}]\ =\ mapping\_name\_;}
+\DoxyCodeLine{00393\ \ \ data[\textcolor{stringliteral}{"{}default"{}}]\ =\ default\_;}
+\DoxyCodeLine{00394\ }
+\DoxyCodeLine{00395\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ scale\_data;}
+\DoxyCodeLine{00396\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{float}\ scale\_value\ :\ scale\_)}
+\DoxyCodeLine{00397\ \ \ \ \ scale\_data.push\_back(scale\_value);}
+\DoxyCodeLine{00398\ \ \ data[\textcolor{stringliteral}{"{}scale"{}}]\ =\ scale\_data;}
+\DoxyCodeLine{00399\ }
+\DoxyCodeLine{00400\ \ \ \textcolor{keywordflow}{if}\ (keyboard\_mapping\_.size())\ \{}
+\DoxyCodeLine{00401\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ mapping\_data;}
+\DoxyCodeLine{00402\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ mapping\_value\ :\ keyboard\_mapping\_)}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ mapping\_data.push\_back(mapping\_value);}
+\DoxyCodeLine{00404\ \ \ \ \ data[\textcolor{stringliteral}{"{}mapping"{}}]\ =\ mapping\_data;}
+\DoxyCodeLine{00405\ \ \ \}}
+\DoxyCodeLine{00406\ }
+\DoxyCodeLine{00407\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00408\ \}}
+\DoxyCodeLine{00409\ }
+\DoxyCodeLine{00410\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_tuning_af10021a2a5a9aceaf605577314230123}{Tuning::jsonToState}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ data)\ \{}
+\DoxyCodeLine{00411\ \ \ scale\_start\_midi\_note\_\ =\ data[\textcolor{stringliteral}{"{}scale\_start\_midi\_note"{}}];}
+\DoxyCodeLine{00412\ \ \ reference\_midi\_note\_\ =\ data[\textcolor{stringliteral}{"{}reference\_midi\_note"{}}];}
+\DoxyCodeLine{00413\ \ \ std::string\ tuning\_name\ =\ data[\textcolor{stringliteral}{"{}tuning\_name"{}}];}
+\DoxyCodeLine{00414\ \ \ tuning\_name\_\ =\ tuning\_name;}
+\DoxyCodeLine{00415\ \ \ std::string\ mapping\_name\ =\ data[\textcolor{stringliteral}{"{}mapping\_name"{}}];}
+\DoxyCodeLine{00416\ \ \ mapping\_name\_\ =\ mapping\_name;}
+\DoxyCodeLine{00417\ }
+\DoxyCodeLine{00418\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}default"{}}))}
+\DoxyCodeLine{00419\ \ \ \ \ default\_\ =\ data[\textcolor{stringliteral}{"{}default"{}}];}
+\DoxyCodeLine{00420\ }
+\DoxyCodeLine{00421\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ scale\_data\ =\ data[\textcolor{stringliteral}{"{}scale"{}}];}
+\DoxyCodeLine{00422\ \ \ scale\_.clear();}
+\DoxyCodeLine{00423\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ value\ :\ scale\_data)\ \{}
+\DoxyCodeLine{00424\ \ \ \ \ \textcolor{keywordtype}{float}\ scale\_value\ =\ value;}
+\DoxyCodeLine{00425\ \ \ \ \ scale\_.push\_back(scale\_value);}
+\DoxyCodeLine{00426\ \ \ \}}
+\DoxyCodeLine{00427\ }
+\DoxyCodeLine{00428\ \ \ keyboard\_mapping\_.clear();}
+\DoxyCodeLine{00429\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}mapping"{}}))\ \{}
+\DoxyCodeLine{00430\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ mapping\_data\ =\ data[\textcolor{stringliteral}{"{}mapping"{}}];}
+\DoxyCodeLine{00431\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ value\ :\ mapping\_data)\ \{}
+\DoxyCodeLine{00432\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ keyboard\_value\ =\ value;}
+\DoxyCodeLine{00433\ \ \ \ \ \ \ keyboard\_mapping\_.push\_back(keyboard\_value);}
+\DoxyCodeLine{00434\ \ \ \ \ \}}
+\DoxyCodeLine{00435\ \ \ \}}
+\DoxyCodeLine{00436\ }
+\DoxyCodeLine{00437\ \ \ \mbox{\hyperlink{class_tuning_a965a681fe28238094c92f1f5c4fbd625}{loadScale}}(scale\_);}
+\DoxyCodeLine{00438\ \}}
+
+\end{DoxyCode}

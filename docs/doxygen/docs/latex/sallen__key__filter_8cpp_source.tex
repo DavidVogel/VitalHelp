@@ -1,0 +1,392 @@
+\doxysection{sallen\+\_\+key\+\_\+filter.\+cpp}
+\hypertarget{sallen__key__filter_8cpp_source}{}\label{sallen__key__filter_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/filters/sallen\_key\_filter.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/filters/sallen\_key\_filter.cpp}}
+\mbox{\hyperlink{sallen__key__filter_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{sallen__key__filter_8h}{sallen\_key\_filter.h}}"{}}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{futils_8h}{futils.h}}"{}}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00009\ \ \ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_ac5f016b40b0b6c1246849bedb1bbb80a}{SallenKeyFilter::SallenKeyFilter}}()\ :\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}(\mbox{\hyperlink{classvital_1_1_sallen_key_filter}{SallenKeyFilter}}::kNumInputs,\ 1)\ \{}
+\DoxyCodeLine{00010\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_aefbefbe836241a1657cd1d849102987f}{hardReset}}();}
+\DoxyCodeLine{00011\ \ \ \}}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00017\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a7fa85f62ec080c6102665629d4181c2e}{SallenKeyFilter::reset}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask)\ \{}
+\DoxyCodeLine{00018\ \ \ \ \ stage1\_input\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(stage1\_input\_,\ 0.0f,\ reset\_mask);}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \ \ pre\_stage1\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a443d75713b1c8ffbaf044c0af6478be9}{reset}}(reset\_mask);}
+\DoxyCodeLine{00021\ \ \ \ \ pre\_stage2\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a443d75713b1c8ffbaf044c0af6478be9}{reset}}(reset\_mask);}
+\DoxyCodeLine{00022\ \ \ \ \ stage1\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a443d75713b1c8ffbaf044c0af6478be9}{reset}}(reset\_mask);}
+\DoxyCodeLine{00023\ \ \ \ \ stage2\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a443d75713b1c8ffbaf044c0af6478be9}{reset}}(reset\_mask);}
+\DoxyCodeLine{00024\ \ \ \}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00029\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_aefbefbe836241a1657cd1d849102987f}{SallenKeyFilter::hardReset}}()\ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a7fa85f62ec080c6102665629d4181c2e}{reset}}(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}});}
+\DoxyCodeLine{00031\ \ \ \ \ resonance\_\ =\ 0.0f;}
+\DoxyCodeLine{00032\ \ \ \ \ drive\_\ =\ 0.0f;}
+\DoxyCodeLine{00033\ \ \ \ \ post\_multiply\_\ =\ 0.0f;}
+\DoxyCodeLine{00034\ \ \ \ \ low\_pass\_amount\_\ =\ 0.0f;}
+\DoxyCodeLine{00035\ \ \ \ \ band\_pass\_amount\_\ =\ 0.0f;}
+\DoxyCodeLine{00036\ \ \ \ \ high\_pass\_amount\_\ =\ 0.0f;}
+\DoxyCodeLine{00037\ \ \ \}}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00043\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_abfff77425876f76b0516c527dc402813}{SallenKeyFilter::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00044\ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{classvital_1_1_processor_a7e35d4d320b562f794d2e4028a04cf92}{inputMatchesBufferSize}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0ae42fd89abe5a134ebf5e5da1942f4a83}{kAudio}}));}
+\DoxyCodeLine{00045\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a7d1515bf926d6739feceba754ef61ca9}{processWithInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0ae42fd89abe5a134ebf5e5da1942f4a83}{kAudio}})-\/>source-\/>buffer,\ num\_samples);}
+\DoxyCodeLine{00046\ \ \ \}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00053\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a7d1515bf926d6739feceba754ef61ca9}{SallenKeyFilter::processWithInput}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{comment}{//\ Cache\ parameters\ before\ we\ attempt\ smoothing}}
+\DoxyCodeLine{00055\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_resonance\ =\ resonance\_;}
+\DoxyCodeLine{00056\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_drive\ =\ drive\_;}
+\DoxyCodeLine{00057\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_post\_multiply\ =\ post\_multiply\_;}
+\DoxyCodeLine{00058\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_low\ =\ low\_pass\_amount\_;}
+\DoxyCodeLine{00059\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_band\ =\ band\_pass\_amount\_;}
+\DoxyCodeLine{00060\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_high\ =\ high\_pass\_amount\_;}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{comment}{//\ Reload\ filter\ state\ (e.g.,\ if\ the\ user\ changed\ settings\ in\ real\ time)}}
+\DoxyCodeLine{00063\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_filter_a4374a6bd751513a8236c468e184d67c1}{filter\_state\_}}.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a238e3fe5c0d0e24d92e3cd443f5191c9}{loadSettings}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00064\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_ae154bba14d160d5d539bfc5065e0c4bf}{setupFilter}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a4374a6bd751513a8236c468e184d67c1}{filter\_state\_}});}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{comment}{//\ Check\ for\ any\ voices\ needing\ reset}}
+\DoxyCodeLine{00067\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask\ =\ \mbox{\hyperlink{classvital_1_1_processor_a7fed5dc3ae95e104c71f7ce7f570fab4}{getResetMask}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a5ae1d17d40ed0b23e2c2fa01a0620c05}{kReset}});}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordflow}{if}\ (reset\_mask.\mbox{\hyperlink{structvital_1_1poly__int_a2fab54be2efa9a05ed842b91e4bad62d}{anyMask}}())\ \{}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a7fa85f62ec080c6102665629d4181c2e}{reset}}(reset\_mask);}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \textcolor{comment}{//\ Reload\ those\ parameters\ for\ the\ reset\ voices}}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ current\_resonance\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(current\_resonance,\ resonance\_,\ reset\_mask);}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ current\_drive\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(current\_drive,\ drive\_,\ reset\_mask);}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ current\_post\_multiply\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(current\_post\_multiply,\ post\_multiply\_,\ reset\_mask);}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ current\_low\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(current\_low,\ low\_pass\_amount\_,\ reset\_mask);}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ current\_band\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(current\_band,\ band\_pass\_amount\_,\ reset\_mask);}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ current\_high\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(current\_high,\ high\_pass\_amount\_,\ reset\_mask);}
+\DoxyCodeLine{00078\ \ \ \ \ \}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{comment}{//\ Dispatch\ processing\ based\ on\ style\ (12\ dB,\ 24\ dB,\ or\ dual\ notch)}}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_synth_filter_a4374a6bd751513a8236c468e184d67c1}{filter\_state\_}}.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a612dfb5faa8c432ed85a59e7f42ccd8b}{style}}\ ==\ \mbox{\hyperlink{classvital_1_1_synth_filter_adac93c0eaece607daba78f0af356d87bad2b77bdbebe3b92b68909835078b1fdd}{k12Db}})\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a67c162f6e353f9c5bb8219a613dab08a}{process12}}(audio\_in,\ num\_samples,\ current\_resonance,\ current\_drive,\ current\_post\_multiply,}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ current\_low,\ current\_band,\ current\_high);}
+\DoxyCodeLine{00084\ \ \ \ \ \}}
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_synth_filter_a4374a6bd751513a8236c468e184d67c1}{filter\_state\_}}.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a612dfb5faa8c432ed85a59e7f42ccd8b}{style}}\ ==\ \mbox{\hyperlink{classvital_1_1_synth_filter_adac93c0eaece607daba78f0af356d87badf80ea824e33ac3988c98cc246163c0a}{kDualNotchBand}})\ \{}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a08c105bbe96c23f4cd499072e42901e2}{processDual}}(audio\_in,\ num\_samples,\ current\_resonance,\ current\_drive,\ current\_post\_multiply,}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ current\_low,\ current\_high);}
+\DoxyCodeLine{00088\ \ \ \ \ \}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a14df1e093207b4439005f8be890e1607}{process24}}(audio\_in,\ num\_samples,\ current\_resonance,\ current\_drive,\ current\_post\_multiply,}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ current\_low,\ current\_band,\ current\_high);}
+\DoxyCodeLine{00092\ \ \ \ \ \}}
+\DoxyCodeLine{00093\ \ \ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00106\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a67c162f6e353f9c5bb8219a613dab08a}{SallenKeyFilter::process12}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in,\ \textcolor{keywordtype}{int}\ num\_samples,}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_resonance,}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_drive,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_post\_multiply,}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_low,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_band,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_high)\ \{}
+\DoxyCodeLine{00110\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ tick\_increment\ =\ 1.0f\ /\ num\_samples;}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{comment}{//\ Compute\ deltas\ for\ parameter\ smoothing}}
+\DoxyCodeLine{00112\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_resonance\ =\ (resonance\_\ -\/\ current\_resonance)\ *\ tick\_increment;}
+\DoxyCodeLine{00113\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_drive\ =\ (drive\_\ -\/\ current\_drive)\ *\ tick\_increment;}
+\DoxyCodeLine{00114\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_post\_multiply\ =\ (post\_multiply\_\ -\/\ current\_post\_multiply)\ *\ tick\_increment;}
+\DoxyCodeLine{00115\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_low\ =\ (low\_pass\_amount\_\ -\/\ current\_low)\ *\ tick\_increment;}
+\DoxyCodeLine{00116\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_band\ =\ (band\_pass\_amount\_\ -\/\ current\_band)\ *\ tick\_increment;}
+\DoxyCodeLine{00117\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_high\ =\ (high\_pass\_amount\_\ -\/\ current\_high)\ *\ tick\_increment;}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{comment}{//\ Retrieve\ coefficient\ lookup\ and\ MIDI-\/based\ cutoff\ data}}
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_one_dim_lookup}{CoefficientLookup}}*\ coefficient\_lookup\ =\ \mbox{\hyperlink{classvital_1_1_synth_filter_a68d8089bf149c42e809924d6a6ecf4b8}{getCoefficientLookup}}();}
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ midi\_cutoff\_buffer\ =\ \mbox{\hyperlink{classvital_1_1_synth_filter_a4374a6bd751513a8236c468e184d67c1}{filter\_state\_}}.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a2931c98e0bdbcb4b8b8c5a3838fd7b51}{midi\_cutoff\_buffer}};}
+\DoxyCodeLine{00122\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ base\_midi\ =\ midi\_cutoff\_buffer[num\_samples\ -\/\ 1];}
+\DoxyCodeLine{00123\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ base\_frequency\ =}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_ad576b73366d625ca0b47c8b92b81f7a4}{utils::midiNoteToFrequency}}(base\_midi)\ *\ (1.0f\ /\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}());}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_out\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{comment}{//\ Main\ loop}}
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \textcolor{comment}{//\ Calculate\ the\ local\ cutoff\ coefficient}}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ midi\_delta\ =\ midi\_cutoff\_buffer[i]\ -\/\ base\_midi;}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ frequency\ =}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a5b6ee09220fec012fc1597235e4c50e3}{utils::min}}(base\_frequency\ *\ \mbox{\hyperlink{namespacevital_1_1futils_aa35d2367143c749fae5760f3663d2e96}{futils::midiOffsetToRatio}}(midi\_delta),\ 1.0f);}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ coefficient\ =\ coefficient\_lookup-\/>\mbox{\hyperlink{classvital_1_1_one_dim_lookup_a33ee03c4f8d54f682d22cb96061650f9}{cubicLookup}}(frequency);}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ parameters}}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ current\_resonance\ +=\ delta\_resonance;}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ current\_drive\ +=\ delta\_drive;}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ current\_post\_multiply\ +=\ delta\_post\_multiply;}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ current\_low\ +=\ delta\_low;}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ current\_band\ +=\ delta\_band;}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ current\_high\ +=\ delta\_high;}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ resonance\ and\ other\ Sallen-\/Key\ factors}}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ coefficient2\ =\ coefficient\ *\ 2.0f;}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}}\ =\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_af4a8dbc2bb8cab7c42d1bdb4703051e8}{tuneResonance}}(current\_resonance,\ coefficient2);}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ stage1\_feedback\_mult\ =\ coefficient2\ -\/\ coefficient\ *\ coefficient\ -\/\ 1.0f;}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ normalizer\ =}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ /\ (\mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}}\ *\ (coefficient\ *\ coefficient\ -\/\ coefficient)\ +\ 1.0f);}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \textcolor{comment}{//\ Tick\ the\ filter\ (2-\/pole\ version)}}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a5fdbad9ae04861bd4282f15d7f87fd2f}{tick}}(audio\_in[i],\ coefficient,\ \mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}},\ stage1\_feedback\_mult,\ current\_drive,\ normalizer);}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \textcolor{comment}{//\ 2-\/pole\ Sallen-\/Key\ output\ retrieval}}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ stage2\_input\ =\ stage1\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a58a70f48a88ffd6e5249ed3b91a1ef14}{getCurrentState}}();}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_pass\ =\ stage2\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a58a70f48a88ffd6e5249ed3b91a1ef14}{getCurrentState}}();}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ band\_pass\ =\ stage2\_input\ -\/\ low\_pass;}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_pass\ =\ stage1\_input\_\ -\/\ stage2\_input\ -\/\ band\_pass;}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \textcolor{comment}{//\ Mix\ the\ final\ output\ based\ on\ low,\ band,\ and\ high\ amounts}}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\ =\ current\_low\ *\ low\_pass;}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ band\_low\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a35863713535365219778ac997a789cf3}{utils::mulAdd}}(low,\ current\_band,\ band\_pass);}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ audio\_out[i]\ =}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a35863713535365219778ac997a789cf3}{utils::mulAdd}}(band\_low,\ current\_high,\ high\_pass)\ *\ current\_post\_multiply;}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{namespacevital_1_1utils_a221874465932464f6c5fe9e187f0eb14}{utils::isFinite}}(audio\_out[i]));}
+\DoxyCodeLine{00167\ \ \ \ \ \}}
+\DoxyCodeLine{00168\ \ \ \}}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00181\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a14df1e093207b4439005f8be890e1607}{SallenKeyFilter::process24}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in,\ \textcolor{keywordtype}{int}\ num\_samples,}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_resonance,}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_drive,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_post\_multiply,}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_low,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_band,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_high)\ \{}
+\DoxyCodeLine{00185\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ tick\_increment\ =\ 1.0f\ /\ num\_samples;}
+\DoxyCodeLine{00186\ \ \ \ \ \textcolor{comment}{//\ Compute\ deltas\ for\ smoothing}}
+\DoxyCodeLine{00187\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_resonance\ =\ (resonance\_\ -\/\ current\_resonance)\ *\ tick\_increment;}
+\DoxyCodeLine{00188\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_drive\ =\ (drive\_\ -\/\ current\_drive)\ *\ tick\_increment;}
+\DoxyCodeLine{00189\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_post\_multiply\ =\ (post\_multiply\_\ -\/\ current\_post\_multiply)\ *\ tick\_increment;}
+\DoxyCodeLine{00190\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_low\ =\ (low\_pass\_amount\_\ -\/\ current\_low)\ *\ tick\_increment;}
+\DoxyCodeLine{00191\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_band\ =\ (band\_pass\_amount\_\ -\/\ current\_band)\ *\ tick\_increment;}
+\DoxyCodeLine{00192\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_high\ =\ (high\_pass\_amount\_\ -\/\ current\_high)\ *\ tick\_increment;}
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_one_dim_lookup}{CoefficientLookup}}*\ coefficient\_lookup\ =\ \mbox{\hyperlink{classvital_1_1_synth_filter_a68d8089bf149c42e809924d6a6ecf4b8}{getCoefficientLookup}}();}
+\DoxyCodeLine{00195\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ midi\_cutoff\_buffer\ =\ \mbox{\hyperlink{classvital_1_1_synth_filter_a4374a6bd751513a8236c468e184d67c1}{filter\_state\_}}.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a2931c98e0bdbcb4b8b8c5a3838fd7b51}{midi\_cutoff\_buffer}};}
+\DoxyCodeLine{00196\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ base\_midi\ =\ midi\_cutoff\_buffer[num\_samples\ -\/\ 1];}
+\DoxyCodeLine{00197\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ base\_frequency\ =}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_ad576b73366d625ca0b47c8b92b81f7a4}{utils::midiNoteToFrequency}}(base\_midi)\ *\ (1.0f\ /\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}());}
+\DoxyCodeLine{00199\ }
+\DoxyCodeLine{00200\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_out\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00202\ \ \ \ \ \textcolor{comment}{//\ Main\ loop}}
+\DoxyCodeLine{00203\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ midi\_delta\ =\ midi\_cutoff\_buffer[i]\ -\/\ base\_midi;}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ frequency\ =}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a5b6ee09220fec012fc1597235e4c50e3}{utils::min}}(base\_frequency\ *\ \mbox{\hyperlink{namespacevital_1_1futils_aa35d2367143c749fae5760f3663d2e96}{futils::midiOffsetToRatio}}(midi\_delta),\ 1.0f);}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ coefficient\ =\ coefficient\_lookup-\/>\mbox{\hyperlink{classvital_1_1_one_dim_lookup_a33ee03c4f8d54f682d22cb96061650f9}{cubicLookup}}(frequency);}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00209\ \ \ \ \ \ \ current\_resonance\ +=\ delta\_resonance;}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ current\_drive\ +=\ delta\_drive;}
+\DoxyCodeLine{00211\ \ \ \ \ \ \ current\_post\_multiply\ +=\ delta\_post\_multiply;}
+\DoxyCodeLine{00212\ \ \ \ \ \ \ current\_low\ +=\ delta\_low;}
+\DoxyCodeLine{00213\ \ \ \ \ \ \ current\_band\ +=\ delta\_band;}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ current\_high\ +=\ delta\_high;}
+\DoxyCodeLine{00215\ }
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ coefficient2\ =\ coefficient\ *\ 2.0f;}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ coefficient\_squared\ =\ coefficient\ *\ coefficient;}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}}\ =\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_af4a8dbc2bb8cab7c42d1bdb4703051e8}{tuneResonance}}(current\_resonance,\ coefficient2);}
+\DoxyCodeLine{00219\ }
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ specialized\ factors\ for\ 24\ dB\ Sallen-\/Key}}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ stage1\_feedback\_mult\ =\ coefficient2\ -\/\ coefficient\_squared\ -\/\ 1.0f;}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ pre\_normalizer\ =}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ /\ ((coefficient\_squared\ -\/\ coefficient)\ +\ 1.0f);}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ normalizer\ =}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ /\ (\mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}}\ *\ (coefficient\_squared\ -\/\ coefficient)\ +\ 1.0f);}
+\DoxyCodeLine{00226\ }
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \textcolor{comment}{//\ Tick\ the\ 4-\/pole\ version}}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a4240bed36b107b7c52445ada85b28b1c}{tick24}}(audio\_in[i],\ coefficient,\ \mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}},\ stage1\_feedback\_mult,\ current\_drive,}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ \ \ \ \ \ pre\_normalizer,\ normalizer,\ current\_low,\ current\_band,\ current\_high);}
+\DoxyCodeLine{00230\ }
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \textcolor{comment}{//\ Extract\ final\ 4-\/pole\ output}}
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ stage2\_input\ =\ stage1\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a58a70f48a88ffd6e5249ed3b91a1ef14}{getCurrentState}}();}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_pass\ =\ stage2\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a58a70f48a88ffd6e5249ed3b91a1ef14}{getCurrentState}}();}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ band\_pass\ =\ stage2\_input\ -\/\ low\_pass;}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_pass\ =\ stage1\_input\_\ -\/\ stage2\_input\ -\/\ band\_pass;}
+\DoxyCodeLine{00236\ }
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \textcolor{comment}{//\ Combine\ low,\ band,\ and\ high\ outputs}}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\ =\ current\_low\ *\ low\_pass;}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ band\_low\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a35863713535365219778ac997a789cf3}{utils::mulAdd}}(low,\ current\_band,\ band\_pass);}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ audio\_out[i]\ =}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a35863713535365219778ac997a789cf3}{utils::mulAdd}}(band\_low,\ current\_high,\ high\_pass)\ *\ current\_post\_multiply;}
+\DoxyCodeLine{00242\ }
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{namespacevital_1_1utils_a221874465932464f6c5fe9e187f0eb14}{utils::isFinite}}(audio\_out[i]));}
+\DoxyCodeLine{00244\ \ \ \ \ \}}
+\DoxyCodeLine{00245\ \ \ \}}
+\DoxyCodeLine{00246\ }
+\DoxyCodeLine{00257\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a08c105bbe96c23f4cd499072e42901e2}{SallenKeyFilter::processDual}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in,\ \textcolor{keywordtype}{int}\ num\_samples,}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_resonance,}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_drive,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_post\_multiply,}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_low,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_high)\ \{}
+\DoxyCodeLine{00261\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ tick\_increment\ =\ 1.0f\ /\ num\_samples;}
+\DoxyCodeLine{00262\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_resonance\ =\ (resonance\_\ -\/\ current\_resonance)\ *\ tick\_increment;}
+\DoxyCodeLine{00263\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_drive\ =\ (drive\_\ -\/\ current\_drive)\ *\ tick\_increment;}
+\DoxyCodeLine{00264\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_post\_multiply\ =\ (post\_multiply\_\ -\/\ current\_post\_multiply)\ *\ tick\_increment;}
+\DoxyCodeLine{00265\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_low\ =\ (low\_pass\_amount\_\ -\/\ current\_low)\ *\ tick\_increment;}
+\DoxyCodeLine{00266\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_high\ =\ (high\_pass\_amount\_\ -\/\ current\_high)\ *\ tick\_increment;}
+\DoxyCodeLine{00267\ }
+\DoxyCodeLine{00268\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_one_dim_lookup}{CoefficientLookup}}*\ coefficient\_lookup\ =\ \mbox{\hyperlink{classvital_1_1_synth_filter_a68d8089bf149c42e809924d6a6ecf4b8}{getCoefficientLookup}}();}
+\DoxyCodeLine{00269\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ midi\_cutoff\_buffer\ =\ \mbox{\hyperlink{classvital_1_1_synth_filter_a4374a6bd751513a8236c468e184d67c1}{filter\_state\_}}.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a2931c98e0bdbcb4b8b8c5a3838fd7b51}{midi\_cutoff\_buffer}};}
+\DoxyCodeLine{00270\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ base\_midi\ =\ midi\_cutoff\_buffer[num\_samples\ -\/\ 1];}
+\DoxyCodeLine{00271\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ base\_frequency\ =}
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_ad576b73366d625ca0b47c8b92b81f7a4}{utils::midiNoteToFrequency}}(base\_midi)\ *\ (1.0f\ /\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}());}
+\DoxyCodeLine{00273\ }
+\DoxyCodeLine{00274\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_out\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00276\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ midi\_delta\ =\ midi\_cutoff\_buffer[i]\ -\/\ base\_midi;}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ frequency\ =}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a5b6ee09220fec012fc1597235e4c50e3}{utils::min}}(base\_frequency\ *\ \mbox{\hyperlink{namespacevital_1_1futils_aa35d2367143c749fae5760f3663d2e96}{futils::midiOffsetToRatio}}(midi\_delta),\ 1.0f);}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ coefficient\ =\ coefficient\_lookup-\/>\mbox{\hyperlink{classvital_1_1_one_dim_lookup_a33ee03c4f8d54f682d22cb96061650f9}{cubicLookup}}(frequency);}
+\DoxyCodeLine{00281\ }
+\DoxyCodeLine{00282\ \ \ \ \ \ \ current\_resonance\ +=\ delta\_resonance;}
+\DoxyCodeLine{00283\ \ \ \ \ \ \ current\_drive\ +=\ delta\_drive;}
+\DoxyCodeLine{00284\ \ \ \ \ \ \ current\_post\_multiply\ +=\ delta\_post\_multiply;}
+\DoxyCodeLine{00285\ \ \ \ \ \ \ current\_low\ +=\ delta\_low;}
+\DoxyCodeLine{00286\ \ \ \ \ \ \ current\_high\ +=\ delta\_high;}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00288\ \ \ \ \ \ \ \textcolor{comment}{//\ Prepare\ Sallen-\/Key\ factors}}
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ coefficient2\ =\ coefficient\ *\ 2.0f;}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ coefficient\_squared\ =\ coefficient\ *\ coefficient;}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}}\ =\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_af4a8dbc2bb8cab7c42d1bdb4703051e8}{tuneResonance}}(current\_resonance,\ coefficient2);}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ stage1\_feedback\_mult\ =\ coefficient2\ -\/\ coefficient\_squared\ -\/\ 1.0f;}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ pre\_normalizer\ =}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ /\ ((coefficient\_squared\ -\/\ coefficient)\ +\ 1.0f);}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ normalizer\ =}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ /\ (\mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}}\ *\ (coefficient\_squared\ -\/\ coefficient)\ +\ 1.0f);}
+\DoxyCodeLine{00297\ }
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \textcolor{comment}{//\ For\ dual\ style,\ reuse\ tick24\ logic\ with\ zero\ band-\/pass}}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a4240bed36b107b7c52445ada85b28b1c}{tick24}}(audio\_in[i],\ coefficient,\ \mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}},\ stage1\_feedback\_mult,\ current\_drive,}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \ \ \ \ \ \ \ pre\_normalizer,\ normalizer,\ current\_low,\ 0.0f,\ current\_high);}
+\DoxyCodeLine{00301\ }
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ stage2\_input\ =\ stage1\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a58a70f48a88ffd6e5249ed3b91a1ef14}{getCurrentState}}();}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_pass\ =\ stage2\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a58a70f48a88ffd6e5249ed3b91a1ef14}{getCurrentState}}();}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \textcolor{comment}{//\ This\ arrangement\ merges\ portions\ of\ low\ and\ high\ differently\ for\ the\ dual-\/notch\ approach}}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_pass\ =\ stage1\_input\_\ -\/\ stage2\_input\ -\/\ stage2\_input\ +\ low\_pass;}
+\DoxyCodeLine{00306\ }
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \textcolor{comment}{//\ Mix\ final\ output\ (blend\ of\ low\ and\ high)}}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\ =\ current\_high\ *\ low\_pass;}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ audio\_out[i]\ =}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a35863713535365219778ac997a789cf3}{utils::mulAdd}}(low,\ current\_low,\ high\_pass)\ *\ current\_post\_multiply;}
+\DoxyCodeLine{00311\ }
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{namespacevital_1_1utils_a221874465932464f6c5fe9e187f0eb14}{utils::isFinite}}(audio\_out[i]));}
+\DoxyCodeLine{00313\ \ \ \ \ \}}
+\DoxyCodeLine{00314\ \ \ \}}
+\DoxyCodeLine{00315\ }
+\DoxyCodeLine{00320\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_ae154bba14d160d5d539bfc5065e0c4bf}{SallenKeyFilter::setupFilter}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state}{FilterState}}\&\ filter\_state)\ \{}
+\DoxyCodeLine{00321\ \ \ \ \ \textcolor{comment}{//\ Convert\ MIDI\ cutoff\ to\ frequency}}
+\DoxyCodeLine{00322\ \ \ \ \ cutoff\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad576b73366d625ca0b47c8b92b81f7a4}{utils::midiNoteToFrequency}}(filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a9532c1022d7f2bd019e391852d6bb5b9}{midi\_cutoff}});}
+\DoxyCodeLine{00323\ \ \ \ \ \textcolor{keywordtype}{float}\ min\_nyquist\ =\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}()\ *\ \mbox{\hyperlink{namespacevital_a58103b3c9b01a41406855340a9333d82}{kMinNyquistMult}};}
+\DoxyCodeLine{00324\ \ \ \ \ cutoff\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(cutoff\_,\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a43253a1683c523a1296247dafebdb60a}{kMinCutoff}},\ min\_nyquist);}
+\DoxyCodeLine{00325\ }
+\DoxyCodeLine{00326\ \ \ \ \ \textcolor{comment}{//\ Compute\ resonance\ from\ the\ input\ parameter}}
+\DoxyCodeLine{00327\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ resonance\_percent\ =}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_ab36a4ba7cfc2cdf20f9df4b64266103d}{resonance\_percent}},\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00329\ \ \ \ \ \textcolor{comment}{//\ Use\ sqrt\ to\ skew\ resonance\ distribution}}
+\DoxyCodeLine{00330\ \ \ \ \ resonance\_percent\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad7de0d300e948eb5cd8ec313c331fa0e}{utils::sqrt}}(resonance\_percent);}
+\DoxyCodeLine{00331\ }
+\DoxyCodeLine{00332\ \ \ \ \ resonance\_\ =}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(\mbox{\hyperlink{classvital_1_1_sallen_key_filter_a0d85f1417bc89f986c3276dfcaf6f63f}{kMinResonance}},\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_ae6ff05928cbf671e72f10cd794d3f625}{kMaxResonance}},\ resonance\_percent);}
+\DoxyCodeLine{00334\ \ \ \ \ \textcolor{comment}{//\ Additional\ boost\ based\ on\ drive}}
+\DoxyCodeLine{00335\ \ \ \ \ resonance\_\ +=\ filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a3739a52d25cd65c9ef5d6e285f2603f5}{drive\_percent}}}
+\DoxyCodeLine{00336\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *\ filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_ab36a4ba7cfc2cdf20f9df4b64266103d}{resonance\_percent}}}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a9560bd99a9e78116928854a24e9aee69}{kDriveResonanceBoost}};}
+\DoxyCodeLine{00338\ }
+\DoxyCodeLine{00339\ \ \ \ \ \textcolor{comment}{//\ pass\_blend\ mapped\ to\ -\/1..1}}
+\DoxyCodeLine{00340\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ blend\ =}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a3b9e6699bdd4ff6f2b48a28d08e390f3}{pass\_blend}}\ -\/\ 1.0f,\ -\/1.0f,\ 1.0f);}
+\DoxyCodeLine{00342\ }
+\DoxyCodeLine{00343\ \ \ \ \ \textcolor{comment}{//\ Scale\ drive\ by\ the\ squared\ resonance\ factor}}
+\DoxyCodeLine{00344\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ resonance\_scale\ =}
+\DoxyCodeLine{00345\ \ \ \ \ \ \ resonance\_percent\ *\ resonance\_percent\ *\ 2.0f\ +\ 1.0f;}
+\DoxyCodeLine{00346\ \ \ \ \ drive\_\ =\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a526549d852831e8ec4f70bd6dfc6a32b}{drive}})\ /\ resonance\_scale;}
+\DoxyCodeLine{00347\ }
+\DoxyCodeLine{00348\ \ \ \ \ \textcolor{comment}{//\ Handle\ style-\/specific\ parameter\ routing}}
+\DoxyCodeLine{00349\ \ \ \ \ \textcolor{keywordflow}{if}\ (filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a612dfb5faa8c432ed85a59e7f42ccd8b}{style}}\ ==\ \mbox{\hyperlink{classvital_1_1_synth_filter_adac93c0eaece607daba78f0af356d87badf80ea824e33ac3988c98cc246163c0a}{kDualNotchBand}})\ \{}
+\DoxyCodeLine{00350\ \ \ \ \ \ \ \textcolor{comment}{//\ Specialized\ blending\ for\ dual-\/notch}}
+\DoxyCodeLine{00351\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ t\ =\ blend\ *\ 0.5f\ +\ 0.5f;}
+\DoxyCodeLine{00352\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ drive\_t\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a85b413f04cc079c3041454acaff61a15}{poly\_float::min}}(-\/blend\ +\ 1.0f,\ 1.0f);}
+\DoxyCodeLine{00353\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ drive\_mult\ =\ -\/t\ +\ 2.0f;}
+\DoxyCodeLine{00354\ \ \ \ \ \ \ drive\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a526549d852831e8ec4f70bd6dfc6a32b}{drive}},\ drive\_\ *\ drive\_mult,\ drive\_t);}
+\DoxyCodeLine{00355\ }
+\DoxyCodeLine{00356\ \ \ \ \ \ \ low\_pass\_amount\_\ =\ t;}
+\DoxyCodeLine{00357\ \ \ \ \ \ \ band\_pass\_amount\_\ =\ 0.0f;}
+\DoxyCodeLine{00358\ \ \ \ \ \ \ high\_pass\_amount\_\ =\ 1.0f;}
+\DoxyCodeLine{00359\ \ \ \ \ \}}
+\DoxyCodeLine{00360\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a612dfb5faa8c432ed85a59e7f42ccd8b}{style}}\ ==\ \mbox{\hyperlink{classvital_1_1_synth_filter_adac93c0eaece607daba78f0af356d87ba5205d6b5701d14240a054113b27cb779}{kNotchPassSwap}})\ \{}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ \textcolor{comment}{//\ Blend\ for\ a\ notch/pass\ swap\ style}}
+\DoxyCodeLine{00362\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ drive\_t\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ac682406ecd547c6e897f3d09ac549105}{poly\_float::abs}}(blend);}
+\DoxyCodeLine{00363\ \ \ \ \ \ \ drive\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a526549d852831e8ec4f70bd6dfc6a32b}{drive}},\ drive\_,\ drive\_t);}
+\DoxyCodeLine{00364\ }
+\DoxyCodeLine{00365\ \ \ \ \ \ \ low\_pass\_amount\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5b6ee09220fec012fc1597235e4c50e3}{utils::min}}(-\/blend\ +\ 1.0f,\ 1.0f);}
+\DoxyCodeLine{00366\ \ \ \ \ \ \ band\_pass\_amount\_\ =\ 0.0f;}
+\DoxyCodeLine{00367\ \ \ \ \ \ \ high\_pass\_amount\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5b6ee09220fec012fc1597235e4c50e3}{utils::min}}(blend\ +\ 1.0f,\ 1.0f);}
+\DoxyCodeLine{00368\ \ \ \ \ \}}
+\DoxyCodeLine{00369\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a612dfb5faa8c432ed85a59e7f42ccd8b}{style}}\ ==\ \mbox{\hyperlink{classvital_1_1_synth_filter_adac93c0eaece607daba78f0af356d87ba4984c3db9bbea482f38e07360b9a9fb5}{kBandPeakNotch}})\ \{}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ \textcolor{comment}{//\ Band/peak/notch\ style}}
+\DoxyCodeLine{00371\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ drive\_t\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a85b413f04cc079c3041454acaff61a15}{poly\_float::min}}(-\/blend\ +\ 1.0f,\ 1.0f);}
+\DoxyCodeLine{00372\ \ \ \ \ \ \ drive\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a526549d852831e8ec4f70bd6dfc6a32b}{drive}},\ drive\_,\ drive\_t);}
+\DoxyCodeLine{00373\ }
+\DoxyCodeLine{00374\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ drive\_inv\_t\ =\ -\/drive\_t\ +\ 1.0f;}
+\DoxyCodeLine{00375\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ mult\ =}
+\DoxyCodeLine{00376\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_ad7de0d300e948eb5cd8ec313c331fa0e}{utils::sqrt}}((drive\_inv\_t\ *\ drive\_inv\_t)\ *\ 0.5f\ +\ 0.5f);}
+\DoxyCodeLine{00377\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ peak\_band\_value\ =\ -\/\mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(-\/blend,\ 0.0f);}
+\DoxyCodeLine{00378\ \ \ \ \ \ \ low\_pass\_amount\_\ =\ mult\ *\ (peak\_band\_value\ +\ 1.0f);}
+\DoxyCodeLine{00379\ \ \ \ \ \ \ band\_pass\_amount\_\ =}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ \ \ mult\ *\ (peak\_band\_value\ -\/\ blend\ +\ 1.0f)\ *\ 2.0f;}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ high\_pass\_amount\_\ =\ low\_pass\_amount\_;}
+\DoxyCodeLine{00382\ \ \ \ \ \}}
+\DoxyCodeLine{00383\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \textcolor{comment}{//\ Default\ 12\ dB\ or\ 24\ dB\ blending}}
+\DoxyCodeLine{00385\ \ \ \ \ \ \ band\_pass\_amount\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad7de0d300e948eb5cd8ec313c331fa0e}{utils::sqrt}}(-\/blend\ *\ blend\ +\ 1.0f);}
+\DoxyCodeLine{00386\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ blend\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a6d8428e12c1d3e637bbb4da39e8a5a86}{poly\_float::lessThan}}(blend,\ 0.0f);}
+\DoxyCodeLine{00387\ \ \ \ \ \ \ low\_pass\_amount\_\ =\ (-\/blend)\ \&\ blend\_mask;}
+\DoxyCodeLine{00388\ \ \ \ \ \ \ high\_pass\_amount\_\ =\ blend\ \&\ \string~blend\_mask;}
+\DoxyCodeLine{00389\ \ \ \ \ \}}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00391\ \ \ \ \ \textcolor{comment}{//\ Post-\/multiply\ factor}}
+\DoxyCodeLine{00392\ \ \ \ \ post\_multiply\_\ =}
+\DoxyCodeLine{00393\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ /\ \mbox{\hyperlink{namespacevital_1_1utils_ad7de0d300e948eb5cd8ec313c331fa0e}{utils::sqrt}}(resonance\_scale\ *\ drive\_);}
+\DoxyCodeLine{00394\ \ \ \}}
+\DoxyCodeLine{00395\ }
+\DoxyCodeLine{00409\ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a4240bed36b107b7c52445ada85b28b1c}{SallenKeyFilter::tick24}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ audio\_in,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ coefficient,}
+\DoxyCodeLine{00410\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}},\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ stage1\_feedback\_mult,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ drive,}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ pre\_normalizer,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ normalizer,}
+\DoxyCodeLine{00412\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ band,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high)\ \{}
+\DoxyCodeLine{00413\ \ \ \ \ \textcolor{comment}{//\ Preliminary\ stage\ feedback\ using\ the\ pre\_stage1\_\ and\ pre\_stage2\_\ filters}}
+\DoxyCodeLine{00414\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ mult\_stage2\ =\ -\/coefficient\ +\ 1.0f;}
+\DoxyCodeLine{00415\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ feedback\ =}
+\DoxyCodeLine{00416\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a35863713535365219778ac997a789cf3}{utils::mulAdd}}(stage1\_feedback\_mult\ *\ pre\_stage1\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a244af8644ca1ed79717e4ec8d2401e22}{getNextState}}(),}
+\DoxyCodeLine{00417\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mult\_stage2,\ pre\_stage2\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a244af8644ca1ed79717e4ec8d2401e22}{getNextState}}());}
+\DoxyCodeLine{00418\ }
+\DoxyCodeLine{00419\ \ \ \ \ \textcolor{comment}{//\ Pre-\/stage\ input}}
+\DoxyCodeLine{00420\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ stage1\_input\ =\ (audio\_in\ -\/\ feedback)\ *\ pre\_normalizer;}
+\DoxyCodeLine{00421\ }
+\DoxyCodeLine{00422\ \ \ \ \ \textcolor{comment}{//\ Pass\ through\ two\ one-\/pole\ filters\ for\ preliminary\ 2\ poles}}
+\DoxyCodeLine{00423\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ stage1\_out\ =\ pre\_stage1\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_ad14c30acf8f8cb5122e352652d852b5e}{tickBasic}}(stage1\_input,\ coefficient);}
+\DoxyCodeLine{00424\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ stage2\_out\ =\ pre\_stage2\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_ad14c30acf8f8cb5122e352652d852b5e}{tickBasic}}(stage1\_out,\ coefficient);}
+\DoxyCodeLine{00425\ }
+\DoxyCodeLine{00426\ \ \ \ \ \textcolor{comment}{//\ Temporary\ band-\/pass\ and\ high-\/pass\ from\ these\ first\ 2\ poles}}
+\DoxyCodeLine{00427\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ band\_pass\_out\ =\ stage1\_out\ -\/\ stage2\_out;}
+\DoxyCodeLine{00428\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_pass\_out\ =\ stage1\_input\ -\/\ stage1\_out\ -\/\ band\_pass\_out;}
+\DoxyCodeLine{00429\ }
+\DoxyCodeLine{00430\ \ \ \ \ \textcolor{comment}{//\ Combine\ them\ based\ on\ the\ user’s\ low,\ band,\ high}}
+\DoxyCodeLine{00431\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_out\ =\ low\ *\ stage2\_out;}
+\DoxyCodeLine{00432\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ band\_low\_out\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a35863713535365219778ac997a789cf3}{utils::mulAdd}}(low\_out,\ band,\ band\_pass\_out);}
+\DoxyCodeLine{00433\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ audio\_out\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a35863713535365219778ac997a789cf3}{utils::mulAdd}}(band\_low\_out,\ high,\ high\_pass\_out);}
+\DoxyCodeLine{00434\ }
+\DoxyCodeLine{00435\ \ \ \ \ \textcolor{comment}{//\ The\ second\ pair\ of\ poles\ uses\ the\ main\ tick()\ function}}
+\DoxyCodeLine{00436\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a5fdbad9ae04861bd4282f15d7f87fd2f}{tick}}(audio\_out,\ coefficient,\ \mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}},\ stage1\_feedback\_mult,\ drive,\ normalizer);}
+\DoxyCodeLine{00437\ \ \ \}}
+\DoxyCodeLine{00438\ }
+\DoxyCodeLine{00448\ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sallen_key_filter_a5fdbad9ae04861bd4282f15d7f87fd2f}{SallenKeyFilter::tick}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ audio\_in,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ coefficient,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}},}
+\DoxyCodeLine{00449\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ stage1\_feedback\_mult,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ drive,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ normalizer)\ \{}
+\DoxyCodeLine{00450\ \ \ \ \ \textcolor{comment}{//\ Compute\ feedback\ from\ the\ first\ stage}}
+\DoxyCodeLine{00451\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ mult\_stage2\ =\ -\/coefficient\ +\ 1.0f;}
+\DoxyCodeLine{00452\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ feedback\ =}
+\DoxyCodeLine{00453\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a35863713535365219778ac997a789cf3}{utils::mulAdd}}(stage1\_feedback\_mult\ *\ stage1\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a244af8644ca1ed79717e4ec8d2401e22}{getNextState}}(),}
+\DoxyCodeLine{00454\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mult\_stage2,\ stage2\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a244af8644ca1ed79717e4ec8d2401e22}{getNextState}}());}
+\DoxyCodeLine{00455\ }
+\DoxyCodeLine{00456\ \ \ \ \ \textcolor{comment}{//\ Nonlinear\ saturation\ (tanh)\ is\ used\ here\ to\ manage\ extremes}}
+\DoxyCodeLine{00457\ \ \ \ \ stage1\_input\_\ =\ \mbox{\hyperlink{namespacevital_1_1futils_aaa18c3550a61c113926ceb8b62ac7b46}{futils::tanh}}((drive\ *\ audio\_in\ -\/\ \mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}}\ *\ feedback)\ *\ normalizer);}
+\DoxyCodeLine{00458\ }
+\DoxyCodeLine{00459\ \ \ \ \ \textcolor{comment}{//\ Pass\ through\ two\ one-\/pole\ filters\ (1st\ and\ 2nd\ stage)\ for\ 2-\/pole\ effect}}
+\DoxyCodeLine{00460\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ stage1\_out\ =\ stage1\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_ad14c30acf8f8cb5122e352652d852b5e}{tickBasic}}(stage1\_input\_,\ coefficient);}
+\DoxyCodeLine{00461\ \ \ \ \ stage2\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_ad14c30acf8f8cb5122e352652d852b5e}{tickBasic}}(stage1\_out,\ coefficient);}
+\DoxyCodeLine{00462\ \ \ \}}
+\DoxyCodeLine{00463\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

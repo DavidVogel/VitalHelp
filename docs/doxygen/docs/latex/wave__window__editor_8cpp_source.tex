@@ -1,0 +1,158 @@
+\doxysection{wave\+\_\+window\+\_\+editor.\+cpp}
+\hypertarget{wave__window__editor_8cpp_source}{}\label{wave__window__editor_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/editors/wave\_window\_editor.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/editors/wave\_window\_editor.cpp}}
+\mbox{\hyperlink{wave__window__editor_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__window__editor_8h}{wave\_window\_editor.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{shaders_8h}{shaders.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \mbox{\hyperlink{class_wave_window_editor_a0c02de8df9ed81fec1d76b2e2b47f596}{WaveWindowEditor::WaveWindowEditor}}()\ :\ \mbox{\hyperlink{class_open_gl_line_renderer}{OpenGlLineRenderer}}(kTotalPoints),\ edit\_bars\_(4,\ \mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment)\ \{}
+\DoxyCodeLine{00009\ \ \ edit\_bars\_.\mbox{\hyperlink{class_open_gl_multi_quad_a400b44f0d176e32e9a3014be91816808}{setTargetComponent}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \ \ hovering\_\ =\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216caf24c56e20a0059a5f90a04a5002d35d3}{kNone}};}
+\DoxyCodeLine{00012\ \ \ editing\_\ =\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216caf24c56e20a0059a5f90a04a5002d35d3}{kNone}};}
+\DoxyCodeLine{00013\ \ \ left\_position\_\ =\ 0.0f;}
+\DoxyCodeLine{00014\ \ \ right\_position\_\ =\ 1.0f;}
+\DoxyCodeLine{00015\ \ \ window\_shape\_\ =\ \mbox{\hyperlink{class_wave_window_modifier_af6b1447a118fbb73fec64df756b4a244acdd188952cd513314e1153f89002c575}{WaveWindowModifier::kCos}};}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \ \ setPoints();}
+\DoxyCodeLine{00018\ \}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \mbox{\hyperlink{class_wave_window_editor_a74708e08b6f6f1d53687b22274b17a88}{WaveWindowEditor::\string~WaveWindowEditor}}()\ \{\ \}}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_window_editor_a8f17cd2ee314484b1ed9a6472d695f3e}{WaveWindowEditor::resized}}()\ \{}
+\DoxyCodeLine{00023\ \ \ \mbox{\hyperlink{class_open_gl_component_a2bd142dbb0cb7690829cb0a99f84e993}{OpenGlLineRenderer::resized}}();}
+\DoxyCodeLine{00024\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_aa6fb221f264f39c93c973656445b5bea}{setLineWidth}}(\mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a0706c2f54d7b90b90c5e3141c4ea3e39}{Skin::kWidgetLineWidth}}));}
+\DoxyCodeLine{00025\ \ \ setPoints();}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ edit\_bars\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}).withMultipliedAlpha(0.5f));}
+\DoxyCodeLine{00028\ \}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_window_editor_ac3bbe1e3880a028ac594aa72e1342e5d}{WaveWindowEditor::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00031\ \ \ OpenGlLineRenderer::mouseDown(e);}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ editing\_\ =\ \mbox{\hyperlink{class_wave_window_editor_a5da9ecd197e815dbeb3df3707404e50c}{getHover}}(e.getPosition());}
+\DoxyCodeLine{00034\ \ \ changeValues(e);}
+\DoxyCodeLine{00035\ \}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_window_editor_a2ef072202d3919a39ca67f38dc51b987}{WaveWindowEditor::mouseUp}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00038\ \ \ OpenGlLineRenderer::mouseUp(e);}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \textcolor{keywordflow}{if}\ (editing\_\ !=\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216caf24c56e20a0059a5f90a04a5002d35d3}{kNone}})}
+\DoxyCodeLine{00041\ \ \ \ \ notifyWindowChanged(\textcolor{keyword}{true});}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ editing\_\ =\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216caf24c56e20a0059a5f90a04a5002d35d3}{kNone}};}
+\DoxyCodeLine{00044\ \ \ setEditingQuads();}
+\DoxyCodeLine{00045\ \}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_window_editor_a021545a7c304fa2bc3105d91c88dd827}{WaveWindowEditor::mouseMove}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00048\ \ \ OpenGlLineRenderer::mouseMove(e);}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216c}{WaveWindowEditor::ActiveSide}}\ hover\ =\ \mbox{\hyperlink{class_wave_window_editor_a5da9ecd197e815dbeb3df3707404e50c}{getHover}}(e.getPosition());}
+\DoxyCodeLine{00051\ \ \ \textcolor{keywordflow}{if}\ (hovering\_\ !=\ hover)\ \{}
+\DoxyCodeLine{00052\ \ \ \ \ hovering\_\ =\ hover;}
+\DoxyCodeLine{00053\ \ \ \ \ setEditingQuads();}
+\DoxyCodeLine{00054\ \ \ \}}
+\DoxyCodeLine{00055\ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_window_editor_ace8fb604c4d2425d9405564e2694c768}{WaveWindowEditor::mouseExit}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00058\ \ \ OpenGlLineRenderer::mouseExit(e);}
+\DoxyCodeLine{00059\ \ \ hovering\_\ =\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216caf24c56e20a0059a5f90a04a5002d35d3}{kNone}};}
+\DoxyCodeLine{00060\ \ \ setEditingQuads();}
+\DoxyCodeLine{00061\ \}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_window_editor_ab05fe7669dea4d38ca3e110975831516}{WaveWindowEditor::mouseDrag}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00064\ \ \ OpenGlLineRenderer::mouseDrag(e);}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ changeValues(e);}
+\DoxyCodeLine{00067\ \}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \textcolor{keywordtype}{void}\ WaveWindowEditor::notifyWindowChanged(\textcolor{keywordtype}{bool}\ mouse\_up)\ \{}
+\DoxyCodeLine{00070\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00071\ \ \ \ \ listener-\/>windowChanged(editing\_\ ==\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216ca6368bd5f55ed9b14d773f25212aa6383}{kLeft}},\ mouse\_up);}
+\DoxyCodeLine{00072\ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \textcolor{keywordtype}{void}\ WaveWindowEditor::changeValues(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00075\ \ \ \textcolor{keywordflow}{if}\ (editing\_\ ==\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216caf24c56e20a0059a5f90a04a5002d35d3}{kNone}})}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \textcolor{keywordtype}{float}\ position\ =\ (1.0f\ *\ e.getPosition().x)\ /\ getWidth();}
+\DoxyCodeLine{00079\ \ \ \textcolor{keywordflow}{if}\ (editing\_\ ==\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216ca6368bd5f55ed9b14d773f25212aa6383}{kLeft}})}
+\DoxyCodeLine{00080\ \ \ \ \ left\_position\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(position,\ 0.0f,\ right\_position\_);}
+\DoxyCodeLine{00081\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (editing\_\ ==\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216ca15cdc487deefd7789f1362eccaa9d8e9}{kRight}})}
+\DoxyCodeLine{00082\ \ \ \ \ right\_position\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(position,\ left\_position\_,\ 1.0f);}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ notifyWindowChanged(\textcolor{keyword}{false});}
+\DoxyCodeLine{00085\ \ \ setPoints();}
+\DoxyCodeLine{00086\ \}}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \textcolor{keywordtype}{void}\ WaveWindowEditor::setEditingQuads()\ \{}
+\DoxyCodeLine{00089\ \ \ \textcolor{keywordflow}{if}\ (editing\_\ ==\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216ca6368bd5f55ed9b14d773f25212aa6383}{kLeft}})}
+\DoxyCodeLine{00090\ \ \ \ \ edit\_bars\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(2,\ edit\_bars\_.\mbox{\hyperlink{class_open_gl_multi_quad_ac63ee4a14e16b6fef6af3dbef3362f9a}{getQuadX}}(0),\ -\/1.0f,\ 2.0f\ *\ \mbox{\hyperlink{class_wave_window_editor_a2dd6dc3d6a6799f77f21b84056b1c0f6}{kGrabRadius}},\ 2.0f);}
+\DoxyCodeLine{00091\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (editing\_\ ==\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216ca15cdc487deefd7789f1362eccaa9d8e9}{kRight}})}
+\DoxyCodeLine{00092\ \ \ \ \ edit\_bars\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(2,\ edit\_bars\_.\mbox{\hyperlink{class_open_gl_multi_quad_ac63ee4a14e16b6fef6af3dbef3362f9a}{getQuadX}}(1),\ -\/1.0f,\ 2.0f\ *\ \mbox{\hyperlink{class_wave_window_editor_a2dd6dc3d6a6799f77f21b84056b1c0f6}{kGrabRadius}},\ 2.0f);}
+\DoxyCodeLine{00093\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00094\ \ \ \ \ edit\_bars\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(2,\ -\/2.0f,\ -\/2.0f,\ 0.0f,\ 0.0f);}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \ \ \textcolor{keywordflow}{if}\ (hovering\_\ ==\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216ca6368bd5f55ed9b14d773f25212aa6383}{kLeft}})}
+\DoxyCodeLine{00097\ \ \ \ \ edit\_bars\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(3,\ edit\_bars\_.\mbox{\hyperlink{class_open_gl_multi_quad_ac63ee4a14e16b6fef6af3dbef3362f9a}{getQuadX}}(0),\ -\/1.0f,\ 2.0f\ *\ \mbox{\hyperlink{class_wave_window_editor_a2dd6dc3d6a6799f77f21b84056b1c0f6}{kGrabRadius}},\ 2.0f);}
+\DoxyCodeLine{00098\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (hovering\_\ ==\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216ca15cdc487deefd7789f1362eccaa9d8e9}{kRight}})}
+\DoxyCodeLine{00099\ \ \ \ \ edit\_bars\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(3,\ edit\_bars\_.\mbox{\hyperlink{class_open_gl_multi_quad_ac63ee4a14e16b6fef6af3dbef3362f9a}{getQuadX}}(1),\ -\/1.0f,\ 2.0f\ *\ \mbox{\hyperlink{class_wave_window_editor_a2dd6dc3d6a6799f77f21b84056b1c0f6}{kGrabRadius}},\ 2.0f);}
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00101\ \ \ \ \ edit\_bars\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(3,\ -\/2.0f,\ -\/2.0f,\ 0.0f,\ 0.0f);}
+\DoxyCodeLine{00102\ \}}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \textcolor{keywordtype}{void}\ WaveWindowEditor::setPoints()\ \{}
+\DoxyCodeLine{00105\ \ \ edit\_bars\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ left\_position\_\ *\ 2.0f\ -\/\ 1.0f\ -\/\ \mbox{\hyperlink{class_wave_window_editor_a2dd6dc3d6a6799f77f21b84056b1c0f6}{kGrabRadius}},\ -\/1.0f,\ 2.0f\ *\ \mbox{\hyperlink{class_wave_window_editor_a2dd6dc3d6a6799f77f21b84056b1c0f6}{kGrabRadius}},\ 2.0f);}
+\DoxyCodeLine{00106\ \ \ edit\_bars\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(1,\ right\_position\_\ *\ 2.0f\ -\/\ 1.0f\ -\/\ \mbox{\hyperlink{class_wave_window_editor_a2dd6dc3d6a6799f77f21b84056b1c0f6}{kGrabRadius}},\ -\/1.0f,\ 2.0f\ *\ \mbox{\hyperlink{class_wave_window_editor_a2dd6dc3d6a6799f77f21b84056b1c0f6}{kGrabRadius}},\ 2.0f);}
+\DoxyCodeLine{00107\ \ \ setEditingQuads();}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \textcolor{keywordtype}{float}\ width\ =\ getWidth();}
+\DoxyCodeLine{00110\ \ \ \textcolor{keywordtype}{float}\ half\_height\ =\ 0.5f\ *\ getHeight();}
+\DoxyCodeLine{00111\ \ \ \textcolor{keywordtype}{float}\ left\_gl\_x\ =\ left\_position\_\ *\ width;}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \textcolor{comment}{//\ Populate\ left\ side\ of\ window}}
+\DoxyCodeLine{00114\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_wave_window_editor_aa34c27be056c481e8d0cd55ad5ab6aa3}{kPointsPerSection}};\ ++i)\ \{}
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ i\ /\ (\mbox{\hyperlink{class_wave_window_editor_aa34c27be056c481e8d0cd55ad5ab6aa3}{kPointsPerSection}}\ -\/\ 1.0f);}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keywordtype}{float}\ x\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(0.0f,\ left\_gl\_x,\ t);}
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ \mbox{\hyperlink{class_wave_window_modifier_a513e613ca1d62df84c4feec285962a26}{WaveWindowModifier::applyWindow}}(window\_shape\_,\ t)\ *\ half\_height;}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(i,\ x);}
+\DoxyCodeLine{00120\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(i,\ half\_height\ +\ y);}
+\DoxyCodeLine{00121\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(\mbox{\hyperlink{class_wave_window_editor_ae4f7664b555848da4d984f3efbf6f04a}{kTotalPoints}}\ -\/\ i\ -\/\ 1,\ x);}
+\DoxyCodeLine{00122\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(\mbox{\hyperlink{class_wave_window_editor_ae4f7664b555848da4d984f3efbf6f04a}{kTotalPoints}}\ -\/\ i\ -\/\ 1,\ half\_height\ -\/\ y);}
+\DoxyCodeLine{00123\ \ \ \}}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \textcolor{keywordtype}{float}\ right\_gl\_x\ =\ right\_position\_\ *\ width;}
+\DoxyCodeLine{00126\ \ \ \textcolor{comment}{//\ Populate\ right\ side\ of\ window}}
+\DoxyCodeLine{00127\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_wave_window_editor_aa34c27be056c481e8d0cd55ad5ab6aa3}{kPointsPerSection}};\ ++i)\ \{}
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ i\ /\ (\mbox{\hyperlink{class_wave_window_editor_aa34c27be056c481e8d0cd55ad5ab6aa3}{kPointsPerSection}}\ -\/\ 1.0f);}
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{keywordtype}{float}\ x\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(right\_gl\_x,\ width,\ t);}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ \mbox{\hyperlink{class_wave_window_modifier_a513e613ca1d62df84c4feec285962a26}{WaveWindowModifier::applyWindow}}(window\_shape\_,\ 1.0f\ -\/\ t)\ *\ half\_height;}
+\DoxyCodeLine{00131\ }
+\DoxyCodeLine{00132\ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ \mbox{\hyperlink{class_wave_window_editor_aa34c27be056c481e8d0cd55ad5ab6aa3}{kPointsPerSection}}\ +\ i;}
+\DoxyCodeLine{00133\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(index,\ x);}
+\DoxyCodeLine{00134\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(index,\ half\_height\ +\ y);}
+\DoxyCodeLine{00135\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(\mbox{\hyperlink{class_wave_window_editor_ae4f7664b555848da4d984f3efbf6f04a}{kTotalPoints}}\ -\/\ index\ -\/\ 1,\ x);}
+\DoxyCodeLine{00136\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(\mbox{\hyperlink{class_wave_window_editor_ae4f7664b555848da4d984f3efbf6f04a}{kTotalPoints}}\ -\/\ index\ -\/\ 1,\ half\_height\ -\/\ y);}
+\DoxyCodeLine{00137\ \ \ \}}
+\DoxyCodeLine{00138\ \}}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216c}{WaveWindowEditor::ActiveSide}}\ \mbox{\hyperlink{class_wave_window_editor_a5da9ecd197e815dbeb3df3707404e50c}{WaveWindowEditor::getHover}}(Point<int>\ position)\ \{}
+\DoxyCodeLine{00141\ \ \ \textcolor{keywordtype}{float}\ window\_left\_x\ =\ left\_position\_\ *\ getWidth();}
+\DoxyCodeLine{00142\ \ \ \textcolor{keywordtype}{float}\ delta\_left\ =\ fabsf(window\_left\_x\ -\/\ position.x);}
+\DoxyCodeLine{00143\ \ \ \textcolor{keywordtype}{float}\ window\_right\_x\ =\ right\_position\_\ *\ getWidth();}
+\DoxyCodeLine{00144\ \ \ \textcolor{keywordtype}{float}\ delta\_right\ =\ fabsf(window\_right\_x\ -\/\ position.x);}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \ \ \textcolor{keywordtype}{bool}\ choose\_left\ =\ delta\_left\ <\ delta\_right\ ||\ (delta\_left\ ==\ delta\_right\ \&\&\ position.x\ <\ window\_left\_x);}
+\DoxyCodeLine{00147\ \ \ \textcolor{keywordflow}{if}\ (delta\_left\ <\ \mbox{\hyperlink{class_wave_window_editor_a2dd6dc3d6a6799f77f21b84056b1c0f6}{kGrabRadius}}\ *\ getWidth()\ \&\&\ choose\_left)}
+\DoxyCodeLine{00148\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216ca6368bd5f55ed9b14d773f25212aa6383}{kLeft}};}
+\DoxyCodeLine{00149\ \ \ \textcolor{keywordflow}{if}\ (delta\_right\ <\ \mbox{\hyperlink{class_wave_window_editor_a2dd6dc3d6a6799f77f21b84056b1c0f6}{kGrabRadius}}\ *\ getWidth())}
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216ca15cdc487deefd7789f1362eccaa9d8e9}{kRight}};}
+\DoxyCodeLine{00151\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wave_window_editor_a24ba73197b0c306856af2cc9eb56216caf24c56e20a0059a5f90a04a5002d35d3}{kNone}};}
+\DoxyCodeLine{00152\ \}}
+
+\end{DoxyCode}

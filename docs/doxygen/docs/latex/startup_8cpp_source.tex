@@ -1,0 +1,33 @@
+\doxysection{startup.\+cpp}
+\hypertarget{startup_8cpp_source}{}\label{startup_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/startup.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/startup.cpp}}
+\mbox{\hyperlink{startup_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{startup_8h}{startup.h}}"{}}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{load__save_8h}{load\_save.h}}"{}}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}JuceHeader.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__base_8h}{synth\_base.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_startup_ab7d78cc8e4540eedcf8abb7ae8dd342e}{Startup::doStartupChecks}}(\mbox{\hyperlink{class_midi_manager}{MidiManager}}*\ midi\_manager,\ \mbox{\hyperlink{classvital_1_1_string_layout}{vital::StringLayout}}*\ layout)\ \{}
+\DoxyCodeLine{00007\ \ \ \textcolor{comment}{//\ If\ Vital\ is\ not\ installed\ or\ properly\ configured,\ no\ action\ is\ taken.}}
+\DoxyCodeLine{00008\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{class_load_save_a4335f3e5178412645107086fed010eb8}{LoadSave::isInstalled}}())}
+\DoxyCodeLine{00009\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \ \ \textcolor{comment}{//\ If\ Vital\ was\ upgraded\ since\ the\ last\ run,\ update\ the\ stored\ version\ information.}}
+\DoxyCodeLine{00012\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_afa8bbb8036997efc977569967ff7bd8b}{LoadSave::wasUpgraded}}())}
+\DoxyCodeLine{00013\ \ \ \ \ \mbox{\hyperlink{class_load_save_a66bf4c6e7909ad2b5a7576c8eb94acb2}{LoadSave::saveVersionConfig}}();}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \ \ \textcolor{comment}{//\ Load\ configuration\ data,\ which\ may\ include\ MIDI\ mappings,\ GUI\ layout\ preferences,\ and\ other\ settings.}}
+\DoxyCodeLine{00016\ \ \ \mbox{\hyperlink{class_load_save_ab5139db236a9c9e4a84e720ae9f4653f}{LoadSave::loadConfig}}(midi\_manager,\ layout);}
+\DoxyCodeLine{00017\ \}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_startup_a18f63979243f2c5c47a6f729eec69ccc}{Startup::isComputerCompatible}}()\ \{}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\ \ \#if\ defined(\_\_ARM\_NEON\_\_)}}
+\DoxyCodeLine{00021\ \ \ \textcolor{comment}{//\ On\ ARM\ platforms\ with\ NEON,\ assume\ compatibility.}}
+\DoxyCodeLine{00022\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\ \ \#else}}
+\DoxyCodeLine{00024\ \ \ \textcolor{comment}{//\ On\ x86\ platforms,\ check\ for\ SSE2\ or\ AVX2\ support.}}
+\DoxyCodeLine{00025\ \ \ \textcolor{keywordflow}{return}\ SystemStats::hasSSE2()\ ||\ SystemStats::hasAVX2();}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\ \ \#endif}}
+\DoxyCodeLine{00027\ \}}
+
+\end{DoxyCode}

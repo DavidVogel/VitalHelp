@@ -1,0 +1,105 @@
+\doxysection{fir\+\_\+halfband\+\_\+decimator.\+cpp}
+\hypertarget{fir__halfband__decimator_8cpp_source}{}\label{fir__halfband__decimator_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/filters/fir\_halfband\_decimator.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/filters/fir\_halfband\_decimator.cpp}}
+\mbox{\hyperlink{fir__halfband__decimator_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fir__halfband__decimator_8h}{fir\_halfband\_decimator.h}}"{}}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{poly__utils_8h}{poly\_utils.h}}"{}}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00012\ \ \ \mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_a1a678b141792a7fbe6e1ad26524cf734}{FirHalfbandDecimator::FirHalfbandDecimator}}()\ :\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}(kNumInputs,\ 1)\ \{}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ coefficients[\mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_ab332debff0801f9543bcd4566f2fc8ae}{kNumTaps}}]\ =\ \{}
+\DoxyCodeLine{00014\ \ \ \ \ \ \ 0.000088228877315364f,\ \ 0.000487010018128278f,\ \ 0.000852264975437944f,\ \ -\/0.001283563593466774f,}
+\DoxyCodeLine{00015\ \ \ \ \ \ \ -\/0.010130591831925894f,\ -\/0.025688727779244691f,\ -\/0.036346596505004387f,\ -\/0.024088355516718698f,}
+\DoxyCodeLine{00016\ \ \ \ \ \ \ 0.012246773417129486f,\ \ 0.040021434054637831f,\ \ 0.017771298164062477f,\ \ -\/0.046866403416502632f,}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ -\/0.075597513455990611f,\ \ 0.013331126342402619f,\ \ 0.202889888191404910f,\ \ 0.362615173769444080f,}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ 0.362615173769444080f,\ \ 0.202889888191404910f,\ \ 0.013331126342402619f,\ \ -\/0.075597513455990611f,}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ -\/0.046866403416502632f,\ \ 0.017771298164062477f,\ \ 0.040021434054637831f,\ \ 0.012246773417129486f,}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ -\/0.024088355516718698f,\ -\/0.036346596505004387f,\ -\/0.025688727779244691f,\ -\/0.010130591831925894f,}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ -\/0.001283563593466774f,\ \ 0.000852264975437944f,\ \ 0.000487010018128278f,\ \ 0.000088228877315364f,}
+\DoxyCodeLine{00022\ \ \ \ \ \};}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{comment}{//\ Pack\ every\ pair\ of\ coefficients\ into\ taps\_}}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_ab332debff0801f9543bcd4566f2fc8ae}{kNumTaps}}\ /\ 2;\ ++i)}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ taps\_[i]\ =\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(coefficients[2\ *\ i],\ coefficients[2\ *\ i\ +\ 1]);}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ reset(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}});}
+\DoxyCodeLine{00029\ \ \ \}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00038\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_ae09fbfc65c3d1c3d131eb82df633c8cd}{FirHalfbandDecimator::saveMemory}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keywordtype}{int}\ input\_buffer\_size\ =\ 2\ *\ num\_samples;}
+\DoxyCodeLine{00040\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_a7e4fb2dcada5fe5d1718d29a77895993a2049182f665c15b318d2e0619754fad8}{kAudio}})-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{comment}{//\ Compute\ where\ in\ the\ input\ buffer\ we\ should\ start\ saving}}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keywordtype}{int}\ start\_audio\_index\ =\ input\_buffer\_size\ -\/\ \mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_ab332debff0801f9543bcd4566f2fc8ae}{kNumTaps}}\ +\ 2;}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_ab332debff0801f9543bcd4566f2fc8ae}{kNumTaps}}\ /\ 2\ -\/\ 1;\ ++i)\ \{}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ audio\_index\ =\ start\_audio\_index\ +\ 2\ *\ i;}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \textcolor{comment}{//\ Consolidate\ two\ channels/samples\ at\ a\ time\ for\ poly\_float}}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ memory\_[i]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a1db075d94389e5c680770e9a5be70da2}{utils::consolidateAudio}}(audio[audio\_index],\ audio[audio\_index\ +\ 1]);}
+\DoxyCodeLine{00048\ \ \ \ \ \}}
+\DoxyCodeLine{00049\ \ \ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00058\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_a8e110b54382bb8e29574c3e69c2a9500}{FirHalfbandDecimator::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_a7e4fb2dcada5fe5d1718d29a77895993a2049182f665c15b318d2e0619754fad8}{kAudio}})-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keywordtype}{int}\ output\_buffer\_size\ =\ num\_samples;}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{comment}{//\ Basic\ checks\ to\ ensure\ buffer\ sizes\ are\ valid}}
+\DoxyCodeLine{00063\ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(output\_buffer\_size\ >\ \mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_ab332debff0801f9543bcd4566f2fc8ae}{kNumTaps}}\ /\ 2);}
+\DoxyCodeLine{00064\ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_a7e4fb2dcada5fe5d1718d29a77895993a2049182f665c15b318d2e0619754fad8}{kAudio}})-\/>source-\/>buffer\_size\ >=\ 2\ *\ output\_buffer\_size);}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_out\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{comment}{//\ First,\ use\ memory\_\ from\ the\ previous\ block\ to\ fill\ the\ early\ samples}}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ memory\_start\ =\ 0;\ memory\_start\ <\ \mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_ab332debff0801f9543bcd4566f2fc8ae}{kNumTaps}}\ /\ 2\ -\/\ 1;\ ++memory\_start)\ \{}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ sum\ =\ 0.0f;}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \textcolor{comment}{//\ Use\ stored\ memory\ first}}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ tap\_index\ =\ 0;}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_memory\ =\ \mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_ab332debff0801f9543bcd4566f2fc8ae}{kNumTaps}}\ /\ 2\ -\/\ memory\_start\ -\/\ 1;}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (;\ tap\_index\ <\ num\_memory;\ ++tap\_index)\ \{}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ sum\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a35863713535365219778ac997a789cf3}{utils::mulAdd}}(sum,\ memory\_[tap\_index\ +\ memory\_start],\ taps\_[tap\_index]);}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \textcolor{comment}{//\ Then\ move\ on\ to\ the\ current\ block's\ audio}}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ audio\_index\ =\ 0;}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (;\ tap\_index\ <\ \mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_ab332debff0801f9543bcd4566f2fc8ae}{kNumTaps}}\ /\ 2;\ ++tap\_index)\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Consolidate\ two\ adjacent\ samples\ into\ a\ poly\_float}}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ consolidated\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a1db075d94389e5c680770e9a5be70da2}{utils::consolidateAudio}}(audio[audio\_index],\ audio[audio\_index\ +\ 1]);}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ sum\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a35863713535365219778ac997a789cf3}{utils::mulAdd}}(sum,\ consolidated,\ taps\_[tap\_index]);}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ audio\_index\ +=\ 2;}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \textcolor{comment}{//\ Write\ out\ a\ decimated\ sample\ (sum\ both\ lanes)}}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ audio\_out[memory\_start]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ac208f18bb6c575757e806be4458b6dfb}{utils::sumSplitAudio}}(sum);}
+\DoxyCodeLine{00090\ \ \ \ \ \}}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{comment}{//\ Process\ the\ rest\ of\ the\ block}}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordtype}{int}\ out\_index\ =\ \mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_ab332debff0801f9543bcd4566f2fc8ae}{kNumTaps}}\ /\ 2\ -\/\ 1;}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordtype}{int}\ audio\_start\ =\ 0;}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordflow}{for}\ (;\ out\_index\ <\ output\_buffer\_size;\ ++out\_index)\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ sum\ =\ 0.0f;}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ audio\_index\ =\ audio\_start;}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \textcolor{comment}{//\ Sum\ over\ all\ taps\ for\ each\ output\ sample}}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ tap\_index\ =\ 0;\ tap\_index\ <\ \mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_ab332debff0801f9543bcd4566f2fc8ae}{kNumTaps}}\ /\ 2;\ ++tap\_index)\ \{}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ consolidated\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a1db075d94389e5c680770e9a5be70da2}{utils::consolidateAudio}}(audio[audio\_index],\ audio[audio\_index\ +\ 1]);}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ sum\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a35863713535365219778ac997a789cf3}{utils::mulAdd}}(sum,\ consolidated,\ taps\_[tap\_index]);}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ audio\_index\ +=\ 2;}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ audio\_start\ +=\ 2;}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ \ \ \ \ audio\_out[out\_index]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ac208f18bb6c575757e806be4458b6dfb}{utils::sumSplitAudio}}(sum);}
+\DoxyCodeLine{00108\ \ \ \ \ \}}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{comment}{//\ Save\ the\ end\ of\ this\ block\ to\ memory\ for\ seamless\ continuity\ next\ time}}
+\DoxyCodeLine{00111\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_ae09fbfc65c3d1c3d131eb82df633c8cd}{saveMemory}}(num\_samples);}
+\DoxyCodeLine{00112\ \ \ \}}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00120\ \ \ \textcolor{keywordtype}{void}\ FirHalfbandDecimator::reset(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask)\ \{}
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_fir_halfband_decimator_ab332debff0801f9543bcd4566f2fc8ae}{kNumTaps}}\ /\ 2\ -\/\ 1;\ ++i)}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ memory\_[i]\ =\ 0.0f;}
+\DoxyCodeLine{00123\ \ \ \}}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

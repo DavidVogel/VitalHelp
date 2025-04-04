@@ -1,0 +1,243 @@
+\doxysection{formant\+\_\+filter.\+cpp}
+\hypertarget{formant__filter_8cpp_source}{}\label{formant__filter_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/filters/formant\_filter.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/filters/formant\_filter.cpp}}
+\mbox{\hyperlink{formant__filter_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{formant__filter_8h}{formant\_filter.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{digital__svf_8h}{digital\_svf.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{formant__manager_8h}{formant\_manager.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{operators_8h}{operators.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \ \ \textcolor{comment}{//\ Anonymous\ namespace\ for\ internal\ data\ structures\ and\ helper\ functions}}
+\DoxyCodeLine{00011\ \ \ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keyword}{struct\ }FormantValues\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ cr::Value\ \mbox{\hyperlink{formant__filter_8cpp_a17ef5650d770eecdb2b915f7b7854f03}{gain}};\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00018\ \ \ \ \ \ \ cr::Value\ \mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}};\ \ \ }
+\DoxyCodeLine{00019\ \ \ \ \ \ \ cr::Value\ \mbox{\hyperlink{formant__filter_8cpp_aba4b35a056b330b668e7717ba40a927d}{midi\_cutoff}};\ }
+\DoxyCodeLine{00020\ \ \ \ \ \};}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{comment}{//\ Predefined\ formant\ values\ for\ vowels\ A,\ E,\ I,\ O,\ U}}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//\ Each\ array\ has\ 4\ sets\ of\ values\ for\ different\ "{}positions"{}\ used\ in\ interpolation.}}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keyword}{const}\ FormantValues\ formant\_a[\mbox{\hyperlink{namespacevital_a4deb4b6b4e777df1048023b79b939846}{kNumFormants}}]\ =\ \{}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \{cr::Value(-\/2),\ \ cr::Value(0.66f),\ cr::Value(75.7552343327f)\},}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \{cr::Value(-\/8),\ \ cr::Value(0.75f),\ cr::Value(84.5454706023f)\},}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \{cr::Value(-\/9),\ \ cr::Value(1.0f),\ \ cr::Value(100.08500317f)\},}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \{cr::Value(-\/10),\ cr::Value(1.0f),\ \ cr::Value(101.645729657f)\},}
+\DoxyCodeLine{00029\ \ \ \ \ \};}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keyword}{const}\ FormantValues\ formant\_e[\mbox{\hyperlink{namespacevital_a4deb4b6b4e777df1048023b79b939846}{kNumFormants}}]\ =\ \{}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \{cr::Value(0),\ \ \ cr::Value(0.66f),\ cr::Value(67.349957715f)\},}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \{cr::Value(-\/14),\ cr::Value(0.75f),\ cr::Value(92.39951181f)\},}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \{cr::Value(-\/4),\ \ cr::Value(1.0f),\ \ cr::Value(99.7552343327f)\},}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \{cr::Value(-\/14),\ cr::Value(1.0f),\ \ cr::Value(103.349957715f)\},}
+\DoxyCodeLine{00036\ \ \ \ \ \};}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keyword}{const}\ FormantValues\ formant\_i[\mbox{\hyperlink{namespacevital_a4deb4b6b4e777df1048023b79b939846}{kNumFormants}}]\ =\ \{}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \{cr::Value(0),\ \ \ cr::Value(0.8f),\ \ cr::Value(61.7825925179f)\},}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \{cr::Value(-\/15),\ cr::Value(0.75f),\ cr::Value(94.049554095f)\},}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \{cr::Value(-\/17),\ cr::Value(1.0f),\ \ cr::Value(101.03821678f)\},}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \{cr::Value(-\/20),\ cr::Value(1.0f),\ \ cr::Value(103.618371471f)\},}
+\DoxyCodeLine{00043\ \ \ \ \ \};}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keyword}{const}\ FormantValues\ formant\_o[\mbox{\hyperlink{namespacevital_a4deb4b6b4e777df1048023b79b939846}{kNumFormants}}]\ =\ \{}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \{cr::Value(-\/2),\ \ cr::Value(0.7f),\ \ cr::Value(67.349957715f)\},}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \{cr::Value(-\/6),\ \ cr::Value(0.75f),\ cr::Value(79.349957715f)\},}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \{cr::Value(-\/14),\ cr::Value(1.0f),\ \ cr::Value(99.7552343327f)\},}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \{cr::Value(-\/14),\ cr::Value(1.0f),\ \ cr::Value(101.03821678f)\},}
+\DoxyCodeLine{00050\ \ \ \ \ \};}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keyword}{const}\ FormantValues\ formant\_u[\mbox{\hyperlink{namespacevital_a4deb4b6b4e777df1048023b79b939846}{kNumFormants}}]\ =\ \{}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \{cr::Value(0),\ \ \ cr::Value(0.7f),\ \ cr::Value(65.0382167797f)\},}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \{cr::Value(-\/20),\ cr::Value(0.75f),\ cr::Value(74.3695077237f)\},}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \{cr::Value(-\/17),\ cr::Value(1.0f),\ \ cr::Value(100.408607741f)\},}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \{cr::Value(-\/14),\ cr::Value(1.0f),\ \ cr::Value(101.645729657f)\},}
+\DoxyCodeLine{00057\ \ \ \ \ \};}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keyword}{enum}\ FormantPosition\ \{}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ kBottomLeft,}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ kBottomRight,}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ kTopLeft,}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ kTopRight,}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ kNumFormantPositions}
+\DoxyCodeLine{00069\ \ \ \ \ \};}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{comment}{//\ Two\ different\ style\ definitions,\ each\ referencing\ a\ set\ of\ vowels}}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keyword}{const}\ FormantValues*\ formant\_style1[kNumFormantPositions]\ =\ \{}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ formant\_a,\ formant\_o,\ formant\_i,\ formant\_e}
+\DoxyCodeLine{00074\ \ \ \ \ \};}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keyword}{const}\ FormantValues*\ formant\_style2[kNumFormantPositions]\ =\ \{}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ formant\_a,\ formant\_i,\ formant\_u,\ formant\_o}
+\DoxyCodeLine{00078\ \ \ \ \ \};}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{comment}{//\ Pointers\ to\ above\ style\ arrays}}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keyword}{const}\ FormantValues**\ formant\_styles[\mbox{\hyperlink{classvital_1_1_formant_filter_aed9d249af4064db9e082d3d5a153493fa6ee57d67cf32f9d4af24c6516c3102ea}{FormantFilter::kNumFormantStyles}}]\ =\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ formant\_style2,\ \textcolor{comment}{//\ kAOIE\ →\ in\ code\ it's\ swapped,\ see\ usage}}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ formant\_style1\ \ \textcolor{comment}{//\ kAIUO}}
+\DoxyCodeLine{00084\ \ \ \ \ \};}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00096\ \ \ \ \ poly\_float\ bilinearInterpolate(poly\_float\ top\_left,\ poly\_float\ top\_right,}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ bot\_left,\ poly\_float\ bot\_right,}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ x,\ poly\_float\ y)\ \{}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ poly\_float\ top\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(top\_left,\ top\_right,\ x);}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ poly\_float\ bot\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(bot\_left,\ bot\_right,\ x);}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(bot,\ top,\ y);}
+\DoxyCodeLine{00102\ \ \ \ \ \}}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00114\ \ \ \ \ SynthFilter::FilterState\ interpolateFormants(\textcolor{keyword}{const}\ FormantValues\&\ top\_left,}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ FormantValues\&\ top\_right,}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ FormantValues\&\ bot\_left,}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ FormantValues\&\ bot\_right,}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ formant\_x,\ poly\_float\ formant\_y)\ \{}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ SynthFilter::FilterState\ filter\_state;}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ filter\_state.midi\_cutoff\ =}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ bilinearInterpolate(top\_left.midi\_cutoff.value(),}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ top\_right.midi\_cutoff.value(),}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bot\_left.midi\_cutoff.value(),}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bot\_right.midi\_cutoff.value(),}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ formant\_x,\ formant\_y);}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \ \ \ \ \ \ filter\_state.resonance\_percent\ =}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ bilinearInterpolate(top\_left.resonance.value(),}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ top\_right.resonance.value(),}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bot\_left.resonance.value(),}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bot\_right.resonance.value(),}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ formant\_x,\ formant\_y);}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ \ \ \ \ \ \ filter\_state.gain\ =}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ bilinearInterpolate(top\_left.gain.value(),}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ top\_right.gain.value(),}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bot\_left.gain.value(),}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bot\_right.gain.value(),}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ formant\_x,\ formant\_y);}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ filter\_state;}
+\DoxyCodeLine{00142\ \ \ \ \ \}}
+\DoxyCodeLine{00143\ \ \ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00149\ \ \ \mbox{\hyperlink{classvital_1_1_formant_filter_ae425c1aeea8c8caf4cc54fa3935d6420}{FormantFilter::FormantFilter}}(\textcolor{keywordtype}{int}\ style)\ :}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router}{ProcessorRouter}}(kNumInputs,\ 1),\ formant\_manager\_(nullptr),\ style\_(style)\ \{}
+\DoxyCodeLine{00151\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_formant_filter_a7dd04dc83895469d0cdd6522ef78f19c}{formant\_manager\_}}\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{classvital_1_1_formant_manager}{FormantManager}}(\mbox{\hyperlink{namespacevital_a4deb4b6b4e777df1048023b79b939846}{kNumFormants}});}
+\DoxyCodeLine{00152\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_af5322ce72a1e53f6d81ce917f07427e7}{addProcessor}}(\mbox{\hyperlink{classvital_1_1_formant_filter_a7dd04dc83895469d0cdd6522ef78f19c}{formant\_manager\_}});}
+\DoxyCodeLine{00153\ \ \ \}}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00161\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_formant_filter_a9870350d746f1bcf3a2587d8be71f806}{FormantFilter::init}}()\ \{}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1cr_1_1_value}{cr::Value}}\ \mbox{\hyperlink{classvital_1_1_synth_filter_adac93c0eaece607daba78f0af356d87bad2b77bdbebe3b92b68909835078b1fdd}{k12Db}}(\mbox{\hyperlink{classvital_1_1_synth_filter_adac93c0eaece607daba78f0af356d87bad2b77bdbebe3b92b68909835078b1fdd}{DigitalSvf::k12Db}});}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{comment}{//\ Center\ value\ for\ Spread\ interpolation\ around\ kCenterMidi}}
+\DoxyCodeLine{00165\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_value}{Value}}*\ center\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{classvital_1_1_value}{Value}}(\mbox{\hyperlink{classvital_1_1_formant_filter_aba8b7d2fcad1c9a6011479458fb4d903}{kCenterMidi}});}
+\DoxyCodeLine{00166\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a8bc90b699c1ec299b060ed0df32f476c}{addIdleProcessor}}(center);}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a4deb4b6b4e777df1048023b79b939846}{kNumFormants}};\ ++i)\ \{}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \textcolor{comment}{//\ Create\ interpolation\ nodes\ for\ gain,\ Q,\ and\ MIDI\ cutoff}}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1cr_1_1_bilinear_interpolate}{cr::BilinearInterpolate}}*\ formant\_gain\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{classvital_1_1cr_1_1_bilinear_interpolate}{cr::BilinearInterpolate}}();}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1cr_1_1_bilinear_interpolate}{cr::BilinearInterpolate}}*\ formant\_q\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{classvital_1_1cr_1_1_bilinear_interpolate}{cr::BilinearInterpolate}}();}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_bilinear_interpolate}{BilinearInterpolate}}*\ formant\_midi\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{classvital_1_1_bilinear_interpolate}{BilinearInterpolate}}();}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \textcolor{comment}{//\ Plug\ in\ the\ corner\ (top-\/left,\ top-\/right,\ bottom-\/left,\ bottom-\/right)\ values}}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ p\ =\ 0;\ p\ <\ kNumFormantPositions;\ ++p)\ \{}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ formant\_gain-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&formant\_styles[\mbox{\hyperlink{classvital_1_1_formant_filter_a5f2ec5910df339c66ef121ae81653ac6}{style\_}}][p][i].\mbox{\hyperlink{formant__filter_8cpp_a17ef5650d770eecdb2b915f7b7854f03}{gain}},}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1cr_1_1_bilinear_interpolate_a3671545b97b443afeac0f5c00db89460}{cr::BilinearInterpolate::kPositionStart}}\ +\ p);}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ formant\_q-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&formant\_styles[\mbox{\hyperlink{classvital_1_1_formant_filter_a5f2ec5910df339c66ef121ae81653ac6}{style\_}}][p][i].\mbox{\hyperlink{formant__filter_8cpp_a763370db72febfa675aff8c7645edb85}{resonance}},}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1cr_1_1_bilinear_interpolate_a3671545b97b443afeac0f5c00db89460}{cr::BilinearInterpolate::kPositionStart}}\ +\ p);}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ formant\_midi-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&formant\_styles[\mbox{\hyperlink{classvital_1_1_formant_filter_a5f2ec5910df339c66ef121ae81653ac6}{style\_}}][p][i].\mbox{\hyperlink{formant__filter_8cpp_aba4b35a056b330b668e7717ba40a927d}{midi\_cutoff}},}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_bilinear_interpolate_a785aa45f2a57753cdcff89c30330755a}{BilinearInterpolate::kPositionStart}}\ +\ p);}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \textcolor{comment}{//\ Connect\ X\ and\ Y\ interpolation\ inputs}}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ formant\_gain-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a8c5aac78f4c29f8653601a8f989291e8}{kInterpolateX}}),\ \mbox{\hyperlink{classvital_1_1cr_1_1_bilinear_interpolate_a324d77da1a9a915e3f2dc370a6221bfba9e991653f31a1ad0153f43bce2e17ed4}{cr::BilinearInterpolate::kXPosition}});}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ formant\_q-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a8c5aac78f4c29f8653601a8f989291e8}{kInterpolateX}}),\ \mbox{\hyperlink{classvital_1_1cr_1_1_bilinear_interpolate_a324d77da1a9a915e3f2dc370a6221bfba9e991653f31a1ad0153f43bce2e17ed4}{cr::BilinearInterpolate::kXPosition}});}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ formant\_midi-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a8c5aac78f4c29f8653601a8f989291e8}{kInterpolateX}}),\ \mbox{\hyperlink{classvital_1_1_bilinear_interpolate_aa303bbad16b760eff628c731c488f060a900b6bb7b9eaf087953aac4431dc369d}{BilinearInterpolate::kXPosition}});}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \ \ \ \ \ \ formant\_gain-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a4b7271a28761fc806f994d8a12b75ba0}{kInterpolateY}}),\ \mbox{\hyperlink{classvital_1_1cr_1_1_bilinear_interpolate_a324d77da1a9a915e3f2dc370a6221bfba1972df6f9f36829004b98f147a2d82e2}{cr::BilinearInterpolate::kYPosition}});}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ formant\_q-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a4b7271a28761fc806f994d8a12b75ba0}{kInterpolateY}}),\ \mbox{\hyperlink{classvital_1_1cr_1_1_bilinear_interpolate_a324d77da1a9a915e3f2dc370a6221bfba1972df6f9f36829004b98f147a2d82e2}{cr::BilinearInterpolate::kYPosition}});}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ formant\_midi-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a4b7271a28761fc806f994d8a12b75ba0}{kInterpolateY}}),\ \mbox{\hyperlink{classvital_1_1_bilinear_interpolate_aa303bbad16b760eff628c731c488f060a67f7c7becf8c4534da9f95faa0f57374}{BilinearInterpolate::kYPosition}});}
+\DoxyCodeLine{00192\ }
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \textcolor{comment}{//\ Interpolate\ node\ for\ spreading\ the\ formant\ MIDI\ cutoff\ around\ a\ center}}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_interpolate}{Interpolate}}*\ formant\_midi\_spread\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{classvital_1_1_interpolate}{Interpolate}}();}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ formant\_midi\_spread-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0aa01ef2c2bc4f00d574cd1a2f0a8a8297}{kSpread}}),\ \mbox{\hyperlink{classvital_1_1_interpolate_add257094ad0641a8d9e916483ca9934aad9bafddfbe1de01e012d44876422332b}{Interpolate::kFractional}});}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ formant\_midi\_spread-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a5ae1d17d40ed0b23e2c2fa01a0620c05}{kReset}}),\ \mbox{\hyperlink{classvital_1_1_interpolate_add257094ad0641a8d9e916483ca9934aa1d2daf63e4a39517b16d07b6aad190a5}{Interpolate::kReset}});}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ formant\_midi\_spread-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(center,\ \mbox{\hyperlink{classvital_1_1_interpolate_add257094ad0641a8d9e916483ca9934aa76337bb9de6999067bfe9b6aeb9ca6d7}{Interpolate::kTo}});}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ formant\_midi\_spread-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(formant\_midi,\ \mbox{\hyperlink{classvital_1_1_interpolate_add257094ad0641a8d9e916483ca9934aaa2176883d6211fc937022b11b77d764e}{Interpolate::kFrom}});}
+\DoxyCodeLine{00199\ }
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \textcolor{comment}{//\ Offset\ (transpose)\ the\ MIDI\ cutoff}}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_add}{Add}}*\ formant\_midi\_adjust\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{classvital_1_1_add}{Add}}();}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ formant\_midi\_adjust-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a469fa3676ce30b898f9eebb82daf1be9}{kTranspose}}),\ 0);}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ formant\_midi\_adjust-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(formant\_midi\_spread,\ 1);}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \textcolor{comment}{//\ Multiply\ the\ resonance\ by\ an\ additional\ user-\/supplied\ resonance\ factor}}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1cr_1_1_multiply}{cr::Multiply}}*\ formant\_q\_adjust\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{classvital_1_1cr_1_1_multiply}{cr::Multiply}}();}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ formant\_q\_adjust-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a332b06d234cc5a7922c3fb6ece6ed2d6}{kResonance}}),\ 0);}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ formant\_q\_adjust-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(formant\_q,\ 1);}
+\DoxyCodeLine{00209\ }
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \textcolor{comment}{//\ Connect\ the\ formant\ manager's\ DigitalSvf\ for\ this\ formant}}
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_formant_filter_a7dd04dc83895469d0cdd6522ef78f19c}{formant\_manager\_}}-\/>\mbox{\hyperlink{classvital_1_1_formant_manager_ae349c7dd0bcbaa0743f479504f02e1fb}{getFormant}}(i)-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0ae42fd89abe5a134ebf5e5da1942f4a83}{kAudio}}),\ \mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0ae42fd89abe5a134ebf5e5da1942f4a83}{DigitalSvf::kAudio}});}
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_formant_filter_a7dd04dc83895469d0cdd6522ef78f19c}{formant\_manager\_}}-\/>\mbox{\hyperlink{classvital_1_1_formant_manager_ae349c7dd0bcbaa0743f479504f02e1fb}{getFormant}}(i)-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a5ae1d17d40ed0b23e2c2fa01a0620c05}{kReset}}),\ \mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a5ae1d17d40ed0b23e2c2fa01a0620c05}{DigitalSvf::kReset}});}
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_formant_filter_a7dd04dc83895469d0cdd6522ef78f19c}{formant\_manager\_}}-\/>\mbox{\hyperlink{classvital_1_1_formant_manager_ae349c7dd0bcbaa0743f479504f02e1fb}{getFormant}}(i)-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&\mbox{\hyperlink{classvital_1_1_synth_filter_adac93c0eaece607daba78f0af356d87bad2b77bdbebe3b92b68909835078b1fdd}{k12Db}},\ \mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a9245866d9bea5988ad4e0b4724da84d5}{DigitalSvf::kStyle}});}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_formant_filter_a7dd04dc83895469d0cdd6522ef78f19c}{formant\_manager\_}}-\/>\mbox{\hyperlink{classvital_1_1_formant_manager_ae349c7dd0bcbaa0743f479504f02e1fb}{getFormant}}(i)-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&\mbox{\hyperlink{namespacevital_1_1constants_afd9b3158b0cc852dce89394efe828e1b}{constants::kValueOne}},\ \mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a2cc3a6b24c80e4c01a37d054aba20767}{DigitalSvf::kPassBlend}});}
+\DoxyCodeLine{00215\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_formant_filter_a7dd04dc83895469d0cdd6522ef78f19c}{formant\_manager\_}}-\/>\mbox{\hyperlink{classvital_1_1_formant_manager_ae349c7dd0bcbaa0743f479504f02e1fb}{getFormant}}(i)-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(formant\_gain,\ \mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0ad2ab8c91bd02238cbf4e00623d2238f1}{DigitalSvf::kGain}});}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_formant_filter_a7dd04dc83895469d0cdd6522ef78f19c}{formant\_manager\_}}-\/>\mbox{\hyperlink{classvital_1_1_formant_manager_ae349c7dd0bcbaa0743f479504f02e1fb}{getFormant}}(i)-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(formant\_q\_adjust,\ \mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a332b06d234cc5a7922c3fb6ece6ed2d6}{DigitalSvf::kResonance}});}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_formant_filter_a7dd04dc83895469d0cdd6522ef78f19c}{formant\_manager\_}}-\/>\mbox{\hyperlink{classvital_1_1_formant_manager_ae349c7dd0bcbaa0743f479504f02e1fb}{getFormant}}(i)-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(formant\_midi\_adjust,\ \mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a4b105ff09b198286a6ba3662309bcc2e}{DigitalSvf::kMidiCutoff}});}
+\DoxyCodeLine{00218\ }
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \textcolor{comment}{//\ Add\ these\ processors\ to\ the\ chain}}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_af5322ce72a1e53f6d81ce917f07427e7}{addProcessor}}(formant\_gain);}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_af5322ce72a1e53f6d81ce917f07427e7}{addProcessor}}(formant\_q);}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_af5322ce72a1e53f6d81ce917f07427e7}{addProcessor}}(formant\_q\_adjust);}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_af5322ce72a1e53f6d81ce917f07427e7}{addProcessor}}(formant\_midi);}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_af5322ce72a1e53f6d81ce917f07427e7}{addProcessor}}(formant\_midi\_spread);}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_af5322ce72a1e53f6d81ce917f07427e7}{addProcessor}}(formant\_midi\_adjust);}
+\DoxyCodeLine{00226\ \ \ \ \ \}}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00228\ \ \ \ \ \textcolor{comment}{//\ Finish\ initialization\ of\ the\ ProcessorRouter}}
+\DoxyCodeLine{00229\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a6ebd94c5d73a14a1a20b67ddf60125ee}{ProcessorRouter::init}}();}
+\DoxyCodeLine{00230\ \ \ \}}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00236\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_formant_filter_a45a2e45d18be958ac0f1f65c2818675a}{FormantFilter::setupFilter}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state}{FilterState}}\&\ filter\_state)\ \{}
+\DoxyCodeLine{00237\ \ \ \ \ \textcolor{comment}{//\ Clamp\ the\ style\ to\ a\ valid\ index}}
+\DoxyCodeLine{00238\ \ \ \ \ \textcolor{keywordtype}{int}\ style\ =\ std::min(filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a612dfb5faa8c432ed85a59e7f42ccd8b}{style}},\ \mbox{\hyperlink{classvital_1_1_formant_filter_aed9d249af4064db9e082d3d5a153493fa6ee57d67cf32f9d4af24c6516c3102ea}{FormantFilter::kNumFormantStyles}}\ -\/\ 1);}
+\DoxyCodeLine{00239\ }
+\DoxyCodeLine{00240\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a4deb4b6b4e777df1048023b79b939846}{vital::kNumFormants}};\ ++i)\ \{}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \textcolor{comment}{//\ Interpolate\ the\ formant\ parameters\ from\ the\ style's\ corner\ values}}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state}{FilterState}}\ formant\_setting\ =}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ interpolateFormants(formant\_styles[style][kTopLeft][i],}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ formant\_styles[style][kTopRight][i],}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ formant\_styles[style][kBottomLeft][i],}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ formant\_styles[style][kBottomRight][i],}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a05ae26689ac862fd2609cdb7a65f14da}{interpolate\_x}},}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a09f7bed7bd2c8b4bbace94cfc3fd965a}{interpolate\_y}});}
+\DoxyCodeLine{00249\ }
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \textcolor{comment}{//\ Blend\ between\ the\ formant's\ MIDI\ cutoff\ and\ the\ global\ center}}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ formant\_setting.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a9532c1022d7f2bd019e391852d6bb5b9}{midi\_cutoff}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(formant\_setting.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a9532c1022d7f2bd019e391852d6bb5b9}{midi\_cutoff}},}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_formant_filter_aba8b7d2fcad1c9a6011479458fb4d903}{kCenterMidi}},}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a3b9e6699bdd4ff6f2b48a28d08e390f3}{pass\_blend}});}
+\DoxyCodeLine{00254\ }
+\DoxyCodeLine{00255\ \ \ \ \ \ \ \textcolor{comment}{//\ Add\ global\ transpose}}
+\DoxyCodeLine{00256\ \ \ \ \ \ \ formant\_setting.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a9532c1022d7f2bd019e391852d6bb5b9}{midi\_cutoff}}\ +=\ filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a036a4a6df017758d62082f2f8edd681c}{transpose}};}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \textcolor{comment}{//\ Scale\ resonance\ by\ global\ resonance\_percent}}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ formant\_setting.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_ab36a4ba7cfc2cdf20f9df4b64266103d}{resonance\_percent}}\ *=\ filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_ab36a4ba7cfc2cdf20f9df4b64266103d}{resonance\_percent}};}
+\DoxyCodeLine{00260\ }
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \textcolor{comment}{//\ Use\ 12dB\ style\ for\ each\ formant}}
+\DoxyCodeLine{00262\ \ \ \ \ \ \ formant\_setting.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a612dfb5faa8c432ed85a59e7f42ccd8b}{style}}\ =\ \mbox{\hyperlink{classvital_1_1_synth_filter_adac93c0eaece607daba78f0af356d87bad2b77bdbebe3b92b68909835078b1fdd}{DigitalSvf::k12Db}};}
+\DoxyCodeLine{00263\ \ \ \ \ \ \ formant\_setting.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a3b9e6699bdd4ff6f2b48a28d08e390f3}{pass\_blend}}\ =\ 1.0f;}
+\DoxyCodeLine{00264\ }
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \textcolor{comment}{//\ Apply\ to\ the\ underlying\ DigitalSvf}}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_digital_svf}{vital::DigitalSvf}}*\ formant\ =\ \mbox{\hyperlink{classvital_1_1_formant_filter_a7dd04dc83895469d0cdd6522ef78f19c}{formant\_manager\_}}-\/>\mbox{\hyperlink{classvital_1_1_formant_manager_ae349c7dd0bcbaa0743f479504f02e1fb}{getFormant}}(i);}
+\DoxyCodeLine{00267\ \ \ \ \ \ \ formant-\/>\mbox{\hyperlink{classvital_1_1_digital_svf_a9a45e6c2a45538fafa1a6ffd5ecca020}{setupFilter}}(formant\_setting);}
+\DoxyCodeLine{00268\ \ \ \ \ \}}
+\DoxyCodeLine{00269\ \ \ \}}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00275\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_formant_filter_a90508992c39ca12c4bca42e031e90b98}{FormantFilter::reset}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask)\ \{}
+\DoxyCodeLine{00276\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_af1221aabafb55e72099c46e094b75f72}{getLocalProcessor}}(\mbox{\hyperlink{classvital_1_1_formant_filter_a7dd04dc83895469d0cdd6522ef78f19c}{formant\_manager\_}})-\/>\mbox{\hyperlink{classvital_1_1_processor_af96e6e12894fcc2cce9abe7d93ed4f99}{reset}}(reset\_mask);}
+\DoxyCodeLine{00277\ \ \ \}}
+\DoxyCodeLine{00278\ }
+\DoxyCodeLine{00282\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_formant_filter_a01b5fad79375a9a37feb3ce2ca1214b5}{FormantFilter::hardReset}}()\ \{}
+\DoxyCodeLine{00283\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_af1221aabafb55e72099c46e094b75f72}{getLocalProcessor}}(\mbox{\hyperlink{classvital_1_1_formant_filter_a7dd04dc83895469d0cdd6522ef78f19c}{formant\_manager\_}})-\/>\mbox{\hyperlink{classvital_1_1_processor_a8ee20e3c0a3e79f07465f93e3988b6d2}{hardReset}}();}
+\DoxyCodeLine{00284\ \ \ \}}
+\DoxyCodeLine{00285\ }
+\DoxyCodeLine{00286\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

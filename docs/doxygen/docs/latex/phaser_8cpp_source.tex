@@ -1,0 +1,114 @@
+\doxysection{phaser.\+cpp}
+\hypertarget{phaser_8cpp_source}{}\label{phaser_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/effects/phaser.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/effects/phaser.cpp}}
+\mbox{\hyperlink{phaser_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{phaser_8h}{phaser.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{operators_8h}{operators.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{phaser__filter_8h}{phaser\_filter.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <climits>}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00016\ \ \ \mbox{\hyperlink{classvital_1_1_phaser_a862d593ebd15c67bbcf566d2149461e0}{Phaser::Phaser}}()}
+\DoxyCodeLine{00017\ \ \ \ \ :\ \mbox{\hyperlink{classvital_1_1_processor_router}{ProcessorRouter}}(kNumInputs,\ kNumOutputs),}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ mix\_(0.0f),}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ mod\_depth\_(0.0f),}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ phase\_offset\_(0.0f),}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ phase\_(0)\ \{}
+\DoxyCodeLine{00022\ \ \ \ \ phaser\_filter\_\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{classvital_1_1_phaser_filter}{PhaserFilter}}(\textcolor{comment}{/*\ oversample=\ */}\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00023\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a8bc90b699c1ec299b060ed0df32f476c}{addIdleProcessor}}(phaser\_filter\_);}
+\DoxyCodeLine{00024\ \ \ \}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00029\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_phaser_a699d791e6fb1e915105fd9cb625243d8}{Phaser::init}}()\ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{comment}{//\ Connect\ feedback\ gain\ and\ blend\ from\ the\ Phaser\ inputs\ to\ the\ PhaserFilter}}
+\DoxyCodeLine{00031\ \ \ \ \ phaser\_filter\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_phaser_a414ef14d82b4dd688ae7c57695d0d100a90fdf3cfbbdaab597b67e1dad77d1440}{kFeedbackGain}}),\ \mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a332b06d234cc5a7922c3fb6ece6ed2d6}{PhaserFilter::kResonance}});}
+\DoxyCodeLine{00032\ \ \ \ \ phaser\_filter\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_phaser_a414ef14d82b4dd688ae7c57695d0d100aa9105f0cbc430ede2308ff32ac22c56b}{kBlend}}),\ \mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a2cc3a6b24c80e4c01a37d054aba20767}{PhaserFilter::kPassBlend}});}
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{comment}{//\ Connect\ the\ cutoff\ output\ to\ the\ filter's\ MIDI\ cutoff\ input}}
+\DoxyCodeLine{00034\ \ \ \ \ phaser\_filter\_-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&cutoff\_,\ \mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0a4b105ff09b198286a6ba3662309bcc2e}{PhaserFilter::kMidiCutoff}});}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \ \ phaser\_filter\_-\/>\mbox{\hyperlink{classvital_1_1_processor_adb6eaa40b95275a42029ed4c0c4bcba4}{init}}();}
+\DoxyCodeLine{00037\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a6ebd94c5d73a14a1a20b67ddf60125ee}{ProcessorRouter::init}}();}
+\DoxyCodeLine{00038\ \ \ \}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00043\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_phaser_a4c8100d53b1e8ea5fe38829b4b72fc2c}{Phaser::hardReset}}()\ \{}
+\DoxyCodeLine{00044\ \ \ \ \ phaser\_filter\_-\/>\mbox{\hyperlink{classvital_1_1_phaser_filter_a55f5c526881e1dff88d7589bc8241f93}{reset}}(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}});}
+\DoxyCodeLine{00045\ \ \ \ \ mod\_depth\_\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_phaser_a414ef14d82b4dd688ae7c57695d0d100a393b547476a6184773b3e02e815f7fe6}{kModDepth}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00046\ \ \ \ \ phase\_offset\_\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_phaser_a414ef14d82b4dd688ae7c57695d0d100a88059add25122a4e0c804eab7efdefb1}{kPhaseOffset}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00047\ \ \ \}}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00054\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_phaser_a7593436355979ea5c2e0d17e968f0f40}{Phaser::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_phaser_af5f1a71432f64481181570e772a26435}{processWithInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_phaser_a414ef14d82b4dd688ae7c57695d0d100a3e2b4c11d3f0880ba98265171dbdd6c6}{kAudio}})-\/>source-\/>buffer,\ num\_samples);}
+\DoxyCodeLine{00056\ \ \ \}}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00067\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_phaser_af5f1a71432f64481181570e772a26435}{Phaser::processWithInput}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00068\ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{classvital_1_1_processor_a8d337b56c2e0d52ec3396a9b41befd30}{checkInputAndOutputSize}}(num\_samples));}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{comment}{//\ Compute\ how\ much\ the\ phase\ increments\ for\ each\ sample}}
+\DoxyCodeLine{00071\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ tick\_delta\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_phaser_a414ef14d82b4dd688ae7c57695d0d100a227948e96db0b69328c79774e01d48f4}{kRate}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0)\ *\ (1.0f\ /\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}());}
+\DoxyCodeLine{00072\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ tick\_delta\_phase\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad78f0e7d254bdef79f99ff199f8cbd9f}{utils::toInt}}(tick\_delta\ *\ UINT\_MAX);}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{comment}{//\ For\ gradually\ changing\ stereo\ phase\ offset}}
+\DoxyCodeLine{00075\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ tick\_inc\ =\ 1.0f\ /\ num\_samples;}
+\DoxyCodeLine{00076\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ phase\_spread\ =\ phase\_offset\_\ *\ \mbox{\hyperlink{namespacevital_1_1constants_ae65c1de0dcd4794af7cb527948bb10a3}{constants::kStereoSplit}};}
+\DoxyCodeLine{00077\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ phase\_offset\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad78f0e7d254bdef79f99ff199f8cbd9f}{utils::toInt}}(phase\_spread\ *\ INT\_MAX);}
+\DoxyCodeLine{00078\ \ \ \ \ phase\_offset\_\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_phaser_a414ef14d82b4dd688ae7c57695d0d100a88059add25122a4e0c804eab7efdefb1}{kPhaseOffset}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00079\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ end\_spread\ =\ phase\_offset\_\ *\ \mbox{\hyperlink{namespacevital_1_1constants_ae65c1de0dcd4794af7cb527948bb10a3}{constants::kStereoSplit}};}
+\DoxyCodeLine{00080\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_spread\ =\ (end\_spread\ -\/\ phase\_spread)\ *\ tick\_inc;}
+\DoxyCodeLine{00081\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ delta\_phase\_offset\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad78f0e7d254bdef79f99ff199f8cbd9f}{utils::toInt}}(delta\_spread\ *\ INT\_MAX);}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{comment}{//\ Smoothly\ transition\ the\ mod\ depth}}
+\DoxyCodeLine{00084\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_mod\_depth\ =\ mod\_depth\_;}
+\DoxyCodeLine{00085\ \ \ \ \ mod\_depth\_\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_phaser_a414ef14d82b4dd688ae7c57695d0d100a393b547476a6184773b3e02e815f7fe6}{kModDepth}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00086\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_depth\ =\ (mod\_depth\_\ -\/\ current\_mod\_depth)\ *\ tick\_inc;}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{comment}{//\ Generate\ the\ cutoff\ values\ for\ each\ sample}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ center\_buffer\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_phaser_a414ef14d82b4dd688ae7c57695d0d100ad658c51996f6a7537b1741affa1801f2}{kCenter}})-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00090\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ current\_phase\ =\ phase\_;}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ phase\_offset\ +=\ delta\_phase\_offset;}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ current\_mod\_depth\ +=\ delta\_depth;}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \textcolor{comment}{//\ Phase\ mod\ with\ potential\ folding}}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ shifted\_phase\ =\ current\_phase\ +\ phase\_offset;}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ fold\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__int_ab6353308ea6f20002bfb7e4410acfbfd}{poly\_int::greaterThan}}(shifted\_phase,\ INT\_MAX);}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ folded\_phase\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(shifted\_phase,\ -\/shifted\_phase,\ fold\_mask);}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \textcolor{comment}{//\ Convert\ folded\_phase\ to\ a\ [-\/1..1]\ range}}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ modulation\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a29ec8af38789c39515d4b43ee42e9de6}{utils::toFloat}}(folded\_phase)\ *\ (2.0f\ /\ INT\_MAX)\ -\/\ 1.0f;}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \textcolor{comment}{//\ Write\ cutoff\ in\ MIDI\ note\ space}}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ cutoff\_.\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[i]\ =\ center\_buffer[i]\ +\ modulation\ *\ current\_mod\_depth;}
+\DoxyCodeLine{00105\ \ \ \ \ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{comment}{//\ Process\ the\ audio\ through\ the\ phaser\ filter}}
+\DoxyCodeLine{00108\ \ \ \ \ phaser\_filter\_-\/>\mbox{\hyperlink{classvital_1_1_phaser_filter_a909147fd961b5c3bc463d41bfcbe29fb}{processWithInput}}(audio\_in,\ num\_samples);}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{comment}{//\ Update\ the\ LFO\ phase}}
+\DoxyCodeLine{00111\ \ \ \ \ phase\_\ +=\ \mbox{\hyperlink{namespacevital_1_1utils_ad78f0e7d254bdef79f99ff199f8cbd9f}{utils::toInt}}((tick\_delta\ *\ num\_samples)\ *\ UINT\_MAX);}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{comment}{//\ Blend\ the\ phaser\ output\ with\ the\ dry\ input}}
+\DoxyCodeLine{00114\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_mix\ =\ mix\_;}
+\DoxyCodeLine{00115\ \ \ \ \ mix\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_phaser_a414ef14d82b4dd688ae7c57695d0d100a15d14138bed820770c2784249f3e0f0d}{kMix}})-\/>at(0),\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00116\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_mix\ =\ (mix\_\ -\/\ current\_mix)\ *\ (1.0f\ /\ num\_samples);}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ phaser\_out\ =\ phaser\_filter\_-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00119\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_out\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_phaser_a90f22321b2354dd6059e8e40ae619f19a662685b89aab1db2604be7ae0969c761}{kAudioOutput}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ current\_mix\ +=\ delta\_mix;}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ audio\_out[i]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(audio\_in[i],\ phaser\_out[i],\ current\_mix);}
+\DoxyCodeLine{00123\ \ \ \ \ \}}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{comment}{//\ Store\ the\ final\ cutoff\ value\ for\ UI\ or\ further\ processing}}
+\DoxyCodeLine{00126\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_phaser_a90f22321b2354dd6059e8e40ae619f19a7972102b7a08580c2bcf21a1360d7f17}{kCutoffOutput}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ cutoff\_.\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[num\_samples\ -\/\ 1];}
+\DoxyCodeLine{00127\ \ \ \}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00134\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_phaser_a1ba6e1659cbaaac669b71cb62cd188c0}{Phaser::correctToTime}}(\textcolor{keywordtype}{double}\ seconds)\ \{}
+\DoxyCodeLine{00135\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ rate\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_phaser_a414ef14d82b4dd688ae7c57695d0d100a227948e96db0b69328c79774e01d48f4}{kRate}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00136\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ offset\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a70d1632b7ff25265d67a5b886c5c7410}{utils::getCycleOffsetFromSeconds}}(seconds,\ rate);}
+\DoxyCodeLine{00137\ \ \ \ \ phase\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad78f0e7d254bdef79f99ff199f8cbd9f}{utils::toInt}}((offset\ -\/\ 0.5f)\ *\ UINT\_MAX)\ +\ INT\_MAX\ /\ 2;}
+\DoxyCodeLine{00138\ \ \ \}}
+\DoxyCodeLine{00139\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

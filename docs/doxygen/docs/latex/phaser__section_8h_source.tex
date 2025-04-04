@@ -1,0 +1,148 @@
+\doxysection{phaser\+\_\+section.\+h}
+\hypertarget{phaser__section_8h_source}{}\label{phaser__section_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/phaser\_section.h@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/phaser\_section.h}}
+\mbox{\hyperlink{phaser__section_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}JuceHeader.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__section_8h}{synth\_section.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{open__gl__line__renderer_8h}{open\_gl\_line\_renderer.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{phaser__filter_8h}{phaser\_filter.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__module_8h}{synth\_module.h}}"{}}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_synth_button}{SynthButton}};}
+\DoxyCodeLine{00010\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_tempo_selector}{TempoSelector}};}
+\DoxyCodeLine{00011\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_synth_slider}{SynthSlider}};}
+\DoxyCodeLine{00012\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}};}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00022\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_phaser_response}{PhaserResponse}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_open_gl_line_renderer}{OpenGlLineRenderer}}\ \{}
+\DoxyCodeLine{00023\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_phaser_response_acd964d3d4562c3e26fb1c7669a951e56}{kResolution}}\ =\ 256;}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_phaser_response_acb0f89e95fb1970a8d49ee0d2ea97e23}{kDefaultVisualSampleRate}}\ =\ 200000;}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00033\ \ \ \ \ \mbox{\hyperlink{class_phaser_response_a969cdc2ce06e336a7da0e0ccdd2c8b77}{PhaserResponse}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ mono\_modulations);}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_phaser_response_a19867a3fe96356eb56a1ad78918972be}{\string~PhaserResponse}}();}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_response_a0870ad7e96193a26d84b66b5988ee068}{init}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_response_ae975cf7f62b1f773cb1da608d6504103}{render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_response_ab02f8af47cfeff76eab96b06b66c7c56}{destroy}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_response_a804fb8923bcbaa8fb7c48d4d5e3f8139}{mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ last\_mouse\_position\_\ =\ e.getPosition();}
+\DoxyCodeLine{00063\ \ \ \ \ \}}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_response_addbe959e38b69beda1212fe76e3440af}{mouseDrag}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ Point<int>\ delta\ =\ e.getPosition()\ -\/\ last\_mouse\_position\_;}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ last\_mouse\_position\_\ =\ e.getPosition();}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ cutoff\_range\ =\ cutoff\_slider\_-\/>getMaximum()\ -\/\ cutoff\_slider\_-\/>getMinimum();}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ cutoff\_slider\_-\/>setValue(cutoff\_slider\_-\/>getValue()\ +\ delta.x\ *\ cutoff\_range\ /\ getWidth());}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ resonance\_range\ =\ resonance\_slider\_-\/>getMaximum()\ -\/\ resonance\_slider\_-\/>getMinimum();}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ resonance\_slider\_-\/>setValue(resonance\_slider\_-\/>getValue()\ -\/\ delta.y\ *\ resonance\_range\ /\ getHeight());}
+\DoxyCodeLine{00077\ \ \ \ \ \}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_response_a221b1b86985be71372050f4a8f12f280}{setCutoffSlider}}(\mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ cutoff\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_response_ae2b6e305ed2781812ae50fccd2e41502}{setResonanceSlider}}(\mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ resonance\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_response_af9ecd1cce15a00dbd878be286bc9c2df}{setBlendSlider}}(\mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ blend\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_response_ab8032e81b65de6531ff732d69177b3a5}{setMixSlider}}(\mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ mix\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_response_a5b2197f011a27b0b1d537008c13536ae}{setActive}}(\textcolor{keywordtype}{bool}\ active)\ \{\ active\_\ =\ active;\ \}}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_response_abd17e5d11e55d0b8770b07ffb87fa4ed}{setStyle}}(\textcolor{keywordtype}{int}\ style)\ \{\ filter\_state\_.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a612dfb5faa8c432ed85a59e7f42ccd8b}{style}}\ =\ style;\ \}}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_response_ab7e8579b893caaec2b34c4f8ad21c2db}{setDefaultBlend}}(\mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ blend)\ \{\ blend\_setting\_\ =\ blend;\ \}}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{keyword}{struct\ }FilterResponseShader\ \{}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMaxStages\ =\ 3;}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ OpenGLShaderProgram*\ shader;}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ std::unique\_ptr<OpenGLShaderProgram::Attribute>\ position;}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ std::unique\_ptr<OpenGLShaderProgram::Uniform>\ mix;}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ std::unique\_ptr<OpenGLShaderProgram::Uniform>\ midi\_cutoff;}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ std::unique\_ptr<OpenGLShaderProgram::Uniform>\ resonance;}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ std::unique\_ptr<OpenGLShaderProgram::Uniform>\ db24;}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ std::unique\_ptr<OpenGLShaderProgram::Uniform>\ stages[kMaxStages];}
+\DoxyCodeLine{00136\ \ \ \ \ \};}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00143\ \ \ \ \ \textcolor{keywordtype}{void}\ drawFilterResponse(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate);}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00151\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ getOutputTotal(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1_output}{vital::Output}}*\ output,\ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ default\_value);}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordtype}{void}\ setupFilterState();}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keywordtype}{void}\ loadShader(\textcolor{keywordtype}{int}\ index);}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keywordtype}{void}\ bind(OpenGLContext\&\ open\_gl\_context);}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00174\ \ \ \ \ \textcolor{keywordtype}{void}\ unbind(OpenGLContext\&\ open\_gl\_context);}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{keywordtype}{void}\ renderLineResponse(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl);}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \ \ \ \ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ parent\_;}
+\DoxyCodeLine{00183\ \ \ \ \ \textcolor{keywordtype}{bool}\ active\_;}
+\DoxyCodeLine{00184\ \ \ \ \ Point<int>\ last\_mouse\_position\_;}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_phaser_filter}{vital::PhaserFilter}}\ phaser\_filter\_;}
+\DoxyCodeLine{00187\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state}{vital::SynthFilter::FilterState}}\ filter\_state\_;}
+\DoxyCodeLine{00188\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ mix\_;}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \ \ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ cutoff\_slider\_;}
+\DoxyCodeLine{00191\ \ \ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ resonance\_slider\_;}
+\DoxyCodeLine{00192\ \ \ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ blend\_slider\_;}
+\DoxyCodeLine{00193\ \ \ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ mix\_slider\_;}
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00195\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_status_output}{vital::StatusOutput}}*\ phaser\_cutoff\_;}
+\DoxyCodeLine{00196\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1_output}{vital::Output}}*\ filter\_mix\_output\_;}
+\DoxyCodeLine{00197\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1_output}{vital::Output}}*\ resonance\_output\_;}
+\DoxyCodeLine{00198\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1_output}{vital::Output}}*\ blend\_output\_;}
+\DoxyCodeLine{00199\ }
+\DoxyCodeLine{00200\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ blend\_setting\_;}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00202\ \ \ \ \ FilterResponseShader\ response\_shader\_;}
+\DoxyCodeLine{00203\ \ \ \ \ std::unique\_ptr<float[]>\ line\_data\_;}
+\DoxyCodeLine{00204\ \ \ \ \ GLuint\ vertex\_array\_object\_;}
+\DoxyCodeLine{00205\ \ \ \ \ GLuint\ line\_buffer\_;}
+\DoxyCodeLine{00206\ \ \ \ \ GLuint\ response\_buffer\_;}
+\DoxyCodeLine{00207\ }
+\DoxyCodeLine{00208\ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(\mbox{\hyperlink{class_phaser_response}{PhaserResponse}})}
+\DoxyCodeLine{00209\ \};}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00219\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_phaser_section}{PhaserSection}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_synth_section}{SynthSection}}\ \{}
+\DoxyCodeLine{00220\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00226\ \ \ \ \ \mbox{\hyperlink{class_phaser_section_a1821edc2e14c927c3c3f8c9356f8bc4a}{PhaserSection}}(String\ name,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ mono\_modulations);}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00229\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_phaser_section_a541b051705652fddfb9367a112f4b843}{\string~PhaserSection}}();}
+\DoxyCodeLine{00230\ }
+\DoxyCodeLine{00235\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_section_aff75d825c20bb8f0f416505a994d63e8}{paintBackground}}(Graphics\&\ g)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00236\ }
+\DoxyCodeLine{00241\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_section_a765c325ae8ec45109ff42c5e12d66243}{paintBackgroundShadow}}(Graphics\&\ g)\textcolor{keyword}{\ override\ }\{\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_synth_section_aa69758e37d2860da80a1d6acdea0b419}{isActive}}())\ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g);\ \}}
+\DoxyCodeLine{00242\ }
+\DoxyCodeLine{00246\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_section_a01365d2e3adf62f8a9e0239a4d1f098b}{resized}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00247\ }
+\DoxyCodeLine{00252\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phaser_section_a621d29e823f23b6438e5e9a1b14bcebc}{setActive}}(\textcolor{keywordtype}{bool}\ active)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00255\ \ \ \ \ std::unique\_ptr<SynthButton>\ on\_;}
+\DoxyCodeLine{00256\ \ \ \ \ std::unique\_ptr<SynthSlider>\ frequency\_;}
+\DoxyCodeLine{00257\ \ \ \ \ std::unique\_ptr<SynthSlider>\ tempo\_;}
+\DoxyCodeLine{00258\ \ \ \ \ std::unique\_ptr<TempoSelector>\ sync\_;}
+\DoxyCodeLine{00259\ \ \ \ \ std::unique\_ptr<SynthSlider>\ feedback\_;}
+\DoxyCodeLine{00260\ \ \ \ \ std::unique\_ptr<SynthSlider>\ center\_;}
+\DoxyCodeLine{00261\ \ \ \ \ std::unique\_ptr<SynthSlider>\ mod\_depth\_;}
+\DoxyCodeLine{00262\ \ \ \ \ std::unique\_ptr<SynthSlider>\ phase\_offset\_;}
+\DoxyCodeLine{00263\ \ \ \ \ std::unique\_ptr<SynthSlider>\ dry\_wet\_;}
+\DoxyCodeLine{00264\ \ \ \ \ std::unique\_ptr<SynthSlider>\ blend\_;}
+\DoxyCodeLine{00265\ }
+\DoxyCodeLine{00266\ \ \ \ \ std::unique\_ptr<PhaserResponse>\ phaser\_response\_;}
+\DoxyCodeLine{00267\ }
+\DoxyCodeLine{00268\ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(\mbox{\hyperlink{class_phaser_section}{PhaserSection}})}
+\DoxyCodeLine{00269\ \};}
+
+\end{DoxyCode}

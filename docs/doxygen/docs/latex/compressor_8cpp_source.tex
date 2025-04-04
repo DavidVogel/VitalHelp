@@ -1,0 +1,423 @@
+\doxysection{compressor.\+cpp}
+\hypertarget{compressor_8cpp_source}{}\label{compressor_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/effects/compressor.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/effects/compressor.cpp}}
+\mbox{\hyperlink{compressor_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{compressor_8h}{compressor.h}}"{}}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{futils_8h}{futils.h}}"{}}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \ \ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00010\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kRmsTime\ =\ 0.025f;}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kMaxExpandMult\ =\ 32.0f;}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kLowAttackMs\ =\ 2.8f;}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kBandAttackMs\ =\ 1.4f;}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kHighAttackMs\ =\ 0.7f;}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kLowReleaseMs\ =\ 40.0f;}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kBandReleaseMs\ =\ 28.0f;}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kHighReleaseMs\ =\ 15.0f;}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kMinGain\ =\ -\/30.0f;}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kMaxGain\ =\ 30.0f;}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kMinThreshold\ =\ -\/100.0f;}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kMaxThreshold\ =\ 12.0f;}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kMinSampleEnvelope\ =\ 5.0f;}
+\DoxyCodeLine{00047\ \ \ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \ \ \textcolor{comment}{//============================================================================}}
+\DoxyCodeLine{00050\ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00051\ \ \ \textcolor{comment}{//\ Compressor}}
+\DoxyCodeLine{00052\ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00053\ \ \ \textcolor{comment}{//============================================================================}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00060\ \ \ \mbox{\hyperlink{classvital_1_1_compressor_a2bbf39af65c161914afe34514a68fce2}{Compressor::Compressor}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ base\_attack\_ms\_first,}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ base\_release\_ms\_first,}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ base\_attack\_ms\_second,}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ base\_release\_ms\_second)}
+\DoxyCodeLine{00064\ \ \ \ \ :\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}(kNumInputs,\ kNumOutputs),}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ input\_mean\_squared\_(0.0f)\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{comment}{//\ Use\ maskLoad\ to\ selectively\ load\ attack/release\ for\ voice\ 1\ or\ voice\ 2}}
+\DoxyCodeLine{00067\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_a8cf0d676bae2b6e70c48be568dfe9922}{base\_attack\_ms\_}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(base\_attack\_ms\_second),}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ base\_attack\_ms\_first,}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}});}
+\DoxyCodeLine{00070\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ second\_release\ =\ base\_release\_ms\_second;}
+\DoxyCodeLine{00071\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_a188b793f455bb4f3e3c4d4b527f9a966}{base\_release\_ms\_}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(second\_release,}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ base\_release\_ms\_first,}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}});}
+\DoxyCodeLine{00074\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_ae13133a73db688004d861006142f51eb}{output\_mult\_}}\ =\ 0.0f;}
+\DoxyCodeLine{00075\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_ab234ef7ab570d13112c45f74b45153f8}{mix\_}}\ =\ 0.0f;}
+\DoxyCodeLine{00076\ \ \ \}}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00083\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_compressor_adcb70e28ab31dc6c4f7247190b834af7}{Compressor::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00084\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_aa08b6d30d6b8df9d01bf650f4c33111f}{processWithInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba77b8a7ad27817896baea10d84d62f2e4}{kAudio}})-\/>source-\/>buffer,\ num\_samples);}
+\DoxyCodeLine{00085\ \ \ \}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00095\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_compressor_aa08b6d30d6b8df9d01bf650f4c33111f}{Compressor::processWithInput}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_a4faeca92558ba8f46054c545b1c5c37e}{processRms}}(audio\_in,\ num\_samples);}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{comment}{//\ Update\ RMS\ for\ input/output\ signals}}
+\DoxyCodeLine{00099\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_a1b02cbaad1bf88126db70f1521b773f7}{input\_mean\_squared\_}}\ =\ \mbox{\hyperlink{classvital_1_1_compressor_a5a21c3c32114d65d5aeb5ca8270477e8}{computeMeanSquared}}(audio\_in,\ num\_samples,\ \mbox{\hyperlink{classvital_1_1_compressor_a1b02cbaad1bf88126db70f1521b773f7}{input\_mean\_squared\_}});}
+\DoxyCodeLine{00100\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_a6874e43b3af2dfccaa5e29f1c20b1118}{output\_mean\_squared\_}}\ =\ \mbox{\hyperlink{classvital_1_1_compressor_a5a21c3c32114d65d5aeb5ca8270477e8}{computeMeanSquared}}(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_compressor_a351ffe2db9f745589aa34e2e7e81965fa72170f3baecc3363eb4b0cb4e446ce52}{kAudioOut}})-\/>buffer,\ num\_samples,\ \mbox{\hyperlink{classvital_1_1_compressor_a6874e43b3af2dfccaa5e29f1c20b1118}{output\_mean\_squared\_}});}
+\DoxyCodeLine{00101\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_a4fd5d15eeb3bdd49c7dac0a0deb259c6}{scaleOutput}}(audio\_in,\ num\_samples);}
+\DoxyCodeLine{00102\ \ \ \}}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00110\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_compressor_a4faeca92558ba8f46054c545b1c5c37e}{Compressor::processRms}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00111\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_out\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_compressor_a351ffe2db9f745589aa34e2e7e81965fa72170f3baecc3363eb4b0cb4e446ce52}{kAudioOut}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{comment}{//\ Convert\ ms\ to\ samples}}
+\DoxyCodeLine{00114\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ samples\_per\_ms\ =\ (1.0f\ *\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}())\ /\ \mbox{\hyperlink{namespacevital_a0889bacaa0e807ff26be7414cc96991e}{kMsPerSec}};}
+\DoxyCodeLine{00115\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ attack\_mult\ =\ \mbox{\hyperlink{classvital_1_1_compressor_a8cf0d676bae2b6e70c48be568dfe9922}{base\_attack\_ms\_}}\ *\ samples\_per\_ms;}
+\DoxyCodeLine{00116\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ release\_mult\ =\ \mbox{\hyperlink{classvital_1_1_compressor_a188b793f455bb4f3e3c4d4b527f9a966}{base\_release\_ms\_}}\ *\ samples\_per\_ms;}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{comment}{//\ Convert\ 0..1\ from\ GUI\ to\ an\ exponential\ in\ the\ range\ [-\/4,\ 4],\ then\ map\ to\ sample-\/based\ envelope}}
+\DoxyCodeLine{00119\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ attack\_exponent\ \ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5bac2a310693bf7fcf08a6ef0c832f9885d}{kAttack}})-\/>at(0),\ 0.0f,\ 1.0f)\ *\ 8.0f\ -\/\ 4.0f;}
+\DoxyCodeLine{00120\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ release\_exponent\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba993745a097b9eb75d9b3c73e5b77c4f7}{kRelease}})-\/>at(0),\ 0.0f,\ 1.0f)\ *\ 8.0f\ -\/\ 4.0f;}
+\DoxyCodeLine{00121\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ envelope\_attack\_samples\ \ =\ \mbox{\hyperlink{namespacevital_1_1futils_ad0ad3cd83f0a4d5a41505d7f1df8adbf}{futils::exp}}(attack\_exponent)\ *\ attack\_mult;}
+\DoxyCodeLine{00122\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ envelope\_release\_samples\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ad0ad3cd83f0a4d5a41505d7f1df8adbf}{futils::exp}}(release\_exponent)\ *\ release\_mult;}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ \ \ \textcolor{comment}{//\ Ensure\ a\ minimum\ envelope\ length}}
+\DoxyCodeLine{00125\ \ \ \ \ envelope\_attack\_samples\ \ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(envelope\_attack\_samples,\ kMinSampleEnvelope);}
+\DoxyCodeLine{00126\ \ \ \ \ envelope\_release\_samples\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(envelope\_release\_samples,\ kMinSampleEnvelope);}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{comment}{//\ Compute\ scales\ for\ attack/release}}
+\DoxyCodeLine{00129\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ attack\_scale\ \ =\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ /\ (envelope\_attack\_samples\ +\ 1.0f);}
+\DoxyCodeLine{00130\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ release\_scale\ =\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ /\ (envelope\_release\_samples\ +\ 1.0f);}
+\DoxyCodeLine{00131\ }
+\DoxyCodeLine{00132\ \ \ \ \ \textcolor{comment}{//\ Load\ and\ convert\ thresholds\ from\ dB\ to\ linear\ magnitude\ squared}}
+\DoxyCodeLine{00133\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ upper\_threshold\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba790a2b2be0cf991bf0d74c349e22b9c0}{kUpperThreshold}})-\/>at(0),\ kMinThreshold,\ kMaxThreshold);}
+\DoxyCodeLine{00134\ \ \ \ \ upper\_threshold\ =\ \mbox{\hyperlink{namespacevital_1_1futils_aeb7b7646b5c704ad5c1e23d4cb1a75f4}{futils::dbToMagnitude}}(upper\_threshold);}
+\DoxyCodeLine{00135\ \ \ \ \ upper\_threshold\ *=\ upper\_threshold;}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ lower\_threshold\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba7bb69ac0fd8181d0d7120a716a9b5d21}{kLowerThreshold}})-\/>at(0),\ kMinThreshold,\ kMaxThreshold);}
+\DoxyCodeLine{00138\ \ \ \ \ lower\_threshold\ =\ \mbox{\hyperlink{namespacevital_1_1futils_aeb7b7646b5c704ad5c1e23d4cb1a75f4}{futils::dbToMagnitude}}(lower\_threshold);}
+\DoxyCodeLine{00139\ \ \ \ \ lower\_threshold\ *=\ lower\_threshold;}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{comment}{//\ Load\ compression/expansion\ ratios}}
+\DoxyCodeLine{00142\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ upper\_ratio\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba5e459570fdb24a428056cdfeb6b0b2ae}{kUpperRatio}})-\/>at(0),\ 0.0f,\ 1.0f)\ *\ 0.5f;}
+\DoxyCodeLine{00143\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ lower\_ratio\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5bae7cb7265e6dfba1db099c45f3941992f}{kLowerRatio}})-\/>at(0),\ -\/1.0f,\ 1.0f)\ *\ 0.5f;}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_enveloped\_mean\_squared\ =\ \mbox{\hyperlink{classvital_1_1_compressor_a6ae8ac4b688338ee3361868d5e5dd56e}{low\_enveloped\_mean\_squared\_}};}
+\DoxyCodeLine{00146\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_enveloped\_mean\_squared\ =\ \mbox{\hyperlink{classvital_1_1_compressor_a40250c2ca0acdd1b79b65a3b06460c10}{high\_enveloped\_mean\_squared\_}};}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ sample\ =\ audio\_in[i];}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ sample\_squared\ =\ sample\ *\ sample;}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ high\ band\ envelope}}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ high\_attack\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_afe451ece04ecb9be82648c49c4e27e7b}{poly\_float::greaterThan}}(sample\_squared,\ high\_enveloped\_mean\_squared);}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_samples\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(envelope\_release\_samples,\ envelope\_attack\_samples,\ high\_attack\_mask);}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_scale\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(release\_scale,\ attack\_scale,\ high\_attack\_mask);}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ high\_enveloped\_mean\_squared\ =\ (sample\_squared\ +\ high\_enveloped\_mean\_squared\ *\ high\_samples)\ *\ high\_scale;}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ high\_enveloped\_mean\_squared\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(high\_enveloped\_mean\_squared,\ upper\_threshold);}
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ compression\ above\ upper\ threshold}}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ upper\_mag\_delta\ =\ upper\_threshold\ /\ high\_enveloped\_mean\_squared;}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ upper\_mult\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ae7439e66951da54e8d732fd62619bc5b}{futils::pow}}(upper\_mag\_delta,\ upper\_ratio);}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ low\ band\ envelope}}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ low\_attack\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_afe451ece04ecb9be82648c49c4e27e7b}{poly\_float::greaterThan}}(sample\_squared,\ low\_enveloped\_mean\_squared);}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_samples\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(envelope\_release\_samples,\ envelope\_attack\_samples,\ low\_attack\_mask);}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_scale\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(release\_scale,\ attack\_scale,\ low\_attack\_mask);}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ low\_enveloped\_mean\_squared\ =\ (sample\_squared\ +\ low\_enveloped\_mean\_squared\ *\ low\_samples)\ *\ low\_scale;}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ low\_enveloped\_mean\_squared\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5b6ee09220fec012fc1597235e4c50e3}{utils::min}}(low\_enveloped\_mean\_squared,\ lower\_threshold);}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ expansion\ below\ lower\ threshold}}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ lower\_mag\_delta\ =\ lower\_threshold\ /\ low\_enveloped\_mean\_squared;}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ lower\_mult\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ae7439e66951da54e8d732fd62619bc5b}{futils::pow}}(lower\_mag\_delta,\ lower\_ratio);}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \textcolor{comment}{//\ Combine\ gain\ multipliers\ and\ clamp}}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ gain\_compression\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(upper\_mult\ *\ lower\_mult,\ 0.0f,\ kMaxExpandMult);}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ audio\_out[i]\ =\ gain\_compression\ *\ sample;}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{namespacevital_1_1utils_a80ba548455cae89a92de477250c013c5}{utils::isContained}}(audio\_out[i]));}
+\DoxyCodeLine{00179\ \ \ \ \ \}}
+\DoxyCodeLine{00180\ }
+\DoxyCodeLine{00181\ \ \ \ \ \textcolor{comment}{//\ Save\ updated\ envelopes}}
+\DoxyCodeLine{00182\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_a6ae8ac4b688338ee3361868d5e5dd56e}{low\_enveloped\_mean\_squared\_}}\ =\ low\_enveloped\_mean\_squared;}
+\DoxyCodeLine{00183\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_a40250c2ca0acdd1b79b65a3b06460c10}{high\_enveloped\_mean\_squared\_}}\ =\ high\_enveloped\_mean\_squared;}
+\DoxyCodeLine{00184\ \ \ \}}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00192\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_compressor_a4fd5d15eeb3bdd49c7dac0a0deb259c6}{Compressor::scaleOutput}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_input,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00193\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_out\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_compressor_a351ffe2db9f745589aa34e2e7e81965fa72170f3baecc3363eb4b0cb4e446ce52}{kAudioOut}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00195\ \ \ \ \ \textcolor{comment}{//\ Interpolate\ output\ gain\ changes}}
+\DoxyCodeLine{00196\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_output\_mult\ =\ \mbox{\hyperlink{classvital_1_1_compressor_ae13133a73db688004d861006142f51eb}{output\_mult\_}};}
+\DoxyCodeLine{00197\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{formant__filter_8cpp_a17ef5650d770eecdb2b915f7b7854f03}{gain}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5bac77c2f3768306df4a83e6c00ea180839}{kOutputGain}})-\/>at(0),\ kMinGain,\ kMaxGain);}
+\DoxyCodeLine{00198\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_ae13133a73db688004d861006142f51eb}{output\_mult\_}}\ =\ \mbox{\hyperlink{namespacevital_1_1futils_aeb7b7646b5c704ad5c1e23d4cb1a75f4}{futils::dbToMagnitude}}(\mbox{\hyperlink{formant__filter_8cpp_a17ef5650d770eecdb2b915f7b7854f03}{gain}});}
+\DoxyCodeLine{00199\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_output\_mult\ =\ (\mbox{\hyperlink{classvital_1_1_compressor_ae13133a73db688004d861006142f51eb}{output\_mult\_}}\ -\/\ current\_output\_mult)\ *\ (1.0f\ /\ num\_samples);}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \ \ \textcolor{comment}{//\ Interpolate\ mix\ changes}}
+\DoxyCodeLine{00202\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_mix\ =\ \mbox{\hyperlink{classvital_1_1_compressor_ab234ef7ab570d13112c45f74b45153f8}{mix\_}};}
+\DoxyCodeLine{00203\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_ab234ef7ab570d13112c45f74b45153f8}{mix\_}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba4b4b852bf8c3003e02c67b1fa28d70ad}{kMix}})-\/>at(0),\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00204\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_mix\ =\ (\mbox{\hyperlink{classvital_1_1_compressor_ab234ef7ab570d13112c45f74b45153f8}{mix\_}}\ -\/\ current\_mix)\ *\ (1.0f\ /\ num\_samples);}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00206\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ current\_output\_mult\ +=\ delta\_output\_mult;}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ current\_mix\ +=\ delta\_mix;}
+\DoxyCodeLine{00209\ }
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \textcolor{comment}{//\ Blend\ dry\ (audio\_input)\ and\ wet\ (compressed\ audio\_out\ *\ current\_output\_mult)}}
+\DoxyCodeLine{00211\ \ \ \ \ \ \ audio\_out[i]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(audio\_input[i],\ audio\_out[i]\ *\ current\_output\_mult,\ current\_mix);}
+\DoxyCodeLine{00212\ }
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{namespacevital_1_1utils_a80ba548455cae89a92de477250c013c5}{utils::isContained}}(audio\_out[i]));}
+\DoxyCodeLine{00214\ \ \ \ \ \}}
+\DoxyCodeLine{00215\ \ \ \}}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00222\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_compressor_a8f91180074c6ea0813558a031843d080}{Compressor::reset}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask)\ \{}
+\DoxyCodeLine{00223\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_a1b02cbaad1bf88126db70f1521b773f7}{input\_mean\_squared\_}}\ =\ 0.0f;}
+\DoxyCodeLine{00224\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_a6874e43b3af2dfccaa5e29f1c20b1118}{output\_mean\_squared\_}}\ =\ 0.0f;}
+\DoxyCodeLine{00225\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_ae13133a73db688004d861006142f51eb}{output\_mult\_}}\ =\ 0.0f;}
+\DoxyCodeLine{00226\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_ab234ef7ab570d13112c45f74b45153f8}{mix\_}}\ =\ 0.0f;}
+\DoxyCodeLine{00227\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_a40250c2ca0acdd1b79b65a3b06460c10}{high\_enveloped\_mean\_squared\_}}\ =\ 0.0f;}
+\DoxyCodeLine{00228\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_compressor_a6ae8ac4b688338ee3361868d5e5dd56e}{low\_enveloped\_mean\_squared\_}}\ =\ 0.0f;}
+\DoxyCodeLine{00229\ \ \ \}}
+\DoxyCodeLine{00230\ }
+\DoxyCodeLine{00239\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{classvital_1_1_compressor_a5a21c3c32114d65d5aeb5ca8270477e8}{Compressor::computeMeanSquared}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in,}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_samples,}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ mean\_squared)\ \{}
+\DoxyCodeLine{00242\ \ \ \ \ \textcolor{keywordtype}{int}\ rms\_samples\ =\ kRmsTime\ *\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}();}
+\DoxyCodeLine{00243\ \ \ \ \ \textcolor{keywordtype}{float}\ rms\_adjusted\ =\ rms\_samples\ -\/\ 1.0f;}
+\DoxyCodeLine{00244\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ input\_scale\ =\ 1.0f\ /\ rms\_samples;}
+\DoxyCodeLine{00245\ }
+\DoxyCodeLine{00246\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ sample\ =\ audio\_in[i];}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ sample\_squared\ =\ sample\ *\ sample;}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ mean\_squared\ =\ (mean\_squared\ *\ rms\_adjusted\ +\ sample\_squared)\ *\ input\_scale;}
+\DoxyCodeLine{00250\ \ \ \ \ \}}
+\DoxyCodeLine{00251\ \ \ \ \ \textcolor{keywordflow}{return}\ mean\_squared;}
+\DoxyCodeLine{00252\ \ \ \}}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \ \ \textcolor{comment}{//============================================================================}}
+\DoxyCodeLine{00255\ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00256\ \ \ \textcolor{comment}{//\ MultibandCompressor}}
+\DoxyCodeLine{00257\ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00258\ \ \ \textcolor{comment}{//============================================================================}}
+\DoxyCodeLine{00259\ }
+\DoxyCodeLine{00264\ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a2f2e350fda38daeeae4870b0c1a6eec6}{MultibandCompressor::MultibandCompressor}}()}
+\DoxyCodeLine{00265\ \ \ \ \ :\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}(kNumInputs,\ kNumOutputs),}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ low\_band\_filter\_(120.0f),}
+\DoxyCodeLine{00267\ \ \ \ \ \ \ band\_high\_filter\_(2500.0f),}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ low\_band\_compressor\_(kLowAttackMs,\ kLowReleaseMs,\ kBandAttackMs,\ kBandReleaseMs),}
+\DoxyCodeLine{00269\ \ \ \ \ \ \ band\_high\_compressor\_(kBandAttackMs,\ kBandReleaseMs,\ kHighAttackMs,\ kHighReleaseMs)\ \{}
+\DoxyCodeLine{00270\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a94e0464403c0631061bd935a26217b22}{was\_low\_enabled\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00271\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a4cce689aaf10d72768f5c47e60431d4c}{was\_high\_enabled\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00272\ }
+\DoxyCodeLine{00273\ \ \ \ \ \textcolor{comment}{//\ Connect\ band\ thresholds/ratios\ to\ the\ low\ band\ compressor}}
+\DoxyCodeLine{00274\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&\mbox{\hyperlink{classvital_1_1_multiband_compressor_a24f62d5ecec72449a8cb2cdd748c152d}{low\_band\_upper\_threshold\_}},\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba790a2b2be0cf991bf0d74c349e22b9c0}{Compressor::kUpperThreshold}});}
+\DoxyCodeLine{00275\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&\mbox{\hyperlink{classvital_1_1_multiband_compressor_adb74a2ab8b4b0920f6c81b09ad7dedac}{low\_band\_lower\_threshold\_}},\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba7bb69ac0fd8181d0d7120a716a9b5d21}{Compressor::kLowerThreshold}});}
+\DoxyCodeLine{00276\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&\mbox{\hyperlink{classvital_1_1_multiband_compressor_a855295aede56869a5ebb64545e31e2e3}{low\_band\_upper\_ratio\_}},\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba5e459570fdb24a428056cdfeb6b0b2ae}{Compressor::kUpperRatio}});}
+\DoxyCodeLine{00277\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&\mbox{\hyperlink{classvital_1_1_multiband_compressor_ac02f6e0cf5d55d7c424daeb84b66e402}{low\_band\_lower\_ratio\_}},\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5bae7cb7265e6dfba1db099c45f3941992f}{Compressor::kLowerRatio}});}
+\DoxyCodeLine{00278\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&\mbox{\hyperlink{classvital_1_1_multiband_compressor_ae28f11648d516f6005cb90c5a198a503}{low\_band\_output\_gain\_}},\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5bac77c2f3768306df4a83e6c00ea180839}{Compressor::kOutputGain}});}
+\DoxyCodeLine{00279\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a76e15ead843b1c3b73e0af6e82779c7d}{kAttack}}),\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5bac2a310693bf7fcf08a6ef0c832f9885d}{Compressor::kAttack}});}
+\DoxyCodeLine{00280\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a98be9968bc10b5c5086a2c30a9aef5a1}{kRelease}}),\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba993745a097b9eb75d9b3c73e5b77c4f7}{Compressor::kRelease}});}
+\DoxyCodeLine{00281\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a9d8459cc4143ba4df31b801978563d4d}{kMix}}),\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba4b4b852bf8c3003e02c67b1fa28d70ad}{Compressor::kMix}});}
+\DoxyCodeLine{00282\ }
+\DoxyCodeLine{00283\ \ \ \ \ \textcolor{comment}{//\ Connect\ band\ thresholds/ratios\ to\ the\ band+high\ compressor}}
+\DoxyCodeLine{00284\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&\mbox{\hyperlink{classvital_1_1_multiband_compressor_a70db166d005947f33bab971a9a8616a3}{band\_high\_upper\_threshold\_}},\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba790a2b2be0cf991bf0d74c349e22b9c0}{Compressor::kUpperThreshold}});}
+\DoxyCodeLine{00285\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&\mbox{\hyperlink{classvital_1_1_multiband_compressor_af518d6ee41b0285a6b74d641f70f1b25}{band\_high\_lower\_threshold\_}},\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba7bb69ac0fd8181d0d7120a716a9b5d21}{Compressor::kLowerThreshold}});}
+\DoxyCodeLine{00286\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&\mbox{\hyperlink{classvital_1_1_multiband_compressor_a634a72bd149f5761398def0017ecccdc}{band\_high\_upper\_ratio\_}},\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba5e459570fdb24a428056cdfeb6b0b2ae}{Compressor::kUpperRatio}});}
+\DoxyCodeLine{00287\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&\mbox{\hyperlink{classvital_1_1_multiband_compressor_a99995519dfc0c846bd1e8112cbbc18e8}{band\_high\_lower\_ratio\_}},\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5bae7cb7265e6dfba1db099c45f3941992f}{Compressor::kLowerRatio}});}
+\DoxyCodeLine{00288\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&\mbox{\hyperlink{classvital_1_1_multiband_compressor_aecfe26be437d59889219e8f49229b61b}{band\_high\_output\_gain\_}},\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5bac77c2f3768306df4a83e6c00ea180839}{Compressor::kOutputGain}});}
+\DoxyCodeLine{00289\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a76e15ead843b1c3b73e0af6e82779c7d}{kAttack}}),\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5bac2a310693bf7fcf08a6ef0c832f9885d}{Compressor::kAttack}});}
+\DoxyCodeLine{00290\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a98be9968bc10b5c5086a2c30a9aef5a1}{kRelease}}),\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba993745a097b9eb75d9b3c73e5b77c4f7}{Compressor::kRelease}});}
+\DoxyCodeLine{00291\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a9d8459cc4143ba4df31b801978563d4d}{kMix}}),\ \mbox{\hyperlink{classvital_1_1_compressor_abe3662f5195f756d91649fc174fe7b5ba4b4b852bf8c3003e02c67b1fa28d70ad}{Compressor::kMix}});}
+\DoxyCodeLine{00292\ \ \ \}}
+\DoxyCodeLine{00293\ }
+\DoxyCodeLine{00299\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a35f8f6c1d5fc3da28bf3a6b4771c5042}{MultibandCompressor::setOversampleAmount}}(\textcolor{keywordtype}{int}\ oversample)\ \{}
+\DoxyCodeLine{00300\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a2684da3687deca092882748cf170eac7}{Processor::setOversampleAmount}}(oversample);}
+\DoxyCodeLine{00301\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a8f7370b8f6680e4e6ea4dc1739c51faf}{low\_band\_filter\_}}.\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_a4b33ca0550488443b501cdc53454a388}{setOversampleAmount}}(oversample);}
+\DoxyCodeLine{00302\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a0abcb2a0046d90cc40270291e18d13b3}{band\_high\_filter\_}}.\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_a4b33ca0550488443b501cdc53454a388}{setOversampleAmount}}(oversample);}
+\DoxyCodeLine{00303\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a2684da3687deca092882748cf170eac7}{setOversampleAmount}}(oversample);}
+\DoxyCodeLine{00304\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_a2684da3687deca092882748cf170eac7}{setOversampleAmount}}(oversample);}
+\DoxyCodeLine{00305\ \ \ \}}
+\DoxyCodeLine{00306\ }
+\DoxyCodeLine{00312\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a49fa704707e994113a424018002a30a2}{MultibandCompressor::setSampleRate}}(\textcolor{keywordtype}{int}\ sample\_rate)\ \{}
+\DoxyCodeLine{00313\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ac778f37e9b9e3c1c05fca568e8f8664c}{Processor::setSampleRate}}(sample\_rate);}
+\DoxyCodeLine{00314\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a8f7370b8f6680e4e6ea4dc1739c51faf}{low\_band\_filter\_}}.\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_acc938aac33781871042da50cc1d158ac}{setSampleRate}}(sample\_rate);}
+\DoxyCodeLine{00315\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a0abcb2a0046d90cc40270291e18d13b3}{band\_high\_filter\_}}.\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_acc938aac33781871042da50cc1d158ac}{setSampleRate}}(sample\_rate);}
+\DoxyCodeLine{00316\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_ac778f37e9b9e3c1c05fca568e8f8664c}{setSampleRate}}(sample\_rate);}
+\DoxyCodeLine{00317\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_ac778f37e9b9e3c1c05fca568e8f8664c}{setSampleRate}}(sample\_rate);}
+\DoxyCodeLine{00318\ \ \ \}}
+\DoxyCodeLine{00319\ }
+\DoxyCodeLine{00325\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_ac91f69d01c13807572634e3569130ba6}{MultibandCompressor::reset}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask)\ \{}
+\DoxyCodeLine{00326\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a8f7370b8f6680e4e6ea4dc1739c51faf}{low\_band\_filter\_}}.\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_a608ff5a4f1a68c8796e42e66c0f227b9}{reset}}(reset\_mask);}
+\DoxyCodeLine{00327\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a0abcb2a0046d90cc40270291e18d13b3}{band\_high\_filter\_}}.\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_a608ff5a4f1a68c8796e42e66c0f227b9}{reset}}(reset\_mask);}
+\DoxyCodeLine{00328\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_compressor_a8f91180074c6ea0813558a031843d080}{reset}}(reset\_mask);}
+\DoxyCodeLine{00329\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_compressor_a8f91180074c6ea0813558a031843d080}{reset}}(reset\_mask);}
+\DoxyCodeLine{00330\ }
+\DoxyCodeLine{00331\ \ \ \ \ \textcolor{comment}{//\ Reset\ output\ buffers\ for\ RMS\ displays}}
+\DoxyCodeLine{00332\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a1f569818640ff85531606832f7e647c9a920d046f999a26d6c84fab17af459749}{kLowInputMeanSquared}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ 0.0f;}
+\DoxyCodeLine{00333\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a1f569818640ff85531606832f7e647c9a657e5d0694e0a3bea0bc2ad158b56e83}{kLowOutputMeanSquared}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ 0.0f;}
+\DoxyCodeLine{00334\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a1f569818640ff85531606832f7e647c9aa1d6d12a3e5fb8ed415a0993f7c26e48}{kBandInputMeanSquared}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ 0.0f;}
+\DoxyCodeLine{00335\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a1f569818640ff85531606832f7e647c9a905d8622914791bae025917673b6b83e}{kBandOutputMeanSquared}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ 0.0f;}
+\DoxyCodeLine{00336\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a1f569818640ff85531606832f7e647c9acc874dacd57c2e7275e2528e8fcf21bb}{kHighInputMeanSquared}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ 0.0f;}
+\DoxyCodeLine{00337\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a1f569818640ff85531606832f7e647c9a3d3d5ccbb51bc94ef7997472bf35b428}{kHighOutputMeanSquared}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ 0.0f;}
+\DoxyCodeLine{00338\ \ \ \}}
+\DoxyCodeLine{00339\ }
+\DoxyCodeLine{00345\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a939ce67ed2fc73d53deb924637fa062d}{MultibandCompressor::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00346\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a73f474525b7cf4a8a02d0f68eff40254}{processWithInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63abd42cdbff75a0cb905d896f2fb7debde}{kAudio}})-\/>source-\/>buffer,\ num\_samples);}
+\DoxyCodeLine{00347\ \ \ \}}
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00358\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_ac2d2fadb7a0f02161329ce8428feed42}{MultibandCompressor::packFilterOutput}}(\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter}{LinkwitzRileyFilter}}*\ filter,\ \textcolor{keywordtype}{int}\ num\_samples,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ dest)\ \{}
+\DoxyCodeLine{00359\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ low\_output\ =\ filter-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_acf880f05c6147a79271165c7ed031e0ba15152943e1f9bd2009207b692b01bcf1}{LinkwitzRileyFilter::kAudioLow}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00360\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ high\_output\ =\ filter-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_acf880f05c6147a79271165c7ed031e0ba950a5d303e3a579b697bf6f0161614bc}{LinkwitzRileyFilter::kAudioHigh}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00361\ }
+\DoxyCodeLine{00362\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00363\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_sample\ =\ low\_output[i];}
+\DoxyCodeLine{00364\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_sample\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(high\_output[i]);}
+\DoxyCodeLine{00365\ \ \ \ \ \ \ dest[i]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(high\_sample,\ low\_sample,\ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}});}
+\DoxyCodeLine{00366\ \ \ \ \ \}}
+\DoxyCodeLine{00367\ \ \ \}}
+\DoxyCodeLine{00368\ }
+\DoxyCodeLine{00375\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a6c7dd630739cf384954b6d5283027ab9}{MultibandCompressor::packLowBandCompressor}}(\textcolor{keywordtype}{int}\ num\_samples,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ dest)\ \{}
+\DoxyCodeLine{00376\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ low\_output\ =\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a0abcb2a0046d90cc40270291e18d13b3}{band\_high\_filter\_}}.\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_acf880f05c6147a79271165c7ed031e0ba15152943e1f9bd2009207b692b01bcf1}{LinkwitzRileyFilter::kAudioLow}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00377\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ high\_output\ =\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a0abcb2a0046d90cc40270291e18d13b3}{band\_high\_filter\_}}.\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_acf880f05c6147a79271165c7ed031e0ba950a5d303e3a579b697bf6f0161614bc}{LinkwitzRileyFilter::kAudioHigh}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00378\ }
+\DoxyCodeLine{00379\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_band\_sample\ =\ low\_output[i];}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_high\_sample\ =\ high\_output[i]\ \&\ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}};}
+\DoxyCodeLine{00382\ \ \ \ \ \ \ dest[i]\ =\ low\_band\_sample\ +\ low\_high\_sample;}
+\DoxyCodeLine{00383\ \ \ \ \ \}}
+\DoxyCodeLine{00384\ \ \ \}}
+\DoxyCodeLine{00385\ }
+\DoxyCodeLine{00394\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a938288951a1a21f633b7539ee7a634b8}{MultibandCompressor::writeAllCompressorOutputs}}(\textcolor{keywordtype}{int}\ num\_samples,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ dest)\ \{}
+\DoxyCodeLine{00395\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ low\_band\_output\ =\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_compressor_a351ffe2db9f745589aa34e2e7e81965fa72170f3baecc3363eb4b0cb4e446ce52}{Compressor::kAudioOut}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00396\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ high\_output\ =\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_compressor_a351ffe2db9f745589aa34e2e7e81965fa72170f3baecc3363eb4b0cb4e446ce52}{Compressor::kAudioOut}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00397\ }
+\DoxyCodeLine{00398\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00399\ \ \ \ \ \ \ \textcolor{comment}{//\ Sum\ left/right\ voices\ for\ low\ band\ and\ high\ band\ separately}}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_band\_sample\ =\ low\_band\_output[i];}
+\DoxyCodeLine{00401\ \ \ \ \ \ \ low\_band\_sample\ +=\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(low\_band\_sample);}
+\DoxyCodeLine{00402\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_sample\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(high\_output[i]);}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ dest[i]\ =\ low\_band\_sample\ +\ high\_sample;}
+\DoxyCodeLine{00404\ \ \ \ \ \}}
+\DoxyCodeLine{00405\ \ \ \}}
+\DoxyCodeLine{00406\ }
+\DoxyCodeLine{00415\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a8f2dc1da079ee7055edfd91e694ea677}{MultibandCompressor::writeCompressorOutputs}}(\mbox{\hyperlink{classvital_1_1_compressor}{Compressor}}*\ compressor,\ \textcolor{keywordtype}{int}\ num\_samples,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ dest)\ \{}
+\DoxyCodeLine{00416\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ compressor\_output\ =\ compressor-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_compressor_a351ffe2db9f745589aa34e2e7e81965fa72170f3baecc3363eb4b0cb4e446ce52}{Compressor::kAudioOut}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00417\ }
+\DoxyCodeLine{00418\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00419\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ sample\ =\ compressor\_output[i];}
+\DoxyCodeLine{00420\ \ \ \ \ \ \ dest[i]\ =\ sample\ +\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(sample);}
+\DoxyCodeLine{00421\ \ \ \ \ \}}
+\DoxyCodeLine{00422\ \ \ \}}
+\DoxyCodeLine{00423\ }
+\DoxyCodeLine{00433\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a73f474525b7cf4a8a02d0f68eff40254}{MultibandCompressor::processWithInput}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00434\ \ \ \ \ \textcolor{keywordtype}{int}\ enabled\_bands\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a3d7868725a7d2e49cbb4f17c4435abe7}{kEnabledBands}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0)[0];}
+\DoxyCodeLine{00435\ \ \ \ \ \textcolor{keywordtype}{bool}\ low\_enabled\ =\ (enabled\_bands\ ==\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_af96095570341cf5a6feee506e6e50bdaa9b25ed09ae5651d28ea5c3440da25d6a}{kMultiband}}\ ||\ enabled\_bands\ ==\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_af96095570341cf5a6feee506e6e50bdaa40722039a451be32b3478ef368ebf57a}{kLowBand}});}
+\DoxyCodeLine{00436\ \ \ \ \ \textcolor{keywordtype}{bool}\ high\_enabled\ =\ (enabled\_bands\ ==\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_af96095570341cf5a6feee506e6e50bdaa9b25ed09ae5651d28ea5c3440da25d6a}{kMultiband}}\ ||\ enabled\_bands\ ==\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_af96095570341cf5a6feee506e6e50bdaa18ea48657b6c6729a276c9632c849d51}{kHighBand}});}
+\DoxyCodeLine{00437\ }
+\DoxyCodeLine{00438\ \ \ \ \ \textcolor{comment}{//\ Retrieve\ thresholds\ and\ ratios\ from\ the\ user\ inputs,\ applying\ them\ to\ low\ or\ band+high\ as\ needed}}
+\DoxyCodeLine{00439\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a24f62d5ecec72449a8cb2cdd748c152d}{low\_band\_upper\_threshold\_}}.\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63abbeedbe4ef06e7ec3a1a7489881ed3be}{kBandUpperThreshold}})-\/>at(0),}
+\DoxyCodeLine{00440\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a46dc269592b27b88c3394e19731b2fe5}{kLowUpperThreshold}})-\/>at(0),}
+\DoxyCodeLine{00441\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}});}
+\DoxyCodeLine{00442\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a70db166d005947f33bab971a9a8616a3}{band\_high\_upper\_threshold\_}}.\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a2744e6d0b16e6ddda63fcaee837388dd}{kHighUpperThreshold}})-\/>at(0),}
+\DoxyCodeLine{00443\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63abbeedbe4ef06e7ec3a1a7489881ed3be}{kBandUpperThreshold}})-\/>at(0),}
+\DoxyCodeLine{00444\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}});}
+\DoxyCodeLine{00445\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_adb74a2ab8b4b0920f6c81b09ad7dedac}{low\_band\_lower\_threshold\_}}.\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a6acbfc38a433ea5039b15ff10e003e19}{kBandLowerThreshold}})-\/>at(0),}
+\DoxyCodeLine{00446\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a2e94f1088c73d66d3cd5312dc8d13d69}{kLowLowerThreshold}})-\/>at(0),}
+\DoxyCodeLine{00447\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}});}
+\DoxyCodeLine{00448\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_af518d6ee41b0285a6b74d641f70f1b25}{band\_high\_lower\_threshold\_}}.\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a48333d1fb3b0a7d6d9260519ae941a9e}{kHighLowerThreshold}})-\/>at(0),}
+\DoxyCodeLine{00449\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a6acbfc38a433ea5039b15ff10e003e19}{kBandLowerThreshold}})-\/>at(0),}
+\DoxyCodeLine{00450\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}});}
+\DoxyCodeLine{00451\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a855295aede56869a5ebb64545e31e2e3}{low\_band\_upper\_ratio\_}}.\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a5b0ccae5c2dd481d4f4713d0222f300f}{kBandUpperRatio}})-\/>at(0),}
+\DoxyCodeLine{00452\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63acdec5fe12b6a22b5ed3293e11606cf79}{kLowUpperRatio}})-\/>at(0),}
+\DoxyCodeLine{00453\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}});}
+\DoxyCodeLine{00454\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a634a72bd149f5761398def0017ecccdc}{band\_high\_upper\_ratio\_}}.\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a3e33f17e65c663ce88d65f5e24eee38d}{kHighUpperRatio}})-\/>at(0),}
+\DoxyCodeLine{00455\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a5b0ccae5c2dd481d4f4713d0222f300f}{kBandUpperRatio}})-\/>at(0),}
+\DoxyCodeLine{00456\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}});}
+\DoxyCodeLine{00457\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_ac02f6e0cf5d55d7c424daeb84b66e402}{low\_band\_lower\_ratio\_}}.\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63af6293cc8a9939625ca9b9c1a6a9c3703}{kBandLowerRatio}})-\/>at(0),}
+\DoxyCodeLine{00458\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a77bfd44b2d16ca1fb228a9f58721adb8}{kLowLowerRatio}})-\/>at(0),}
+\DoxyCodeLine{00459\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}});}
+\DoxyCodeLine{00460\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a99995519dfc0c846bd1e8112cbbc18e8}{band\_high\_lower\_ratio\_}}.\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63acf4b2dca740baad94e6743b68ec657c5}{kHighLowerRatio}})-\/>at(0),}
+\DoxyCodeLine{00461\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63af6293cc8a9939625ca9b9c1a6a9c3703}{kBandLowerRatio}})-\/>at(0),}
+\DoxyCodeLine{00462\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}});}
+\DoxyCodeLine{00463\ }
+\DoxyCodeLine{00464\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_ae28f11648d516f6005cb90c5a198a503}{low\_band\_output\_gain\_}}.\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63abfc62fc42be5d015b7940523c665f539}{kBandOutputGain}})-\/>at(0),}
+\DoxyCodeLine{00465\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63af27f7134fd6576ec0694010740e62252}{kLowOutputGain}})-\/>at(0),}
+\DoxyCodeLine{00466\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}});}
+\DoxyCodeLine{00467\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_aecfe26be437d59889219e8f49229b61b}{band\_high\_output\_gain\_}}.\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63a5c2b7c9813da25779caa94b152bf7c73}{kHighOutputGain}})-\/>at(0),}
+\DoxyCodeLine{00468\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a2e1b6866d90d8eda87d7d32d6f08bc63abfc62fc42be5d015b7940523c665f539}{kBandOutputGain}})-\/>at(0),}
+\DoxyCodeLine{00469\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}});}
+\DoxyCodeLine{00470\ }
+\DoxyCodeLine{00471\ \ \ \ \ \textcolor{comment}{//\ Reset\ filters/compressors\ if\ enabled\ band\ configuration\ changed}}
+\DoxyCodeLine{00472\ \ \ \ \ \textcolor{keywordflow}{if}\ (low\_enabled\ !=\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a94e0464403c0631061bd935a26217b22}{was\_low\_enabled\_}}\ ||\ high\_enabled\ !=\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a4cce689aaf10d72768f5c47e60431d4c}{was\_high\_enabled\_}})\ \{}
+\DoxyCodeLine{00473\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a8f7370b8f6680e4e6ea4dc1739c51faf}{low\_band\_filter\_}}.\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_a608ff5a4f1a68c8796e42e66c0f227b9}{reset}}(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}});}
+\DoxyCodeLine{00474\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a0abcb2a0046d90cc40270291e18d13b3}{band\_high\_filter\_}}.\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_a608ff5a4f1a68c8796e42e66c0f227b9}{reset}}(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}});}
+\DoxyCodeLine{00475\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_compressor_a8f91180074c6ea0813558a031843d080}{reset}}(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}});}
+\DoxyCodeLine{00476\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_compressor_a8f91180074c6ea0813558a031843d080}{reset}}(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}});}
+\DoxyCodeLine{00477\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a94e0464403c0631061bd935a26217b22}{was\_low\_enabled\_}}\ =\ low\_enabled;}
+\DoxyCodeLine{00478\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a4cce689aaf10d72768f5c47e60431d4c}{was\_high\_enabled\_}}\ =\ high\_enabled;}
+\DoxyCodeLine{00479\ \ \ \ \ \}}
+\DoxyCodeLine{00480\ }
+\DoxyCodeLine{00481\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_out\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a1f569818640ff85531606832f7e647c9aa82f426eaa1261de997e3b3b05729f6c}{kAudioOut}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00482\ }
+\DoxyCodeLine{00483\ \ \ \ \ \textcolor{comment}{//\ Full\ multiband\ mode:\ low\ +\ band\ +\ high}}
+\DoxyCodeLine{00484\ \ \ \ \ \textcolor{keywordflow}{if}\ (low\_enabled\ \&\&\ high\_enabled)\ \{}
+\DoxyCodeLine{00485\ \ \ \ \ \ \ \textcolor{comment}{//\ Split\ signal\ into\ low\ and\ band+high}}
+\DoxyCodeLine{00486\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a8f7370b8f6680e4e6ea4dc1739c51faf}{low\_band\_filter\_}}.\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_a66a2230ac97af5b238e199ed4f07ae29}{processWithInput}}(audio\_in,\ num\_samples);}
+\DoxyCodeLine{00487\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_ac2d2fadb7a0f02161329ce8428feed42}{packFilterOutput}}(\&\mbox{\hyperlink{classvital_1_1_multiband_compressor_a8f7370b8f6680e4e6ea4dc1739c51faf}{low\_band\_filter\_}},\ num\_samples,\ audio\_out);}
+\DoxyCodeLine{00488\ }
+\DoxyCodeLine{00489\ \ \ \ \ \ \ \textcolor{comment}{//\ Split\ band+high\ further}}
+\DoxyCodeLine{00490\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a0abcb2a0046d90cc40270291e18d13b3}{band\_high\_filter\_}}.\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_a66a2230ac97af5b238e199ed4f07ae29}{processWithInput}}(audio\_out,\ num\_samples);}
+\DoxyCodeLine{00491\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a6c7dd630739cf384954b6d5283027ab9}{packLowBandCompressor}}(num\_samples,\ audio\_out);}
+\DoxyCodeLine{00492\ }
+\DoxyCodeLine{00493\ \ \ \ \ \ \ \textcolor{comment}{//\ Compress\ low\ band}}
+\DoxyCodeLine{00494\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_compressor_aa08b6d30d6b8df9d01bf650f4c33111f}{processWithInput}}(audio\_out,\ num\_samples);}
+\DoxyCodeLine{00495\ }
+\DoxyCodeLine{00496\ \ \ \ \ \ \ \textcolor{comment}{//\ Compress\ high\ band}}
+\DoxyCodeLine{00497\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ band\_high\_buffer\ =\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a0abcb2a0046d90cc40270291e18d13b3}{band\_high\_filter\_}}.\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_acf880f05c6147a79271165c7ed031e0ba950a5d303e3a579b697bf6f0161614bc}{LinkwitzRileyFilter::kAudioHigh}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00498\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_compressor_aa08b6d30d6b8df9d01bf650f4c33111f}{processWithInput}}(band\_high\_buffer,\ num\_samples);}
+\DoxyCodeLine{00499\ }
+\DoxyCodeLine{00500\ \ \ \ \ \ \ \textcolor{comment}{//\ Combine\ all}}
+\DoxyCodeLine{00501\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a938288951a1a21f633b7539ee7a634b8}{writeAllCompressorOutputs}}(num\_samples,\ audio\_out);}
+\DoxyCodeLine{00502\ \ \ \ \ \}}
+\DoxyCodeLine{00503\ \ \ \ \ \textcolor{comment}{//\ Only\ low\ band}}
+\DoxyCodeLine{00504\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (low\_enabled)\ \{}
+\DoxyCodeLine{00505\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a8f7370b8f6680e4e6ea4dc1739c51faf}{low\_band\_filter\_}}.\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_a66a2230ac97af5b238e199ed4f07ae29}{processWithInput}}(audio\_in,\ num\_samples);}
+\DoxyCodeLine{00506\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_ac2d2fadb7a0f02161329ce8428feed42}{packFilterOutput}}(\&\mbox{\hyperlink{classvital_1_1_multiband_compressor_a8f7370b8f6680e4e6ea4dc1739c51faf}{low\_band\_filter\_}},\ num\_samples,\ audio\_out);}
+\DoxyCodeLine{00507\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_compressor_aa08b6d30d6b8df9d01bf650f4c33111f}{processWithInput}}(audio\_out,\ num\_samples);}
+\DoxyCodeLine{00508\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a8f2dc1da079ee7055edfd91e694ea677}{writeCompressorOutputs}}(\&\mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}},\ num\_samples,\ audio\_out);}
+\DoxyCodeLine{00509\ \ \ \ \ \}}
+\DoxyCodeLine{00510\ \ \ \ \ \textcolor{comment}{//\ Only\ high\ band}}
+\DoxyCodeLine{00511\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (high\_enabled)\ \{}
+\DoxyCodeLine{00512\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a0abcb2a0046d90cc40270291e18d13b3}{band\_high\_filter\_}}.\mbox{\hyperlink{classvital_1_1_linkwitz_riley_filter_a66a2230ac97af5b238e199ed4f07ae29}{processWithInput}}(audio\_in,\ num\_samples);}
+\DoxyCodeLine{00513\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_ac2d2fadb7a0f02161329ce8428feed42}{packFilterOutput}}(\&\mbox{\hyperlink{classvital_1_1_multiband_compressor_a0abcb2a0046d90cc40270291e18d13b3}{band\_high\_filter\_}},\ num\_samples,\ audio\_out);}
+\DoxyCodeLine{00514\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_compressor_aa08b6d30d6b8df9d01bf650f4c33111f}{processWithInput}}(audio\_out,\ num\_samples);}
+\DoxyCodeLine{00515\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a8f2dc1da079ee7055edfd91e694ea677}{writeCompressorOutputs}}(\&\mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}},\ num\_samples,\ audio\_out);}
+\DoxyCodeLine{00516\ \ \ \ \ \}}
+\DoxyCodeLine{00517\ \ \ \ \ \textcolor{comment}{//\ Single\ band,\ no\ filter}}
+\DoxyCodeLine{00518\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00519\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_compressor_aa08b6d30d6b8df9d01bf650f4c33111f}{processWithInput}}(audio\_in,\ num\_samples);}
+\DoxyCodeLine{00520\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_ace66114ab674022cfe117519c0de26ab}{utils::copyBuffer}}(audio\_out,\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_compressor_a351ffe2db9f745589aa34e2e7e81965fa72170f3baecc3363eb4b0cb4e446ce52}{Compressor::kAudioOut}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}},\ num\_samples);}
+\DoxyCodeLine{00521\ \ \ \ \ \}}
+\DoxyCodeLine{00522\ }
+\DoxyCodeLine{00523\ \ \ \ \ \textcolor{comment}{//\ Write\ mean\ squared\ values\ for\ GUI\ metering}}
+\DoxyCodeLine{00524\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_band\_input\_ms\ =\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_compressor_aeac0f7c9c631932aada9e47167fc4c45}{getInputMeanSquared}}();}
+\DoxyCodeLine{00525\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ band\_high\_input\_ms\ =\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_compressor_aeac0f7c9c631932aada9e47167fc4c45}{getInputMeanSquared}}();}
+\DoxyCodeLine{00526\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_band\_output\_ms\ =\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a9483cebd888d1c878fa893e0cd7b6b45}{low\_band\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_compressor_a9ce3191edc0849b650254a4e62a6bbeb}{getOutputMeanSquared}}();}
+\DoxyCodeLine{00527\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ band\_high\_output\_ms\ =\ \mbox{\hyperlink{classvital_1_1_multiband_compressor_a657aab8c775acb5944b815c5edbae181}{band\_high\_compressor\_}}.\mbox{\hyperlink{classvital_1_1_compressor_a9ce3191edc0849b650254a4e62a6bbeb}{getOutputMeanSquared}}();}
+\DoxyCodeLine{00528\ }
+\DoxyCodeLine{00529\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a1f569818640ff85531606832f7e647c9a920d046f999a26d6c84fab17af459749}{kLowInputMeanSquared}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ low\_band\_input\_ms;}
+\DoxyCodeLine{00530\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a1f569818640ff85531606832f7e647c9a657e5d0694e0a3bea0bc2ad158b56e83}{kLowOutputMeanSquared}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ low\_band\_output\_ms;}
+\DoxyCodeLine{00531\ }
+\DoxyCodeLine{00532\ \ \ \ \ \textcolor{keywordflow}{if}\ (low\_enabled)\ \{}
+\DoxyCodeLine{00533\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a1f569818640ff85531606832f7e647c9aa1d6d12a3e5fb8ed415a0993f7c26e48}{kBandInputMeanSquared}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(low\_band\_input\_ms);}
+\DoxyCodeLine{00534\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a1f569818640ff85531606832f7e647c9a905d8622914791bae025917673b6b83e}{kBandOutputMeanSquared}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(low\_band\_output\_ms);}
+\DoxyCodeLine{00535\ \ \ \ \ \}}
+\DoxyCodeLine{00536\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00537\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a1f569818640ff85531606832f7e647c9aa1d6d12a3e5fb8ed415a0993f7c26e48}{kBandInputMeanSquared}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ band\_high\_input\_ms;}
+\DoxyCodeLine{00538\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a1f569818640ff85531606832f7e647c9a905d8622914791bae025917673b6b83e}{kBandOutputMeanSquared}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ band\_high\_output\_ms;}
+\DoxyCodeLine{00539\ \ \ \ \ \}}
+\DoxyCodeLine{00540\ }
+\DoxyCodeLine{00541\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a1f569818640ff85531606832f7e647c9acc874dacd57c2e7275e2528e8fcf21bb}{kHighInputMeanSquared}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(band\_high\_input\_ms);}
+\DoxyCodeLine{00542\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_multiband_compressor_a1f569818640ff85531606832f7e647c9a3d3d5ccbb51bc94ef7997472bf35b428}{kHighOutputMeanSquared}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(band\_high\_output\_ms);}
+\DoxyCodeLine{00543\ \ \ \}}
+\DoxyCodeLine{00544\ }
+\DoxyCodeLine{00545\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

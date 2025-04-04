@@ -1,0 +1,657 @@
+\doxysection{bank\+\_\+exporter.\+cpp}
+\hypertarget{bank__exporter_8cpp_source}{}\label{bank__exporter_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/bank\_exporter.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/bank\_exporter.cpp}}
+\mbox{\hyperlink{bank__exporter_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{bank__exporter_8h}{bank\_exporter.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{load__save_8h}{load\_save.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{paths_8h}{paths.h}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{open__gl__component_8h}{open\_gl\_component.h}}"{}}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{open__gl__image_8h}{open\_gl\_image.h}}"{}}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__section_8h}{synth\_section.h}}"{}}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00015\ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ Comparator>}
+\DoxyCodeLine{00016\ \ \ \textcolor{keywordtype}{void}\ sortFiles(Array<File>\&\ file\_array)\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ Comparator\ comparator;}
+\DoxyCodeLine{00018\ \ \ \ \ file\_array.sort(comparator,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00019\ \ \ \}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ String\ getRelativePath(\textcolor{keyword}{const}\ File\&\ file,\ \textcolor{keyword}{const}\ String\&\ folder)\ \{}
+\DoxyCodeLine{00022\ \ \ \ \ File\ parent\ =\ file;}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keywordflow}{while}\ (parent.exists()\ \&\&\ !parent.isRoot())\ \{}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ parent\ =\ parent.getParentDirectory();}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (parent.getFileName()\ ==\ folder)}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ file.getRelativePathFrom(parent).replaceCharacter(File::getSeparatorChar(),\ \textcolor{charliteral}{'/'});}
+\DoxyCodeLine{00027\ \ \ \ \ \}}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keywordflow}{return}\ file.getFileName();}
+\DoxyCodeLine{00030\ \ \ \}}
+\DoxyCodeLine{00031\ \}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \mbox{\hyperlink{class_content_list_a2e09e3d31736df31e063d72027a040e0}{ContentList::ContentList}}(\textcolor{keyword}{const}\ std::string\&\ name)\ :}
+\DoxyCodeLine{00034\ \ \ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}(name),\ num\_contents\_(0),\ last\_selected\_index\_(-\/1),\ hover\_index\_(-\/1),}
+\DoxyCodeLine{00035\ \ \ \ \ cache\_position\_(0),\ view\_position\_(0),\ sort\_column\_(kDate),\ sort\_ascending\_(true),\ selected\_(),}
+\DoxyCodeLine{00036\ \ \ \ \ highlight\_(kNumCachedRows,\ \mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment),\ hover\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment)\ \{}
+\DoxyCodeLine{00037\ \ \ addAndMakeVisible(browse\_area\_);}
+\DoxyCodeLine{00038\ \ \ browse\_area\_.setInterceptsMouseClicks(\textcolor{keyword}{false},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00039\ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a400b44f0d176e32e9a3014be91816808}{setTargetComponent}}(\&browse\_area\_);}
+\DoxyCodeLine{00040\ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a400b44f0d176e32e9a3014be91816808}{setTargetComponent}}(\&browse\_area\_);}
+\DoxyCodeLine{00041\ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_ae9fa34755aa7b17c5130dc3764f1c502}{setAdditive}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00042\ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_ae9fa34755aa7b17c5130dc3764f1c502}{setAdditive}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ scroll\_bar\_\ =\ std::make\_unique<OpenGlScrollBar>();}
+\DoxyCodeLine{00045\ \ \ addAndMakeVisible(scroll\_bar\_.get());}
+\DoxyCodeLine{00046\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(scroll\_bar\_-\/>getGlComponent());}
+\DoxyCodeLine{00047\ \ \ scroll\_bar\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00048\ \}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_content_list_ad31490c4da4630cfdfd6307a6f5676d0}{ContentList::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00051\ \ \ \textcolor{keywordtype}{int}\ title\_width\ =\ \mbox{\hyperlink{class_synth_section_ae0397399d283628b325650e0b7b60c6f}{getTitleWidth}}();}
+\DoxyCodeLine{00052\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5a30a22b4659bc04528e89d1759558a7}{Skin::kWidgetBackground}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00053\ \ \ g.fillRoundedRectangle(getLocalBounds().toFloat(),\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}}));}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \textcolor{keywordtype}{int}\ selected\_width\ =\ \mbox{\hyperlink{class_content_list_ad4d12dd4778c111fb88bb3227ddbf4b2}{kAddWidthRatio}}\ *\ getWidth();}
+\DoxyCodeLine{00056\ \ \ \textcolor{keywordtype}{int}\ name\_width\ =\ \mbox{\hyperlink{class_content_list_a56b7a31178e07f08570f5ee45333d2f9}{kNameWidthRatio}}\ *\ getWidth();}
+\DoxyCodeLine{00057\ \ \ \textcolor{keywordtype}{int}\ date\_width\ =\ getWidth()\ -\/\ name\_width;}
+\DoxyCodeLine{00058\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_content_list_ab486f01e9ccde21ed2fc6cdeefd3b92d}{getRowHeight}}();}
+\DoxyCodeLine{00059\ \ \ \textcolor{keywordtype}{int}\ text\_padding\ =\ row\_height\ /\ 2;}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ g.saveState();}
+\DoxyCodeLine{00062\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caffad88f44cd2bcaaf60dbe0032955def}{Skin::kBody}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00063\ \ \ g.reduceClipRegion(getLocalBounds().removeFromTop(title\_width));}
+\DoxyCodeLine{00064\ \ \ Rectangle<float>\ top\ =\ getLocalBounds().toFloat().removeFromTop(title\_width\ *\ 2.0f);}
+\DoxyCodeLine{00065\ \ \ g.fillRoundedRectangle(top,\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}}));}
+\DoxyCodeLine{00066\ \ \ g.restoreState();}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ Colour\ lighten\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00069\ \ \ scroll\_bar\_-\/>setColor(lighten);}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ g.setColour(lighten);}
+\DoxyCodeLine{00072\ \ \ g.fillRect(selected\_width,\ 0,\ 1,\ title\_width);}
+\DoxyCodeLine{00073\ \ \ g.fillRect(selected\_width\ +\ name\_width,\ 0,\ 1,\ title\_width);}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cadac6e8c347bdd796337e3ca3d7ca3457}{Skin::kTextComponentText}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00076\ \ \ g.setFont(\mbox{\hyperlink{class_fonts_ae7669a3eeb9db437c7d34feff9e99707}{Fonts::instance}}()-\/>proportional\_regular().withPointHeight(title\_width\ *\ 0.5f));}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ String\ name\ =\ getName()\ +\ \textcolor{stringliteral}{"{}\ Name"{}};}
+\DoxyCodeLine{00079\ \ \ g.drawText(name,\ selected\_width\ +\ text\_padding,\ 0,\ name\_width,\ title\_width,\ Justification::centredLeft);}
+\DoxyCodeLine{00080\ \ \ g.drawText(\textcolor{stringliteral}{"{}Date"{}},\ getWidth()\ -\/\ date\_width,\ 0,}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \ \ \ \ \ date\_width\ -\/\ text\_padding,\ title\_width,\ Justification::centredRight);}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ setWantsKeyboardFocus(\textcolor{keyword}{true});}
+\DoxyCodeLine{00084\ \ \ setMouseClickGrabsKeyboardFocus(\textcolor{keyword}{true});}
+\DoxyCodeLine{00085\ \}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_content_list_a98a2f3c8c56a2242e8c03dfa3deb7dc9}{ContentList::resized}}()\ \{}
+\DoxyCodeLine{00088\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kScrollBarWidth\ =\ 15.0f;}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \textcolor{keywordtype}{int}\ scroll\_bar\_width\ =\ kScrollBarWidth\ *\ \mbox{\hyperlink{class_synth_section_aba2f74f948fd7114c12bdc06f4da60e9}{getSizeRatio}}();}
+\DoxyCodeLine{00091\ \ \ \textcolor{keywordtype}{int}\ title\_width\ =\ \mbox{\hyperlink{class_synth_section_ae0397399d283628b325650e0b7b60c6f}{getTitleWidth}}();}
+\DoxyCodeLine{00092\ \ \ \textcolor{keywordtype}{int}\ scroll\_bar\_height\ =\ getHeight()\ -\/\ title\_width;}
+\DoxyCodeLine{00093\ \ \ scroll\_bar\_-\/>setBounds(getWidth()\ -\/\ scroll\_bar\_width,\ title\_width,\ scroll\_bar\_width,\ scroll\_bar\_height);}
+\DoxyCodeLine{00094\ \ \ \mbox{\hyperlink{class_content_list_a97edc08a9d4a2f1e5f0e9fac3130713a}{setScrollBarRange}}();}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \ \ browse\_area\_.setBounds(0,\ title\_width,\ getWidth(),\ getHeight()\ -\/\ title\_width);}
+\DoxyCodeLine{00097\ \ \ loadBrowserCache(cache\_position\_,\ cache\_position\_\ +\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}});}
+\DoxyCodeLine{00098\ \}}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \textcolor{keywordtype}{void}\ ContentList::sort()\ \{}
+\DoxyCodeLine{00101\ \ \ \textcolor{keywordflow}{if}\ (sort\_column\_\ ==\ \mbox{\hyperlink{class_content_list_af9406b77a486bda5fbe24644a20c984fad8c331bf1feca2c445e5a1b1fe2966cc}{kName}}\ \&\&\ sort\_ascending\_)}
+\DoxyCodeLine{00102\ \ \ \ \ sortFiles<FileNameAscendingComparator>(contents\_);}
+\DoxyCodeLine{00103\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (sort\_column\_\ ==\ \mbox{\hyperlink{class_content_list_af9406b77a486bda5fbe24644a20c984fad8c331bf1feca2c445e5a1b1fe2966cc}{kName}}\ \&\&\ !sort\_ascending\_)}
+\DoxyCodeLine{00104\ \ \ \ \ sortFiles<FileNameDescendingComparator>(contents\_);}
+\DoxyCodeLine{00105\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (sort\_column\_\ ==\ \mbox{\hyperlink{class_content_list_af9406b77a486bda5fbe24644a20c984fa47b134e74422cad7650fbdf636bda3c7}{kDate}}\ \&\&\ sort\_ascending\_)}
+\DoxyCodeLine{00106\ \ \ \ \ sortFiles<FileDateAscendingComparator>(contents\_);}
+\DoxyCodeLine{00107\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (sort\_column\_\ ==\ \mbox{\hyperlink{class_content_list_af9406b77a486bda5fbe24644a20c984fa47b134e74422cad7650fbdf636bda3c7}{kDate}}\ \&\&\ !sort\_ascending\_)}
+\DoxyCodeLine{00108\ \ \ \ \ sortFiles<FileDateDescendingComparator>(contents\_);}
+\DoxyCodeLine{00109\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (sort\_column\_\ ==\ \mbox{\hyperlink{class_content_list_af9406b77a486bda5fbe24644a20c984fa4833dbd0a41c335fb106044ba27ed74e}{kAdded}})\ \{}
+\DoxyCodeLine{00110\ \ \ \ \ SelectedComparator\ comparator(selected\_files\_,\ sort\_ascending\_);}
+\DoxyCodeLine{00111\ \ \ \ \ contents\_.sort(comparator,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00112\ \ \ \}}
+\DoxyCodeLine{00113\ \}}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_content_list_a407a17ce165cf72fc6b59b22e092fe9d}{ContentList::setContent}}(Array<File>\ contents)\ \{}
+\DoxyCodeLine{00116\ \ \ contents\_\ =\ std::move(contents);}
+\DoxyCodeLine{00117\ \ \ num\_contents\_\ =\ contents\_.size();}
+\DoxyCodeLine{00118\ \ \ \mbox{\hyperlink{class_content_list_ac0b31e80b751f149dc89d1bc1e63f048}{redoCache}}();}
+\DoxyCodeLine{00119\ \ \ \mbox{\hyperlink{class_content_list_a97edc08a9d4a2f1e5f0e9fac3130713a}{setScrollBarRange}}();}
+\DoxyCodeLine{00120\ \}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_content_list_a6acc81620705f2572e7a565e524d4a7f}{ContentList::mouseWheelMove}}(\textcolor{keyword}{const}\ MouseEvent\&\ e,\ \textcolor{keyword}{const}\ MouseWheelDetails\&\ wheel)\ \{}
+\DoxyCodeLine{00123\ \ \ view\_position\_\ -\/=\ wheel.deltaY\ *\ \mbox{\hyperlink{class_content_list_a23d77631f7c8c0cca2724b7356c39a77}{kScrollSensitivity}};}
+\DoxyCodeLine{00124\ \ \ view\_position\_\ =\ std::max(0.0f,\ view\_position\_);}
+\DoxyCodeLine{00125\ \ \ \textcolor{keywordtype}{int}\ title\_width\ =\ \mbox{\hyperlink{class_synth_section_ae0397399d283628b325650e0b7b60c6f}{getTitleWidth}}();}
+\DoxyCodeLine{00126\ \ \ \textcolor{keywordtype}{float}\ scaled\_height\ =\ getHeight()\ -\/\ title\_width;}
+\DoxyCodeLine{00127\ \ \ \textcolor{keywordtype}{int}\ scrollable\_range\ =\ \mbox{\hyperlink{class_content_list_a6da21aeb2165359570ccd6a9dc26a9a0}{getScrollableRange}}();}
+\DoxyCodeLine{00128\ \ \ view\_position\_\ =\ std::min(view\_position\_,\ 1.0f\ *\ scrollable\_range\ -\/\ scaled\_height);}
+\DoxyCodeLine{00129\ \ \ viewPositionChanged();}
+\DoxyCodeLine{00130\ \ \ \mbox{\hyperlink{class_content_list_a97edc08a9d4a2f1e5f0e9fac3130713a}{setScrollBarRange}}();}
+\DoxyCodeLine{00131\ \}}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_content_list_a83e21f0ba77e49c69149a6d7caeb86bf}{ContentList::getRowFromPosition}}(\textcolor{keywordtype}{float}\ mouse\_position)\ \{}
+\DoxyCodeLine{00134\ \ \ \textcolor{keywordtype}{int}\ title\_width\ =\ \mbox{\hyperlink{class_synth_section_ae0397399d283628b325650e0b7b60c6f}{getTitleWidth}}();}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \textcolor{keywordflow}{return}\ floorf((mouse\_position\ +\ getViewPosition()\ -\/\ title\_width)\ /\ \mbox{\hyperlink{class_content_list_ab486f01e9ccde21ed2fc6cdeefd3b92d}{getRowHeight}}());}
+\DoxyCodeLine{00137\ \}}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_content_list_ab4b17932f4712b3f1ff97b82c32b3bae}{ContentList::mouseMove}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00140\ \ \ hover\_index\_\ =\ \mbox{\hyperlink{class_content_list_a83e21f0ba77e49c69149a6d7caeb86bf}{getRowFromPosition}}(e.position.y);}
+\DoxyCodeLine{00141\ \ \ \textcolor{keywordflow}{if}\ (hover\_index\_\ >=\ contents\_.size())}
+\DoxyCodeLine{00142\ \ \ \ \ hover\_index\_\ =\ -\/1;}
+\DoxyCodeLine{00143\ \}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_content_list_ac684350350ef80f3dcace34967856533}{ContentList::mouseExit}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00146\ \ \ hover\_index\_\ =\ -\/1;}
+\DoxyCodeLine{00147\ \}}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_content_list_ab4d2843291ee3312a9a52c9e5ab39959}{ContentList::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00150\ \ \ \textcolor{keywordtype}{int}\ title\_width\ =\ \mbox{\hyperlink{class_synth_section_ae0397399d283628b325650e0b7b60c6f}{getTitleWidth}}();}
+\DoxyCodeLine{00151\ \ \ \textcolor{keywordtype}{float}\ click\_y\_position\ =\ e.position.y;}
+\DoxyCodeLine{00152\ \ \ \textcolor{keywordtype}{float}\ click\_x\_position\ =\ e.position.x;}
+\DoxyCodeLine{00153\ \ \ \textcolor{keywordtype}{int}\ row\ =\ \mbox{\hyperlink{class_content_list_a83e21f0ba77e49c69149a6d7caeb86bf}{getRowFromPosition}}(click\_y\_position);}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00155\ \ \ \textcolor{keywordflow}{if}\ (click\_y\_position\ <=\ title\_width)\ \{}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordtype}{int}\ selected\_right\ =\ \mbox{\hyperlink{class_content_list_ad4d12dd4778c111fb88bb3227ddbf4b2}{kAddWidthRatio}}\ *\ getWidth();}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{keywordtype}{int}\ name\_right\ =\ selected\_right\ +\ \mbox{\hyperlink{class_content_list_a56b7a31178e07f08570f5ee45333d2f9}{kNameWidthRatio}}\ *\ getWidth();}
+\DoxyCodeLine{00158\ \ \ \ \ \mbox{\hyperlink{class_content_list_af9406b77a486bda5fbe24644a20c984f}{Column}}\ clicked\_column;}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{keywordflow}{if}\ (click\_x\_position\ <\ selected\_right)}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ clicked\_column\ =\ \mbox{\hyperlink{class_content_list_af9406b77a486bda5fbe24644a20c984fa4833dbd0a41c335fb106044ba27ed74e}{kAdded}};}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (click\_x\_position\ <\ name\_right)}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ clicked\_column\ =\ \mbox{\hyperlink{class_content_list_af9406b77a486bda5fbe24644a20c984fad8c331bf1feca2c445e5a1b1fe2966cc}{kName}};}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ clicked\_column\ =\ \mbox{\hyperlink{class_content_list_af9406b77a486bda5fbe24644a20c984fa47b134e74422cad7650fbdf636bda3c7}{kDate}};}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{keywordflow}{if}\ (clicked\_column\ ==\ sort\_column\_)}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ sort\_ascending\_\ =\ !sort\_ascending\_;}
+\DoxyCodeLine{00169\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ sort\_ascending\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00171\ \ \ \ \ sort\_column\_\ =\ clicked\_column;}
+\DoxyCodeLine{00172\ \ \ \ \ sort();}
+\DoxyCodeLine{00173\ \ \ \ \ repaint();}
+\DoxyCodeLine{00174\ \ \ \ \ \mbox{\hyperlink{class_content_list_ac0b31e80b751f149dc89d1bc1e63f048}{redoCache}}();}
+\DoxyCodeLine{00175\ \ \ \}}
+\DoxyCodeLine{00176\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (row\ <\ contents\_.size()\ \&\&\ row\ >=\ 0)\ \{}
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{keywordflow}{if}\ (click\_x\_position\ <\ \mbox{\hyperlink{class_content_list_ad4d12dd4778c111fb88bb3227ddbf4b2}{kAddWidthRatio}}\ *\ getWidth())\ \{}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (highlighted\_files\_.count(contents\_[row].getFullPathName().toStdString())\ ==\ 0)}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ highlightClick(e,\ row);}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ selectHighlighted(row);}
+\DoxyCodeLine{00181\ \ \ \ \ \}}
+\DoxyCodeLine{00182\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ highlightClick(e,\ row);}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00185\ \ \ \ \ \mbox{\hyperlink{class_content_list_ac0b31e80b751f149dc89d1bc1e63f048}{redoCache}}();}
+\DoxyCodeLine{00186\ \ \ \ \ repaint();}
+\DoxyCodeLine{00187\ \ \ \}}
+\DoxyCodeLine{00188\ \}}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_content_list_a2891e0107713ae1c8c0d3999da24f7cd}{ContentList::scrollBarMoved}}(ScrollBar*\ scroll\_bar,\ \textcolor{keywordtype}{double}\ range\_start)\ \{}
+\DoxyCodeLine{00191\ \ \ view\_position\_\ =\ range\_start;}
+\DoxyCodeLine{00192\ \ \ viewPositionChanged();}
+\DoxyCodeLine{00193\ \}}
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00195\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_content_list_a97edc08a9d4a2f1e5f0e9fac3130713a}{ContentList::setScrollBarRange}}()\ \{}
+\DoxyCodeLine{00196\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kScrollStepRatio\ =\ 0.05f;}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \ \ \textcolor{keywordtype}{int}\ title\_width\ =\ \mbox{\hyperlink{class_synth_section_ae0397399d283628b325650e0b7b60c6f}{getTitleWidth}}();}
+\DoxyCodeLine{00199\ \ \ \textcolor{keywordtype}{float}\ scaled\_height\ =\ getHeight()\ -\/\ title\_width;}
+\DoxyCodeLine{00200\ \ \ scroll\_bar\_-\/>setRangeLimits(0.0f,\ \mbox{\hyperlink{class_content_list_a6da21aeb2165359570ccd6a9dc26a9a0}{getScrollableRange}}());}
+\DoxyCodeLine{00201\ \ \ scroll\_bar\_-\/>setCurrentRange(view\_position\_,\ scaled\_height,\ dontSendNotification);}
+\DoxyCodeLine{00202\ \ \ scroll\_bar\_-\/>setSingleStepSize(scroll\_bar\_-\/>getHeight()\ *\ kScrollStepRatio);}
+\DoxyCodeLine{00203\ \ \ scroll\_bar\_-\/>cancelPendingUpdate();}
+\DoxyCodeLine{00204\ \}}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00206\ \textcolor{keywordtype}{void}\ ContentList::selectHighlighted(\textcolor{keywordtype}{int}\ clicked\_index)\ \{}
+\DoxyCodeLine{00207\ \ \ std::string\ path\ =\ contents\_[clicked\_index].getFullPathName().toStdString();}
+\DoxyCodeLine{00208\ \ \ \textcolor{keywordflow}{if}\ (selected\_files\_.count(path))\ \{}
+\DoxyCodeLine{00209\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ std::string\&\ highlighted\ :\ highlighted\_files\_)}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ selected\_files\_.erase(highlighted);}
+\DoxyCodeLine{00211\ \ \ \}}
+\DoxyCodeLine{00212\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00213\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ std::string\&\ highlighted\ :\ highlighted\_files\_)}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ selected\_files\_.insert(highlighted);}
+\DoxyCodeLine{00215\ \ \ \}}
+\DoxyCodeLine{00216\ \}}
+\DoxyCodeLine{00217\ }
+\DoxyCodeLine{00218\ \textcolor{keywordtype}{void}\ ContentList::highlightClick(\textcolor{keyword}{const}\ MouseEvent\&\ e,\ \textcolor{keywordtype}{int}\ clicked\_index)\ \{}
+\DoxyCodeLine{00219\ \ \ \textcolor{keywordtype}{int}\ cache\_index\ =\ clicked\_index\ -\/\ cache\_position\_;}
+\DoxyCodeLine{00220\ \ \ \textcolor{keywordflow}{if}\ (e.mods.isShiftDown())}
+\DoxyCodeLine{00221\ \ \ \ \ selectRange(clicked\_index);}
+\DoxyCodeLine{00222\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (e.mods.isCommandDown())\ \{}
+\DoxyCodeLine{00223\ \ \ \ \ std::string\ path\ =\ contents\_[clicked\_index].getFullPathName().toStdString();}
+\DoxyCodeLine{00224\ \ \ \ \ \textcolor{keywordtype}{bool}\ selected\ =\ highlighted\_files\_.count(path);}
+\DoxyCodeLine{00225\ \ \ \ \ \textcolor{keywordflow}{if}\ (selected)}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ highlighted\_files\_.erase(path);}
+\DoxyCodeLine{00227\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ highlighted\_files\_.insert(path);}
+\DoxyCodeLine{00229\ \ \ \ \ \textcolor{keywordflow}{if}\ (cache\_index\ >=\ 0\ \&\&\ cache\_index\ <\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}})}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ selected\_[cache\_index]\ =\ !selected;}
+\DoxyCodeLine{00231\ \ \ \}}
+\DoxyCodeLine{00232\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00233\ \ \ \ \ highlighted\_files\_.clear();}
+\DoxyCodeLine{00234\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}};\ ++i)}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ selected\_[i]\ =\ i\ ==\ cache\_index;}
+\DoxyCodeLine{00236\ \ \ \ \ highlighted\_files\_.insert(contents\_[clicked\_index].getFullPathName().toStdString());}
+\DoxyCodeLine{00237\ \ \ \}}
+\DoxyCodeLine{00238\ }
+\DoxyCodeLine{00239\ \ \ last\_selected\_index\_\ =\ clicked\_index;}
+\DoxyCodeLine{00240\ \}}
+\DoxyCodeLine{00241\ }
+\DoxyCodeLine{00242\ \textcolor{keywordtype}{void}\ ContentList::selectRange(\textcolor{keywordtype}{int}\ clicked\_index)\ \{}
+\DoxyCodeLine{00243\ \ \ \textcolor{keywordflow}{if}\ (last\_selected\_index\_\ <\ 0)}
+\DoxyCodeLine{00244\ \ \ \ \ last\_selected\_index\_\ =\ clicked\_index;}
+\DoxyCodeLine{00245\ }
+\DoxyCodeLine{00246\ \ \ \textcolor{keywordtype}{int}\ start\ =\ std::min(std::min(clicked\_index,\ last\_selected\_index\_),\ contents\_.size());}
+\DoxyCodeLine{00247\ \ \ \textcolor{keywordtype}{int}\ end\ =\ std::min(std::max(clicked\_index,\ last\_selected\_index\_),\ contents\_.size());}
+\DoxyCodeLine{00248\ }
+\DoxyCodeLine{00249\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ start;\ i\ <=\ end;\ ++i)\ \{}
+\DoxyCodeLine{00250\ \ \ \ \ \textcolor{keywordtype}{int}\ cache\_index\ =\ i\ -\/\ cache\_position\_;}
+\DoxyCodeLine{00251\ \ \ \ \ \textcolor{keywordflow}{if}\ (cache\_index\ >=\ 0\ \&\&\ cache\_index\ <\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}})}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ selected\_[cache\_index]\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00253\ \ \ \ \ highlighted\_files\_.insert(contents\_[i].getFullPathName().toStdString());}
+\DoxyCodeLine{00254\ \ \ \}}
+\DoxyCodeLine{00255\ \}}
+\DoxyCodeLine{00256\ }
+\DoxyCodeLine{00257\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_content_list_ac0b31e80b751f149dc89d1bc1e63f048}{ContentList::redoCache}}()\ \{}
+\DoxyCodeLine{00258\ \ \ \textcolor{keywordflow}{if}\ (getWidth()\ <=\ 0\ ||\ getHeight()\ <=\ 0)}
+\DoxyCodeLine{00259\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00260\ }
+\DoxyCodeLine{00261\ \ \ \textcolor{keywordtype}{int}\ max\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(contents\_.size())\ -\/\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}};}
+\DoxyCodeLine{00262\ \ \ \textcolor{keywordtype}{int}\ position\ =\ std::max(0,\ std::min<int>(cache\_position\_,\ max));}
+\DoxyCodeLine{00263\ \ \ loadBrowserCache(position,\ position\ +\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}});}
+\DoxyCodeLine{00264\ \}}
+\DoxyCodeLine{00265\ }
+\DoxyCodeLine{00266\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_content_list_a6da21aeb2165359570ccd6a9dc26a9a0}{ContentList::getScrollableRange}}()\ \{}
+\DoxyCodeLine{00267\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_content_list_ab486f01e9ccde21ed2fc6cdeefd3b92d}{getRowHeight}}();}
+\DoxyCodeLine{00268\ \ \ \textcolor{keywordtype}{int}\ title\_width\ =\ \mbox{\hyperlink{class_synth_section_ae0397399d283628b325650e0b7b60c6f}{getTitleWidth}}();}
+\DoxyCodeLine{00269\ \ \ \textcolor{keywordtype}{int}\ presets\_height\ =\ row\_height\ *\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(contents\_.size());}
+\DoxyCodeLine{00270\ \ \ \textcolor{keywordflow}{return}\ std::max(presets\_height,\ getHeight()\ -\/\ title\_width);}
+\DoxyCodeLine{00271\ \}}
+\DoxyCodeLine{00272\ }
+\DoxyCodeLine{00273\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_content_list_ae5a17af8453dd6c2dae184164d1856bc}{ContentList::initOpenGlComponents}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00274\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}};\ ++i)\ \{}
+\DoxyCodeLine{00275\ \ \ \ \ rows\_[i].\mbox{\hyperlink{class_open_gl_image_a84697f0e183a2a7ad6ecbedf8d1de34c}{setScissor}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00276\ \ \ \ \ rows\_[i].\mbox{\hyperlink{class_open_gl_image_a6b06f9ec05cca98730b58bdc5044390c}{init}}(open\_gl);}
+\DoxyCodeLine{00277\ \ \ \ \ rows\_[i].\mbox{\hyperlink{class_open_gl_image_aef176c26fb186f6f8a0209463a17310c}{setColor}}(Colours::white);}
+\DoxyCodeLine{00278\ \ \ \}}
+\DoxyCodeLine{00279\ }
+\DoxyCodeLine{00280\ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00281\ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00282\ \ \ \mbox{\hyperlink{class_synth_section_aeb169e2a98d8132a836bbe2b211c68bd}{SynthSection::initOpenGlComponents}}(open\_gl);}
+\DoxyCodeLine{00283\ \}}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00285\ \textcolor{keywordtype}{void}\ ContentList::viewPositionChanged()\ \{}
+\DoxyCodeLine{00286\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_content_list_ab486f01e9ccde21ed2fc6cdeefd3b92d}{getRowHeight}}();}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00288\ \ \ \textcolor{keywordtype}{int}\ last\_cache\_position\ =\ cache\_position\_;}
+\DoxyCodeLine{00289\ \ \ cache\_position\_\ =\ getViewPosition()\ /\ row\_height;}
+\DoxyCodeLine{00290\ \ \ \textcolor{keywordtype}{int}\ max\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(contents\_.size()\ -\/\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}});}
+\DoxyCodeLine{00291\ \ \ cache\_position\_\ =\ std::max(0,\ std::min<int>(cache\_position\_,\ max));}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00293\ \ \ \textcolor{keywordflow}{if}\ (std::abs(cache\_position\_\ -\/\ last\_cache\_position)\ >=\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}})}
+\DoxyCodeLine{00294\ \ \ \ \ \mbox{\hyperlink{class_content_list_ac0b31e80b751f149dc89d1bc1e63f048}{redoCache}}();}
+\DoxyCodeLine{00295\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (last\_cache\_position\ <\ cache\_position\_)}
+\DoxyCodeLine{00296\ \ \ \ \ loadBrowserCache(last\_cache\_position\ +\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}},\ cache\_position\_\ +\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}});}
+\DoxyCodeLine{00297\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (last\_cache\_position\ >\ cache\_position\_)}
+\DoxyCodeLine{00298\ \ \ \ \ loadBrowserCache(cache\_position\_,\ last\_cache\_position);}
+\DoxyCodeLine{00299\ \}}
+\DoxyCodeLine{00300\ }
+\DoxyCodeLine{00301\ \textcolor{keywordtype}{void}\ ContentList::loadBrowserCache(\textcolor{keywordtype}{int}\ start\_index,\ \textcolor{keywordtype}{int}\ end\_index)\ \{}
+\DoxyCodeLine{00302\ \ \ \textcolor{keywordtype}{int}\ mult\ =\ \mbox{\hyperlink{class_synth_section_a78dd0f15e5945a73e881ed882173358e}{getPixelMultiple}}();}
+\DoxyCodeLine{00303\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_content_list_ab486f01e9ccde21ed2fc6cdeefd3b92d}{getRowHeight}}()\ *\ mult;}
+\DoxyCodeLine{00304\ \ \ \textcolor{keywordtype}{int}\ image\_width\ =\ getWidth()\ *\ mult;}
+\DoxyCodeLine{00305\ }
+\DoxyCodeLine{00306\ \ \ \textcolor{keywordtype}{int}\ text\_padding\ =\ row\_height\ /\ 2.0f;}
+\DoxyCodeLine{00307\ \ \ \textcolor{keywordtype}{int}\ add\_x\ =\ text\_padding;}
+\DoxyCodeLine{00308\ \ \ \textcolor{keywordtype}{int}\ add\_width\ =\ \mbox{\hyperlink{class_content_list_ad4d12dd4778c111fb88bb3227ddbf4b2}{kAddWidthRatio}}\ *\ image\_width;}
+\DoxyCodeLine{00309\ \ \ \textcolor{keywordtype}{int}\ name\_x\ =\ add\_x\ +\ add\_width;}
+\DoxyCodeLine{00310\ \ \ \textcolor{keywordtype}{int}\ name\_width\ =\ \mbox{\hyperlink{class_content_list_a56b7a31178e07f08570f5ee45333d2f9}{kNameWidthRatio}}\ *\ image\_width;}
+\DoxyCodeLine{00311\ \ \ \textcolor{keywordtype}{int}\ date\_width\ =\ \mbox{\hyperlink{class_content_list_a4e6ef937f2f59b2040b5ed73358c935f}{kDateWidthRatio}}\ *\ image\_width;}
+\DoxyCodeLine{00312\ \ \ \textcolor{keywordtype}{int}\ date\_x\ =\ image\_width\ -\/\ date\_width\ +\ text\_padding;}
+\DoxyCodeLine{00313\ }
+\DoxyCodeLine{00314\ \ \ end\_index\ =\ std::min(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(contents\_.size()),\ end\_index);}
+\DoxyCodeLine{00315\ \ \ Font\ font\ =\ \mbox{\hyperlink{class_fonts_ae7669a3eeb9db437c7d34feff9e99707}{Fonts::instance}}()-\/>\mbox{\hyperlink{class_fonts_ad3f42cf6c33957340cc7689bca94b90a}{proportional\_light}}().withPointHeight(row\_height\ *\ 0.5f);}
+\DoxyCodeLine{00316\ }
+\DoxyCodeLine{00317\ \ \ Path\ icon;}
+\DoxyCodeLine{00318\ \ \ icon.addRoundedRectangle(0.0f,\ 0.0f,\ 1.0f,\ 1.0f,\ 0.1f,\ 0.1f);}
+\DoxyCodeLine{00319\ \ \ icon.addPath(\mbox{\hyperlink{class_paths_a880892d20f0cdaa9518f76df2a2d13f6}{Paths::plusOutline}}());}
+\DoxyCodeLine{00320\ \ \ \textcolor{keywordtype}{float}\ add\_draw\_width\ =\ row\_height\ *\ 0.8f;}
+\DoxyCodeLine{00321\ \ \ \textcolor{keywordtype}{float}\ add\_y\ =\ (row\_height\ -\/\ add\_draw\_width)\ /\ 2.0f;}
+\DoxyCodeLine{00322\ \ \ Rectangle<float>\ add\_bounds((add\_width\ -\/\ add\_draw\_width)\ /\ 2.0f,\ add\_y,\ add\_draw\_width,\ add\_draw\_width);}
+\DoxyCodeLine{00323\ \ \ icon.applyTransform(icon.getTransformToScaleToFit(add\_bounds,\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00324\ \ \ PathStrokeType\ add\_stroke(1.0f,\ PathStrokeType::curved);}
+\DoxyCodeLine{00325\ }
+\DoxyCodeLine{00326\ \ \ Colour\ text\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cadac6e8c347bdd796337e3ca3d7ca3457}{Skin::kTextComponentText}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00327\ \ \ Colour\ add\_unselected\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00328\ \ \ Colour\ add\_selected\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00330\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ start\_index;\ i\ <\ end\_index;\ ++i)\ \{}
+\DoxyCodeLine{00331\ \ \ \ \ Image\ row\_image(Image::ARGB,\ image\_width,\ row\_height,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00332\ \ \ \ \ Graphics\ g(row\_image);}
+\DoxyCodeLine{00333\ }
+\DoxyCodeLine{00334\ \ \ \ \ File\ content\ =\ contents\_[i];}
+\DoxyCodeLine{00335\ \ \ \ \ String\ name\ =\ content.getFileNameWithoutExtension();}
+\DoxyCodeLine{00336\ \ \ \ \ String\ date\ =\ content.getCreationTime().toString(\textcolor{keyword}{true},\ \textcolor{keyword}{false},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00337\ }
+\DoxyCodeLine{00338\ \ \ \ \ \textcolor{keywordflow}{if}\ (selected\_files\_.count(content.getFullPathName().toStdString()))}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ g.setColour(add\_selected);}
+\DoxyCodeLine{00340\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ g.setColour(add\_unselected);}
+\DoxyCodeLine{00342\ }
+\DoxyCodeLine{00343\ \ \ \ \ g.fillPath(icon);}
+\DoxyCodeLine{00344\ }
+\DoxyCodeLine{00345\ \ \ \ \ g.setColour(text\_color);}
+\DoxyCodeLine{00346\ \ \ \ \ g.setFont(font);}
+\DoxyCodeLine{00347\ \ \ \ \ g.drawText(name,\ name\_x,\ 0,\ name\_width\ -\/\ 2\ *\ text\_padding,\ row\_height,\ Justification::centredLeft,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00348\ \ \ \ \ g.drawText(date,\ date\_x,\ 0,\ date\_width\ -\/\ 2\ *\ text\_padding,\ row\_height,\ Justification::centredRight,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00349\ }
+\DoxyCodeLine{00350\ \ \ \ \ rows\_[i\ \%\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}}].\mbox{\hyperlink{class_open_gl_image_a512ce30b2a7e53635472f1c2c5a71599}{setOwnImage}}(row\_image);}
+\DoxyCodeLine{00351\ \ \ \ \ selected\_[i\ \%\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}}]\ =\ highlighted\_files\_.count(content.getFullPathName().toStdString());}
+\DoxyCodeLine{00352\ \ \ \}}
+\DoxyCodeLine{00353\ \}}
+\DoxyCodeLine{00354\ }
+\DoxyCodeLine{00355\ \textcolor{keywordtype}{void}\ ContentList::moveQuadToRow(\mbox{\hyperlink{class_open_gl_multi_quad}{OpenGlMultiQuad}}*\ quad,\ \textcolor{keywordtype}{int}\ index,\ \textcolor{keywordtype}{int}\ row,\ \textcolor{keywordtype}{float}\ y\_offset)\ \{}
+\DoxyCodeLine{00356\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_content_list_ab486f01e9ccde21ed2fc6cdeefd3b92d}{getRowHeight}}();}
+\DoxyCodeLine{00357\ \ \ \textcolor{keywordtype}{float}\ view\_height\ =\ getHeight()\ -\/\ (int)\mbox{\hyperlink{class_synth_section_ae0397399d283628b325650e0b7b60c6f}{getTitleWidth}}();}
+\DoxyCodeLine{00358\ \ \ \textcolor{keywordtype}{float}\ open\_gl\_row\_height\ =\ 2.0f\ *\ row\_height\ /\ view\_height;}
+\DoxyCodeLine{00359\ \ \ \textcolor{keywordtype}{float}\ offset\ =\ row\ *\ open\_gl\_row\_height;}
+\DoxyCodeLine{00360\ }
+\DoxyCodeLine{00361\ \ \ \textcolor{keywordtype}{float}\ y\ =\ 1.0f\ +\ y\_offset\ -\/\ offset;}
+\DoxyCodeLine{00362\ \ \ quad-\/>\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(index,\ -\/1.0f,\ y\ -\/\ open\_gl\_row\_height,\ 2.0f,\ open\_gl\_row\_height);}
+\DoxyCodeLine{00363\ \}}
+\DoxyCodeLine{00364\ }
+\DoxyCodeLine{00365\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_content_list_a9c59c1ff152d0c72a3399c53b0daa6e3}{ContentList::renderOpenGlComponents}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00366\ \ \ \textcolor{keywordtype}{int}\ title\_width\ =\ \mbox{\hyperlink{class_synth_section_ae0397399d283628b325650e0b7b60c6f}{getTitleWidth}}();}
+\DoxyCodeLine{00367\ \ \ \textcolor{keywordtype}{float}\ view\_height\ =\ getHeight()\ -\/\ title\_width;}
+\DoxyCodeLine{00368\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_content_list_ab486f01e9ccde21ed2fc6cdeefd3b92d}{getRowHeight}}();}
+\DoxyCodeLine{00369\ \ \ \textcolor{keywordtype}{int}\ num\_contents\ =\ num\_contents\_;}
+\DoxyCodeLine{00370\ }
+\DoxyCodeLine{00371\ \ \ \textcolor{keywordtype}{int}\ view\_position\ =\ getViewPosition();}
+\DoxyCodeLine{00372\ \ \ \textcolor{keywordtype}{float}\ y\_offset\ =\ 2.0f\ *\ view\_position\ /\ view\_height;}
+\DoxyCodeLine{00373\ }
+\DoxyCodeLine{00374\ \ \ Rectangle<int>\ view\_bounds(0,\ title\_width,\ getWidth(),\ getHeight()\ -\/\ title\_width);}
+\DoxyCodeLine{00375\ \ \ \mbox{\hyperlink{class_open_gl_component_a0641317fa0d502284c603188bb7da9a7}{OpenGlComponent::setViewPort}}(\textcolor{keyword}{this},\ view\_bounds,\ open\_gl);}
+\DoxyCodeLine{00376\ }
+\DoxyCodeLine{00377\ \ \ \textcolor{keywordtype}{float}\ image\_width\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5d3f0a1d10f1378cc23d7b7dc64138fb}{vital::utils::nextPowerOfTwo}}(getWidth());}
+\DoxyCodeLine{00378\ \ \ \textcolor{keywordtype}{float}\ image\_height\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5d3f0a1d10f1378cc23d7b7dc64138fb}{vital::utils::nextPowerOfTwo}}(row\_height);}
+\DoxyCodeLine{00379\ \ \ \textcolor{keywordtype}{float}\ width\_ratio\ =\ image\_width\ /\ getWidth();}
+\DoxyCodeLine{00380\ \ \ \textcolor{keywordtype}{float}\ height\_ratio\ =\ image\_height\ /\ row\_height;}
+\DoxyCodeLine{00381\ }
+\DoxyCodeLine{00382\ \ \ \textcolor{keywordtype}{float}\ open\_gl\_row\_height\ =\ 2.0f\ *\ row\_height\ /\ view\_height;}
+\DoxyCodeLine{00383\ \ \ \textcolor{keywordtype}{float}\ open\_gl\_image\_height\ =\ height\_ratio\ *\ open\_gl\_row\_height;}
+\DoxyCodeLine{00384\ \ \ \textcolor{keywordtype}{int}\ cache\_position\ =\ std::max(0,\ std::min(cache\_position\_,\ num\_contents\ -\/\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}}));}
+\DoxyCodeLine{00385\ \ \ \textcolor{keywordtype}{int}\ num\_selected\ =\ 0;}
+\DoxyCodeLine{00386\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}}\ \&\&\ i\ <\ num\_contents;\ ++i)\ \{}
+\DoxyCodeLine{00387\ \ \ \ \ \textcolor{keywordtype}{int}\ row\ =\ cache\_position\ +\ i;}
+\DoxyCodeLine{00388\ \ \ \ \ \textcolor{keywordtype}{int}\ cache\_index\ =\ row\ \%\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}};}
+\DoxyCodeLine{00389\ \ \ \ \ \textcolor{keywordtype}{float}\ offset\ =\ (2.0f\ *\ row\_height\ *\ row)\ /\ view\_height;}
+\DoxyCodeLine{00390\ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ 1.0f\ +\ y\_offset\ -\/\ offset;}
+\DoxyCodeLine{00391\ }
+\DoxyCodeLine{00392\ \ \ \ \ Rectangle<int>\ row\_bounds(0,\ row\_height\ *\ row\ -\/\ view\_position\ +\ title\_width,\ getWidth(),\ row\_height);}
+\DoxyCodeLine{00393\ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_a64a2b9bbcd277580ca27aa3a4b1ff9df}{OpenGlComponent::setScissorBounds}}(\textcolor{keyword}{this},\ row\_bounds,\ open\_gl);}
+\DoxyCodeLine{00394\ }
+\DoxyCodeLine{00395\ \ \ \ \ rows\_[cache\_index].\mbox{\hyperlink{class_open_gl_image_ac17018844362f423c2450bf1058b0e7d}{setTopLeft}}(-\/1.0f,\ y);}
+\DoxyCodeLine{00396\ \ \ \ \ rows\_[cache\_index].\mbox{\hyperlink{class_open_gl_image_adf4e0bd9ada8eaa3655429c1ee8be41c}{setTopRight}}(-\/1.0f\ +\ 2.0f\ *\ width\_ratio,\ y);}
+\DoxyCodeLine{00397\ \ \ \ \ rows\_[cache\_index].\mbox{\hyperlink{class_open_gl_image_a73ebd6bfcf3bd7d578fed727db244078}{setBottomLeft}}(-\/1.0f,\ y\ -\/\ open\_gl\_image\_height);}
+\DoxyCodeLine{00398\ \ \ \ \ rows\_[cache\_index].\mbox{\hyperlink{class_open_gl_image_ab3af936ec021b71a61820718d8672969}{setBottomRight}}(-\/1.0f\ +\ 2.0f\ *\ width\_ratio,\ y\ -\/\ open\_gl\_image\_height);}
+\DoxyCodeLine{00399\ \ \ \ \ rows\_[cache\_index].\mbox{\hyperlink{class_open_gl_image_a7ce00e695b64c30cc996cffc3b28a6ae}{drawImage}}(open\_gl);}
+\DoxyCodeLine{00400\ }
+\DoxyCodeLine{00401\ \ \ \ \ \textcolor{keywordflow}{if}\ (selected\_[cache\_index])\ \{}
+\DoxyCodeLine{00402\ \ \ \ \ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(num\_selected,\ -\/1.0f,\ y\ -\/\ open\_gl\_row\_height,\ 2.0f,\ open\_gl\_row\_height);}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ num\_selected++;}
+\DoxyCodeLine{00404\ \ \ \ \ \}}
+\DoxyCodeLine{00405\ \ \ \}}
+\DoxyCodeLine{00406\ }
+\DoxyCodeLine{00407\ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4107db47ccf0c13befdb137e7e98cdfd}{setNumQuads}}(num\_selected);}
+\DoxyCodeLine{00408\ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca759c8acbffc8962e9ee2d8cba9677e73}{Skin::kWidgetSecondary1}},\ \textcolor{keyword}{true}).darker(0.8f));}
+\DoxyCodeLine{00409\ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ \mbox{\hyperlink{class_synth_section_a23ece0b1a7ac3a7a3ffb8623875d7220}{animate}});}
+\DoxyCodeLine{00410\ }
+\DoxyCodeLine{00411\ \ \ \textcolor{keywordflow}{if}\ (hover\_index\_\ >=\ 0)\ \{}
+\DoxyCodeLine{00412\ \ \ \ \ moveQuadToRow(\&hover\_,\ 0,\ hover\_index\_,\ y\_offset);}
+\DoxyCodeLine{00413\ \ \ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00414\ \ \ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ \mbox{\hyperlink{class_synth_section_a23ece0b1a7ac3a7a3ffb8623875d7220}{animate}});}
+\DoxyCodeLine{00415\ \ \ \}}
+\DoxyCodeLine{00416\ }
+\DoxyCodeLine{00417\ \ \ \mbox{\hyperlink{class_synth_section_a0b94a0f0b660853bfb868c2ece290d33}{SynthSection::renderOpenGlComponents}}(open\_gl,\ \mbox{\hyperlink{class_synth_section_a23ece0b1a7ac3a7a3ffb8623875d7220}{animate}});}
+\DoxyCodeLine{00418\ \}}
+\DoxyCodeLine{00419\ }
+\DoxyCodeLine{00420\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_content_list_ab474d9e14b6b95f0f8a122c8c72dbe79}{ContentList::destroyOpenGlComponents}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00421\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_content_list_af4310e90de4842542c79e0beaa3a7184}{kNumCachedRows}};\ ++i)}
+\DoxyCodeLine{00422\ \ \ \ \ rows\_[i].destroy(open\_gl);}
+\DoxyCodeLine{00423\ }
+\DoxyCodeLine{00424\ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00425\ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00426\ \ \ \mbox{\hyperlink{class_synth_section_a8a425cebdb8eff2ef9ea78c1c262b761}{SynthSection::destroyOpenGlComponents}}(open\_gl);}
+\DoxyCodeLine{00427\ \}}
+\DoxyCodeLine{00428\ }
+\DoxyCodeLine{00429\ \mbox{\hyperlink{class_bank_exporter_aed11f2f52fcacf303c09cbed54d48b8a}{BankExporter::BankExporter}}()\ :\ \mbox{\hyperlink{class_synth_section}{SynthSection}}(\textcolor{stringliteral}{"{}bank\_exporter"{}})\ \{}
+\DoxyCodeLine{00430\ \ \ export\_bank\_button\_\ =\ std::make\_unique<OpenGlToggleButton>(\textcolor{stringliteral}{"{}Export\ Bank"{}});}
+\DoxyCodeLine{00431\ \ \ export\_bank\_button\_-\/>setEnabled(\textcolor{keyword}{false});}
+\DoxyCodeLine{00432\ \ \ export\_bank\_button\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00433\ \ \ export\_bank\_button\_-\/>setUiButton(\textcolor{keyword}{true});}
+\DoxyCodeLine{00434\ \ \ addAndMakeVisible(export\_bank\_button\_.get());}
+\DoxyCodeLine{00435\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(export\_bank\_button\_-\/>getGlComponent());}
+\DoxyCodeLine{00436\ }
+\DoxyCodeLine{00437\ \ \ addKeyListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00438\ }
+\DoxyCodeLine{00439\ \ \ preset\_list\_\ =\ std::make\_unique<ContentList>(\textcolor{stringliteral}{"{}Preset"{}});}
+\DoxyCodeLine{00440\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(preset\_list\_.get());}
+\DoxyCodeLine{00441\ \ \ wavetable\_list\_\ =\ std::make\_unique<ContentList>(\textcolor{stringliteral}{"{}Wavetable"{}});}
+\DoxyCodeLine{00442\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(wavetable\_list\_.get());}
+\DoxyCodeLine{00443\ \ \ lfo\_list\_\ =\ std::make\_unique<ContentList>(\textcolor{stringliteral}{"{}LFO"{}});}
+\DoxyCodeLine{00444\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(lfo\_list\_.get());}
+\DoxyCodeLine{00445\ \ \ sample\_list\_\ =\ std::make\_unique<ContentList>(\textcolor{stringliteral}{"{}Sample"{}});}
+\DoxyCodeLine{00446\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(sample\_list\_.get());}
+\DoxyCodeLine{00447\ }
+\DoxyCodeLine{00448\ \textcolor{preprocessor}{\#if\ !defined(NO\_TEXT\_ENTRY)}}
+\DoxyCodeLine{00449\ \ \ bank\_name\_box\_\ =\ std::make\_unique<OpenGlTextEditor>(\textcolor{stringliteral}{"{}Bank\ Name"{}});}
+\DoxyCodeLine{00450\ \ \ bank\_name\_box\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00451\ \ \ bank\_name\_box\_-\/>setSelectAllWhenFocused(\textcolor{keyword}{true});}
+\DoxyCodeLine{00452\ \ \ bank\_name\_box\_-\/>setMultiLine(\textcolor{keyword}{false},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00453\ \ \ bank\_name\_box\_-\/>setJustification(Justification::centredLeft);}
+\DoxyCodeLine{00454\ \ \ addAndMakeVisible(bank\_name\_box\_.get());}
+\DoxyCodeLine{00455\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(bank\_name\_box\_-\/>getImageComponent());}
+\DoxyCodeLine{00456\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00457\ }
+\DoxyCodeLine{00458\ \ \ setWantsKeyboardFocus(\textcolor{keyword}{true});}
+\DoxyCodeLine{00459\ \ \ setMouseClickGrabsKeyboardFocus(\textcolor{keyword}{true});}
+\DoxyCodeLine{00460\ \ \ \mbox{\hyperlink{class_synth_section_ae4b092420f64f8d195dd2fdb406bfccf}{setSkinOverride}}(\mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96aee7684f909b57136070c3393790e8ea6}{Skin::kPresetBrowser}});}
+\DoxyCodeLine{00461\ \}}
+\DoxyCodeLine{00462\ }
+\DoxyCodeLine{00463\ \mbox{\hyperlink{class_bank_exporter_a3b26be3eb41eb791aec7e4023408372b}{BankExporter::\string~BankExporter}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00464\ }
+\DoxyCodeLine{00465\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bank_exporter_aa3915e4587b8405fd77e178b1feb5c56}{BankExporter::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00466\ \ \ \mbox{\hyperlink{class_synth_section_a623774aef917521bc02344077422832e}{paintChildrenBackgrounds}}(g);}
+\DoxyCodeLine{00467\ \ \ Rectangle<int>\ export\_bounds\ =\ wavetable\_list\_-\/>getBounds();}
+\DoxyCodeLine{00468\ \ \ export\_bounds.setY(0);}
+\DoxyCodeLine{00469\ \ \ export\_bounds.setHeight(wavetable\_list\_-\/>getY()\ -\/\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a7fcb2719478c206e1d12f209e3c6a6e1}{Skin::kLargePadding}}));}
+\DoxyCodeLine{00470\ \ \ \mbox{\hyperlink{class_synth_section_a5966e97ed0f688f9910f24a4f3bfa9ec}{paintBody}}(g,\ export\_bounds);}
+\DoxyCodeLine{00471\ }
+\DoxyCodeLine{00472\ \ \ Colour\ empty\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00473\ \ \ empty\_color\ =\ empty\_color.withAlpha(0.5f\ *\ empty\_color.getFloatAlpha());}
+\DoxyCodeLine{00474\ \ \ setButtonColors();}
+\DoxyCodeLine{00475\ }
+\DoxyCodeLine{00476\ \ \ \textcolor{keywordflow}{if}\ (bank\_name\_box\_)\ \{}
+\DoxyCodeLine{00477\ \ \ \ \ bank\_name\_box\_-\/>setTextToShowWhenEmpty(TRANS(\textcolor{stringliteral}{"{}Bank\ Name"{}}),\ empty\_color);}
+\DoxyCodeLine{00478\ \ \ \ \ bank\_name\_box\_-\/>setColour(CaretComponent::caretColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caf4bb4fdf63337ceb6bb167959fb9f919}{Skin::kTextEditorCaret}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00479\ \ \ \ \ bank\_name\_box\_-\/>setColour(TextEditor::textColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00480\ \ \ \ \ bank\_name\_box\_-\/>setColour(TextEditor::highlightedTextColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00481\ \ \ \ \ bank\_name\_box\_-\/>setColour(TextEditor::highlightColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cac5ef4508573fe6dae078edd51c88b04e}{Skin::kTextEditorSelection}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00482\ \ \ \ \ bank\_name\_box\_-\/>redoImage();}
+\DoxyCodeLine{00483\ \ \ \}}
+\DoxyCodeLine{00484\ \}}
+\DoxyCodeLine{00485\ }
+\DoxyCodeLine{00486\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bank_exporter_a420baf3805312a979077d7b5a18228a8}{BankExporter::paintBackgroundShadow}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00487\ \ \ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g,\ preset\_list\_-\/>getBounds());}
+\DoxyCodeLine{00488\ \ \ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g,\ wavetable\_list\_-\/>getBounds());}
+\DoxyCodeLine{00489\ \ \ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g,\ lfo\_list\_-\/>getBounds());}
+\DoxyCodeLine{00490\ \ \ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g,\ sample\_list\_-\/>getBounds());}
+\DoxyCodeLine{00491\ }
+\DoxyCodeLine{00492\ \ \ Rectangle<int>\ export\_bounds\ =\ wavetable\_list\_-\/>getBounds();}
+\DoxyCodeLine{00493\ \ \ export\_bounds.setY(0);}
+\DoxyCodeLine{00494\ \ \ export\_bounds.setHeight(wavetable\_list\_-\/>getY()\ -\/\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a7fcb2719478c206e1d12f209e3c6a6e1}{Skin::kLargePadding}}));}
+\DoxyCodeLine{00495\ \ \ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g,\ export\_bounds);}
+\DoxyCodeLine{00496\ \}}
+\DoxyCodeLine{00497\ }
+\DoxyCodeLine{00498\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bank_exporter_aa839aa0b24e914e04af3bdb70767aeb1}{BankExporter::resized}}()\ \{}
+\DoxyCodeLine{00499\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kOptionsHeight\ =\ 0.08f;}
+\DoxyCodeLine{00500\ }
+\DoxyCodeLine{00501\ \ \ \textcolor{keywordtype}{int}\ padding\_width\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a7fcb2719478c206e1d12f209e3c6a6e1}{Skin::kLargePadding}});}
+\DoxyCodeLine{00502\ \ \ \textcolor{keywordtype}{int}\ browse\_width\ =\ getWidth()\ /\ 2\ -\/\ padding\_width;}
+\DoxyCodeLine{00503\ \ \ preset\_list\_-\/>setBounds(0,\ 0,\ browse\_width,\ getHeight());}
+\DoxyCodeLine{00504\ }
+\DoxyCodeLine{00505\ \ \ \textcolor{keywordtype}{int}\ options\_height\ =\ kOptionsHeight\ *\ getHeight();}
+\DoxyCodeLine{00506\ \ \ \textcolor{keywordtype}{int}\ other\_browse\_x\ =\ getWidth()\ -\/\ browse\_width\ -\/\ padding\_width;}
+\DoxyCodeLine{00507\ \ \ \textcolor{keywordtype}{int}\ other\_browse\_height\ =\ (getHeight()\ -\/\ options\_height\ -\/\ 2.0f\ *\ padding\_width)\ /\ 3.0f;}
+\DoxyCodeLine{00508\ }
+\DoxyCodeLine{00509\ \ \ wavetable\_list\_-\/>setBounds(other\_browse\_x,\ options\_height,\ browse\_width,\ other\_browse\_height);}
+\DoxyCodeLine{00510\ }
+\DoxyCodeLine{00511\ \ \ Rectangle<int>\ export\_bounds\ =\ wavetable\_list\_-\/>getBounds();}
+\DoxyCodeLine{00512\ \ \ export\_bounds.setY(0);}
+\DoxyCodeLine{00513\ \ \ export\_bounds.setHeight(wavetable\_list\_-\/>getY()\ -\/\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a7fcb2719478c206e1d12f209e3c6a6e1}{Skin::kLargePadding}}));}
+\DoxyCodeLine{00514\ }
+\DoxyCodeLine{00515\ \ \ \textcolor{keywordtype}{int}\ lfo\_y\ =\ wavetable\_list\_-\/>getBottom()\ +\ padding\_width;}
+\DoxyCodeLine{00516\ \ \ lfo\_list\_-\/>setBounds(other\_browse\_x,\ lfo\_y,\ browse\_width,\ other\_browse\_height);}
+\DoxyCodeLine{00517\ }
+\DoxyCodeLine{00518\ \ \ \textcolor{keywordtype}{int}\ sample\_y\ =\ getHeight()\ -\/\ other\_browse\_height;}
+\DoxyCodeLine{00519\ \ \ sample\_list\_-\/>setBounds(other\_browse\_x,\ sample\_y,\ browse\_width,\ other\_browse\_height);}
+\DoxyCodeLine{00520\ }
+\DoxyCodeLine{00521\ \ \ \textcolor{keywordtype}{int}\ widget\_margin\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a045e9e21484c2d32d7835f44c7c161f9}{Skin::kWidgetMargin}});}
+\DoxyCodeLine{00522\ \ \ \textcolor{keywordtype}{int}\ active\_export\_width\ =\ export\_bounds.getWidth()\ -\/\ 3\ *\ widget\_margin;}
+\DoxyCodeLine{00523\ \ \ \textcolor{keywordtype}{int}\ bank\_name\_width\ =\ active\_export\_width\ /\ 2;}
+\DoxyCodeLine{00524\ \ \ \textcolor{keywordtype}{int}\ export\_button\_width\ =\ active\_export\_width\ -\/\ bank\_name\_width;}
+\DoxyCodeLine{00525\ \ \ \textcolor{keywordtype}{int}\ options\_y\ =\ export\_bounds.getY()\ +\ widget\_margin;}
+\DoxyCodeLine{00526\ \ \ \textcolor{keywordtype}{int}\ option\_component\_height\ =\ export\_bounds.getHeight()\ -\/\ 2\ *\ widget\_margin;}
+\DoxyCodeLine{00527\ }
+\DoxyCodeLine{00528\ \ \ \textcolor{keywordtype}{int}\ name\_x\ =\ export\_bounds.getX()\ +\ widget\_margin;}
+\DoxyCodeLine{00529\ \ \ \textcolor{keywordtype}{int}\ export\_button\_x\ =\ name\_x\ +\ bank\_name\_width\ +\ widget\_margin;}
+\DoxyCodeLine{00530\ \ \ export\_bank\_button\_-\/>setBounds(export\_button\_x,\ options\_y,\ export\_button\_width,\ option\_component\_height);}
+\DoxyCodeLine{00531\ }
+\DoxyCodeLine{00532\ \ \ \textcolor{keywordflow}{if}\ (bank\_name\_box\_)\ \{}
+\DoxyCodeLine{00533\ \ \ \ \ bank\_name\_box\_-\/>setBounds(name\_x,\ options\_y,\ bank\_name\_width,\ option\_component\_height);}
+\DoxyCodeLine{00534\ \ \ \ \ bank\_name\_box\_-\/>resized();}
+\DoxyCodeLine{00535\ \ \ \}}
+\DoxyCodeLine{00536\ \}}
+\DoxyCodeLine{00537\ }
+\DoxyCodeLine{00538\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bank_exporter_a01c2f1c448cc86c325ef9287b85e3f45}{BankExporter::visibilityChanged}}()\ \{}
+\DoxyCodeLine{00539\ \ \ SynthSection::visibilityChanged();}
+\DoxyCodeLine{00540\ \ \ \textcolor{keywordflow}{if}\ (isShowing())}
+\DoxyCodeLine{00541\ \ \ \ \ loadFiles();}
+\DoxyCodeLine{00542\ \}}
+\DoxyCodeLine{00543\ }
+\DoxyCodeLine{00544\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bank_exporter_a27f1f20d1aab2243395e2bdfcaf4154e}{BankExporter::textEditorTextChanged}}(TextEditor\&\ editor)\ \{}
+\DoxyCodeLine{00545\ \ \ \textcolor{keywordtype}{bool}\ enabled\ =\ bank\_name\_box\_\ \&\&\ bank\_name\_box\_-\/>getText().trim()\ !=\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00546\ \ \ \textcolor{keywordflow}{if}\ (enabled\ ==\ export\_bank\_button\_-\/>isEnabled())}
+\DoxyCodeLine{00547\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00548\ }
+\DoxyCodeLine{00549\ \ \ export\_bank\_button\_-\/>setEnabled(enabled);}
+\DoxyCodeLine{00550\ \ \ setButtonColors();}
+\DoxyCodeLine{00551\ \}}
+\DoxyCodeLine{00552\ }
+\DoxyCodeLine{00553\ \textcolor{keywordtype}{void}\ BankExporter::setButtonColors()\ \{}
+\DoxyCodeLine{00554\ \ \ \textcolor{keywordflow}{if}\ (export\_bank\_button\_-\/>isEnabled())}
+\DoxyCodeLine{00555\ \ \ \ \ export\_bank\_button\_-\/>setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca95a4c01d5cce129cdc237f8ed714c57e}{Skin::kUiButton}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca2f3696f9d26770c17f938a550ea24b54}{Skin::kUiActionButton}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00556\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00557\ \ \ \ \ export\_bank\_button\_-\/>setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca95a4c01d5cce129cdc237f8ed714c57e}{Skin::kUiButton}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca06291d550534b1fd08f71070d64ec57b}{Skin::kUiButtonPressed}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00558\ }
+\DoxyCodeLine{00559\ \ \ export\_bank\_button\_-\/>setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca36aa23e9899c2d26ad61d4c9f503e89f}{Skin::kUiButtonHover}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca8460dc32554664615180977b4a195624}{Skin::kUiActionButtonHover}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00560\ \ \ export\_bank\_button\_-\/>setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca06291d550534b1fd08f71070d64ec57b}{Skin::kUiButtonPressed}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca8c2390691b51eb0a8248c5146147a003}{Skin::kUiActionButtonPressed}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00561\ \}}
+\DoxyCodeLine{00562\ }
+\DoxyCodeLine{00563\ \textcolor{keywordtype}{void}\ BankExporter::exportBank()\ \{}
+\DoxyCodeLine{00564\ \ \ ZipFile::Builder\ bank\_zip;}
+\DoxyCodeLine{00565\ \ \ String\ bank\_name\ =\ bank\_name\_box\_-\/>getText().trim();}
+\DoxyCodeLine{00566\ \ \ \textcolor{keywordflow}{if}\ (bank\_name.isEmpty())}
+\DoxyCodeLine{00567\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00568\ }
+\DoxyCodeLine{00569\ \ \ std::set<std::string>\ presets\ =\ preset\_list\_-\/>selectedFiles();}
+\DoxyCodeLine{00570\ \ \ std::set<std::string>\ wavetables\ =\ wavetable\_list\_-\/>selectedFiles();}
+\DoxyCodeLine{00571\ \ \ std::set<std::string>\ lfos\ =\ lfo\_list\_-\/>selectedFiles();}
+\DoxyCodeLine{00572\ \ \ std::set<std::string>\ samples\ =\ sample\_list\_-\/>selectedFiles();}
+\DoxyCodeLine{00573\ }
+\DoxyCodeLine{00574\ \ \ \textcolor{keywordflow}{if}\ (presets.empty()\ \&\&\ wavetables.empty()\ \&\&\ lfos.empty()\ \&\&\ samples.empty())}
+\DoxyCodeLine{00575\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00576\ }
+\DoxyCodeLine{00577\ \ \ String\ preset\_path\ =\ bank\_name\ +\ \textcolor{stringliteral}{"{}/"{}}\ +\ \mbox{\hyperlink{class_load_save_a0676b1ef53e6e0fd81a3eeb711d75e22}{LoadSave::kPresetFolderName}}\ +\ \textcolor{stringliteral}{"{}/"{}};}
+\DoxyCodeLine{00578\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ std::string\&\ path\ :\ presets)\ \{}
+\DoxyCodeLine{00579\ \ \ \ \ File\ preset(path);}
+\DoxyCodeLine{00580\ \ \ \ \ \textcolor{keywordflow}{if}\ (preset.exists())}
+\DoxyCodeLine{00581\ \ \ \ \ \ \ bank\_zip.addFile(preset,\ 9,\ preset\_path\ +\ getRelativePath(preset,\ \mbox{\hyperlink{class_load_save_a0676b1ef53e6e0fd81a3eeb711d75e22}{LoadSave::kPresetFolderName}}));}
+\DoxyCodeLine{00582\ \ \ \}}
+\DoxyCodeLine{00583\ }
+\DoxyCodeLine{00584\ \ \ String\ wavetable\_path\ =\ bank\_name\ +\ \textcolor{stringliteral}{"{}/"{}}\ +\ \mbox{\hyperlink{class_load_save_ada0dc87031b963f8fc0045d3725315e4}{LoadSave::kWavetableFolderName}}\ +\ \textcolor{stringliteral}{"{}/"{}};}
+\DoxyCodeLine{00585\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ std::string\&\ path\ :\ wavetables)\ \{}
+\DoxyCodeLine{00586\ \ \ \ \ File\ wavetable(path);}
+\DoxyCodeLine{00587\ \ \ \ \ \textcolor{keywordflow}{if}\ (wavetable.exists())}
+\DoxyCodeLine{00588\ \ \ \ \ \ \ bank\_zip.addFile(wavetable,\ 9,\ wavetable\_path\ +\ getRelativePath(wavetable,\ \mbox{\hyperlink{class_load_save_ada0dc87031b963f8fc0045d3725315e4}{LoadSave::kWavetableFolderName}}));}
+\DoxyCodeLine{00589\ \ \ \}}
+\DoxyCodeLine{00590\ }
+\DoxyCodeLine{00591\ \ \ String\ lfo\_path\ =\ bank\_name\ +\ \textcolor{stringliteral}{"{}/"{}}\ +\ \mbox{\hyperlink{class_load_save_aa8cf2c5a2c594561f0d4bfd27aa570e3}{LoadSave::kLfoFolderName}}\ +\ \textcolor{stringliteral}{"{}/"{}};}
+\DoxyCodeLine{00592\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ std::string\&\ path\ :\ lfos)\ \{}
+\DoxyCodeLine{00593\ \ \ \ \ File\ lfo(path);}
+\DoxyCodeLine{00594\ \ \ \ \ \textcolor{keywordflow}{if}\ (lfo.exists())}
+\DoxyCodeLine{00595\ \ \ \ \ \ \ bank\_zip.addFile(lfo,\ 9,\ lfo\_path\ +\ getRelativePath(lfo,\ \mbox{\hyperlink{class_load_save_aa8cf2c5a2c594561f0d4bfd27aa570e3}{LoadSave::kLfoFolderName}}));}
+\DoxyCodeLine{00596\ \ \ \}}
+\DoxyCodeLine{00597\ }
+\DoxyCodeLine{00598\ \ \ String\ sample\_path\ =\ bank\_name\ +\ \textcolor{stringliteral}{"{}/"{}}\ +\ \mbox{\hyperlink{class_load_save_a30001ea9bec64d896e62464743312813}{LoadSave::kSampleFolderName}}\ +\ \textcolor{stringliteral}{"{}/"{}};}
+\DoxyCodeLine{00599\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ std::string\&\ path\ :\ samples)\ \{}
+\DoxyCodeLine{00600\ \ \ \ \ File\ sample(path);}
+\DoxyCodeLine{00601\ \ \ \ \ \textcolor{keywordflow}{if}\ (sample.exists())}
+\DoxyCodeLine{00602\ \ \ \ \ \ \ bank\_zip.addFile(sample,\ 9,\ sample\_path\ +\ getRelativePath(sample,\ \mbox{\hyperlink{class_load_save_a30001ea9bec64d896e62464743312813}{LoadSave::kSampleFolderName}}));}
+\DoxyCodeLine{00603\ \ \ \}}
+\DoxyCodeLine{00604\ }
+\DoxyCodeLine{00605\ \ \ File\ file\ =\ File::getCurrentWorkingDirectory().getChildFile(bank\_name\ +\ \textcolor{stringliteral}{"{}."{}}\ +\ \mbox{\hyperlink{namespacevital_a2aac33b0ce74ae3e4f35520f0cbfa2be}{vital::kBankExtension}});}
+\DoxyCodeLine{00606\ \ \ FileChooser\ export\_box(\textcolor{stringliteral}{"{}Export\ Bank"{}},\ file,\ String(\textcolor{stringliteral}{"{}*."{}})\ +\ \mbox{\hyperlink{namespacevital_a2aac33b0ce74ae3e4f35520f0cbfa2be}{vital::kBankExtension}});}
+\DoxyCodeLine{00607\ \ \ \textcolor{keywordflow}{if}\ (export\_box.browseForFileToSave(\textcolor{keyword}{true}))\ \{}
+\DoxyCodeLine{00608\ \ \ \ \ File\ destination\ =\ export\_box.getResult().withFileExtension(\mbox{\hyperlink{namespacevital_a2aac33b0ce74ae3e4f35520f0cbfa2be}{vital::kBankExtension}});}
+\DoxyCodeLine{00609\ \ \ \ \ \textcolor{keywordflow}{if}\ (destination.hasWriteAccess())\ \{}
+\DoxyCodeLine{00610\ \ \ \ \ \ \ FileOutputStream\ output\_stream(destination);}
+\DoxyCodeLine{00611\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (output\_stream.openedOk())}
+\DoxyCodeLine{00612\ \ \ \ \ \ \ \ \ bank\_zip.writeToStream(output\_stream,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00613\ \ \ \ \ \}}
+\DoxyCodeLine{00614\ \ \ \}}
+\DoxyCodeLine{00615\ \}}
+\DoxyCodeLine{00616\ }
+\DoxyCodeLine{00617\ \textcolor{keywordtype}{void}\ BankExporter::loadFiles()\ \{}
+\DoxyCodeLine{00618\ \ \ Array<File>\ presets;}
+\DoxyCodeLine{00619\ \ \ \mbox{\hyperlink{class_load_save_a4b0d33c1f1e9db09f8d9e74d2fc0ecdb}{LoadSave::getAllUserPresets}}(presets);}
+\DoxyCodeLine{00620\ \ \ preset\_list\_-\/>setContent(presets);}
+\DoxyCodeLine{00621\ }
+\DoxyCodeLine{00622\ \ \ Array<File>\ wavetables;}
+\DoxyCodeLine{00623\ \ \ \mbox{\hyperlink{class_load_save_ab0966802491cd5f701bea844d2a9ba9f}{LoadSave::getAllUserWavetables}}(wavetables);}
+\DoxyCodeLine{00624\ \ \ wavetable\_list\_-\/>setContent(wavetables);}
+\DoxyCodeLine{00625\ }
+\DoxyCodeLine{00626\ \ \ Array<File>\ lfos;}
+\DoxyCodeLine{00627\ \ \ \mbox{\hyperlink{class_load_save_a0f124e6e6074b274e5ee4bef0ffdcb4b}{LoadSave::getAllUserLfos}}(lfos);}
+\DoxyCodeLine{00628\ \ \ lfo\_list\_-\/>setContent(lfos);}
+\DoxyCodeLine{00629\ }
+\DoxyCodeLine{00630\ \ \ Array<File>\ samples;}
+\DoxyCodeLine{00631\ \ \ \mbox{\hyperlink{class_load_save_afb0ee8a57fc43f94375779ba157ebe1f}{LoadSave::getAllUserSamples}}(samples);}
+\DoxyCodeLine{00632\ \ \ sample\_list\_-\/>setContent(samples);}
+\DoxyCodeLine{00633\ \}}
+\DoxyCodeLine{00634\ }
+\DoxyCodeLine{00635\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bank_exporter_ad3b530bf365734a3dbebc98a040cd7c9}{BankExporter::buttonClicked}}(Button*\ clicked\_button)\ \{}
+\DoxyCodeLine{00636\ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ export\_bank\_button\_.get())}
+\DoxyCodeLine{00637\ \ \ \ \ exportBank();}
+\DoxyCodeLine{00638\ \}}
+\DoxyCodeLine{00639\ }
+\DoxyCodeLine{00640\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_bank_exporter_a0ae6c95cf8f28aafbbb893762821666f}{BankExporter::keyPressed}}(\textcolor{keyword}{const}\ KeyPress\ \&key,\ Component\ *origin)\ \{}
+\DoxyCodeLine{00641\ \ \ \textcolor{keywordflow}{if}\ (key.getKeyCode()\ ==\ KeyPress::escapeKey\ \&\&\ isVisible())\ \{}
+\DoxyCodeLine{00642\ \ \ \ \ setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00643\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00644\ \ \ \}}
+\DoxyCodeLine{00645\ \ \ \textcolor{keywordflow}{return}\ bank\_name\_box\_-\/>hasKeyboardFocus(\textcolor{keyword}{true});}
+\DoxyCodeLine{00646\ \}}
+\DoxyCodeLine{00647\ }
+\DoxyCodeLine{00648\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_bank_exporter_a1c61564a01f8228a8a381a0e53c61406}{BankExporter::keyStateChanged}}(\textcolor{keywordtype}{bool}\ is\_key\_down,\ Component\ *origin)\ \{}
+\DoxyCodeLine{00649\ \ \ \textcolor{keywordflow}{if}\ (is\_key\_down)}
+\DoxyCodeLine{00650\ \ \ \ \ \textcolor{keywordflow}{return}\ bank\_name\_box\_-\/>hasKeyboardFocus(\textcolor{keyword}{true});}
+\DoxyCodeLine{00651\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00652\ \}}
+
+\end{DoxyCode}

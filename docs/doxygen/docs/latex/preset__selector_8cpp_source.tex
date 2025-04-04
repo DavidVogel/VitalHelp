@@ -1,0 +1,127 @@
+\doxysection{preset\+\_\+selector.\+cpp}
+\hypertarget{preset__selector_8cpp_source}{}\label{preset__selector_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/preset\_selector.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/preset\_selector.cpp}}
+\mbox{\hyperlink{preset__selector_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{preset__selector_8h}{preset\_selector.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{default__look__and__feel_8h}{default\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00008\ \mbox{\hyperlink{class_preset_selector_a1ba7853fe6ba0f9b62fa5703926d256b}{PresetSelector::PresetSelector}}()\ :\ \mbox{\hyperlink{class_synth_section}{SynthSection}}(\textcolor{stringliteral}{"{}preset\_selector"{}}),}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ font\_height\_ratio\_(kDefaultFontHeightRatio),}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ round\_amount\_(0.0f),\ hover\_(false),\ text\_component\_(false)\ \{}
+\DoxyCodeLine{00011\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ PathStrokeType\ arrow\_stroke(0.05f,\ PathStrokeType::JointStyle::curved,}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ PathStrokeType::EndCapStyle::rounded);}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \ \ text\_\ =\ std::make\_unique<PlainTextComponent>(\textcolor{stringliteral}{"{}Text"{}},\ \textcolor{stringliteral}{"{}Init"{}});}
+\DoxyCodeLine{00015\ \ \ text\_-\/>setFontType(\mbox{\hyperlink{class_plain_text_component_a136e53c8d27fe3d8ed1d79b42e473900a781ab58ea9bfcbb7b261f0406e7d2b97}{PlainTextComponent::kTitle}});}
+\DoxyCodeLine{00016\ \ \ text\_-\/>setInterceptsMouseClicks(\textcolor{keyword}{false},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00017\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(text\_.get());}
+\DoxyCodeLine{00018\ \ \ text\_-\/>setScissor(\textcolor{keyword}{true});}
+\DoxyCodeLine{00019\ \ \ Path\ prev\_line,\ prev\_shape,\ next\_line,\ next\_shape;}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \textcolor{comment}{//\ Previous\ preset\ button}}
+\DoxyCodeLine{00022\ \ \ prev\_preset\_\ =\ std::make\_unique<OpenGlShapeButton>(\textcolor{stringliteral}{"{}Prev"{}});}
+\DoxyCodeLine{00023\ \ \ addAndMakeVisible(prev\_preset\_.get());}
+\DoxyCodeLine{00024\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(prev\_preset\_-\/>getGlComponent());}
+\DoxyCodeLine{00025\ \ \ prev\_preset\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00026\ \ \ prev\_line.startNewSubPath(0.65f,\ 0.3f);}
+\DoxyCodeLine{00027\ \ \ prev\_line.lineTo(0.35f,\ 0.5f);}
+\DoxyCodeLine{00028\ \ \ prev\_line.lineTo(0.65f,\ 0.7f);}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ arrow\_stroke.createStrokedPath(prev\_shape,\ prev\_line);}
+\DoxyCodeLine{00031\ \ \ prev\_shape.addLineSegment(Line<float>(0.0f,\ 0.0f,\ 0.0f,\ 0.0f),\ 0.2f);}
+\DoxyCodeLine{00032\ \ \ prev\_shape.addLineSegment(Line<float>(1.0f,\ 1.0f,\ 1.0f,\ 1.0f),\ 0.2f);}
+\DoxyCodeLine{00033\ \ \ prev\_preset\_-\/>setShape(prev\_shape);}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \textcolor{comment}{//\ Next\ preset\ button}}
+\DoxyCodeLine{00036\ \ \ next\_preset\_\ =\ std::make\_unique<OpenGlShapeButton>(\textcolor{stringliteral}{"{}Next"{}});}
+\DoxyCodeLine{00037\ \ \ addAndMakeVisible(next\_preset\_.get());}
+\DoxyCodeLine{00038\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(next\_preset\_-\/>getGlComponent());}
+\DoxyCodeLine{00039\ \ \ next\_preset\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00040\ \ \ next\_line.startNewSubPath(0.35f,\ 0.3f);}
+\DoxyCodeLine{00041\ \ \ next\_line.lineTo(0.65f,\ 0.5f);}
+\DoxyCodeLine{00042\ \ \ next\_line.lineTo(0.35f,\ 0.7f);}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ arrow\_stroke.createStrokedPath(next\_shape,\ next\_line);}
+\DoxyCodeLine{00045\ \ \ next\_shape.addLineSegment(Line<float>(0.0f,\ 0.0f,\ 0.0f,\ 0.0f),\ 0.2f);}
+\DoxyCodeLine{00046\ \ \ next\_shape.addLineSegment(Line<float>(1.0f,\ 1.0f,\ 1.0f,\ 1.0f),\ 0.2f);}
+\DoxyCodeLine{00047\ \ \ next\_preset\_-\/>setShape(next\_shape);}
+\DoxyCodeLine{00048\ \}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00051\ \mbox{\hyperlink{class_preset_selector_aacef926444620089aa1ee0a3de56cfbe}{PresetSelector::\string~PresetSelector}}()\ \{\ \}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00055\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_preset_selector_ad4cd5edb7e7507f001b27c0466f79d2b}{PresetSelector::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00056\ \ \ \textcolor{keywordtype}{float}\ round\_amount\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab3cb761113ca34ffe06c8ed64a7df2f1}{Skin::kWidgetRoundedCorner}});}
+\DoxyCodeLine{00057\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca8b61fcb1038cbd0704d44b8c4e1264e8}{Skin::kPopupSelectorBackground}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00058\ \ \ g.fillRoundedRectangle(0,\ 0,\ getWidth(),\ getHeight(),\ round\_amount);}
+\DoxyCodeLine{00059\ \}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00062\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_preset_selector_a1d90cb77a3e84489c9ca17be45af9f00}{PresetSelector::resized}}()\ \{}
+\DoxyCodeLine{00063\ \ \ \mbox{\hyperlink{class_synth_section_a549f91a2b81b419368a578990cb2e6c2}{SynthSection::resized}}();}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \textcolor{keywordflow}{if}\ (text\_component\_)\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}*\ parent\ =\ findParentComponentOfClass<SynthSection>();}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keywordtype}{int}\ button\_height\ =\ parent-\/>\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3a111fa6770cfc738add0135e68a2db0}{Skin::kTextComponentFontSize}});}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordtype}{int}\ offset\ =\ parent-\/>\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a4deb269c17a1601618e3f360c243ee1e}{Skin::kTextComponentOffset}});}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keywordtype}{int}\ button\_y\ =\ (getHeight()\ -\/\ button\_height)\ /\ 2\ +\ offset;}
+\DoxyCodeLine{00070\ \ \ \ \ prev\_preset\_-\/>setBounds(0,\ button\_y,\ button\_height,\ button\_height);}
+\DoxyCodeLine{00071\ \ \ \ \ next\_preset\_-\/>setBounds(getWidth()\ -\/\ button\_height,\ button\_y,\ button\_height,\ button\_height);}
+\DoxyCodeLine{00072\ \ \ \ \ text\_-\/>setBounds(getLocalBounds().translated(0,\ offset));}
+\DoxyCodeLine{00073\ \ \ \ \ text\_-\/>setTextSize(button\_height);}
+\DoxyCodeLine{00074\ \ \ \}}
+\DoxyCodeLine{00075\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keywordtype}{int}\ height\ =\ getHeight();}
+\DoxyCodeLine{00077\ \ \ \ \ text\_-\/>setBounds(Rectangle<int>(height,\ 0,\ getWidth()\ -\/\ 2\ *\ height,\ height));}
+\DoxyCodeLine{00078\ \ \ \ \ text\_-\/>setTextSize(height\ *\ font\_height\_ratio\_);}
+\DoxyCodeLine{00079\ \ \ \ \ prev\_preset\_-\/>setBounds(0,\ 0,\ height,\ height);}
+\DoxyCodeLine{00080\ \ \ \ \ next\_preset\_-\/>setBounds(getWidth()\ -\/\ height,\ 0,\ height,\ height);}
+\DoxyCodeLine{00081\ \ \ \ \ text\_-\/>setColor(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cac593af7ea6412ba30be36ca476b2d2f1}{Skin::kPresetText}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00082\ \ \ \}}
+\DoxyCodeLine{00083\ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00088\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_preset_selector_aa5ca13c04b91cb778f26d16bd40e1749}{PresetSelector::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00089\ \ \ textMouseDown(e);}
+\DoxyCodeLine{00090\ \}}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00095\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_preset_selector_ae36a1f50b8ccf85bbccb7da1be9f350a}{PresetSelector::mouseUp}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00096\ \ \ textMouseUp(e);}
+\DoxyCodeLine{00097\ \}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00101\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_preset_selector_a5109ade0ef1aaa64de0bb77f97f46d4e}{PresetSelector::buttonClicked}}(Button*\ clicked\_button)\ \{}
+\DoxyCodeLine{00102\ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ prev\_preset\_.get())}
+\DoxyCodeLine{00103\ \ \ \ \ \mbox{\hyperlink{class_preset_selector_a7b51a3f8eec9da8384d644d87a9c89d5}{clickPrev}}();}
+\DoxyCodeLine{00104\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ next\_preset\_.get())}
+\DoxyCodeLine{00105\ \ \ \ \ \mbox{\hyperlink{class_preset_selector_a57ce5be43ba3838734333b77a70420f5}{clickNext}}();}
+\DoxyCodeLine{00106\ \}}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00110\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_preset_selector_ac026260c01ae761952b5ce025ab2d43c}{PresetSelector::setText}}(String\ text)\ \{}
+\DoxyCodeLine{00111\ \ \ text\_-\/>setText(text);}
+\DoxyCodeLine{00112\ \}}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00118\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_preset_selector_ac026260c01ae761952b5ce025ab2d43c}{PresetSelector::setText}}(String\ left,\ String\ center,\ String\ right)\ \{}
+\DoxyCodeLine{00119\ \ \ text\_-\/>setText(left\ +\ \textcolor{stringliteral}{"{}\ \ "{}}\ +\ center\ +\ \textcolor{stringliteral}{"{}\ \ "{}}\ +\ right);}
+\DoxyCodeLine{00120\ \}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00123\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_preset_selector_a7b51a3f8eec9da8384d644d87a9c89d5}{PresetSelector::clickPrev}}()\ \{}
+\DoxyCodeLine{00124\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_preset_selector_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00125\ \ \ \ \ listener-\/>prevClicked();}
+\DoxyCodeLine{00126\ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00129\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_preset_selector_a57ce5be43ba3838734333b77a70420f5}{PresetSelector::clickNext}}()\ \{}
+\DoxyCodeLine{00130\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_preset_selector_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00131\ \ \ \ \ listener-\/>nextClicked();}
+\DoxyCodeLine{00132\ \}}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00136\ \textcolor{keywordtype}{void}\ PresetSelector::textMouseDown(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00137\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00138\ \ \ \ \ listener-\/>textMouseDown(e);}
+\DoxyCodeLine{00139\ \}}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00143\ \textcolor{keywordtype}{void}\ PresetSelector::textMouseUp(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00144\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00145\ \ \ \ \ listener-\/>textMouseUp(e);}
+\DoxyCodeLine{00146\ \}}
+
+\end{DoxyCode}

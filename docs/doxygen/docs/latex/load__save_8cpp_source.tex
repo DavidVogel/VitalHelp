@@ -1,0 +1,1946 @@
+\doxysection{load\+\_\+save.\+cpp}
+\hypertarget{load__save_8cpp_source}{}\label{load__save_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/load\_save.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/load\_save.cpp}}
+\mbox{\hyperlink{load__save_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{load__save_8h}{load\_save.h}}"{}}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{modulation__connection__processor_8h}{modulation\_connection\_processor.h}}"{}}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}sound\_engine.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{midi__manager_8h}{midi\_manager.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{sample__source_8h}{sample\_source.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__base_8h}{synth\_base.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__oscillator_8h}{synth\_oscillator.h}}"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#define\ QUOTE(x)\ \#x}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#define\ STRINGIFY(x)\ QUOTE(x)}}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00014\ \ \ \textcolor{keyword}{const}\ std::string\ kLinuxUserDataDirectory\ =\ \textcolor{stringliteral}{"{}\string~/.local/share/vital/"{}};}
+\DoxyCodeLine{00015\ \ \ \textcolor{keyword}{const}\ std::string\ kAvailablePacksFile\ =\ \textcolor{stringliteral}{"{}available\_packs.json"{}};}
+\DoxyCodeLine{00016\ \ \ \textcolor{keyword}{const}\ std::string\ kInstalledPacksFile\ =\ \textcolor{stringliteral}{"{}packs.json"{}};}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \ \ Time\ getBuildTime()\ \{}
+\DoxyCodeLine{00019\ \ \ \ \ StringArray\ date\_tokens;}
+\DoxyCodeLine{00020\ \ \ \ \ date\_tokens.addTokens(\mbox{\hyperlink{load__save_8cpp_a6df1d22fb5f09eccc23b9f399670cfd7}{STRINGIFY}}(BUILD\_DATE),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keywordflow}{if}\ (date\_tokens.size()\ !=\ 5)}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Time::getCompilationDate();}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordtype}{int}\ year\ =\ date\_tokens[0].getIntValue();}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keywordtype}{int}\ month\ =\ date\_tokens[1].getIntValue()\ -\/\ 1;}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keywordtype}{int}\ day\ =\ date\_tokens[2].getIntValue();}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keywordtype}{int}\ hour\ =\ date\_tokens[3].getIntValue();}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keywordtype}{int}\ minute\ =\ date\_tokens[4].getIntValue();}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keywordflow}{return}\ Time(year,\ month,\ day,\ hour,\ minute);}
+\DoxyCodeLine{00031\ \ \ \}}
+\DoxyCodeLine{00032\ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \textcolor{keyword}{const}\ std::string\ \mbox{\hyperlink{class_load_save_af513b8d901fb27f9721ce876e9995bfc}{LoadSave::kUserDirectoryName}}\ =\ \textcolor{stringliteral}{"{}User"{}};}
+\DoxyCodeLine{00035\ \textcolor{keyword}{const}\ std::string\ \mbox{\hyperlink{class_load_save_a0676b1ef53e6e0fd81a3eeb711d75e22}{LoadSave::kPresetFolderName}}\ =\ \textcolor{stringliteral}{"{}Presets"{}};}
+\DoxyCodeLine{00036\ \textcolor{keyword}{const}\ std::string\ \mbox{\hyperlink{class_load_save_ada0dc87031b963f8fc0045d3725315e4}{LoadSave::kWavetableFolderName}}\ =\ \textcolor{stringliteral}{"{}Wavetables"{}};}
+\DoxyCodeLine{00037\ \textcolor{keyword}{const}\ std::string\ \mbox{\hyperlink{class_load_save_a0ff1a0c8112b6947ab83e0224ea84f08}{LoadSave::kSkinFolderName}}\ =\ \textcolor{stringliteral}{"{}Skins"{}};}
+\DoxyCodeLine{00038\ \textcolor{keyword}{const}\ std::string\ \mbox{\hyperlink{class_load_save_a30001ea9bec64d896e62464743312813}{LoadSave::kSampleFolderName}}\ =\ \textcolor{stringliteral}{"{}Samples"{}};}
+\DoxyCodeLine{00039\ \textcolor{keyword}{const}\ std::string\ \mbox{\hyperlink{class_load_save_aa8cf2c5a2c594561f0d4bfd27aa570e3}{LoadSave::kLfoFolderName}}\ =\ \textcolor{stringliteral}{"{}LFOs"{}};}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \textcolor{keyword}{const}\ std::string\ \mbox{\hyperlink{class_load_save_a388fcb2294874a77bcd4eed5761a6863}{LoadSave::kAdditionalWavetableFoldersName}}\ =\ \textcolor{stringliteral}{"{}wavetable\_folders"{}};}
+\DoxyCodeLine{00042\ \textcolor{keyword}{const}\ std::string\ \mbox{\hyperlink{class_load_save_ace00d866e846e7c7dda04007a60b1999}{LoadSave::kAdditionalSampleFoldersName}}\ =\ \textcolor{stringliteral}{"{}sample\_folders"{}};}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_abf554633f1b6c0a69115bbe3d25060fc}{LoadSave::convertBufferToPcm}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ data,\ \textcolor{keyword}{const}\ std::string\&\ field)\ \{}
+\DoxyCodeLine{00045\ \ \ \textcolor{keywordflow}{if}\ (data.count(field)\ ==\ 0)}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ MemoryOutputStream\ decoded;}
+\DoxyCodeLine{00049\ \ \ std::string\ wave\_data\ =\ data[field];}
+\DoxyCodeLine{00050\ \ \ Base64::convertFromBase64(decoded,\ wave\_data);}
+\DoxyCodeLine{00051\ \ \ \textcolor{keywordtype}{int}\ size\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(decoded.getDataSize())\ /\ \textcolor{keyword}{sizeof}(float);}
+\DoxyCodeLine{00052\ \ \ std::unique\_ptr<float[]>\ float\_data\ =\ std::make\_unique<float[]>(size);}
+\DoxyCodeLine{00053\ \ \ memcpy(float\_data.get(),\ decoded.getData(),\ size\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}));}
+\DoxyCodeLine{00054\ \ \ std::unique\_ptr<int16\_t[]>\ pcm\_data\ =\ std::make\_unique<int16\_t[]>(size);}
+\DoxyCodeLine{00055\ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a6f52b77daf0013da4f08f9a19e7bc262}{vital::utils::floatToPcmData}}(pcm\_data.get(),\ float\_data.get(),\ size);}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ String\ encoded\ =\ Base64::toBase64(pcm\_data.get(),\ \textcolor{keyword}{sizeof}(int16\_t)\ *\ size);}
+\DoxyCodeLine{00058\ \ \ data[field]\ =\ encoded.toStdString();}
+\DoxyCodeLine{00059\ \}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a5b4487098cee706ce70c523814d0967d}{LoadSave::convertPcmToFloatBuffer}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ data,\ \textcolor{keyword}{const}\ std::string\&\ field)\ \{}
+\DoxyCodeLine{00062\ \ \ \textcolor{keywordflow}{if}\ (data.count(field)\ ==\ 0)}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ MemoryOutputStream\ decoded;}
+\DoxyCodeLine{00066\ \ \ std::string\ wave\_data\ =\ data[field];}
+\DoxyCodeLine{00067\ \ \ Base64::convertFromBase64(decoded,\ wave\_data);}
+\DoxyCodeLine{00068\ \ \ \textcolor{keywordtype}{int}\ size\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(decoded.getDataSize())\ /\ \textcolor{keyword}{sizeof}(int16\_t);}
+\DoxyCodeLine{00069\ \ \ std::unique\_ptr<int16\_t[]>\ pcm\_data\ =\ std::make\_unique<int16\_t[]>(size);}
+\DoxyCodeLine{00070\ \ \ memcpy(pcm\_data.get(),\ decoded.getData(),\ size\ *\ \textcolor{keyword}{sizeof}(int16\_t));}
+\DoxyCodeLine{00071\ \ \ std::unique\_ptr<float[]>\ float\_data\ =\ std::make\_unique<float[]>(size);}
+\DoxyCodeLine{00072\ \ \ \mbox{\hyperlink{namespacevital_1_1utils_ad7cdd481f6e7741d1578a777a75d0b87}{vital::utils::pcmToFloatData}}(float\_data.get(),\ pcm\_data.get(),\ size);}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ String\ encoded\ =\ Base64::toBase64(float\_data.get(),\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float})\ *\ size);}
+\DoxyCodeLine{00075\ \ \ data[field]\ =\ encoded.toStdString();}
+\DoxyCodeLine{00076\ \}}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_load_save_a8ad6a32d92c20c420079f5f5a55fbc56}{LoadSave::stateToJson}}(\mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth,\ \textcolor{keyword}{const}\ CriticalSection\&\ critical\_section)\ \{}
+\DoxyCodeLine{00079\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ settings\_data;}
+\DoxyCodeLine{00080\ \ \ \mbox{\hyperlink{namespacevital_aa714e9b3957a28c9eaf0105959aea482}{vital::control\_map}}\&\ controls\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_ad2fdb3e59ed76a79cf445ed41476196f}{getControls}}();}
+\DoxyCodeLine{00081\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ control\ :\ controls)}
+\DoxyCodeLine{00082\ \ \ \ \ settings\_data[control.first]\ =\ control.second-\/>value();}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \mbox{\hyperlink{classvital_1_1_sample}{vital::Sample}}*\ sample\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_ad07c4c745c5de0ef7095c329f19cad38}{getSample}}();}
+\DoxyCodeLine{00085\ \ \ \textcolor{keywordflow}{if}\ (sample)}
+\DoxyCodeLine{00086\ \ \ \ \ settings\_data[\textcolor{stringliteral}{"{}sample"{}}]\ =\ sample-\/>\mbox{\hyperlink{classvital_1_1_sample_af2d827463b88d098b216360b4c99e5f8}{stateToJson}}();}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ modulations;}
+\DoxyCodeLine{00089\ \ \ \mbox{\hyperlink{classvital_1_1_modulation_connection_bank}{vital::ModulationConnectionBank}}\&\ modulation\_bank\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_a43450b931d0e00252383cc51c33b416c}{getModulationBank}}();}
+\DoxyCodeLine{00090\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_abcbdb48fbd4d9f98b90cae346ee22044}{vital::kMaxModulationConnections}};\ ++i)\ \{}
+\DoxyCodeLine{00091\ \ \ \ \ \mbox{\hyperlink{structvital_1_1_modulation_connection}{vital::ModulationConnection}}*\ connection\ =\ modulation\_bank.\mbox{\hyperlink{classvital_1_1_modulation_connection_bank_a12e4e9852ad8f0828340b74c0af06a83}{atIndex}}(i);}
+\DoxyCodeLine{00092\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ modulation\_data;}
+\DoxyCodeLine{00093\ \ \ \ \ modulation\_data[\textcolor{stringliteral}{"{}source"{}}]\ =\ connection-\/>\mbox{\hyperlink{structvital_1_1_modulation_connection_ab0b21a5897f08fa25b0c349df45d9fb7}{source\_name}};}
+\DoxyCodeLine{00094\ \ \ \ \ modulation\_data[\textcolor{stringliteral}{"{}destination"{}}]\ =\ connection-\/>\mbox{\hyperlink{structvital_1_1_modulation_connection_aa639c48dede2e2037c4d55f1066ad661}{destination\_name}};}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \ \ \ \ \mbox{\hyperlink{class_line_generator}{LineGenerator}}*\ line\_mapping\ =\ connection-\/>\mbox{\hyperlink{structvital_1_1_modulation_connection_a3e60937dc576522f7c477da963dda169}{modulation\_processor}}-\/>lineMapGenerator();}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keywordflow}{if}\ (!line\_mapping-\/>\mbox{\hyperlink{class_line_generator_ac1250b7b97e8caa37b4fb9935454d1e6}{linear}}())}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ modulation\_data[\textcolor{stringliteral}{"{}line\_mapping"{}}]\ =\ line\_mapping-\/>\mbox{\hyperlink{class_line_generator_ad89103d3ef0b3f99dee5075f114decd2}{stateToJson}}();}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \ \ modulations.push\_back(modulation\_data);}
+\DoxyCodeLine{00101\ \ \ \}}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \ \ settings\_data[\textcolor{stringliteral}{"{}modulations"{}}]\ =\ modulations;}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \ \ \textcolor{keywordflow}{if}\ (synth-\/>\mbox{\hyperlink{class_synth_base_aaadb0d2896bc633ad243eec126ea2747}{getWavetableCreator}}(0))\ \{}
+\DoxyCodeLine{00106\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ wavetables;}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a0e4fccbd130334777730a520c067fdf9}{vital::kNumOscillators}};\ ++i)\ \{}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator}{WavetableCreator}}*\ wavetable\_creator\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_aaadb0d2896bc633ad243eec126ea2747}{getWavetableCreator}}(i);}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ wavetables.push\_back(wavetable\_creator-\/>\mbox{\hyperlink{class_wavetable_creator_a9735b94572c82cc9ca34f27f38e67e31}{stateToJson}}());}
+\DoxyCodeLine{00110\ \ \ \ \ \}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \ \ \ \ settings\_data[\textcolor{stringliteral}{"{}wavetables"{}}]\ =\ wavetables;}
+\DoxyCodeLine{00113\ \ \ \}}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ lfos;}
+\DoxyCodeLine{00116\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_aba56646bec643d6d416700b782ed978b}{vital::kNumLfos}};\ ++i)\ \{}
+\DoxyCodeLine{00117\ \ \ \ \ \mbox{\hyperlink{class_line_generator}{LineGenerator}}*\ lfo\_source\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_a80af5aada8edd7fd057c7b4251f968fb}{getLfoSource}}(i);}
+\DoxyCodeLine{00118\ \ \ \ \ lfos.push\_back(lfo\_source-\/>\mbox{\hyperlink{class_line_generator_ad89103d3ef0b3f99dee5075f114decd2}{stateToJson}}());}
+\DoxyCodeLine{00119\ \ \ \}}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ settings\_data[\textcolor{stringliteral}{"{}lfos"{}}]\ =\ lfos;}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data;}
+\DoxyCodeLine{00124\ \ \ data[\textcolor{stringliteral}{"{}synth\_version"{}}]\ =\ ProjectInfo::versionString;}
+\DoxyCodeLine{00125\ \ \ data[\textcolor{stringliteral}{"{}preset\_name"{}}]\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_aa3c9dffdaaa6f566e98d9a5f1ce25c49}{getPresetName}}().toStdString();}
+\DoxyCodeLine{00126\ \ \ data[\textcolor{stringliteral}{"{}author"{}}]\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_a5413dc3bc1820bd684f630539277f77f}{getAuthor}}().toStdString();}
+\DoxyCodeLine{00127\ \ \ data[\textcolor{stringliteral}{"{}comments"{}}]\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_a727799daccb069ed0f2b88b58d3c4be0}{getComments}}().toStdString();}
+\DoxyCodeLine{00128\ \ \ data[\textcolor{stringliteral}{"{}preset\_style"{}}]\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_aff08ea3ecb35474472d41f4f8c9899ec}{getStyle}}().toStdString();}
+\DoxyCodeLine{00129\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_adad4ff0a7bac9530c4840d320351a265}{vital::kNumMacros}};\ ++i)\ \{}
+\DoxyCodeLine{00130\ \ \ \ \ std::string\ name\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_a3015e8587a088580ea5972f10f45e2e3}{getMacroName}}(i).toStdString();}
+\DoxyCodeLine{00131\ \ \ \ \ data[\textcolor{stringliteral}{"{}macro"{}}\ +\ std::to\_string(i\ +\ 1)]\ =\ name;}
+\DoxyCodeLine{00132\ \ \ \}}
+\DoxyCodeLine{00133\ \ \ data[\textcolor{stringliteral}{"{}settings"{}}]\ =\ settings\_data;}
+\DoxyCodeLine{00134\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00135\ \}}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a5896f664e37b65108eba2992f22a92af}{LoadSave::loadControls}}(\mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ data)\ \{}
+\DoxyCodeLine{00138\ \ \ \mbox{\hyperlink{namespacevital_aa714e9b3957a28c9eaf0105959aea482}{vital::control\_map}}\ controls\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_ad2fdb3e59ed76a79cf445ed41476196f}{getControls}}();}
+\DoxyCodeLine{00139\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ control\ :\ controls)\ \{}
+\DoxyCodeLine{00140\ \ \ \ \ std::string\ name\ =\ control.first;}
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{keywordflow}{if}\ (data.count(name))\ \{}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ value\ =\ data[name];}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ control.second-\/>set(value);}
+\DoxyCodeLine{00144\ \ \ \ \ \}}
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1_value_details}{vital::ValueDetails}}\ details\ =\ \mbox{\hyperlink{classvital_1_1_parameters_add207875d97ce0cabc64a33e86a5ab24}{vital::Parameters::getDetails}}(name);}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ control.second-\/>set(details.\mbox{\hyperlink{structvital_1_1_value_details_aa77131baa318ce44d3e879e0908f46a5}{default\_value}});}
+\DoxyCodeLine{00148\ \ \ \ \ \}}
+\DoxyCodeLine{00149\ \ \ \}}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_a98c20b4fb3cf40730cff88704344b547}{modWheelGuiChanged}}(controls[\textcolor{stringliteral}{"{}mod\_wheel"{}}]-\/>value());}
+\DoxyCodeLine{00152\ \}}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a8f1f10ef0b349502d535cf9633333725}{LoadSave::loadModulations}}(\mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulations)\ \{}
+\DoxyCodeLine{00155\ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_adf2f4b6758661f1180538706050eb4be}{clearModulations}}();}
+\DoxyCodeLine{00156\ \ \ \mbox{\hyperlink{classvital_1_1_modulation_connection_bank}{vital::ModulationConnectionBank}}\&\ modulation\_bank\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_a43450b931d0e00252383cc51c33b416c}{getModulationBank}}();}
+\DoxyCodeLine{00157\ \ \ \textcolor{keywordtype}{int}\ index\ =\ 0;}
+\DoxyCodeLine{00158\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ modulations)\ \{}
+\DoxyCodeLine{00159\ \ \ \ \ std::string\ source\ =\ modulation[\textcolor{stringliteral}{"{}source"{}}];}
+\DoxyCodeLine{00160\ \ \ \ \ std::string\ destination\ =\ modulation[\textcolor{stringliteral}{"{}destination"{}}];}
+\DoxyCodeLine{00161\ \ \ \ \ \mbox{\hyperlink{structvital_1_1_modulation_connection}{vital::ModulationConnection}}*\ connection\ =\ modulation\_bank.\mbox{\hyperlink{classvital_1_1_modulation_connection_bank_a12e4e9852ad8f0828340b74c0af06a83}{atIndex}}(index);}
+\DoxyCodeLine{00162\ \ \ \ \ index++;}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{keywordflow}{if}\ (synth-\/>\mbox{\hyperlink{class_synth_base_ae2d1bcc3e7ea655bb4d0c3cbd3dabfdd}{getEngine}}()-\/>\mbox{\hyperlink{classvital_1_1_synth_module_aa91319dc5d300584b4897e1a0c53afe8}{getModulationSource}}(source)\ ==\ \textcolor{keyword}{nullptr}\ ||}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_ae2d1bcc3e7ea655bb4d0c3cbd3dabfdd}{getEngine}}()-\/>\mbox{\hyperlink{classvital_1_1_synth_module_a88796e9b2e6534cc0487ba9b9093abb7}{getMonoModulationDestination}}(destination)\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00167\ \ \ \ \ \}}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \ \ \ \ \textcolor{keywordflow}{if}\ (source.length()\ \&\&\ destination.length())\ \{}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ connection-\/>\mbox{\hyperlink{structvital_1_1_modulation_connection_ab0b21a5897f08fa25b0c349df45d9fb7}{source\_name}}\ =\ source;}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ connection-\/>\mbox{\hyperlink{structvital_1_1_modulation_connection_aa639c48dede2e2037c4d55f1066ad661}{destination\_name}}\ =\ destination;}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_a20f5d5c0d63b354ce557a849624ce16f}{connectModulation}}(connection);}
+\DoxyCodeLine{00173\ \ \ \ \ \}}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation.count(\textcolor{stringliteral}{"{}line\_mapping"{}}))}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ connection-\/>\mbox{\hyperlink{structvital_1_1_modulation_connection_a3e60937dc576522f7c477da963dda169}{modulation\_processor}}-\/>lineMapGenerator()-\/>jsonToState(modulation[\textcolor{stringliteral}{"{}line\_mapping"{}}]);}
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ connection-\/>\mbox{\hyperlink{structvital_1_1_modulation_connection_a3e60937dc576522f7c477da963dda169}{modulation\_processor}}-\/>lineMapGenerator()-\/>initLinear();}
+\DoxyCodeLine{00179\ \ \ \}}
+\DoxyCodeLine{00180\ \}}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_aff320cecd73d1a7c859bda7cbdbd63b5}{LoadSave::loadSample}}(\mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ json\_sample)\ \{}
+\DoxyCodeLine{00183\ \ \ \mbox{\hyperlink{classvital_1_1_sample}{vital::Sample}}*\ sample\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_ad07c4c745c5de0ef7095c329f19cad38}{getSample}}();}
+\DoxyCodeLine{00184\ \ \ \textcolor{keywordflow}{if}\ (sample)}
+\DoxyCodeLine{00185\ \ \ \ \ sample-\/>\mbox{\hyperlink{classvital_1_1_sample_aedba9fcd7fc8c4ff5415246ec7536733}{jsonToState}}(json\_sample);}
+\DoxyCodeLine{00186\ \}}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_aec52c9f4448631c84bace6d10a57fb01}{LoadSave::loadWavetables}}(\mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ wavetables)\ \{}
+\DoxyCodeLine{00189\ \ \ \textcolor{keywordflow}{if}\ (synth-\/>\mbox{\hyperlink{class_synth_base_aaadb0d2896bc633ad243eec126ea2747}{getWavetableCreator}}(0)\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00190\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \ \ \textcolor{keywordtype}{int}\ i\ =\ 0;}
+\DoxyCodeLine{00193\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ wavetable\ :\ wavetables)\ \{}
+\DoxyCodeLine{00194\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator}{WavetableCreator}}*\ wavetable\_creator\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_aaadb0d2896bc633ad243eec126ea2747}{getWavetableCreator}}(i);}
+\DoxyCodeLine{00195\ \ \ \ \ wavetable\_creator-\/>\mbox{\hyperlink{class_wavetable_creator_a97b511ce218af4b3667707ee1ae87daf}{jsonToState}}(wavetable);}
+\DoxyCodeLine{00196\ \ \ \ \ wavetable\_creator-\/>\mbox{\hyperlink{class_wavetable_creator_afaf1f551900264a412d5e8ac25a9f997}{render}}();}
+\DoxyCodeLine{00197\ \ \ \ \ i++;}
+\DoxyCodeLine{00198\ \ \ \}}
+\DoxyCodeLine{00199\ \}}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a6723a9ef9f337cbe271f0eef05b11664}{LoadSave::loadLfos}}(\mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ lfos)\ \{}
+\DoxyCodeLine{00202\ \ \ \textcolor{keywordtype}{int}\ i\ =\ 0;}
+\DoxyCodeLine{00203\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ lfo\ :\ lfos)\ \{}
+\DoxyCodeLine{00204\ \ \ \ \ \mbox{\hyperlink{class_line_generator}{LineGenerator}}*\ lfo\_source\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_a80af5aada8edd7fd057c7b4251f968fb}{getLfoSource}}(i);}
+\DoxyCodeLine{00205\ \ \ \ \ lfo\_source-\/>\mbox{\hyperlink{class_line_generator_acaa5e05d5e1210bf3433fb9456895fed}{jsonToState}}(lfo);}
+\DoxyCodeLine{00206\ \ \ \ \ lfo\_source-\/>\mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00207\ \ \ \ \ i++;}
+\DoxyCodeLine{00208\ \ \ \}}
+\DoxyCodeLine{00209\ \}}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_ac41aa8856f3999b2fdb241857115ef68}{LoadSave::loadSaveState}}(std::map<std::string,\ String>\&\ state,\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00212\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}preset\_name"{}}))\ \{}
+\DoxyCodeLine{00213\ \ \ \ \ std::string\ preset\_name\ =\ data[\textcolor{stringliteral}{"{}preset\_name"{}}];}
+\DoxyCodeLine{00214\ \ \ \ \ state[\textcolor{stringliteral}{"{}preset\_name"{}}]\ =\ preset\_name;}
+\DoxyCodeLine{00215\ \ \ \}}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00217\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}author"{}}))\ \{}
+\DoxyCodeLine{00218\ \ \ \ \ std::string\ author\ =\ data[\textcolor{stringliteral}{"{}author"{}}];}
+\DoxyCodeLine{00219\ \ \ \ \ state[\textcolor{stringliteral}{"{}author"{}}]\ =\ author;}
+\DoxyCodeLine{00220\ \ \ \}}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00222\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}comments"{}}))\ \{}
+\DoxyCodeLine{00223\ \ \ \ \ std::string\ comments\ =\ data[\textcolor{stringliteral}{"{}comments"{}}];}
+\DoxyCodeLine{00224\ \ \ \ \ state[\textcolor{stringliteral}{"{}comments"{}}]\ =\ comments;}
+\DoxyCodeLine{00225\ \ \ \}}
+\DoxyCodeLine{00226\ }
+\DoxyCodeLine{00227\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}preset\_style"{}}))\ \{}
+\DoxyCodeLine{00228\ \ \ \ \ std::string\ style\ =\ data[\textcolor{stringliteral}{"{}preset\_style"{}}];}
+\DoxyCodeLine{00229\ \ \ \ \ state[\textcolor{stringliteral}{"{}style"{}}]\ =\ style;}
+\DoxyCodeLine{00230\ \ \ \}}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00232\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_adad4ff0a7bac9530c4840d320351a265}{vital::kNumMacros}};\ ++i)\ \{}
+\DoxyCodeLine{00233\ \ \ \ \ std::string\ key\ =\ \textcolor{stringliteral}{"{}macro"{}}\ +\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00234\ \ \ \ \ \textcolor{keywordflow}{if}\ (data.count(key))\ \{}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ std::string\ name\ =\ data[key];}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ state[key]\ =\ name;}
+\DoxyCodeLine{00237\ \ \ \ \ \}}
+\DoxyCodeLine{00238\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ state[key]\ =\ \textcolor{stringliteral}{"{}MACRO\ "{}}\ +\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00240\ \ \ \}}
+\DoxyCodeLine{00241\ \}}
+\DoxyCodeLine{00242\ }
+\DoxyCodeLine{00243\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a7da65d125310d867c168c3e2256e009e}{LoadSave::initSaveInfo}}(std::map<std::string,\ String>\&\ save\_info)\ \{}
+\DoxyCodeLine{00244\ \ \ save\_info[\textcolor{stringliteral}{"{}preset\_name"{}}]\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00245\ \ \ save\_info[\textcolor{stringliteral}{"{}author"{}}]\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00246\ \ \ save\_info[\textcolor{stringliteral}{"{}comments"{}}]\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00247\ \ \ save\_info[\textcolor{stringliteral}{"{}style"{}}]\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00248\ }
+\DoxyCodeLine{00249\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_adad4ff0a7bac9530c4840d320351a265}{vital::kNumMacros}};\ ++i)}
+\DoxyCodeLine{00250\ \ \ \ \ save\_info[\textcolor{stringliteral}{"{}macro"{}}\ +\ std::to\_string(i\ +\ 1)]\ =\ \textcolor{stringliteral}{"{}MACRO\ "{}}\ +\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00251\ \}}
+\DoxyCodeLine{00252\ }
+\DoxyCodeLine{00253\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_load_save_a969e03466a31bc1abac7c561c8925663}{LoadSave::updateFromOldVersion}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ state)\ \{}
+\DoxyCodeLine{00254\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ settings\ =\ state[\textcolor{stringliteral}{"{}settings"{}}];}
+\DoxyCodeLine{00255\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ modulations\ =\ settings[\textcolor{stringliteral}{"{}modulations"{}}];}
+\DoxyCodeLine{00256\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ sample\ =\ settings[\textcolor{stringliteral}{"{}sample"{}}];}
+\DoxyCodeLine{00257\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ wavetables\ =\ settings[\textcolor{stringliteral}{"{}wavetables"{}}];}
+\DoxyCodeLine{00258\ }
+\DoxyCodeLine{00259\ \ \ std::string\ version\ =\ state[\textcolor{stringliteral}{"{}synth\_version"{}}];}
+\DoxyCodeLine{00260\ }
+\DoxyCodeLine{00261\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.2.0"{}})\ <\ 0\ ||\ settings.count(\textcolor{stringliteral}{"{}sub\_octave"{}}))\ \{}
+\DoxyCodeLine{00262\ \ \ \ \ \textcolor{keywordtype}{int}\ sub\_waveform\ =\ settings[\textcolor{stringliteral}{"{}sub\_waveform"{}}];}
+\DoxyCodeLine{00263\ \ \ \ \ \textcolor{keywordflow}{if}\ (sub\_waveform\ ==\ 4)}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ sub\_waveform\ =\ 5;}
+\DoxyCodeLine{00265\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (sub\_waveform\ ==\ 5)}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ sub\_waveform\ =\ 4;}
+\DoxyCodeLine{00267\ \ \ \ \ settings[\textcolor{stringliteral}{"{}sub\_waveform"{}}]\ =\ sub\_waveform;}
+\DoxyCodeLine{00268\ }
+\DoxyCodeLine{00269\ \ \ \ \ \textcolor{keywordtype}{int}\ sub\_octave\ =\ settings[\textcolor{stringliteral}{"{}sub\_octave"{}}];}
+\DoxyCodeLine{00270\ \ \ \ \ settings[\textcolor{stringliteral}{"{}sub\_transpose"{}}]\ =\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}}\ *\ sub\_octave;}
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00272\ \ \ \ \ \textcolor{keywordtype}{int}\ osc\_1\_filter\_routing\ =\ settings[\textcolor{stringliteral}{"{}osc\_1\_filter\_routing"{}}];}
+\DoxyCodeLine{00273\ \ \ \ \ \textcolor{keywordtype}{int}\ osc\_2\_filter\_routing\ =\ settings[\textcolor{stringliteral}{"{}osc\_2\_filter\_routing"{}}];}
+\DoxyCodeLine{00274\ \ \ \ \ \textcolor{keywordtype}{int}\ sample\_filter\_routing\ =\ settings[\textcolor{stringliteral}{"{}sample\_filter\_routing"{}}];}
+\DoxyCodeLine{00275\ \ \ \ \ \textcolor{keywordtype}{int}\ sub\_filter\_routing\ =\ settings[\textcolor{stringliteral}{"{}sub\_filter\_routing"{}}];}
+\DoxyCodeLine{00276\ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_1\_osc1\_input"{}}]\ =\ 1\ -\/\ osc\_1\_filter\_routing;}
+\DoxyCodeLine{00277\ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_1\_osc2\_input"{}}]\ =\ 1\ -\/\ osc\_2\_filter\_routing;}
+\DoxyCodeLine{00278\ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_1\_sample\_input"{}}]\ =\ 1\ -\/\ sample\_filter\_routing;}
+\DoxyCodeLine{00279\ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_1\_sub\_input"{}}]\ =\ 1\ -\/\ sub\_filter\_routing;}
+\DoxyCodeLine{00280\ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_2\_osc1\_input"{}}]\ =\ osc\_1\_filter\_routing;}
+\DoxyCodeLine{00281\ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_2\_osc2\_input"{}}]\ =\ osc\_2\_filter\_routing;}
+\DoxyCodeLine{00282\ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_2\_sample\_input"{}}]\ =\ sample\_filter\_routing;}
+\DoxyCodeLine{00283\ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_2\_sub\_input"{}}]\ =\ sub\_filter\_routing;}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00285\ \ \ \ \ \textcolor{keywordtype}{int}\ filter\_1\_style\ =\ settings[\textcolor{stringliteral}{"{}filter\_1\_style"{}}];}
+\DoxyCodeLine{00286\ \ \ \ \ \textcolor{keywordflow}{if}\ (filter\_1\_style\ ==\ 2)}
+\DoxyCodeLine{00287\ \ \ \ \ \ \ filter\_1\_style\ =\ 3;}
+\DoxyCodeLine{00288\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (filter\_1\_style\ ==\ 3)}
+\DoxyCodeLine{00289\ \ \ \ \ \ \ filter\_1\_style\ =\ 2;}
+\DoxyCodeLine{00290\ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_1\_style"{}}]\ =\ filter\_1\_style;}
+\DoxyCodeLine{00291\ }
+\DoxyCodeLine{00292\ \ \ \ \ \textcolor{keywordtype}{int}\ filter\_2\_style\ =\ settings[\textcolor{stringliteral}{"{}filter\_2\_style"{}}];}
+\DoxyCodeLine{00293\ \ \ \ \ \textcolor{keywordflow}{if}\ (filter\_2\_style\ ==\ 2)}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ filter\_2\_style\ =\ 3;}
+\DoxyCodeLine{00295\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (filter\_2\_style\ ==\ 3)}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ filter\_2\_style\ =\ 2;}
+\DoxyCodeLine{00297\ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_2\_style"{}}]\ =\ filter\_2\_style;}
+\DoxyCodeLine{00298\ \ \ \}}
+\DoxyCodeLine{00299\ }
+\DoxyCodeLine{00300\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.2.1"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00301\ \ \ \ \ std::string\ env\_start\ =\ \textcolor{stringliteral}{"{}env\_"{}};}
+\DoxyCodeLine{00302\ }
+\DoxyCodeLine{00303\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a9acbf7e6b849148921f335c101e02fe6}{vital::kNumEnvelopes}};\ ++i)\ \{}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ std::string\ number\ =\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ std::string\ attack\_string\ =\ env\_start\ +\ number\ +\ \textcolor{stringliteral}{"{}\_attack"{}};}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ std::string\ decay\_string\ =\ env\_start\ +\ number\ +\ \textcolor{stringliteral}{"{}\_decay"{}};}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ std::string\ release\_string\ =\ env\_start\ +\ number\ +\ \textcolor{stringliteral}{"{}\_release"{}};}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (settings.count(attack\_string)\ ==\ 0)}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00310\ }
+\DoxyCodeLine{00311\ \ \ \ \ \ \ settings[attack\_string]\ =\ std::pow(settings[attack\_string],\ 1.0f\ /\ 1.5f);}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ settings[decay\_string]\ =\ std::pow(settings[decay\_string],\ 1.0f\ /\ 1.5f);}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ settings[release\_string]\ =\ std::pow(settings[release\_string],\ 1.0f\ /\ 1.5f);}
+\DoxyCodeLine{00314\ \ \ \ \ \}}
+\DoxyCodeLine{00315\ }
+\DoxyCodeLine{00316\ \ \ \ \ \textcolor{keywordflow}{if}\ (settings.count(\textcolor{stringliteral}{"{}wave\_tables"{}}))}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}wavetables"{}}]\ =\ settings[\textcolor{stringliteral}{"{}wave\_tables"{}}];}
+\DoxyCodeLine{00318\ \ \ \}}
+\DoxyCodeLine{00319\ }
+\DoxyCodeLine{00320\ \ \ wavetables\ =\ settings[\textcolor{stringliteral}{"{}wavetables"{}}];}
+\DoxyCodeLine{00321\ }
+\DoxyCodeLine{00322\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.2.4"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00323\ \ \ \ \ \textcolor{keywordtype}{int}\ portamento\_type\ =\ settings[\textcolor{stringliteral}{"{}portamento\_type"{}}];}
+\DoxyCodeLine{00324\ \ \ \ \ settings[\textcolor{stringliteral}{"{}portamento\_force"{}}]\ =\ std::max(0,\ portamento\_type\ -\/\ 1);}
+\DoxyCodeLine{00325\ }
+\DoxyCodeLine{00326\ \ \ \ \ \textcolor{keywordflow}{if}\ (portamento\_type\ ==\ 0)}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}portamento\_time"{}}]\ =\ -\/10.0f;}
+\DoxyCodeLine{00328\ \ \ \}}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00330\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.2.5"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00331\ \ \ \ \ std::string\ env\_start\ =\ \textcolor{stringliteral}{"{}env\_"{}};}
+\DoxyCodeLine{00332\ }
+\DoxyCodeLine{00333\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a9acbf7e6b849148921f335c101e02fe6}{vital::kNumEnvelopes}};\ ++i)\ \{}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ std::string\ number\ =\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00335\ \ \ \ \ \ \ std::string\ attack\_string\ =\ env\_start\ +\ number\ +\ \textcolor{stringliteral}{"{}\_attack"{}};}
+\DoxyCodeLine{00336\ \ \ \ \ \ \ std::string\ decay\_string\ =\ env\_start\ +\ number\ +\ \textcolor{stringliteral}{"{}\_decay"{}};}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ std::string\ release\_string\ =\ env\_start\ +\ number\ +\ \textcolor{stringliteral}{"{}\_release"{}};}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (settings.count(attack\_string)\ ==\ 0)}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00340\ }
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ adjust\_power\ =\ 3.0f\ /\ 4.0f;}
+\DoxyCodeLine{00342\ \ \ \ \ \ \ settings[attack\_string]\ =\ std::pow(settings[attack\_string],\ adjust\_power);}
+\DoxyCodeLine{00343\ \ \ \ \ \ \ settings[decay\_string]\ =\ std::pow(settings[decay\_string],\ adjust\_power);}
+\DoxyCodeLine{00344\ \ \ \ \ \ \ settings[release\_string]\ =\ std::pow(settings[release\_string],\ adjust\_power);}
+\DoxyCodeLine{00345\ \ \ \ \ \}}
+\DoxyCodeLine{00346\ \ \ \}}
+\DoxyCodeLine{00347\ }
+\DoxyCodeLine{00348\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.2.6"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00349\ \ \ \ \ std::string\ lfo\_start\ =\ \textcolor{stringliteral}{"{}lfo\_"{}};}
+\DoxyCodeLine{00350\ }
+\DoxyCodeLine{00351\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_aba56646bec643d6d416700b782ed978b}{vital::kNumLfos}};\ ++i)\ \{}
+\DoxyCodeLine{00352\ \ \ \ \ \ \ std::string\ number\ =\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00353\ \ \ \ \ \ \ std::string\ fade\_string\ =\ lfo\_start\ +\ number\ +\ \textcolor{stringliteral}{"{}\_fade\_time"{}};}
+\DoxyCodeLine{00354\ \ \ \ \ \ \ std::string\ delay\_string\ =\ lfo\_start\ +\ number\ +\ \textcolor{stringliteral}{"{}\_delay\_time"{}};}
+\DoxyCodeLine{00355\ \ \ \ \ \ \ settings[fade\_string]\ =\ 0.0f;}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ settings[delay\_string]\ =\ 0.0f;}
+\DoxyCodeLine{00357\ \ \ \ \ \}}
+\DoxyCodeLine{00358\ \ \ \}}
+\DoxyCodeLine{00359\ }
+\DoxyCodeLine{00360\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.2.7"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00361\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ adjustment\ =\ 0.70710678119f;}
+\DoxyCodeLine{00362\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_1\_level\ =\ settings[\textcolor{stringliteral}{"{}osc\_1\_level"{}}];}
+\DoxyCodeLine{00363\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_2\_level\ =\ settings[\textcolor{stringliteral}{"{}osc\_2\_level"{}}];}
+\DoxyCodeLine{00364\ \ \ \ \ \textcolor{keywordtype}{float}\ sub\_level\ =\ settings[\textcolor{stringliteral}{"{}sub\_level"{}}];}
+\DoxyCodeLine{00365\ \ \ \ \ \textcolor{keywordtype}{float}\ sample\_level\ =\ settings[\textcolor{stringliteral}{"{}sample\_level"{}}];}
+\DoxyCodeLine{00366\ \ \ \ \ osc\_1\_level\ =\ adjustment\ *\ osc\_1\_level\ *\ osc\_1\_level;}
+\DoxyCodeLine{00367\ \ \ \ \ osc\_2\_level\ =\ adjustment\ *\ osc\_2\_level\ *\ osc\_2\_level;}
+\DoxyCodeLine{00368\ \ \ \ \ sub\_level\ =\ adjustment\ *\ sub\_level\ *\ sub\_level;}
+\DoxyCodeLine{00369\ \ \ \ \ sample\_level\ =\ adjustment\ *\ sample\_level\ *\ sample\_level;}
+\DoxyCodeLine{00370\ }
+\DoxyCodeLine{00371\ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_1\_level"{}}]\ =\ sqrtf(osc\_1\_level);}
+\DoxyCodeLine{00372\ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_2\_level"{}}]\ =\ sqrtf(osc\_2\_level);}
+\DoxyCodeLine{00373\ \ \ \ \ settings[\textcolor{stringliteral}{"{}sub\_level"{}}]\ =\ sqrtf(sub\_level);}
+\DoxyCodeLine{00374\ \ \ \ \ settings[\textcolor{stringliteral}{"{}sample\_level"{}}]\ =\ sqrtf(sample\_level);}
+\DoxyCodeLine{00375\ \ \ \}}
+\DoxyCodeLine{00376\ }
+\DoxyCodeLine{00377\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.3.0"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00378\ \ \ \ \ \textcolor{keywordtype}{float}\ reverb\_damping\ =\ settings[\textcolor{stringliteral}{"{}reverb\_damping"{}}];}
+\DoxyCodeLine{00379\ \ \ \ \ \textcolor{keywordtype}{float}\ reverb\_feedback\ =\ settings[\textcolor{stringliteral}{"{}reverb\_feedback"{}}];}
+\DoxyCodeLine{00380\ \ \ \ \ settings[\textcolor{stringliteral}{"{}decay\_time"{}}]\ =\ (reverb\_feedback\ -\/\ 0.8f)\ *\ 10.0f;}
+\DoxyCodeLine{00381\ \ \ \ \ settings[\textcolor{stringliteral}{"{}reverb\_high\_shelf\_gain"{}}]\ =\ -\/reverb\_damping\ *\ 4.0f;}
+\DoxyCodeLine{00382\ \ \ \ \ settings[\textcolor{stringliteral}{"{}reverb\_pre\_high\_cutoff"{}}]\ =\ 128.0f;}
+\DoxyCodeLine{00383\ }
+\DoxyCodeLine{00384\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_modulations;}
+\DoxyCodeLine{00385\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ modulations)\ \{}
+\DoxyCodeLine{00386\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}reverb\_damping"{}})}
+\DoxyCodeLine{00387\ \ \ \ \ \ \ \ \ modulation[\textcolor{stringliteral}{"{}destination"{}}]\ =\ \textcolor{stringliteral}{"{}reverb\_high\_shelf\_gain"{}};}
+\DoxyCodeLine{00388\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}reverb\_feedback"{}})}
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \ \ modulation[\textcolor{stringliteral}{"{}destination"{}}]\ =\ \textcolor{stringliteral}{"{}reverb\_decay\_time"{}};}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00391\ \ \ \ \ \ \ new\_modulations.push\_back(modulation);}
+\DoxyCodeLine{00392\ \ \ \ \ \}}
+\DoxyCodeLine{00393\ \ \ \ \ modulations\ =\ new\_modulations;}
+\DoxyCodeLine{00394\ \ \ \}}
+\DoxyCodeLine{00395\ }
+\DoxyCodeLine{00396\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.3.1"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00397\ \ \ \ \ \textcolor{keywordtype}{float}\ sample\_transpose\ =\ settings[\textcolor{stringliteral}{"{}sample\_transpose"{}}];}
+\DoxyCodeLine{00398\ \ \ \ \ \textcolor{keywordtype}{float}\ sample\_keytrack\ =\ settings[\textcolor{stringliteral}{"{}sample\_keytrack"{}}];}
+\DoxyCodeLine{00399\ \ \ \ \ \textcolor{keywordflow}{if}\ (sample\_keytrack)}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}sample\_transpose"{}}]\ =\ sample\_transpose\ +\ 28.0f;}
+\DoxyCodeLine{00401\ \ \ \}}
+\DoxyCodeLine{00402\ }
+\DoxyCodeLine{00403\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.3.2"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00404\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_1\_transpose\ =\ settings[\textcolor{stringliteral}{"{}osc\_1\_transpose"{}}];}
+\DoxyCodeLine{00405\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_1\_midi\_track\ =\ settings[\textcolor{stringliteral}{"{}osc\_1\_midi\_track"{}}];}
+\DoxyCodeLine{00406\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_1\_midi\_track\ ==\ 0.0f)}
+\DoxyCodeLine{00407\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_1\_transpose"{}}]\ =\ osc\_1\_transpose\ -\/\ 48.0f;}
+\DoxyCodeLine{00408\ }
+\DoxyCodeLine{00409\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_2\_transpose\ =\ settings[\textcolor{stringliteral}{"{}osc\_2\_transpose"{}}];}
+\DoxyCodeLine{00410\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_2\_midi\_track\ =\ settings[\textcolor{stringliteral}{"{}osc\_2\_midi\_track"{}}];}
+\DoxyCodeLine{00411\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_2\_midi\_track\ ==\ 0.0f)}
+\DoxyCodeLine{00412\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_2\_transpose"{}}]\ =\ osc\_2\_transpose\ -\/\ 48.0f;}
+\DoxyCodeLine{00413\ \ \ \}}
+\DoxyCodeLine{00414\ }
+\DoxyCodeLine{00415\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.3.4"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00416\ \ \ \ \ \textcolor{keywordtype}{float}\ float\_order\ =\ settings[\textcolor{stringliteral}{"{}effect\_chain\_order"{}}];}
+\DoxyCodeLine{00417\ \ \ \ \ \textcolor{keywordtype}{int}\ effect\_order[\mbox{\hyperlink{namespacevital_1_1constants_a818e17b181801700d800bc3c4772ccd0a922e08c2516bd342a79cb37fd4e1d18b}{vital::constants::kNumEffects}}];}
+\DoxyCodeLine{00418\ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a95f6cd84191afdcf357a37507c6001e4}{vital::utils::decodeFloatToOrder}}(effect\_order,\ float\_order,\ \mbox{\hyperlink{namespacevital_1_1constants_a818e17b181801700d800bc3c4772ccd0a922e08c2516bd342a79cb37fd4e1d18b}{vital::constants::kNumEffects}}\ -\/\ 1);}
+\DoxyCodeLine{00419\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_1_1constants_a818e17b181801700d800bc3c4772ccd0a922e08c2516bd342a79cb37fd4e1d18b}{vital::constants::kNumEffects}}\ -\/\ 1;\ ++i)\ \{}
+\DoxyCodeLine{00420\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (effect\_order[i]\ >=\ \mbox{\hyperlink{namespacevital_1_1constants_a818e17b181801700d800bc3c4772ccd0ad234ec37b06c81d49c35797ee04e9269}{vital::constants::kFilterFx}})}
+\DoxyCodeLine{00421\ \ \ \ \ \ \ \ \ effect\_order[i]\ +=\ 1;}
+\DoxyCodeLine{00422\ \ \ \ \ \}}
+\DoxyCodeLine{00423\ \ \ \ \ effect\_order[\mbox{\hyperlink{namespacevital_1_1constants_a818e17b181801700d800bc3c4772ccd0a922e08c2516bd342a79cb37fd4e1d18b}{vital::constants::kNumEffects}}\ -\/\ 1]\ =\ \mbox{\hyperlink{namespacevital_1_1constants_a818e17b181801700d800bc3c4772ccd0ad234ec37b06c81d49c35797ee04e9269}{vital::constants::kFilterFx}};}
+\DoxyCodeLine{00424\ \ \ \ \ settings[\textcolor{stringliteral}{"{}effect\_chain\_order"{}}]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_aa6b3e2cbf3403f7a88d4ed066b254a10}{vital::utils::encodeOrderToFloat}}(effect\_order,\ \mbox{\hyperlink{namespacevital_1_1constants_a818e17b181801700d800bc3c4772ccd0a922e08c2516bd342a79cb37fd4e1d18b}{vital::constants::kNumEffects}});}
+\DoxyCodeLine{00425\ \ \ \}}
+\DoxyCodeLine{00426\ }
+\DoxyCodeLine{00427\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.3.5"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00428\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_1\_distortion\_type\ =\ settings[\textcolor{stringliteral}{"{}osc\_1\_distortion\_type"{}}];}
+\DoxyCodeLine{00429\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_2\_distortion\_type\ =\ settings[\textcolor{stringliteral}{"{}osc\_2\_distortion\_type"{}}];}
+\DoxyCodeLine{00430\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_1\_distortion\_type\ >=\ 10.0f)}
+\DoxyCodeLine{00431\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_1\_distortion\_type"{}}]\ =\ osc\_1\_distortion\_type\ +\ 1.0f;}
+\DoxyCodeLine{00432\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_2\_distortion\_type\ >=\ 10.0f)}
+\DoxyCodeLine{00433\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_2\_distortion\_type"{}}]\ =\ osc\_2\_distortion\_type\ +\ 1.0f;}
+\DoxyCodeLine{00434\ \ \ \}}
+\DoxyCodeLine{00435\ }
+\DoxyCodeLine{00436\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.3.6"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00437\ \ \ \ \ std::string\ lfo\_start\ =\ \textcolor{stringliteral}{"{}lfo\_"{}};}
+\DoxyCodeLine{00438\ }
+\DoxyCodeLine{00439\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_aba56646bec643d6d416700b782ed978b}{vital::kNumLfos}};\ ++i)\ \{}
+\DoxyCodeLine{00440\ \ \ \ \ \ \ std::string\ sync\_type\_string\ =\ lfo\_start\ +\ std::to\_string(i\ +\ 1)\ +\ \textcolor{stringliteral}{"{}\_sync\_type"{}};}
+\DoxyCodeLine{00441\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (settings.count(sync\_type\_string))\ \{}
+\DoxyCodeLine{00442\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ value\ =\ settings[sync\_type\_string];}
+\DoxyCodeLine{00443\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (value\ >=\ 2.0f)}
+\DoxyCodeLine{00444\ \ \ \ \ \ \ \ \ \ \ settings[sync\_type\_string]\ =\ value\ -\/\ 1.0f;}
+\DoxyCodeLine{00445\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00446\ \ \ \ \ \}}
+\DoxyCodeLine{00447\ \ \ \}}
+\DoxyCodeLine{00448\ }
+\DoxyCodeLine{00449\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.3.7"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00450\ \ \ \ \ \mbox{\hyperlink{class_load_save_abf554633f1b6c0a69115bbe3d25060fc}{convertBufferToPcm}}(sample,\ \textcolor{stringliteral}{"{}samples"{}});}
+\DoxyCodeLine{00451\ \ \ \ \ \mbox{\hyperlink{class_load_save_abf554633f1b6c0a69115bbe3d25060fc}{convertBufferToPcm}}(sample,\ \textcolor{stringliteral}{"{}samples\_stereo"{}});}
+\DoxyCodeLine{00452\ \ \ \}}
+\DoxyCodeLine{00453\ }
+\DoxyCodeLine{00454\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.4.1"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00455\ \ \ \ \ \textcolor{keywordtype}{bool}\ update\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00456\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_modulations;}
+\DoxyCodeLine{00457\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ modulations)\ \{}
+\DoxyCodeLine{00458\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}source"{}}]\ ==\ \textcolor{stringliteral}{"{}perlin"{}})\ \{}
+\DoxyCodeLine{00459\ \ \ \ \ \ \ \ \ update\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00460\ \ \ \ \ \ \ \ \ modulation[\textcolor{stringliteral}{"{}source"{}}]\ =\ \textcolor{stringliteral}{"{}random\_1"{}};}
+\DoxyCodeLine{00461\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00462\ }
+\DoxyCodeLine{00463\ \ \ \ \ \ \ new\_modulations.push\_back(modulation);}
+\DoxyCodeLine{00464\ \ \ \ \ \}}
+\DoxyCodeLine{00465\ }
+\DoxyCodeLine{00466\ \ \ \ \ \textcolor{keywordflow}{if}\ (update)\ \{}
+\DoxyCodeLine{00467\ \ \ \ \ \ \ modulations\ =\ new\_modulations;}
+\DoxyCodeLine{00468\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}random\_1\_sync"{}}]\ =\ 0.0f;}
+\DoxyCodeLine{00469\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}random\_1\_frequency"{}}]\ =\ 1.65149612947f;}
+\DoxyCodeLine{00470\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}random\_1\_stereo"{}}]\ =\ 1.0f;}
+\DoxyCodeLine{00471\ \ \ \ \ \}}
+\DoxyCodeLine{00472\ \ \ \}}
+\DoxyCodeLine{00473\ }
+\DoxyCodeLine{00474\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.4.3"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00475\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_1\_distortion\_type\ =\ settings[\textcolor{stringliteral}{"{}osc\_1\_distortion\_type"{}}];}
+\DoxyCodeLine{00476\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_1\_distortion\_amount\ =\ settings[\textcolor{stringliteral}{"{}osc\_1\_distortion\_amount"{}}];}
+\DoxyCodeLine{00477\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_1\_distortion\_type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1a75e48d44161e475cde53b27914ee0ec9}{vital::SynthOscillator::kFormant}})\ \{}
+\DoxyCodeLine{00478\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_1\_distortion\_amount"{}}]\ =\ 0.5f\ +\ 0.5f\ *\ osc\_1\_distortion\_amount;}
+\DoxyCodeLine{00479\ }
+\DoxyCodeLine{00480\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 1;}
+\DoxyCodeLine{00481\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ modulations)\ \{}
+\DoxyCodeLine{00482\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}osc\_1\_distortion\_amount"{}})\ \{}
+\DoxyCodeLine{00483\ \ \ \ \ \ \ \ \ \ \ std::string\ amount\_string\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ std::to\_string(index)\ +\ \textcolor{stringliteral}{"{}\_amount"{}};}
+\DoxyCodeLine{00484\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ last\_amount\ =\ settings[amount\_string];}
+\DoxyCodeLine{00485\ \ \ \ \ \ \ \ \ \ \ settings[amount\_string]\ =\ 0.5f\ *\ last\_amount;}
+\DoxyCodeLine{00486\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00487\ }
+\DoxyCodeLine{00488\ \ \ \ \ \ \ \ \ index++;}
+\DoxyCodeLine{00489\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00490\ \ \ \ \ \}}
+\DoxyCodeLine{00491\ }
+\DoxyCodeLine{00492\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_2\_distortion\_type\ =\ settings[\textcolor{stringliteral}{"{}osc\_2\_distortion\_type"{}}];}
+\DoxyCodeLine{00493\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_2\_distortion\_amount\ =\ settings[\textcolor{stringliteral}{"{}osc\_2\_distortion\_amount"{}}];}
+\DoxyCodeLine{00494\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_2\_distortion\_type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1a75e48d44161e475cde53b27914ee0ec9}{vital::SynthOscillator::kFormant}})\ \{}
+\DoxyCodeLine{00495\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_2\_distortion\_amount"{}}]\ =\ 0.5f\ +\ 0.5f\ *\ osc\_2\_distortion\_amount;}
+\DoxyCodeLine{00496\ }
+\DoxyCodeLine{00497\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 1;}
+\DoxyCodeLine{00498\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ modulations)\ \{}
+\DoxyCodeLine{00499\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}osc\_2\_distortion\_amount"{}})\ \{}
+\DoxyCodeLine{00500\ \ \ \ \ \ \ \ \ \ \ std::string\ amount\_string\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ std::to\_string(index)\ +\ \textcolor{stringliteral}{"{}\_amount"{}};}
+\DoxyCodeLine{00501\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ last\_amount\ =\ settings[amount\_string];}
+\DoxyCodeLine{00502\ \ \ \ \ \ \ \ \ \ \ settings[amount\_string]\ =\ 0.5f\ *\ last\_amount;}
+\DoxyCodeLine{00503\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00504\ }
+\DoxyCodeLine{00505\ \ \ \ \ \ \ \ \ index++;}
+\DoxyCodeLine{00506\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00507\ \ \ \ \ \}}
+\DoxyCodeLine{00508\ \ \ \}}
+\DoxyCodeLine{00509\ }
+\DoxyCodeLine{00510\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.4.4"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00511\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_1\_distortion\_type\ =\ settings[\textcolor{stringliteral}{"{}osc\_1\_distortion\_type"{}}];}
+\DoxyCodeLine{00512\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_1\_distortion\_amount\ =\ settings[\textcolor{stringliteral}{"{}osc\_1\_distortion\_amount"{}}];}
+\DoxyCodeLine{00513\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_1\_distortion\_type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1afa480867439d6c0a0c39443284617c0d}{vital::SynthOscillator::kSync}})\ \{}
+\DoxyCodeLine{00514\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_1\_distortion\_amount"{}}]\ =\ 0.5f\ +\ 0.5f\ *\ osc\_1\_distortion\_amount;}
+\DoxyCodeLine{00515\ }
+\DoxyCodeLine{00516\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 1;}
+\DoxyCodeLine{00517\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ modulations)\ \{}
+\DoxyCodeLine{00518\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}osc\_1\_distortion\_amount"{}})\ \{}
+\DoxyCodeLine{00519\ \ \ \ \ \ \ \ \ \ \ std::string\ amount\_string\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ std::to\_string(index)\ +\ \textcolor{stringliteral}{"{}\_amount"{}};}
+\DoxyCodeLine{00520\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ last\_amount\ =\ settings[amount\_string];}
+\DoxyCodeLine{00521\ \ \ \ \ \ \ \ \ \ \ settings[amount\_string]\ =\ 0.5f\ *\ last\_amount;}
+\DoxyCodeLine{00522\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00523\ }
+\DoxyCodeLine{00524\ \ \ \ \ \ \ \ \ index++;}
+\DoxyCodeLine{00525\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00526\ \ \ \ \ \}}
+\DoxyCodeLine{00527\ }
+\DoxyCodeLine{00528\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_2\_distortion\_type\ =\ settings[\textcolor{stringliteral}{"{}osc\_2\_distortion\_type"{}}];}
+\DoxyCodeLine{00529\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_2\_distortion\_amount\ =\ settings[\textcolor{stringliteral}{"{}osc\_2\_distortion\_amount"{}}];}
+\DoxyCodeLine{00530\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_2\_distortion\_type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1afa480867439d6c0a0c39443284617c0d}{vital::SynthOscillator::kSync}})\ \{}
+\DoxyCodeLine{00531\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_2\_distortion\_amount"{}}]\ =\ 0.5f\ +\ 0.5f\ *\ osc\_2\_distortion\_amount;}
+\DoxyCodeLine{00532\ }
+\DoxyCodeLine{00533\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 1;}
+\DoxyCodeLine{00534\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ modulations)\ \{}
+\DoxyCodeLine{00535\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}osc\_2\_distortion\_amount"{}})\ \{}
+\DoxyCodeLine{00536\ \ \ \ \ \ \ \ \ \ \ std::string\ amount\_string\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ std::to\_string(index)\ +\ \textcolor{stringliteral}{"{}\_amount"{}};}
+\DoxyCodeLine{00537\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ last\_amount\ =\ settings[amount\_string];}
+\DoxyCodeLine{00538\ \ \ \ \ \ \ \ \ \ \ settings[amount\_string]\ =\ 0.5f\ *\ last\_amount;}
+\DoxyCodeLine{00539\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00540\ }
+\DoxyCodeLine{00541\ \ \ \ \ \ \ \ \ index++;}
+\DoxyCodeLine{00542\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00543\ \ \ \ \ \}}
+\DoxyCodeLine{00544\ \ \ \}}
+\DoxyCodeLine{00545\ }
+\DoxyCodeLine{00546\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.4.5"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00547\ \ \ \ \ \textcolor{keywordtype}{float}\ compressor\_low\_band\ =\ settings[\textcolor{stringliteral}{"{}compressor\_low\_band"{}}];}
+\DoxyCodeLine{00548\ \ \ \ \ \textcolor{keywordtype}{float}\ compressor\_high\_band\ =\ settings[\textcolor{stringliteral}{"{}compressor\_high\_band"{}}];}
+\DoxyCodeLine{00549\ \ \ \ \ \textcolor{keywordflow}{if}\ (compressor\_low\_band\ \&\&\ compressor\_high\_band)}
+\DoxyCodeLine{00550\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}compressor\_enabled\_bands"{}}]\ =\ 0;}
+\DoxyCodeLine{00551\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (compressor\_low\_band)}
+\DoxyCodeLine{00552\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}compressor\_enabled\_bands"{}}]\ =\ 1;}
+\DoxyCodeLine{00553\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (compressor\_high\_band)}
+\DoxyCodeLine{00554\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}compressor\_enabled\_bands"{}}]\ =\ 2;}
+\DoxyCodeLine{00555\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00556\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}compressor\_enabled\_bands"{}}]\ =\ 3;}
+\DoxyCodeLine{00557\ \ \ \}}
+\DoxyCodeLine{00558\ }
+\DoxyCodeLine{00559\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.4.7"{}})\ <\ 0\ \&\&\ settings.count(\textcolor{stringliteral}{"{}osc\_1\_distortion\_type"{}}))\ \{}
+\DoxyCodeLine{00560\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ kRemapResolution\ =\ 32;}
+\DoxyCodeLine{00561\ }
+\DoxyCodeLine{00562\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_1\_distortion\_type\ =\ settings[\textcolor{stringliteral}{"{}osc\_1\_distortion\_type"{}}];}
+\DoxyCodeLine{00563\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_1\_distortion\_type)}
+\DoxyCodeLine{00564\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_1\_distortion\_type"{}}]\ =\ osc\_1\_distortion\_type\ -\/\ 1.0f;}
+\DoxyCodeLine{00565\ }
+\DoxyCodeLine{00566\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_2\_distortion\_type\ =\ settings[\textcolor{stringliteral}{"{}osc\_2\_distortion\_type"{}}];}
+\DoxyCodeLine{00567\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_2\_distortion\_type)}
+\DoxyCodeLine{00568\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_2\_distortion\_type"{}}]\ =\ osc\_2\_distortion\_type\ -\/\ 1.0f;}
+\DoxyCodeLine{00569\ }
+\DoxyCodeLine{00570\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_1\_distortion\_type\ ==\ 1.0f)}
+\DoxyCodeLine{00571\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_1\_spectral\_morph\_type"{}}]\ =\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98adad371d7d460c99b9f664122e6ba0f87c6}{vital::SynthOscillator::kLowPass}};}
+\DoxyCodeLine{00572\ }
+\DoxyCodeLine{00573\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_2\_distortion\_type\ ==\ 1.0f)}
+\DoxyCodeLine{00574\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_2\_spectral\_morph\_type"{}}]\ =\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98adad371d7d460c99b9f664122e6ba0f87c6}{vital::SynthOscillator::kLowPass}};}
+\DoxyCodeLine{00575\ }
+\DoxyCodeLine{00576\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_modulations;}
+\DoxyCodeLine{00577\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ modulations)\ \{}
+\DoxyCodeLine{00578\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_1\_distortion\_type\ ==\ 1.0f\ \&\&\ modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}osc\_1\_distortion\_amount"{}})}
+\DoxyCodeLine{00579\ \ \ \ \ \ \ \ \ modulation[\textcolor{stringliteral}{"{}destination"{}}]\ =\ \textcolor{stringliteral}{"{}osc\_1\_spectral\_morph\_amount"{}};}
+\DoxyCodeLine{00580\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (osc\_2\_distortion\_type\ ==\ 1.0f\ \&\&\ modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}osc\_2\_distortion\_amount"{}})}
+\DoxyCodeLine{00581\ \ \ \ \ \ \ \ \ modulation[\textcolor{stringliteral}{"{}destination"{}}]\ =\ \textcolor{stringliteral}{"{}osc\_2\_spectral\_morph\_amount"{}};}
+\DoxyCodeLine{00582\ }
+\DoxyCodeLine{00583\ \ \ \ \ \ \ new\_modulations.push\_back(modulation);}
+\DoxyCodeLine{00584\ \ \ \ \ \}}
+\DoxyCodeLine{00585\ }
+\DoxyCodeLine{00586\ \ \ \ \ osc\_1\_distortion\_type\ =\ settings[\textcolor{stringliteral}{"{}osc\_1\_distortion\_type"{}}];}
+\DoxyCodeLine{00587\ \ \ \ \ osc\_2\_distortion\_type\ =\ settings[\textcolor{stringliteral}{"{}osc\_2\_distortion\_type"{}}];}
+\DoxyCodeLine{00588\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_1\_distortion\_type\ ==\ 7\ ||\ osc\_1\_distortion\_type\ ==\ 8\ ||\ osc\_1\_distortion\_type\ ==\ 9)\ \{}
+\DoxyCodeLine{00589\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ original\_fm\_amount\ =\ settings[\textcolor{stringliteral}{"{}osc\_1\_distortion\_amount"{}}];}
+\DoxyCodeLine{00590\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ new\_fm\_amount\ =\ std::pow(original\_fm\_amount,\ 1.0f\ /\ 2.0f);}
+\DoxyCodeLine{00591\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_1\_distortion\_amount"{}}]\ =\ new\_fm\_amount;}
+\DoxyCodeLine{00592\ }
+\DoxyCodeLine{00593\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 1;}
+\DoxyCodeLine{00594\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ new\_modulations)\ \{}
+\DoxyCodeLine{00595\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}osc\_1\_distortion\_amount"{}})\ \{}
+\DoxyCodeLine{00596\ \ \ \ \ \ \ \ \ \ \ std::string\ number\ =\ std::to\_string(index);}
+\DoxyCodeLine{00597\ \ \ \ \ \ \ \ \ \ \ std::string\ amount\_string\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_amount"{}};}
+\DoxyCodeLine{00598\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ last\_amount\ =\ settings[amount\_string];}
+\DoxyCodeLine{00599\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (last\_amount\ ==\ 0.0f)}
+\DoxyCodeLine{00600\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00601\ }
+\DoxyCodeLine{00602\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ bipolar\ =\ settings[\textcolor{stringliteral}{"{}modulation\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_bipolar"{}}]\ !=\ 0.0f;}
+\DoxyCodeLine{00603\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ min\ =\ std::min(original\_fm\_amount,\ original\_fm\_amount\ +\ last\_amount);}
+\DoxyCodeLine{00604\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ max\ =\ std::max(original\_fm\_amount,\ original\_fm\_amount\ +\ last\_amount);}
+\DoxyCodeLine{00605\ }
+\DoxyCodeLine{00606\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (bipolar)\ \{}
+\DoxyCodeLine{00607\ \ \ \ \ \ \ \ \ \ \ \ \ min\ =\ std::min(original\_fm\_amount\ +\ last\_amount\ *\ 0.5f,\ original\_fm\_amount\ -\/\ last\_amount\ *\ 0.5f);}
+\DoxyCodeLine{00608\ \ \ \ \ \ \ \ \ \ \ \ \ max\ =\ std::max(original\_fm\_amount\ +\ last\_amount\ *\ 0.5f,\ original\_fm\_amount\ -\/\ last\_amount\ *\ 0.5f);}
+\DoxyCodeLine{00609\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00610\ }
+\DoxyCodeLine{00611\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ min\_target\ =\ std::pow(min,\ 1.0f\ /\ 2.0f);}
+\DoxyCodeLine{00612\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ max\_target\ =\ std::pow(max,\ 1.0f\ /\ 2.0f);}
+\DoxyCodeLine{00613\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ new\_amount\ =\ max\_target\ -\/\ min\_target;}
+\DoxyCodeLine{00614\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (bipolar)}
+\DoxyCodeLine{00615\ \ \ \ \ \ \ \ \ \ \ \ \ new\_amount\ =\ 2.0f\ *\ std::max(new\_fm\_amount\ -\/\ min\_target,\ max\_target\ -\/\ new\_fm\_amount);}
+\DoxyCodeLine{00616\ \ \ \ \ \ \ \ \ \ \ settings[amount\_string]\ =\ new\_amount;}
+\DoxyCodeLine{00617\ }
+\DoxyCodeLine{00618\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_line_generator}{LineGenerator}}\ scale;}
+\DoxyCodeLine{00619\ \ \ \ \ \ \ \ \ \ \ scale.\mbox{\hyperlink{class_line_generator_adfacb667753a2d718e74e7db8b7d961e}{initLinear}}();}
+\DoxyCodeLine{00620\ \ \ \ \ \ \ \ \ \ \ scale.\mbox{\hyperlink{class_line_generator_acdb39dc84482a37f744bbf60dc1a9a87}{setNumPoints}}(kRemapResolution);}
+\DoxyCodeLine{00621\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ kRemapResolution;\ ++i)\ \{}
+\DoxyCodeLine{00622\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ i\ /\ (kRemapResolution\ -\/\ 1.0f);}
+\DoxyCodeLine{00623\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ old\_value\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(min,\ max,\ t);}
+\DoxyCodeLine{00624\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ adjusted\_old\_value\ =\ std::pow(old\_value,\ 1.0f\ /\ 2.0f);}
+\DoxyCodeLine{00625\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ 1.0f\ -\/\ (adjusted\_old\_value\ -\/\ min\_target)\ /\ new\_amount;}
+\DoxyCodeLine{00626\ \ \ \ \ \ \ \ \ \ \ \ \ scale.\mbox{\hyperlink{class_line_generator_a7b5ca1308544d3b4efd41f3dcf993f93}{setPoint}}(i,\ std::pair<float,\ float>(t,\ y));}
+\DoxyCodeLine{00627\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00628\ \ \ \ \ \ \ \ \ \ \ modulation[\textcolor{stringliteral}{"{}line\_mapping"{}}]\ =\ scale.\mbox{\hyperlink{class_line_generator_ad89103d3ef0b3f99dee5075f114decd2}{stateToJson}}();}
+\DoxyCodeLine{00629\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00630\ \ \ \ \ \ \ \ \ index++;}
+\DoxyCodeLine{00631\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00632\ \ \ \ \ \}}
+\DoxyCodeLine{00633\ }
+\DoxyCodeLine{00634\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_2\_distortion\_type\ ==\ 7\ ||\ osc\_2\_distortion\_type\ ==\ 8\ ||\ osc\_2\_distortion\_type\ ==\ 9)\ \{}
+\DoxyCodeLine{00635\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ original\_fm\_amount\ =\ settings[\textcolor{stringliteral}{"{}osc\_2\_distortion\_amount"{}}];}
+\DoxyCodeLine{00636\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ new\_fm\_amount\ =\ std::pow(original\_fm\_amount,\ 1.0f\ /\ 2.0f);}
+\DoxyCodeLine{00637\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_2\_distortion\_amount"{}}]\ =\ new\_fm\_amount;}
+\DoxyCodeLine{00638\ }
+\DoxyCodeLine{00639\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 1;}
+\DoxyCodeLine{00640\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ new\_modulations)\ \{}
+\DoxyCodeLine{00641\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}osc\_2\_distortion\_amount"{}})\ \{}
+\DoxyCodeLine{00642\ \ \ \ \ \ \ \ \ \ \ std::string\ number\ =\ std::to\_string(index);}
+\DoxyCodeLine{00643\ \ \ \ \ \ \ \ \ \ \ std::string\ amount\_string\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_amount"{}};}
+\DoxyCodeLine{00644\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ last\_amount\ =\ settings[amount\_string];}
+\DoxyCodeLine{00645\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (last\_amount\ ==\ 0.0f)}
+\DoxyCodeLine{00646\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00647\ }
+\DoxyCodeLine{00648\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ bipolar\ =\ settings[\textcolor{stringliteral}{"{}modulation\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_bipolar"{}}]\ !=\ 0.0f;}
+\DoxyCodeLine{00649\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ min\ =\ std::min(original\_fm\_amount,\ original\_fm\_amount\ +\ last\_amount);}
+\DoxyCodeLine{00650\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ max\ =\ std::max(original\_fm\_amount,\ original\_fm\_amount\ +\ last\_amount);}
+\DoxyCodeLine{00651\ }
+\DoxyCodeLine{00652\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (bipolar)\ \{}
+\DoxyCodeLine{00653\ \ \ \ \ \ \ \ \ \ \ \ \ min\ =\ std::min(original\_fm\_amount\ +\ last\_amount\ *\ 0.5f,\ original\_fm\_amount\ -\/\ last\_amount\ *\ 0.5f);}
+\DoxyCodeLine{00654\ \ \ \ \ \ \ \ \ \ \ \ \ max\ =\ std::max(original\_fm\_amount\ +\ last\_amount\ *\ 0.5f,\ original\_fm\_amount\ -\/\ last\_amount\ *\ 0.5f);}
+\DoxyCodeLine{00655\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00656\ }
+\DoxyCodeLine{00657\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ min\_target\ =\ std::pow(min,\ 1.0f\ /\ 2.0f);}
+\DoxyCodeLine{00658\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ max\_target\ =\ std::pow(max,\ 1.0f\ /\ 2.0f);}
+\DoxyCodeLine{00659\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ new\_amount\ =\ max\_target\ -\/\ min\_target;}
+\DoxyCodeLine{00660\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (bipolar)}
+\DoxyCodeLine{00661\ \ \ \ \ \ \ \ \ \ \ \ \ new\_amount\ =\ 2.0f\ *\ std::max(new\_fm\_amount\ -\/\ min\_target,\ max\_target\ -\/\ new\_fm\_amount);}
+\DoxyCodeLine{00662\ \ \ \ \ \ \ \ \ \ \ settings[amount\_string]\ =\ new\_amount;}
+\DoxyCodeLine{00663\ }
+\DoxyCodeLine{00664\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_line_generator}{LineGenerator}}\ scale;}
+\DoxyCodeLine{00665\ \ \ \ \ \ \ \ \ \ \ scale.\mbox{\hyperlink{class_line_generator_adfacb667753a2d718e74e7db8b7d961e}{initLinear}}();}
+\DoxyCodeLine{00666\ \ \ \ \ \ \ \ \ \ \ scale.\mbox{\hyperlink{class_line_generator_acdb39dc84482a37f744bbf60dc1a9a87}{setNumPoints}}(kRemapResolution);}
+\DoxyCodeLine{00667\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ kRemapResolution;\ ++i)\ \{}
+\DoxyCodeLine{00668\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ i\ /\ (kRemapResolution\ -\/\ 1.0f);}
+\DoxyCodeLine{00669\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ old\_value\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(min,\ max,\ t);}
+\DoxyCodeLine{00670\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ adjusted\_old\_value\ =\ std::pow(old\_value,\ 1.0f\ /\ 2.0f);}
+\DoxyCodeLine{00671\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ 1.0f\ -\/\ (adjusted\_old\_value\ -\/\ min\_target)\ /\ new\_amount;}
+\DoxyCodeLine{00672\ \ \ \ \ \ \ \ \ \ \ \ \ scale.\mbox{\hyperlink{class_line_generator_a7b5ca1308544d3b4efd41f3dcf993f93}{setPoint}}(i,\ std::pair<float,\ float>(t,\ y));}
+\DoxyCodeLine{00673\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00674\ \ \ \ \ \ \ \ \ \ \ modulation[\textcolor{stringliteral}{"{}line\_mapping"{}}]\ =\ scale.\mbox{\hyperlink{class_line_generator_ad89103d3ef0b3f99dee5075f114decd2}{stateToJson}}();}
+\DoxyCodeLine{00675\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00676\ \ \ \ \ \ \ \ \ index++;}
+\DoxyCodeLine{00677\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00678\ \ \ \ \ \}}
+\DoxyCodeLine{00679\ }
+\DoxyCodeLine{00680\ \ \ \ \ modulations\ =\ new\_modulations;}
+\DoxyCodeLine{00681\ \ \ \}}
+\DoxyCodeLine{00682\ }
+\DoxyCodeLine{00683\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.5.0"{}})\ <\ 0\ \&\&\ settings.count(\textcolor{stringliteral}{"{}sub\_on"{}}))\ \{}
+\DoxyCodeLine{00684\ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_3\_on"{}}]\ =\ settings[\textcolor{stringliteral}{"{}sub\_on"{}}];}
+\DoxyCodeLine{00685\ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_3\_level"{}}]\ =\ settings[\textcolor{stringliteral}{"{}sub\_level"{}}];}
+\DoxyCodeLine{00686\ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_3\_pan"{}}]\ =\ settings[\textcolor{stringliteral}{"{}sub\_pan"{}}];}
+\DoxyCodeLine{00687\ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_3\_transpose"{}}]\ =\ settings[\textcolor{stringliteral}{"{}sub\_transpose"{}}];}
+\DoxyCodeLine{00688\ }
+\DoxyCodeLine{00689\ \ \ \ \ \textcolor{keywordflow}{if}\ (settings.count(\textcolor{stringliteral}{"{}sub\_transpose\_quantize"{}}))}
+\DoxyCodeLine{00690\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_3\_transpose\_quantize"{}}]\ =\ settings[\textcolor{stringliteral}{"{}sub\_transpose\_quantize"{}}];}
+\DoxyCodeLine{00691\ }
+\DoxyCodeLine{00692\ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_3\_tune"{}}]\ =\ settings[\textcolor{stringliteral}{"{}sub\_tune"{}}];}
+\DoxyCodeLine{00693\ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_3\_phase"{}}]\ =\ 0.25f;}
+\DoxyCodeLine{00694\ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_3\_random\_phase"{}}]\ =\ 0.0f;}
+\DoxyCodeLine{00695\ }
+\DoxyCodeLine{00696\ \ \ \ \ \textcolor{keywordtype}{float}\ sub\_waveform\ =\ settings[\textcolor{stringliteral}{"{}sub\_waveform"{}}];}
+\DoxyCodeLine{00697\ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_3\_wave\_frame"{}}]\ =\ sub\_waveform\ *\ 257.0f\ /\ 6.0f;}
+\DoxyCodeLine{00698\ }
+\DoxyCodeLine{00699\ \ \ \ \ \textcolor{keywordtype}{float}\ sub\_filter1\ =\ settings[\textcolor{stringliteral}{"{}filter\_1\_sub\_input"{}}];}
+\DoxyCodeLine{00700\ \ \ \ \ \textcolor{keywordtype}{float}\ sub\_filter2\ =\ settings[\textcolor{stringliteral}{"{}filter\_2\_sub\_input"{}}];}
+\DoxyCodeLine{00701\ \ \ \ \ \textcolor{keywordtype}{float}\ sub\_direct\_out\ =\ settings[\textcolor{stringliteral}{"{}sub\_direct\_out"{}}];}
+\DoxyCodeLine{00702\ \ \ \ \ \textcolor{keywordflow}{if}\ (sub\_direct\_out)}
+\DoxyCodeLine{00703\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_3\_destination"{}}]\ =\ 4.0f;}
+\DoxyCodeLine{00704\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (sub\_filter1\ \&\&\ sub\_filter2)}
+\DoxyCodeLine{00705\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_3\_destination"{}}]\ =\ 2.0f;}
+\DoxyCodeLine{00706\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (sub\_filter2)}
+\DoxyCodeLine{00707\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_3\_destination"{}}]\ =\ 1.0f;}
+\DoxyCodeLine{00708\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (sub\_filter1)}
+\DoxyCodeLine{00709\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_3\_destination"{}}]\ =\ 0.0f;}
+\DoxyCodeLine{00710\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00711\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_3\_destination"{}}]\ =\ 3.0f;}
+\DoxyCodeLine{00712\ }
+\DoxyCodeLine{00713\ \ \ \ \ \textcolor{keywordtype}{float}\ osc1\_filter1\ =\ settings[\textcolor{stringliteral}{"{}filter\_1\_osc1\_input"{}}];}
+\DoxyCodeLine{00714\ \ \ \ \ \textcolor{keywordtype}{float}\ osc1\_filter2\ =\ settings[\textcolor{stringliteral}{"{}filter\_2\_osc1\_input"{}}];}
+\DoxyCodeLine{00715\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc1\_filter1\ \&\&\ osc1\_filter2)}
+\DoxyCodeLine{00716\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_1\_destination"{}}]\ =\ 2.0f;}
+\DoxyCodeLine{00717\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (osc1\_filter2)}
+\DoxyCodeLine{00718\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_1\_destination"{}}]\ =\ 1.0f;}
+\DoxyCodeLine{00719\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (osc1\_filter1)}
+\DoxyCodeLine{00720\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_1\_destination"{}}]\ =\ 0.0f;}
+\DoxyCodeLine{00721\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00722\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_1\_destination"{}}]\ =\ 3.0f;}
+\DoxyCodeLine{00723\ }
+\DoxyCodeLine{00724\ \ \ \ \ \textcolor{keywordtype}{float}\ osc2\_filter1\ =\ settings[\textcolor{stringliteral}{"{}filter\_1\_osc2\_input"{}}];}
+\DoxyCodeLine{00725\ \ \ \ \ \textcolor{keywordtype}{float}\ osc2\_filter2\ =\ settings[\textcolor{stringliteral}{"{}filter\_2\_osc2\_input"{}}];}
+\DoxyCodeLine{00726\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc2\_filter1\ \&\&\ osc2\_filter2)}
+\DoxyCodeLine{00727\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_2\_destination"{}}]\ =\ 2.0f;}
+\DoxyCodeLine{00728\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (osc2\_filter2)}
+\DoxyCodeLine{00729\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_2\_destination"{}}]\ =\ 1.0f;}
+\DoxyCodeLine{00730\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (osc2\_filter1)}
+\DoxyCodeLine{00731\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_2\_destination"{}}]\ =\ 0.0f;}
+\DoxyCodeLine{00732\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00733\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_2\_destination"{}}]\ =\ 3.0f;}
+\DoxyCodeLine{00734\ }
+\DoxyCodeLine{00735\ \ \ \ \ \textcolor{keywordtype}{float}\ sample\_filter1\ =\ settings[\textcolor{stringliteral}{"{}filter\_1\_sample\_input"{}}];}
+\DoxyCodeLine{00736\ \ \ \ \ \textcolor{keywordtype}{float}\ sample\_filter2\ =\ settings[\textcolor{stringliteral}{"{}filter\_2\_sample\_input"{}}];}
+\DoxyCodeLine{00737\ \ \ \ \ \textcolor{keywordflow}{if}\ (sample\_filter1\ \&\&\ sample\_filter2)}
+\DoxyCodeLine{00738\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}sample\_destination"{}}]\ =\ 2.0f;}
+\DoxyCodeLine{00739\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (sample\_filter2)}
+\DoxyCodeLine{00740\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}sample\_destination"{}}]\ =\ 1.0f;}
+\DoxyCodeLine{00741\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (sample\_filter1)}
+\DoxyCodeLine{00742\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}sample\_destination"{}}]\ =\ 0.0f;}
+\DoxyCodeLine{00743\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00744\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}sample\_destination"{}}]\ =\ 3.0f;}
+\DoxyCodeLine{00745\ }
+\DoxyCodeLine{00746\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable}{vital::Wavetable}}\ wavetable(\mbox{\hyperlink{namespacevital_aa72aa67cd199ba84e12ec933d74ba400}{vital::kNumOscillatorWaveFrames}});}
+\DoxyCodeLine{00747\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator}{WavetableCreator}}\ wavetable\_creator(\&wavetable);}
+\DoxyCodeLine{00748\ \ \ \ \ wavetable\_creator.\mbox{\hyperlink{class_wavetable_creator_a00773b06189fbc71f60db7ebfe7d38e0}{initPredefinedWaves}}();}
+\DoxyCodeLine{00749\ \ \ \ \ wavetable\_creator.\mbox{\hyperlink{class_wavetable_creator_ae491ca9f3b31ca97b8cb8f1aa3af029d}{setName}}(\textcolor{stringliteral}{"{}Sub"{}});}
+\DoxyCodeLine{00750\ }
+\DoxyCodeLine{00751\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_wavetables;}
+\DoxyCodeLine{00752\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ (\textcolor{keywordtype}{int})wavetables.size()\ -\/\ 1;\ i\ >=\ 0;\ -\/-\/i)}
+\DoxyCodeLine{00753\ \ \ \ \ \ \ new\_wavetables.push\_back(wavetables[i]);}
+\DoxyCodeLine{00754\ }
+\DoxyCodeLine{00755\ \ \ \ \ new\_wavetables.push\_back(wavetable\_creator.\mbox{\hyperlink{class_wavetable_creator_a9735b94572c82cc9ca34f27f38e67e31}{stateToJson}}());}
+\DoxyCodeLine{00756\ \ \ \ \ settings[\textcolor{stringliteral}{"{}wavetables"{}}]\ =\ new\_wavetables;}
+\DoxyCodeLine{00757\ }
+\DoxyCodeLine{00758\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_modulations;}
+\DoxyCodeLine{00759\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ modulations)\ \{}
+\DoxyCodeLine{00760\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}sub\_transpose"{}})}
+\DoxyCodeLine{00761\ \ \ \ \ \ \ \ \ modulation[\textcolor{stringliteral}{"{}destination"{}}]\ =\ \textcolor{stringliteral}{"{}osc\_3\_transpose"{}};}
+\DoxyCodeLine{00762\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}sub\_tune"{}})}
+\DoxyCodeLine{00763\ \ \ \ \ \ \ \ \ modulation[\textcolor{stringliteral}{"{}destination"{}}]\ =\ \textcolor{stringliteral}{"{}osc\_3\_tune"{}};}
+\DoxyCodeLine{00764\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}sub\_level"{}})}
+\DoxyCodeLine{00765\ \ \ \ \ \ \ \ \ modulation[\textcolor{stringliteral}{"{}destination"{}}]\ =\ \textcolor{stringliteral}{"{}osc\_3\_level"{}};}
+\DoxyCodeLine{00766\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}sub\_pan"{}})}
+\DoxyCodeLine{00767\ \ \ \ \ \ \ \ \ modulation[\textcolor{stringliteral}{"{}destination"{}}]\ =\ \textcolor{stringliteral}{"{}osc\_3\_pan"{}};}
+\DoxyCodeLine{00768\ }
+\DoxyCodeLine{00769\ \ \ \ \ \ \ new\_modulations.push\_back(modulation);}
+\DoxyCodeLine{00770\ \ \ \ \ \}}
+\DoxyCodeLine{00771\ }
+\DoxyCodeLine{00772\ \ \ \ \ modulations\ =\ new\_modulations;}
+\DoxyCodeLine{00773\ \ \ \}}
+\DoxyCodeLine{00774\ }
+\DoxyCodeLine{00775\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.5.5"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00776\ \ \ \ \ \textcolor{keywordtype}{float}\ flanger\_tempo\ =\ settings[\textcolor{stringliteral}{"{}flanger\_tempo"{}}];}
+\DoxyCodeLine{00777\ \ \ \ \ settings[\textcolor{stringliteral}{"{}flanger\_tempo"{}}]\ =\ flanger\_tempo\ +\ 1.0f;}
+\DoxyCodeLine{00778\ }
+\DoxyCodeLine{00779\ \ \ \ \ \textcolor{keywordtype}{float}\ phaser\_tempo\ =\ settings[\textcolor{stringliteral}{"{}phaser\_tempo"{}}];}
+\DoxyCodeLine{00780\ \ \ \ \ settings[\textcolor{stringliteral}{"{}phaser\_tempo"{}}]\ =\ phaser\_tempo\ +\ 1.0f;}
+\DoxyCodeLine{00781\ }
+\DoxyCodeLine{00782\ \ \ \ \ \textcolor{keywordtype}{float}\ chorus\_tempo\ =\ settings[\textcolor{stringliteral}{"{}chorus\_tempo"{}}];}
+\DoxyCodeLine{00783\ \ \ \ \ settings[\textcolor{stringliteral}{"{}chorus\_tempo"{}}]\ =\ chorus\_tempo\ +\ 1.0f;}
+\DoxyCodeLine{00784\ }
+\DoxyCodeLine{00785\ \ \ \ \ \textcolor{keywordtype}{float}\ delay\_tempo\ =\ settings[\textcolor{stringliteral}{"{}delay\_tempo"{}}];}
+\DoxyCodeLine{00786\ \ \ \ \ settings[\textcolor{stringliteral}{"{}delay\_tempo"{}}]\ =\ delay\_tempo\ +\ 1.0f;}
+\DoxyCodeLine{00787\ }
+\DoxyCodeLine{00788\ \ \ \ \ std::string\ lfo\_start\ =\ \textcolor{stringliteral}{"{}lfo\_"{}};}
+\DoxyCodeLine{00789\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_aba56646bec643d6d416700b782ed978b}{vital::kNumLfos}};\ ++i)\ \{}
+\DoxyCodeLine{00790\ \ \ \ \ \ \ std::string\ tempo\_string\ =\ lfo\_start\ +\ std::to\_string(i\ +\ 1)\ +\ \textcolor{stringliteral}{"{}\_tempo"{}};}
+\DoxyCodeLine{00791\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (settings.count(tempo\_string))\ \{}
+\DoxyCodeLine{00792\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ tempo\ =\ settings[tempo\_string];}
+\DoxyCodeLine{00793\ \ \ \ \ \ \ \ \ settings[tempo\_string]\ =\ tempo\ +\ 1.0f;}
+\DoxyCodeLine{00794\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00795\ \ \ \ \ \}}
+\DoxyCodeLine{00796\ }
+\DoxyCodeLine{00797\ \ \ \ \ std::string\ random\_start\ =\ \textcolor{stringliteral}{"{}random\_"{}};}
+\DoxyCodeLine{00798\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a685d103a6454a0b6e8e370cb574c21b5}{vital::kNumRandomLfos}};\ ++i)\ \{}
+\DoxyCodeLine{00799\ \ \ \ \ \ \ std::string\ tempo\_string\ =\ random\_start\ +\ std::to\_string(i\ +\ 1)\ +\ \textcolor{stringliteral}{"{}\_tempo"{}};}
+\DoxyCodeLine{00800\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (settings.count(tempo\_string))\ \{}
+\DoxyCodeLine{00801\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ tempo\ =\ settings[tempo\_string];}
+\DoxyCodeLine{00802\ \ \ \ \ \ \ \ \ settings[tempo\_string]\ =\ tempo\ +\ 1.0f;}
+\DoxyCodeLine{00803\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00804\ \ \ \ \ \}}
+\DoxyCodeLine{00805\ \ \ \}}
+\DoxyCodeLine{00806\ }
+\DoxyCodeLine{00807\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.5.7"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00808\ \ \ \ \ settings[\textcolor{stringliteral}{"{}delay\_aux\_sync"{}}]\ =\ settings[\textcolor{stringliteral}{"{}delay\_sync"{}}];}
+\DoxyCodeLine{00809\ \ \ \ \ settings[\textcolor{stringliteral}{"{}delay\_aux\_frequency"{}}]\ =\ settings[\textcolor{stringliteral}{"{}delay\_frequency"{}}];}
+\DoxyCodeLine{00810\ \ \ \ \ settings[\textcolor{stringliteral}{"{}delay\_aux\_tempo"{}}]\ =\ settings[\textcolor{stringliteral}{"{}delay\_tempo"{}}];}
+\DoxyCodeLine{00811\ }
+\DoxyCodeLine{00812\ \ \ \ \ \textcolor{keywordtype}{float}\ style\ =\ settings[\textcolor{stringliteral}{"{}delay\_style"{}}];}
+\DoxyCodeLine{00813\ \ \ \ \ \textcolor{keywordflow}{if}\ (style)}
+\DoxyCodeLine{00814\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}delay\_style"{}}]\ =\ style\ +\ 1.0f;}
+\DoxyCodeLine{00815\ \ \ \}}
+\DoxyCodeLine{00816\ }
+\DoxyCodeLine{00817\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.5.8"{}})\ <\ 0)}
+\DoxyCodeLine{00818\ \ \ \ \ settings[\textcolor{stringliteral}{"{}chorus\_damping"{}}]\ =\ 1.0f;}
+\DoxyCodeLine{00819\ }
+\DoxyCodeLine{00820\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.6.5"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00821\ \ \ \ \ settings[\textcolor{stringliteral}{"{}stereo\_mode"{}}]\ =\ 1.0f;}
+\DoxyCodeLine{00822\ \ \ \ \ \textcolor{keywordtype}{float}\ routing\ =\ settings[\textcolor{stringliteral}{"{}stereo\_routing"{}}];}
+\DoxyCodeLine{00823\ \ \ \ \ routing\ *=\ 0.125f;}
+\DoxyCodeLine{00824\ \ \ \ \ \textcolor{keywordflow}{if}\ (routing\ <\ 0.0f)}
+\DoxyCodeLine{00825\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}stereo\_routing"{}}]\ =\ 1.0f\ -\/\ routing;}
+\DoxyCodeLine{00826\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00827\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}stereo\_routing"{}}]\ =\ routing;}
+\DoxyCodeLine{00828\ \ \ \}}
+\DoxyCodeLine{00829\ }
+\DoxyCodeLine{00830\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.6.6"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00831\ \ \ \ \ \textcolor{keywordtype}{float}\ stereo\_mode\ =\ settings[\textcolor{stringliteral}{"{}stereo\_mode"{}}];}
+\DoxyCodeLine{00832\ \ \ \ \ \textcolor{keywordtype}{float}\ routing\ =\ settings[\textcolor{stringliteral}{"{}stereo\_routing"{}}];}
+\DoxyCodeLine{00833\ \ \ \ \ \textcolor{keywordflow}{if}\ (stereo\_mode\ ==\ 0.0f)}
+\DoxyCodeLine{00834\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}stereo\_routing"{}}]\ =\ 1.0f\ -\/\ routing;}
+\DoxyCodeLine{00835\ \ \ \}}
+\DoxyCodeLine{00836\ }
+\DoxyCodeLine{00837\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.6.7"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00838\ \ \ \ \ \textcolor{keywordtype}{float}\ chorus\_damping\ =\ settings[\textcolor{stringliteral}{"{}chorus\_damping"{}}];}
+\DoxyCodeLine{00839\ \ \ \ \ settings[\textcolor{stringliteral}{"{}chorus\_cutoff"{}}]\ =\ 20.0f;}
+\DoxyCodeLine{00840\ \ \ \ \ settings[\textcolor{stringliteral}{"{}chorus\_spread"{}}]\ =\ chorus\_damping;}
+\DoxyCodeLine{00841\ }
+\DoxyCodeLine{00842\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_modulations;}
+\DoxyCodeLine{00843\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ modulations)\ \{}
+\DoxyCodeLine{00844\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}chorus\_damping"{}})}
+\DoxyCodeLine{00845\ \ \ \ \ \ \ \ \ modulation[\textcolor{stringliteral}{"{}destination"{}}]\ =\ \textcolor{stringliteral}{"{}chorus\_spread"{}};}
+\DoxyCodeLine{00846\ }
+\DoxyCodeLine{00847\ \ \ \ \ \ \ new\_modulations.push\_back(modulation);}
+\DoxyCodeLine{00848\ \ \ \ \ \}}
+\DoxyCodeLine{00849\ \ \ \ \ modulations\ =\ new\_modulations;}
+\DoxyCodeLine{00850\ \ \ \}}
+\DoxyCodeLine{00851\ }
+\DoxyCodeLine{00852\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.7.1"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00853\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_1\_spectral\_morph\_type\ =\ 0.0f;}
+\DoxyCodeLine{00854\ \ \ \ \ \textcolor{keywordflow}{if}\ (settings.count(\textcolor{stringliteral}{"{}osc\_1\_spectral\_morph\_type"{}}))}
+\DoxyCodeLine{00855\ \ \ \ \ \ \ osc\_1\_spectral\_morph\_type\ =\ settings[\textcolor{stringliteral}{"{}osc\_1\_spectral\_morph\_type"{}}];}
+\DoxyCodeLine{00856\ }
+\DoxyCodeLine{00857\ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_2\_spectral\_morph\_type\ =\ 0.0f;}
+\DoxyCodeLine{00858\ \ \ \ \ \textcolor{keywordflow}{if}\ (settings.count(\textcolor{stringliteral}{"{}osc\_2\_spectral\_morph\_type"{}}))}
+\DoxyCodeLine{00859\ \ \ \ \ \ \ osc\_2\_spectral\_morph\_type\ =\ settings[\textcolor{stringliteral}{"{}osc\_2\_spectral\_morph\_type"{}}];}
+\DoxyCodeLine{00860\ }
+\DoxyCodeLine{00861\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_1\_spectral\_morph\_type\ ==\ 9.0f)\ \{}
+\DoxyCodeLine{00862\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_1\_spectral\_morph\_amount\ =\ settings[\textcolor{stringliteral}{"{}osc\_1\_spectral\_morph\_amount"{}}];}
+\DoxyCodeLine{00863\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_1\_spectral\_morph\_amount"{}}]\ =\ -\/0.5f\ *\ osc\_1\_spectral\_morph\_amount\ +\ 0.5f;}
+\DoxyCodeLine{00864\ }
+\DoxyCodeLine{00865\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 1;}
+\DoxyCodeLine{00866\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ modulations)\ \{}
+\DoxyCodeLine{00867\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}osc\_1\_spectral\_morph\_amount"{}})\ \{}
+\DoxyCodeLine{00868\ \ \ \ \ \ \ \ \ \ \ std::string\ name\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ std::to\_string(index)\ +\ \textcolor{stringliteral}{"{}\_amount"{}};}
+\DoxyCodeLine{00869\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ modulation\_amount\ =\ settings[name];}
+\DoxyCodeLine{00870\ \ \ \ \ \ \ \ \ \ \ settings[name]\ =\ modulation\_amount\ *\ -\/0.5f;}
+\DoxyCodeLine{00871\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00872\ }
+\DoxyCodeLine{00873\ \ \ \ \ \ \ \ \ index++;}
+\DoxyCodeLine{00874\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00875\ \ \ \ \ \}}
+\DoxyCodeLine{00876\ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_2\_spectral\_morph\_type\ ==\ 9.0f)\ \{}
+\DoxyCodeLine{00877\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_2\_spectral\_morph\_amount\ =\ settings[\textcolor{stringliteral}{"{}osc\_2\_spectral\_morph\_amount"{}}];}
+\DoxyCodeLine{00878\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_2\_spectral\_morph\_amount"{}}]\ =\ -\/0.5f\ *\ osc\_2\_spectral\_morph\_amount\ +\ 0.5f;}
+\DoxyCodeLine{00879\ }
+\DoxyCodeLine{00880\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 1;}
+\DoxyCodeLine{00881\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ modulations)\ \{}
+\DoxyCodeLine{00882\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}osc\_2\_spectral\_morph\_amount"{}})\ \{}
+\DoxyCodeLine{00883\ \ \ \ \ \ \ \ \ \ \ std::string\ name\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ std::to\_string(index)\ +\ \textcolor{stringliteral}{"{}\_amount"{}};}
+\DoxyCodeLine{00884\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ modulation\_amount\ =\ settings[name];}
+\DoxyCodeLine{00885\ \ \ \ \ \ \ \ \ \ \ settings[name]\ =\ modulation\_amount\ *\ -\/0.5f;}
+\DoxyCodeLine{00886\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00887\ }
+\DoxyCodeLine{00888\ \ \ \ \ \ \ \ \ index++;}
+\DoxyCodeLine{00889\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00890\ \ \ \ \ \}}
+\DoxyCodeLine{00891\ \ \ \}}
+\DoxyCodeLine{00892\ }
+\DoxyCodeLine{00893\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.7.5"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00894\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kFlangerCenterMultiply\ =\ 48.0f\ /\ 128.0f;}
+\DoxyCodeLine{00895\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kFlangerCenterOffset\ =\ 53.69f;}
+\DoxyCodeLine{00896\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kPhaserCenterMultiply\ =\ 48.0f\ /\ 128.0f;}
+\DoxyCodeLine{00897\ }
+\DoxyCodeLine{00898\ \ \ \ \ \textcolor{keywordflow}{if}\ (settings.count(\textcolor{stringliteral}{"{}flanger\_center"{}}))\ \{}
+\DoxyCodeLine{00899\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ flanger\_center\ =\ settings[\textcolor{stringliteral}{"{}flanger\_center"{}}];}
+\DoxyCodeLine{00900\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}flanger\_center"{}}]\ =\ flanger\_center\ +\ kFlangerCenterOffset;}
+\DoxyCodeLine{00901\ \ \ \ \ \}}
+\DoxyCodeLine{00902\ }
+\DoxyCodeLine{00903\ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 1;}
+\DoxyCodeLine{00904\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ modulations)\ \{}
+\DoxyCodeLine{00905\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}flanger\_center"{}})\ \{}
+\DoxyCodeLine{00906\ \ \ \ \ \ \ \ \ std::string\ name\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ std::to\_string(index)\ +\ \textcolor{stringliteral}{"{}\_amount"{}};}
+\DoxyCodeLine{00907\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ modulation\_amount\ =\ settings[name];}
+\DoxyCodeLine{00908\ \ \ \ \ \ \ \ \ settings[name]\ =\ modulation\_amount\ *\ kFlangerCenterMultiply;}
+\DoxyCodeLine{00909\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00910\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}phaser\_center"{}})\ \{}
+\DoxyCodeLine{00911\ \ \ \ \ \ \ \ \ std::string\ name\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ std::to\_string(index)\ +\ \textcolor{stringliteral}{"{}\_amount"{}};}
+\DoxyCodeLine{00912\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ modulation\_amount\ =\ settings[name];}
+\DoxyCodeLine{00913\ \ \ \ \ \ \ \ \ settings[name]\ =\ modulation\_amount\ *\ kPhaserCenterMultiply;}
+\DoxyCodeLine{00914\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00915\ }
+\DoxyCodeLine{00916\ \ \ \ \ \ \ index++;}
+\DoxyCodeLine{00917\ \ \ \ \ \}}
+\DoxyCodeLine{00918\ \ \ \}}
+\DoxyCodeLine{00919\ }
+\DoxyCodeLine{00920\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.7.6"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00921\ \ \ \ \ \textcolor{keywordtype}{int}\ filter\_1\_model\ =\ settings[\textcolor{stringliteral}{"{}filter\_1\_model"{}}];}
+\DoxyCodeLine{00922\ \ \ \ \ \textcolor{keywordtype}{int}\ filter\_2\_model\ =\ settings[\textcolor{stringliteral}{"{}filter\_2\_model"{}}];}
+\DoxyCodeLine{00923\ }
+\DoxyCodeLine{00924\ \ \ \ \ \textcolor{keywordflow}{if}\ (filter\_1\_model\ ==\ 6)\ \{}
+\DoxyCodeLine{00925\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ filter\_1\_style\ =\ settings[\textcolor{stringliteral}{"{}filter\_1\_style"{}}];}
+\DoxyCodeLine{00926\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (filter\_1\_style\ ==\ 1)}
+\DoxyCodeLine{00927\ \ \ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_1\_style"{}}]\ =\ 3;}
+\DoxyCodeLine{00928\ \ \ \ \ \}}
+\DoxyCodeLine{00929\ }
+\DoxyCodeLine{00930\ \ \ \ \ \textcolor{keywordflow}{if}\ (filter\_2\_model\ ==\ 6)\ \{}
+\DoxyCodeLine{00931\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ filter\_2\_style\ =\ settings[\textcolor{stringliteral}{"{}filter\_2\_style"{}}];}
+\DoxyCodeLine{00932\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (filter\_2\_style\ ==\ 1)}
+\DoxyCodeLine{00933\ \ \ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_2\_style"{}}]\ =\ 3;}
+\DoxyCodeLine{00934\ \ \ \ \ \}}
+\DoxyCodeLine{00935\ }
+\DoxyCodeLine{00936\ \ \ \ \ \textcolor{keywordflow}{if}\ (settings.count(\textcolor{stringliteral}{"{}filter\_fx\_model"{}}))\ \{}
+\DoxyCodeLine{00937\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ filter\_fx\_model\ =\ settings[\textcolor{stringliteral}{"{}filter\_fx\_model"{}}];}
+\DoxyCodeLine{00938\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (filter\_fx\_model\ ==\ 6)\ \{}
+\DoxyCodeLine{00939\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ filter\_fx\_style\ =\ settings[\textcolor{stringliteral}{"{}filter\_fx\_style"{}}];}
+\DoxyCodeLine{00940\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (filter\_fx\_style\ ==\ 1)}
+\DoxyCodeLine{00941\ \ \ \ \ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_fx\_style"{}}]\ =\ 3;}
+\DoxyCodeLine{00942\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00943\ \ \ \ \ \}}
+\DoxyCodeLine{00944\ \ \ \}}
+\DoxyCodeLine{00945\ }
+\DoxyCodeLine{00946\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.7.6"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00947\ \ \ \ \ \textcolor{keywordflow}{if}\ (settings.count(\textcolor{stringliteral}{"{}osc\_1\_spectral\_morph\_type"{}}))\ \{}
+\DoxyCodeLine{00948\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_1\_spectral\_morph\_type\ =\ settings[\textcolor{stringliteral}{"{}osc\_1\_spectral\_morph\_type"{}}];}
+\DoxyCodeLine{00949\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_1\_spectral\_morph\_type\ ==\ 10.0f)}
+\DoxyCodeLine{00950\ \ \ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_1\_spectral\_morph\_type"{}}]\ =\ 7.0f;}
+\DoxyCodeLine{00951\ \ \ \ \ \}}
+\DoxyCodeLine{00952\ }
+\DoxyCodeLine{00953\ \ \ \ \ \textcolor{keywordflow}{if}\ (settings.count(\textcolor{stringliteral}{"{}osc\_2\_spectral\_morph\_type"{}}))\ \{}
+\DoxyCodeLine{00954\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_2\_spectral\_morph\_type\ =\ settings[\textcolor{stringliteral}{"{}osc\_2\_spectral\_morph\_type"{}}];}
+\DoxyCodeLine{00955\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_2\_spectral\_morph\_type\ ==\ 10.0f)}
+\DoxyCodeLine{00956\ \ \ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_2\_spectral\_morph\_type"{}}]\ =\ 7.0f;}
+\DoxyCodeLine{00957\ \ \ \ \ \}}
+\DoxyCodeLine{00958\ }
+\DoxyCodeLine{00959\ \ \ \ \ \textcolor{keywordflow}{if}\ (settings.count(\textcolor{stringliteral}{"{}osc\_3\_spectral\_morph\_type"{}}))\ \{}
+\DoxyCodeLine{00960\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ osc\_3\_spectral\_morph\_type\ =\ settings[\textcolor{stringliteral}{"{}osc\_3\_spectral\_morph\_type"{}}];}
+\DoxyCodeLine{00961\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (osc\_3\_spectral\_morph\_type\ ==\ 10.0f)}
+\DoxyCodeLine{00962\ \ \ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}osc\_3\_spectral\_morph\_type"{}}]\ =\ 7.0f;}
+\DoxyCodeLine{00963\ \ \ \ \ \}}
+\DoxyCodeLine{00964\ \ \ \}}
+\DoxyCodeLine{00965\ }
+\DoxyCodeLine{00966\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.8.1"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00967\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_aba56646bec643d6d416700b782ed978b}{vital::kNumLfos}};\ ++i)\ \{}
+\DoxyCodeLine{00968\ \ \ \ \ \ \ std::string\ name\ =\ \textcolor{stringliteral}{"{}lfo\_"{}}\ +\ std::to\_string(i)\ +\ \textcolor{stringliteral}{"{}\_smooth\_mode"{}};}
+\DoxyCodeLine{00969\ \ \ \ \ \ \ settings[name]\ =\ 0.0f;}
+\DoxyCodeLine{00970\ \ \ \ \ \}}
+\DoxyCodeLine{00971\ \ \ \}}
+\DoxyCodeLine{00972\ }
+\DoxyCodeLine{00973\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.9.0"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00974\ \ \ \ \ \textcolor{keywordtype}{float}\ filter\_1\_model\ =\ settings[\textcolor{stringliteral}{"{}filter\_1\_model"{}}];}
+\DoxyCodeLine{00975\ \ \ \ \ \textcolor{keywordflow}{if}\ (filter\_1\_model\ ==\ 4)\ \{}
+\DoxyCodeLine{00976\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_1\_blend"{}}]\ =\ 0.0f;}
+\DoxyCodeLine{00977\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_1\_style"{}}]\ =\ 0.0f;}
+\DoxyCodeLine{00978\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 1;}
+\DoxyCodeLine{00979\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ modulations)\ \{}
+\DoxyCodeLine{00980\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}filter\_1\_blend"{}})\ \{}
+\DoxyCodeLine{00981\ \ \ \ \ \ \ \ \ \ \ std::string\ name\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ std::to\_string(index)\ +\ \textcolor{stringliteral}{"{}\_amount"{}};}
+\DoxyCodeLine{00982\ \ \ \ \ \ \ \ \ \ \ settings[name]\ =\ 0.0f;}
+\DoxyCodeLine{00983\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00984\ }
+\DoxyCodeLine{00985\ \ \ \ \ \ \ \ \ index++;}
+\DoxyCodeLine{00986\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00987\ \ \ \ \ \}}
+\DoxyCodeLine{00988\ }
+\DoxyCodeLine{00989\ \ \ \ \ \textcolor{keywordtype}{float}\ filter\_2\_model\ =\ settings[\textcolor{stringliteral}{"{}filter\_2\_model"{}}];}
+\DoxyCodeLine{00990\ \ \ \ \ \textcolor{keywordflow}{if}\ (filter\_2\_model\ ==\ 4)\ \{}
+\DoxyCodeLine{00991\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_2\_blend"{}}]\ =\ 0.0f;}
+\DoxyCodeLine{00992\ \ \ \ \ \ \ settings[\textcolor{stringliteral}{"{}filter\_2\_style"{}}]\ =\ 0.0f;}
+\DoxyCodeLine{00993\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 1;}
+\DoxyCodeLine{00994\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ modulation\ :\ modulations)\ \{}
+\DoxyCodeLine{00995\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (modulation[\textcolor{stringliteral}{"{}destination"{}}]\ ==\ \textcolor{stringliteral}{"{}filter\_2\_blend"{}})\ \{}
+\DoxyCodeLine{00996\ \ \ \ \ \ \ \ \ \ \ std::string\ name\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ std::to\_string(index)\ +\ \textcolor{stringliteral}{"{}\_amount"{}};}
+\DoxyCodeLine{00997\ \ \ \ \ \ \ \ \ \ \ settings[name]\ =\ 0.0f;}
+\DoxyCodeLine{00998\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00999\ }
+\DoxyCodeLine{01000\ \ \ \ \ \ \ \ \ index++;}
+\DoxyCodeLine{01001\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01002\ \ \ \ \ \}}
+\DoxyCodeLine{01003\ \ \ \}}
+\DoxyCodeLine{01004\ }
+\DoxyCodeLine{01005\ \ \ settings[\textcolor{stringliteral}{"{}modulations"{}}]\ =\ modulations;}
+\DoxyCodeLine{01006\ \ \ settings[\textcolor{stringliteral}{"{}sample"{}}]\ =\ sample;}
+\DoxyCodeLine{01007\ \ \ state[\textcolor{stringliteral}{"{}settings"{}}]\ =\ settings;}
+\DoxyCodeLine{01008\ \ \ \textcolor{keywordflow}{return}\ state;}
+\DoxyCodeLine{01009\ \}}
+\DoxyCodeLine{01010\ }
+\DoxyCodeLine{01011\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_load_save_a8f679c977061ed7f475f34b839e2450d}{LoadSave::jsonToState}}(\mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth,\ std::map<std::string,\ String>\&\ save\_info,\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{01012\ \ \ std::string\ version\ =\ data[\textcolor{stringliteral}{"{}synth\_version"{}}];}
+\DoxyCodeLine{01013\ }
+\DoxyCodeLine{01014\ \ \ \textcolor{keywordtype}{int}\ compare\_feature\_versions\ =\ \mbox{\hyperlink{class_load_save_ae8fcb0feb65de107d20573848a6c3126}{compareFeatureVersionStrings}}(version,\ ProjectInfo::versionString);}
+\DoxyCodeLine{01015\ \ \ \textcolor{keywordflow}{if}\ (compare\_feature\_versions\ >\ 0)}
+\DoxyCodeLine{01016\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01017\ }
+\DoxyCodeLine{01018\ \ \ \textcolor{keywordtype}{int}\ compare\_versions\ =\ \mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ ProjectInfo::versionString);}
+\DoxyCodeLine{01019\ \ \ \textcolor{keywordflow}{if}\ (compare\_versions\ <\ 0\ ||\ data[\textcolor{stringliteral}{"{}settings"{}}].count(\textcolor{stringliteral}{"{}sub\_octave"{}}))}
+\DoxyCodeLine{01020\ \ \ \ \ data\ =\ \mbox{\hyperlink{class_load_save_a969e03466a31bc1abac7c561c8925663}{updateFromOldVersion}}(data);}
+\DoxyCodeLine{01021\ }
+\DoxyCodeLine{01022\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ settings\ =\ data[\textcolor{stringliteral}{"{}settings"{}}];}
+\DoxyCodeLine{01023\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ modulations\ =\ settings[\textcolor{stringliteral}{"{}modulations"{}}];}
+\DoxyCodeLine{01024\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ sample\ =\ settings[\textcolor{stringliteral}{"{}sample"{}}];}
+\DoxyCodeLine{01025\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ wavetables\ =\ settings[\textcolor{stringliteral}{"{}wavetables"{}}];}
+\DoxyCodeLine{01026\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ lfos\ =\ settings[\textcolor{stringliteral}{"{}lfos"{}}];}
+\DoxyCodeLine{01027\ }
+\DoxyCodeLine{01028\ \ \ \mbox{\hyperlink{class_load_save_a5896f664e37b65108eba2992f22a92af}{loadControls}}(synth,\ settings);}
+\DoxyCodeLine{01029\ \ \ \mbox{\hyperlink{class_load_save_a8f1f10ef0b349502d535cf9633333725}{loadModulations}}(synth,\ modulations);}
+\DoxyCodeLine{01030\ \ \ \mbox{\hyperlink{class_load_save_aff320cecd73d1a7c859bda7cbdbd63b5}{loadSample}}(synth,\ sample);}
+\DoxyCodeLine{01031\ \ \ \mbox{\hyperlink{class_load_save_aec52c9f4448631c84bace6d10a57fb01}{loadWavetables}}(synth,\ wavetables);}
+\DoxyCodeLine{01032\ \ \ \mbox{\hyperlink{class_load_save_a6723a9ef9f337cbe271f0eef05b11664}{loadLfos}}(synth,\ lfos);}
+\DoxyCodeLine{01033\ \ \ \mbox{\hyperlink{class_load_save_ac41aa8856f3999b2fdb241857115ef68}{loadSaveState}}(save\_info,\ data);}
+\DoxyCodeLine{01034\ \ \ synth-\/>\mbox{\hyperlink{class_synth_base_a6379a26cda438709fcbbf1c7c38e70ca}{checkOversampling}}();}
+\DoxyCodeLine{01035\ }
+\DoxyCodeLine{01036\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{01037\ \}}
+\DoxyCodeLine{01038\ }
+\DoxyCodeLine{01039\ String\ \mbox{\hyperlink{class_load_save_ad8ed59cbb7283a51bacd6559ad0c9e3f}{LoadSave::getAuthorFromFile}}(\textcolor{keyword}{const}\ File\&\ file)\ \{}
+\DoxyCodeLine{01040\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMaxCharacters\ =\ 40;}
+\DoxyCodeLine{01041\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMinSize\ =\ 60;}
+\DoxyCodeLine{01042\ \ \ FileInputStream\ file\_stream(file);}
+\DoxyCodeLine{01043\ }
+\DoxyCodeLine{01044\ \ \ \textcolor{keywordflow}{if}\ (file\_stream.getTotalLength()\ <\ kMinSize)}
+\DoxyCodeLine{01045\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{01046\ }
+\DoxyCodeLine{01047\ \ \ file\_stream.readByte();}
+\DoxyCodeLine{01048\ \ \ file\_stream.readByte();}
+\DoxyCodeLine{01049\ \ \ MemoryBlock\ author\_memory\_block;}
+\DoxyCodeLine{01050\ \ \ file\_stream.readIntoMemoryBlock(author\_memory\_block,\ 6);}
+\DoxyCodeLine{01051\ }
+\DoxyCodeLine{01052\ \ \ \textcolor{keywordtype}{char}\ end\_quote\ =\ file\_stream.readByte();}
+\DoxyCodeLine{01053\ \ \ \textcolor{keywordtype}{char}\ colon\ =\ file\_stream.readByte();}
+\DoxyCodeLine{01054\ \ \ \textcolor{keywordtype}{char}\ begin\_quote\ =\ file\_stream.readByte();}
+\DoxyCodeLine{01055\ \ \ \textcolor{keywordflow}{if}\ (author\_memory\_block.toString()\ !=\ \textcolor{stringliteral}{"{}author"{}}\ ||\ end\_quote\ !=\ \textcolor{charliteral}{'"{}'}\ ||\ colon\ !=\ \textcolor{charliteral}{':'}\ ||\ begin\_quote\ !=\ \textcolor{charliteral}{'"{}'})\ \{}
+\DoxyCodeLine{01056\ \ \ \ \ \textcolor{keywordflow}{try}\ \{}
+\DoxyCodeLine{01057\ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ parsed\_json\_state\ =\ json::parse(file.loadFileAsString().toStdString(),\ \textcolor{keyword}{nullptr},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{01058\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_load_save_abad69d024491ab0ec7c3fb681cc61e84}{getAuthor}}(parsed\_json\_state);}
+\DoxyCodeLine{01059\ \ \ \ \ \}}
+\DoxyCodeLine{01060\ \ \ \ \ \textcolor{keywordflow}{catch}\ (\textcolor{keyword}{const}\ json::exception\&\ e)\ \{}
+\DoxyCodeLine{01061\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{01062\ \ \ \ \ \}}
+\DoxyCodeLine{01063\ \ \ \}}
+\DoxyCodeLine{01064\ }
+\DoxyCodeLine{01065\ \ \ MemoryBlock\ name\_memory\_block;}
+\DoxyCodeLine{01066\ \ \ file\_stream.readIntoMemoryBlock(name\_memory\_block,\ kMaxCharacters);}
+\DoxyCodeLine{01067\ \ \ String\ name\ =\ name\_memory\_block.toString();}
+\DoxyCodeLine{01068\ }
+\DoxyCodeLine{01069\ \ \ \textcolor{keywordflow}{if}\ (!name.contains(\textcolor{stringliteral}{"{}\(\backslash\)"{}"{}}))}
+\DoxyCodeLine{01070\ \ \ \ \ \textcolor{keywordflow}{return}\ name.toStdString();}
+\DoxyCodeLine{01071\ }
+\DoxyCodeLine{01072\ \ \ StringArray\ tokens;}
+\DoxyCodeLine{01073\ \ \ tokens.addTokens(name,\ \textcolor{stringliteral}{"{}\(\backslash\)"{}"{}},\ \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{01074\ }
+\DoxyCodeLine{01075\ \ \ \textcolor{keywordflow}{return}\ tokens[0];}
+\DoxyCodeLine{01076\ \}}
+\DoxyCodeLine{01077\ }
+\DoxyCodeLine{01078\ String\ \mbox{\hyperlink{class_load_save_a11e37677bd428af9c9a3cbe653ea70b9}{LoadSave::getStyleFromFile}}(\textcolor{keyword}{const}\ File\&\ file)\ \{}
+\DoxyCodeLine{01079\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMinSize\ =\ 5000;}
+\DoxyCodeLine{01080\ \ \ FileInputStream\ file\_stream(file);}
+\DoxyCodeLine{01081\ }
+\DoxyCodeLine{01082\ \ \ \textcolor{keywordflow}{if}\ (file\_stream.getTotalLength()\ <\ kMinSize)}
+\DoxyCodeLine{01083\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{01084\ }
+\DoxyCodeLine{01085\ \ \ MemoryBlock\ style\_memory\_block;}
+\DoxyCodeLine{01086\ \ \ file\_stream.readIntoMemoryBlock(style\_memory\_block,\ kMinSize);}
+\DoxyCodeLine{01087\ }
+\DoxyCodeLine{01088\ \ \ StringArray\ tokens;}
+\DoxyCodeLine{01089\ \ \ tokens.addTokens(style\_memory\_block.toString(),\ \textcolor{stringliteral}{"{}\(\backslash\)"{}"{}},\ \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{01090\ \ \ \textcolor{keywordtype}{bool}\ found\_style\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01091\ \ \ \textcolor{keywordflow}{for}\ (String\ token\ :\ tokens)\ \{}
+\DoxyCodeLine{01092\ \ \ \ \ \textcolor{keywordflow}{if}\ (found\_style\ \&\&\ token.trim()\ !=\ \textcolor{stringliteral}{"{}:"{}})}
+\DoxyCodeLine{01093\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ token;}
+\DoxyCodeLine{01094\ \ \ \ \ \textcolor{keywordflow}{if}\ (token\ ==\ \textcolor{stringliteral}{"{}preset\_style"{}})}
+\DoxyCodeLine{01095\ \ \ \ \ \ \ found\_style\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{01096\ \ \ \}}
+\DoxyCodeLine{01097\ }
+\DoxyCodeLine{01098\ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{01099\ \}}
+\DoxyCodeLine{01100\ }
+\DoxyCodeLine{01101\ std::string\ \mbox{\hyperlink{class_load_save_abad69d024491ab0ec7c3fb681cc61e84}{LoadSave::getAuthor}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{01102\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}author"{}}))}
+\DoxyCodeLine{01103\ \ \ \ \ \textcolor{keywordflow}{return}\ data[\textcolor{stringliteral}{"{}author"{}}];}
+\DoxyCodeLine{01104\ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{01105\ \}}
+\DoxyCodeLine{01106\ }
+\DoxyCodeLine{01107\ std::string\ \mbox{\hyperlink{class_load_save_a8ae12ff65f28a68f001dde73c90a2d9a}{LoadSave::getLicense}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{01108\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}license"{}}))}
+\DoxyCodeLine{01109\ \ \ \ \ \textcolor{keywordflow}{return}\ data[\textcolor{stringliteral}{"{}license"{}}];}
+\DoxyCodeLine{01110\ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{01111\ \}}
+\DoxyCodeLine{01112\ }
+\DoxyCodeLine{01113\ File\ \mbox{\hyperlink{class_load_save_aa51f825e3585044b2904758b67546461}{LoadSave::getConfigFile}}()\ \{}
+\DoxyCodeLine{01114\ \textcolor{preprocessor}{\#if\ defined(JUCE\_DATA\_STRUCTURES\_H\_INCLUDED)}}
+\DoxyCodeLine{01115\ \ \ PropertiesFile::Options\ config\_options;}
+\DoxyCodeLine{01116\ \ \ config\_options.applicationName\ =\ \textcolor{stringliteral}{"{}Vial"{}};}
+\DoxyCodeLine{01117\ \ \ config\_options.osxLibrarySubFolder\ =\ \textcolor{stringliteral}{"{}Application\ Support"{}};}
+\DoxyCodeLine{01118\ \ \ config\_options.filenameSuffix\ =\ \textcolor{stringliteral}{"{}config"{}};}
+\DoxyCodeLine{01119\ }
+\DoxyCodeLine{01120\ \textcolor{preprocessor}{\#ifdef\ LINUX}}
+\DoxyCodeLine{01121\ \ \ config\_options.folderName\ =\ \textcolor{stringliteral}{"{}."{}}\ +\ String(ProjectInfo::projectName).toLowerCase();}
+\DoxyCodeLine{01122\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{01123\ \ \ config\_options.folderName\ =\ String(ProjectInfo::projectName).toLowerCase();}
+\DoxyCodeLine{01124\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01125\ }
+\DoxyCodeLine{01126\ \ \ \textcolor{keywordflow}{return}\ config\_options.getDefaultFile();}
+\DoxyCodeLine{01127\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{01128\ \ \ \textcolor{keywordflow}{return}\ File();}
+\DoxyCodeLine{01129\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01130\ \}}
+\DoxyCodeLine{01131\ }
+\DoxyCodeLine{01132\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a3f3278d342af8d44ee9be2ea510baa4e}{LoadSave::writeCrashLog}}(String\ crash\_log)\ \{}
+\DoxyCodeLine{01133\ \ \ File\ data\_dir\ =\ \mbox{\hyperlink{class_load_save_a4688a506ad925f4845c7600e646b907a}{getDataDirectory}}();}
+\DoxyCodeLine{01134\ \ \ \textcolor{keywordflow}{if}\ (!data\_dir.exists()\ ||\ !data\_dir.isDirectory())}
+\DoxyCodeLine{01135\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{01136\ \ \ File\ file\ =\ data\_dir.getChildFile(\textcolor{stringliteral}{"{}crash.txt"{}});}
+\DoxyCodeLine{01137\ \ \ file.replaceWithText(crash\_log);}
+\DoxyCodeLine{01138\ \}}
+\DoxyCodeLine{01139\ }
+\DoxyCodeLine{01140\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_ad54bf5e7546d109b5f7800512becc849}{LoadSave::writeErrorLog}}(String\ error\_log)\ \{}
+\DoxyCodeLine{01141\ \ \ File\ data\_dir\ =\ \mbox{\hyperlink{class_load_save_a4688a506ad925f4845c7600e646b907a}{getDataDirectory}}();}
+\DoxyCodeLine{01142\ \ \ \textcolor{keywordflow}{if}\ (!data\_dir.exists()\ ||\ !data\_dir.isDirectory())}
+\DoxyCodeLine{01143\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{01144\ }
+\DoxyCodeLine{01145\ \ \ File\ file\ =\ \mbox{\hyperlink{class_load_save_a4688a506ad925f4845c7600e646b907a}{getDataDirectory}}().getChildFile(\textcolor{stringliteral}{"{}errors.txt"{}});}
+\DoxyCodeLine{01146\ \ \ file.appendText(error\_log\ +\ \textcolor{stringliteral}{"{}\(\backslash\)n"{}});}
+\DoxyCodeLine{01147\ \}}
+\DoxyCodeLine{01148\ }
+\DoxyCodeLine{01149\ File\ \mbox{\hyperlink{class_load_save_aecab3dcf25062eb92969e64e088bb9ad}{LoadSave::getFavoritesFile}}()\ \{}
+\DoxyCodeLine{01150\ \textcolor{preprocessor}{\#if\ defined(JUCE\_DATA\_STRUCTURES\_H\_INCLUDED)}}
+\DoxyCodeLine{01151\ \ \ PropertiesFile::Options\ config\_options;}
+\DoxyCodeLine{01152\ \ \ config\_options.applicationName\ =\ \textcolor{stringliteral}{"{}Vial"{}};}
+\DoxyCodeLine{01153\ \ \ config\_options.osxLibrarySubFolder\ =\ \textcolor{stringliteral}{"{}Application\ Support"{}};}
+\DoxyCodeLine{01154\ \ \ config\_options.filenameSuffix\ =\ \textcolor{stringliteral}{"{}favorites"{}};}
+\DoxyCodeLine{01155\ }
+\DoxyCodeLine{01156\ \textcolor{preprocessor}{\#ifdef\ LINUX}}
+\DoxyCodeLine{01157\ \ \ config\_options.folderName\ =\ \textcolor{stringliteral}{"{}."{}}\ +\ String(ProjectInfo::projectName).toLowerCase();}
+\DoxyCodeLine{01158\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{01159\ \ \ config\_options.folderName\ =\ String(ProjectInfo::projectName).toLowerCase();}
+\DoxyCodeLine{01160\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01161\ }
+\DoxyCodeLine{01162\ \ \ \textcolor{keywordflow}{return}\ config\_options.getDefaultFile();}
+\DoxyCodeLine{01163\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{01164\ \ \ \textcolor{keywordflow}{return}\ File();}
+\DoxyCodeLine{01165\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01166\ \}}
+\DoxyCodeLine{01167\ }
+\DoxyCodeLine{01168\ File\ \mbox{\hyperlink{class_load_save_acd1080b550e9553f2537f39cf85ef4bf}{LoadSave::getDefaultSkin}}()\ \{}
+\DoxyCodeLine{01169\ \textcolor{preprocessor}{\#if\ defined(JUCE\_DATA\_STRUCTURES\_H\_INCLUDED)}}
+\DoxyCodeLine{01170\ \ \ PropertiesFile::Options\ config\_options;}
+\DoxyCodeLine{01171\ \ \ config\_options.applicationName\ =\ \textcolor{stringliteral}{"{}Vial"{}};}
+\DoxyCodeLine{01172\ \ \ config\_options.osxLibrarySubFolder\ =\ \textcolor{stringliteral}{"{}Application\ Support"{}};}
+\DoxyCodeLine{01173\ \ \ config\_options.filenameSuffix\ =\ \textcolor{stringliteral}{"{}skin"{}};}
+\DoxyCodeLine{01174\ }
+\DoxyCodeLine{01175\ \textcolor{preprocessor}{\#ifdef\ LINUX}}
+\DoxyCodeLine{01176\ \ \ config\_options.folderName\ =\ \textcolor{stringliteral}{"{}."{}}\ +\ String(ProjectInfo::projectName).toLowerCase();}
+\DoxyCodeLine{01177\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{01178\ \ \ config\_options.folderName\ =\ String(ProjectInfo::projectName).toLowerCase();}
+\DoxyCodeLine{01179\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01180\ }
+\DoxyCodeLine{01181\ \ \ \textcolor{keywordflow}{return}\ config\_options.getDefaultFile();}
+\DoxyCodeLine{01182\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{01183\ \ \ \textcolor{keywordflow}{return}\ File();}
+\DoxyCodeLine{01184\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01185\ \}}
+\DoxyCodeLine{01186\ }
+\DoxyCodeLine{01187\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{LoadSave::getConfigJson}}()\ \{}
+\DoxyCodeLine{01188\ \ \ File\ config\_file\ =\ \mbox{\hyperlink{class_load_save_aa51f825e3585044b2904758b67546461}{getConfigFile}}();}
+\DoxyCodeLine{01189\ \ \ \textcolor{keywordflow}{if}\ (!config\_file.exists())}
+\DoxyCodeLine{01190\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}();}
+\DoxyCodeLine{01191\ }
+\DoxyCodeLine{01192\ \ \ \textcolor{keywordflow}{try}\ \{}
+\DoxyCodeLine{01193\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ parsed\ =\ json::parse(config\_file.loadFileAsString().toStdString(),\ \textcolor{keyword}{nullptr},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{01194\ \ \ \ \ \textcolor{keywordflow}{if}\ (parsed.is\_discarded())}
+\DoxyCodeLine{01195\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}();}
+\DoxyCodeLine{01196\ \ \ \ \ \textcolor{keywordflow}{return}\ parsed;}
+\DoxyCodeLine{01197\ \ \ \}}
+\DoxyCodeLine{01198\ \ \ \textcolor{keywordflow}{catch}\ (\textcolor{keyword}{const}\ json::exception\&\ e)\ \{}
+\DoxyCodeLine{01199\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}();}
+\DoxyCodeLine{01200\ \ \ \}}
+\DoxyCodeLine{01201\ \}}
+\DoxyCodeLine{01202\ }
+\DoxyCodeLine{01203\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_load_save_a925cd98e3e8a6dffea47f00544e9d492}{LoadSave::getFavoritesJson}}()\ \{}
+\DoxyCodeLine{01204\ \ \ File\ favorites\_file\ =\ \mbox{\hyperlink{class_load_save_aecab3dcf25062eb92969e64e088bb9ad}{getFavoritesFile}}();}
+\DoxyCodeLine{01205\ \ \ \textcolor{keywordflow}{if}\ (!favorites\_file.exists())}
+\DoxyCodeLine{01206\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}();}
+\DoxyCodeLine{01207\ }
+\DoxyCodeLine{01208\ \ \ \textcolor{keywordflow}{try}\ \{}
+\DoxyCodeLine{01209\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ parsed\ =\ json::parse(favorites\_file.loadFileAsString().toStdString(),\ \textcolor{keyword}{nullptr},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{01210\ \ \ \ \ \textcolor{keywordflow}{if}\ (parsed.is\_discarded())}
+\DoxyCodeLine{01211\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}();}
+\DoxyCodeLine{01212\ \ \ \ \ \textcolor{keywordflow}{return}\ parsed;}
+\DoxyCodeLine{01213\ \ \ \}}
+\DoxyCodeLine{01214\ \ \ \textcolor{keywordflow}{catch}\ (\textcolor{keyword}{const}\ json::exception\&\ e)\ \{}
+\DoxyCodeLine{01215\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}();}
+\DoxyCodeLine{01216\ \ \ \}}
+\DoxyCodeLine{01217\ \}}
+\DoxyCodeLine{01218\ }
+\DoxyCodeLine{01219\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a759e101ab9f742813c6487fc2c2eec22}{LoadSave::addFavorite}}(\textcolor{keyword}{const}\ File\&\ new\_favorite)\ \{}
+\DoxyCodeLine{01220\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ favorites\ =\ \mbox{\hyperlink{class_load_save_a925cd98e3e8a6dffea47f00544e9d492}{getFavoritesJson}}();}
+\DoxyCodeLine{01221\ \ \ favorites[new\_favorite.getFullPathName().toStdString()]\ =\ 1;}
+\DoxyCodeLine{01222\ \ \ \mbox{\hyperlink{class_load_save_a649c787440db1c7d625b17b91254f2aa}{saveJsonToFavorites}}(favorites);}
+\DoxyCodeLine{01223\ \}}
+\DoxyCodeLine{01224\ }
+\DoxyCodeLine{01225\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a92b96c53349631d064255b4274222497}{LoadSave::removeFavorite}}(\textcolor{keyword}{const}\ File\&\ old\_favorite)\ \{}
+\DoxyCodeLine{01226\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ favorites\ =\ \mbox{\hyperlink{class_load_save_a925cd98e3e8a6dffea47f00544e9d492}{getFavoritesJson}}();}
+\DoxyCodeLine{01227\ \ \ std::string\ path\ =\ old\_favorite.getFullPathName().toStdString();}
+\DoxyCodeLine{01228\ }
+\DoxyCodeLine{01229\ \ \ \textcolor{keywordflow}{if}\ (favorites.count(path))\ \{}
+\DoxyCodeLine{01230\ \ \ \ \ favorites.erase(path);}
+\DoxyCodeLine{01231\ \ \ \ \ \mbox{\hyperlink{class_load_save_a649c787440db1c7d625b17b91254f2aa}{saveJsonToFavorites}}(favorites);}
+\DoxyCodeLine{01232\ \ \ \}}
+\DoxyCodeLine{01233\ \}}
+\DoxyCodeLine{01234\ }
+\DoxyCodeLine{01235\ std::set<std::string>\ \mbox{\hyperlink{class_load_save_affbbb33ac112da6c49d8328ad04e7625}{LoadSave::getFavorites}}()\ \{}
+\DoxyCodeLine{01236\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ favorites\_json\ =\ \mbox{\hyperlink{class_load_save_a925cd98e3e8a6dffea47f00544e9d492}{getFavoritesJson}}();}
+\DoxyCodeLine{01237\ }
+\DoxyCodeLine{01238\ \ \ std::set<std::string>\ favorites;}
+\DoxyCodeLine{01239\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ pair\ :\ favorites\_json.items())}
+\DoxyCodeLine{01240\ \ \ \ \ favorites.insert(pair.key());}
+\DoxyCodeLine{01241\ }
+\DoxyCodeLine{01242\ \ \ \textcolor{keywordflow}{return}\ favorites;}
+\DoxyCodeLine{01243\ \}}
+\DoxyCodeLine{01244\ }
+\DoxyCodeLine{01245\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{LoadSave::saveJsonToConfig}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ config\_state)\ \{}
+\DoxyCodeLine{01246\ \ \ File\ config\_file\ =\ \mbox{\hyperlink{class_load_save_aa51f825e3585044b2904758b67546461}{getConfigFile}}();}
+\DoxyCodeLine{01247\ }
+\DoxyCodeLine{01248\ \ \ \textcolor{keywordflow}{if}\ (!config\_file.exists())}
+\DoxyCodeLine{01249\ \ \ \ \ config\_file.create();}
+\DoxyCodeLine{01250\ \ \ config\_file.replaceWithText(config\_state.dump());}
+\DoxyCodeLine{01251\ \}}
+\DoxyCodeLine{01252\ }
+\DoxyCodeLine{01253\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a649c787440db1c7d625b17b91254f2aa}{LoadSave::saveJsonToFavorites}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ favorites\_json)\ \{}
+\DoxyCodeLine{01254\ \ \ File\ favorites\_file\ =\ \mbox{\hyperlink{class_load_save_aecab3dcf25062eb92969e64e088bb9ad}{getFavoritesFile}}();}
+\DoxyCodeLine{01255\ }
+\DoxyCodeLine{01256\ \ \ \textcolor{keywordflow}{if}\ (!favorites\_file.exists())}
+\DoxyCodeLine{01257\ \ \ \ \ favorites\_file.create();}
+\DoxyCodeLine{01258\ \ \ favorites\_file.replaceWithText(favorites\_json.dump());}
+\DoxyCodeLine{01259\ \}}
+\DoxyCodeLine{01260\ }
+\DoxyCodeLine{01261\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a1e07a88847ad0ce39c0838e5ee7a60a8}{LoadSave::saveAuthor}}(std::string\ author)\ \{}
+\DoxyCodeLine{01262\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01263\ }
+\DoxyCodeLine{01264\ \ \ data[\textcolor{stringliteral}{"{}author"{}}]\ =\ author;}
+\DoxyCodeLine{01265\ \ \ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{saveJsonToConfig}}(data);}
+\DoxyCodeLine{01266\ \}}
+\DoxyCodeLine{01267\ }
+\DoxyCodeLine{01268\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a7af81f47a6046e6261d26c3cd9fe56f9}{LoadSave::savePreferredTTWTLanguage}}(std::string\ language)\ \{}
+\DoxyCodeLine{01269\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01270\ \ \ data[\textcolor{stringliteral}{"{}ttwt\_language"{}}]\ =\ language;}
+\DoxyCodeLine{01271\ \ \ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{saveJsonToConfig}}(data);}
+\DoxyCodeLine{01272\ \}}
+\DoxyCodeLine{01273\ }
+\DoxyCodeLine{01274\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a66bf4c6e7909ad2b5a7576c8eb94acb2}{LoadSave::saveVersionConfig}}()\ \{}
+\DoxyCodeLine{01275\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01276\ }
+\DoxyCodeLine{01277\ \ \ data[\textcolor{stringliteral}{"{}synth\_version"{}}]\ =\ ProjectInfo::versionString;}
+\DoxyCodeLine{01278\ \ \ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{saveJsonToConfig}}(data);}
+\DoxyCodeLine{01279\ \}}
+\DoxyCodeLine{01280\ }
+\DoxyCodeLine{01281\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a4bb41f3696cf5a60748132fd7baeb1ca}{LoadSave::saveContentVersion}}(std::string\ version)\ \{}
+\DoxyCodeLine{01282\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01283\ }
+\DoxyCodeLine{01284\ \ \ data[\textcolor{stringliteral}{"{}content\_version"{}}]\ =\ version;}
+\DoxyCodeLine{01285\ \ \ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{saveJsonToConfig}}(data);}
+\DoxyCodeLine{01286\ \}}
+\DoxyCodeLine{01287\ }
+\DoxyCodeLine{01288\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a63791a34c01b3862078673e6c9849445}{LoadSave::saveUpdateCheckConfig}}(\textcolor{keywordtype}{bool}\ check\_for\_updates)\ \{}
+\DoxyCodeLine{01289\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01290\ \ \ data[\textcolor{stringliteral}{"{}check\_for\_updates"{}}]\ =\ check\_for\_updates;}
+\DoxyCodeLine{01291\ \ \ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{saveJsonToConfig}}(data);}
+\DoxyCodeLine{01292\ \}}
+\DoxyCodeLine{01293\ }
+\DoxyCodeLine{01294\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_afe1bfa793341010a92618c68a9f2ef86}{LoadSave::saveWorkOffline}}(\textcolor{keywordtype}{bool}\ work\_offline)\ \{}
+\DoxyCodeLine{01295\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01296\ \ \ data[\textcolor{stringliteral}{"{}work\_offline"{}}]\ =\ work\_offline;}
+\DoxyCodeLine{01297\ \ \ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{saveJsonToConfig}}(data);}
+\DoxyCodeLine{01298\ \}}
+\DoxyCodeLine{01299\ }
+\DoxyCodeLine{01300\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_aee06d5ed185e6d869cbe8597c747c8c7}{LoadSave::saveLoadedSkin}}(\textcolor{keyword}{const}\ std::string\&\ name)\ \{}
+\DoxyCodeLine{01301\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01302\ \ \ data[\textcolor{stringliteral}{"{}loaded\_skin"{}}]\ =\ name;}
+\DoxyCodeLine{01303\ \ \ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{saveJsonToConfig}}(data);}
+\DoxyCodeLine{01304\ \}}
+\DoxyCodeLine{01305\ }
+\DoxyCodeLine{01306\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a770dc6911bff7ff4e92c800e7a6dd6ae}{LoadSave::saveAnimateWidgets}}(\textcolor{keywordtype}{bool}\ animate\_widgets)\ \{}
+\DoxyCodeLine{01307\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01308\ \ \ data[\textcolor{stringliteral}{"{}animate\_widgets"{}}]\ =\ animate\_widgets;}
+\DoxyCodeLine{01309\ \ \ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{saveJsonToConfig}}(data);}
+\DoxyCodeLine{01310\ \}}
+\DoxyCodeLine{01311\ }
+\DoxyCodeLine{01312\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_acb8cfe6b1b6ed826cd949c477ca8767f}{LoadSave::saveDisplayHzFrequency}}(\textcolor{keywordtype}{bool}\ hz\_frequency)\ \{}
+\DoxyCodeLine{01313\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01314\ \ \ data[\textcolor{stringliteral}{"{}hz\_frequency"{}}]\ =\ hz\_frequency;}
+\DoxyCodeLine{01315\ \ \ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{saveJsonToConfig}}(data);}
+\DoxyCodeLine{01316\ \}}
+\DoxyCodeLine{01317\ }
+\DoxyCodeLine{01318\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_aa0239e9c40787a52894e5aac4e7928c2}{LoadSave::saveAuthenticated}}(\textcolor{keywordtype}{bool}\ authenticated)\ \{}
+\DoxyCodeLine{01319\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01320\ \ \ data[\textcolor{stringliteral}{"{}authenticated"{}}]\ =\ \mbox{\hyperlink{class_load_save_aab3dc3fa77344175e8d426fef4eb819d}{authenticated}};}
+\DoxyCodeLine{01321\ \ \ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{saveJsonToConfig}}(data);}
+\DoxyCodeLine{01322\ \}}
+\DoxyCodeLine{01323\ }
+\DoxyCodeLine{01324\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a00147a85fddd9bd48babec10565957c1}{LoadSave::saveWindowSize}}(\textcolor{keywordtype}{float}\ window\_size)\ \{}
+\DoxyCodeLine{01325\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01326\ \ \ data[\textcolor{stringliteral}{"{}window\_size"{}}]\ =\ window\_size;}
+\DoxyCodeLine{01327\ \ \ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{saveJsonToConfig}}(data);}
+\DoxyCodeLine{01328\ \}}
+\DoxyCodeLine{01329\ }
+\DoxyCodeLine{01330\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a6829d4bf2e6c39733008a3d4c7d74fe6}{LoadSave::saveLayoutConfig}}(\mbox{\hyperlink{classvital_1_1_string_layout}{vital::StringLayout}}*\ layout)\ \{}
+\DoxyCodeLine{01331\ \ \ std::wstring\ chromatic\_layout;}
+\DoxyCodeLine{01332\ \ \ \textcolor{keywordtype}{wchar\_t}\ up\_key;}
+\DoxyCodeLine{01333\ \ \ \textcolor{keywordtype}{wchar\_t}\ down\_key;}
+\DoxyCodeLine{01334\ }
+\DoxyCodeLine{01335\ \ \ \textcolor{keywordflow}{if}\ (layout)\ \{}
+\DoxyCodeLine{01336\ \ \ \ \ chromatic\_layout\ =\ layout-\/>\mbox{\hyperlink{classvital_1_1_string_layout_a98b5745e911fdb6c27b2bcc23f6f64ab}{getLayout}}();}
+\DoxyCodeLine{01337\ \ \ \ \ up\_key\ =\ layout-\/>\mbox{\hyperlink{classvital_1_1_string_layout_a8cb4594aa6f92eab9e032fcbb105081f}{getUpKey}}();}
+\DoxyCodeLine{01338\ \ \ \ \ down\_key\ =\ layout-\/>\mbox{\hyperlink{classvital_1_1_string_layout_ad17b6abd7a7f6d172ab29f623245a372}{getDownKey}}();}
+\DoxyCodeLine{01339\ \ \ \}}
+\DoxyCodeLine{01340\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{01341\ \ \ \ \ chromatic\_layout\ =\ \mbox{\hyperlink{class_load_save_ae2ccdb4d86142891f3a1288172a7fd43}{getComputerKeyboardLayout}}();}
+\DoxyCodeLine{01342\ \ \ \ \ std::pair<wchar\_t,\ wchar\_t>\ octave\_controls\ =\ \mbox{\hyperlink{class_load_save_a387f8929aaf5fc308c6192470d1d6e7f}{getComputerKeyboardOctaveControls}}();}
+\DoxyCodeLine{01343\ \ \ \ \ down\_key\ =\ octave\_controls.first;}
+\DoxyCodeLine{01344\ \ \ \ \ up\_key\ =\ octave\_controls.second;}
+\DoxyCodeLine{01345\ \ \ \}}
+\DoxyCodeLine{01346\ }
+\DoxyCodeLine{01347\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ layout\_data;}
+\DoxyCodeLine{01348\ }
+\DoxyCodeLine{01349\ \ \ layout\_data[\textcolor{stringliteral}{"{}chromatic\_layout"{}}]\ =\ chromatic\_layout;}
+\DoxyCodeLine{01350\ \ \ layout\_data[\textcolor{stringliteral}{"{}octave\_up"{}}]\ =\ up\_key;}
+\DoxyCodeLine{01351\ \ \ layout\_data[\textcolor{stringliteral}{"{}octave\_down"{}}]\ =\ down\_key;}
+\DoxyCodeLine{01352\ }
+\DoxyCodeLine{01353\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01354\ \ \ data[\textcolor{stringliteral}{"{}keyboard\_layout"{}}]\ =\ layout\_data;}
+\DoxyCodeLine{01355\ \ \ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{saveJsonToConfig}}(data);}
+\DoxyCodeLine{01356\ \}}
+\DoxyCodeLine{01357\ }
+\DoxyCodeLine{01358\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a581b06346155b71b574bfa272a54b150}{LoadSave::saveMidiMapConfig}}(\mbox{\hyperlink{class_midi_manager}{MidiManager}}*\ midi\_manager)\ \{}
+\DoxyCodeLine{01359\ \ \ \mbox{\hyperlink{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad}{MidiManager::midi\_map}}\ midi\_learn\_map\ =\ midi\_manager-\/>\mbox{\hyperlink{class_midi_manager_a12fe402ee3806c82621ea636d9b1b5fa}{getMidiLearnMap}}();}
+\DoxyCodeLine{01360\ }
+\DoxyCodeLine{01361\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ midi\_mapping\_data;}
+\DoxyCodeLine{01362\ }
+\DoxyCodeLine{01363\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ midi\_mapping\ :\ midi\_learn\_map)\ \{}
+\DoxyCodeLine{01364\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ midi\_map\_data;}
+\DoxyCodeLine{01365\ \ \ \ \ midi\_map\_data[\textcolor{stringliteral}{"{}source"{}}]\ =\ midi\_mapping.first;}
+\DoxyCodeLine{01366\ }
+\DoxyCodeLine{01367\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ destinations\_data;}
+\DoxyCodeLine{01368\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ midi\_destination\ :\ midi\_mapping.second)\ \{}
+\DoxyCodeLine{01369\ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ destination\_data;}
+\DoxyCodeLine{01370\ }
+\DoxyCodeLine{01371\ \ \ \ \ \ \ destination\_data[\textcolor{stringliteral}{"{}destination"{}}]\ =\ midi\_destination.first;}
+\DoxyCodeLine{01372\ \ \ \ \ \ \ destination\_data[\textcolor{stringliteral}{"{}min\_range"{}}]\ =\ midi\_destination.second-\/>min;}
+\DoxyCodeLine{01373\ \ \ \ \ \ \ destination\_data[\textcolor{stringliteral}{"{}max\_range"{}}]\ =\ midi\_destination.second-\/>max;}
+\DoxyCodeLine{01374\ \ \ \ \ \ \ destinations\_data.push\_back(destination\_data);}
+\DoxyCodeLine{01375\ \ \ \ \ \}}
+\DoxyCodeLine{01376\ }
+\DoxyCodeLine{01377\ \ \ \ \ midi\_map\_data[\textcolor{stringliteral}{"{}destinations"{}}]\ =\ destinations\_data;}
+\DoxyCodeLine{01378\ \ \ \ \ midi\_mapping\_data.push\_back(midi\_map\_data);}
+\DoxyCodeLine{01379\ \ \ \}}
+\DoxyCodeLine{01380\ }
+\DoxyCodeLine{01381\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01382\ \ \ data[\textcolor{stringliteral}{"{}midi\_learn"{}}]\ =\ midi\_mapping\_data;}
+\DoxyCodeLine{01383\ \ \ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{saveJsonToConfig}}(data);}
+\DoxyCodeLine{01384\ \}}
+\DoxyCodeLine{01385\ }
+\DoxyCodeLine{01386\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_ab5139db236a9c9e4a84e720ae9f4653f}{LoadSave::loadConfig}}(\mbox{\hyperlink{class_midi_manager}{MidiManager}}*\ midi\_manager,\ \mbox{\hyperlink{classvital_1_1_string_layout}{vital::StringLayout}}*\ layout)\ \{}
+\DoxyCodeLine{01387\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01388\ }
+\DoxyCodeLine{01389\ \ \ \textcolor{comment}{//\ Computer\ Keyboard\ Layout}}
+\DoxyCodeLine{01390\ \ \ \textcolor{keywordflow}{if}\ (layout)\ \{}
+\DoxyCodeLine{01391\ \ \ \ \ layout-\/>\mbox{\hyperlink{classvital_1_1_string_layout_aad54930516d623f1c36e34dbfd168e68}{setLayout}}(\mbox{\hyperlink{class_load_save_ae2ccdb4d86142891f3a1288172a7fd43}{getComputerKeyboardLayout}}());}
+\DoxyCodeLine{01392\ \ \ \ \ std::pair<wchar\_t,\ wchar\_t>\ octave\_controls\ =\ \mbox{\hyperlink{class_load_save_a387f8929aaf5fc308c6192470d1d6e7f}{getComputerKeyboardOctaveControls}}();}
+\DoxyCodeLine{01393\ \ \ \ \ layout-\/>\mbox{\hyperlink{classvital_1_1_string_layout_a2c0e0245c4a73cd8a3e70dd3802372d9}{setDownKey}}(octave\_controls.first);}
+\DoxyCodeLine{01394\ \ \ \ \ layout-\/>\mbox{\hyperlink{classvital_1_1_string_layout_a5c7c6a4bf6b0129a73b899b352428f4f}{setUpKey}}(octave\_controls.second);}
+\DoxyCodeLine{01395\ \ \ \}}
+\DoxyCodeLine{01396\ }
+\DoxyCodeLine{01397\ \ \ \textcolor{comment}{//\ Midi\ Learn\ Map}}
+\DoxyCodeLine{01398\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}midi\_learn"{}}))\ \{}
+\DoxyCodeLine{01399\ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad}{MidiManager::midi\_map}}\ midi\_learn\_map\ =\ midi\_manager-\/>\mbox{\hyperlink{class_midi_manager_a12fe402ee3806c82621ea636d9b1b5fa}{getMidiLearnMap}}();}
+\DoxyCodeLine{01400\ }
+\DoxyCodeLine{01401\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ midi\_mapping\_data\ =\ data[\textcolor{stringliteral}{"{}midi\_learn"{}}];}
+\DoxyCodeLine{01402\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ midi\_map\_data\ :\ midi\_mapping\_data)\ \{}
+\DoxyCodeLine{01403\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ source\ =\ midi\_map\_data[\textcolor{stringliteral}{"{}source"{}}];}
+\DoxyCodeLine{01404\ }
+\DoxyCodeLine{01405\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (midi\_map\_data.count(\textcolor{stringliteral}{"{}destinations"{}}))\ \{}
+\DoxyCodeLine{01406\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ destinations\_data\ =\ midi\_map\_data[\textcolor{stringliteral}{"{}destinations"{}}];}
+\DoxyCodeLine{01407\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ midi\_destination\ :\ destinations\_data)\ \{}
+\DoxyCodeLine{01408\ \ \ \ \ \ \ \ \ \ \ std::string\ dest\ =\ midi\_destination[\textcolor{stringliteral}{"{}destination"{}}];}
+\DoxyCodeLine{01409\ \ \ \ \ \ \ \ \ \ \ midi\_learn\_map[source][dest]\ =\ \&\mbox{\hyperlink{classvital_1_1_parameters_add207875d97ce0cabc64a33e86a5ab24}{vital::Parameters::getDetails}}(dest);}
+\DoxyCodeLine{01410\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01411\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01412\ \ \ \ \ \}}
+\DoxyCodeLine{01413\ \ \ \ \ midi\_manager-\/>\mbox{\hyperlink{class_midi_manager_a3463c30e6e4365d36c2832aa57385bcd}{setMidiLearnMap}}(midi\_learn\_map);}
+\DoxyCodeLine{01414\ \ \ \}}
+\DoxyCodeLine{01415\ \}}
+\DoxyCodeLine{01416\ }
+\DoxyCodeLine{01417\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_load_save_adf0fc55f742d745dc1f035256eb5fac9}{LoadSave::hasDataDirectory}}()\ \{}
+\DoxyCodeLine{01418\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01419\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}data\_directory"{}}))\ \{}
+\DoxyCodeLine{01420\ \ \ \ \ std::string\ path\ =\ data[\textcolor{stringliteral}{"{}data\_directory"{}}];}
+\DoxyCodeLine{01421\ \ \ \ \ File\ directory(path);}
+\DoxyCodeLine{01422\ \ \ \ \ File\ packages\ =\ directory.getChildFile(kInstalledPacksFile);}
+\DoxyCodeLine{01423\ \ \ \ \ \textcolor{keywordflow}{return}\ directory.exists()\ \&\&\ directory.isDirectory()\ \&\&\ packages.exists();}
+\DoxyCodeLine{01424\ \ \ \}}
+\DoxyCodeLine{01425\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01426\ \}}
+\DoxyCodeLine{01427\ }
+\DoxyCodeLine{01428\ File\ \mbox{\hyperlink{class_load_save_a1990bfc748009231020fe35fae48fafd}{LoadSave::getAvailablePacksFile}}()\ \{}
+\DoxyCodeLine{01429\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01430\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}data\_directory"{}})\ ==\ 0)}
+\DoxyCodeLine{01431\ \ \ \ \ \textcolor{keywordflow}{return}\ File();}
+\DoxyCodeLine{01432\ }
+\DoxyCodeLine{01433\ \ \ std::string\ path\ =\ data[\textcolor{stringliteral}{"{}data\_directory"{}}];}
+\DoxyCodeLine{01434\ \ \ File\ directory(path);}
+\DoxyCodeLine{01435\ \ \ \textcolor{keywordflow}{if}\ (!directory.exists()\ ||\ !directory.isDirectory())}
+\DoxyCodeLine{01436\ \ \ \ \ \textcolor{keywordflow}{return}\ File();}
+\DoxyCodeLine{01437\ }
+\DoxyCodeLine{01438\ \ \ \textcolor{keywordflow}{return}\ directory.getChildFile(kAvailablePacksFile);}
+\DoxyCodeLine{01439\ \}}
+\DoxyCodeLine{01440\ }
+\DoxyCodeLine{01441\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_load_save_a9b56f95e556c497355ad6419b4d0ab41}{LoadSave::getAvailablePacks}}()\ \{}
+\DoxyCodeLine{01442\ \ \ File\ packs\_file\ =\ \mbox{\hyperlink{class_load_save_a1990bfc748009231020fe35fae48fafd}{getAvailablePacksFile}}();}
+\DoxyCodeLine{01443\ \ \ \textcolor{keywordflow}{if}\ (!packs\_file.exists())}
+\DoxyCodeLine{01444\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}();}
+\DoxyCodeLine{01445\ }
+\DoxyCodeLine{01446\ \ \ \textcolor{keywordflow}{try}\ \{}
+\DoxyCodeLine{01447\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ parsed\ =\ json::parse(packs\_file.loadFileAsString().toStdString(),\ \textcolor{keyword}{nullptr},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{01448\ \ \ \ \ \textcolor{keywordflow}{if}\ (parsed.is\_discarded())}
+\DoxyCodeLine{01449\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}();}
+\DoxyCodeLine{01450\ \ \ \ \ \textcolor{keywordflow}{return}\ parsed;}
+\DoxyCodeLine{01451\ \ \ \}}
+\DoxyCodeLine{01452\ \ \ \textcolor{keywordflow}{catch}\ (\textcolor{keyword}{const}\ json::exception\&\ e)\ \{}
+\DoxyCodeLine{01453\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}();}
+\DoxyCodeLine{01454\ \ \ \}}
+\DoxyCodeLine{01455\ \}}
+\DoxyCodeLine{01456\ }
+\DoxyCodeLine{01457\ File\ \mbox{\hyperlink{class_load_save_a7d578dbe842a31f7c4e9a8435dcda35e}{LoadSave::getInstalledPacksFile}}()\ \{}
+\DoxyCodeLine{01458\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01459\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}data\_directory"{}})\ ==\ 0)}
+\DoxyCodeLine{01460\ \ \ \ \ \textcolor{keywordflow}{return}\ File();}
+\DoxyCodeLine{01461\ }
+\DoxyCodeLine{01462\ \ \ std::string\ path\ =\ data[\textcolor{stringliteral}{"{}data\_directory"{}}];}
+\DoxyCodeLine{01463\ \ \ File\ directory(path);}
+\DoxyCodeLine{01464\ \ \ \textcolor{keywordflow}{if}\ (!directory.exists()\ ||\ !directory.isDirectory())}
+\DoxyCodeLine{01465\ \ \ \ \ \textcolor{keywordflow}{return}\ File();}
+\DoxyCodeLine{01466\ }
+\DoxyCodeLine{01467\ \ \ \textcolor{keywordflow}{return}\ directory.getChildFile(kInstalledPacksFile);}
+\DoxyCodeLine{01468\ \}}
+\DoxyCodeLine{01469\ }
+\DoxyCodeLine{01470\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_load_save_a8fcd8289605f7f2b829bf09888572298}{LoadSave::getInstalledPacks}}()\ \{}
+\DoxyCodeLine{01471\ \ \ File\ packs\_file\ =\ \mbox{\hyperlink{class_load_save_a7d578dbe842a31f7c4e9a8435dcda35e}{getInstalledPacksFile}}();}
+\DoxyCodeLine{01472\ \ \ \textcolor{keywordflow}{if}\ (!packs\_file.exists())}
+\DoxyCodeLine{01473\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}();}
+\DoxyCodeLine{01474\ }
+\DoxyCodeLine{01475\ \ \ \textcolor{keywordflow}{try}\ \{}
+\DoxyCodeLine{01476\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ parsed\ =\ json::parse(packs\_file.loadFileAsString().toStdString(),\ \textcolor{keyword}{nullptr},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{01477\ \ \ \ \ \textcolor{keywordflow}{if}\ (parsed.is\_discarded())}
+\DoxyCodeLine{01478\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}();}
+\DoxyCodeLine{01479\ \ \ \ \ \textcolor{keywordflow}{return}\ parsed;}
+\DoxyCodeLine{01480\ \ \ \}}
+\DoxyCodeLine{01481\ \ \ \textcolor{keywordflow}{catch}\ (\textcolor{keyword}{const}\ json::exception\&\ e)\ \{}
+\DoxyCodeLine{01482\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}();}
+\DoxyCodeLine{01483\ \ \ \}}
+\DoxyCodeLine{01484\ \}}
+\DoxyCodeLine{01485\ }
+\DoxyCodeLine{01486\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a4d9a2b876c38ab55f53e5141e4e374c1}{LoadSave::saveInstalledPacks}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ packs)\ \{}
+\DoxyCodeLine{01487\ \ \ File\ packs\_file\ =\ \mbox{\hyperlink{class_load_save_a7d578dbe842a31f7c4e9a8435dcda35e}{getInstalledPacksFile}}();}
+\DoxyCodeLine{01488\ }
+\DoxyCodeLine{01489\ \ \ \textcolor{keywordflow}{if}\ (!packs\_file.exists())}
+\DoxyCodeLine{01490\ \ \ \ \ packs\_file.create();}
+\DoxyCodeLine{01491\ \ \ packs\_file.replaceWithText(packs.dump());}
+\DoxyCodeLine{01492\ \}}
+\DoxyCodeLine{01493\ }
+\DoxyCodeLine{01494\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a314bf02970831046efc89e4cc92e4811}{LoadSave::markPackInstalled}}(\textcolor{keywordtype}{int}\ \textcolor{keywordtype}{id})\ \{}
+\DoxyCodeLine{01495\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ packs\ =\ \mbox{\hyperlink{class_load_save_a8fcd8289605f7f2b829bf09888572298}{getInstalledPacks}}();}
+\DoxyCodeLine{01496\ \ \ packs[std::to\_string(\textcolor{keywordtype}{id})]\ =\ 1;}
+\DoxyCodeLine{01497\ \ \ \mbox{\hyperlink{class_load_save_a4d9a2b876c38ab55f53e5141e4e374c1}{saveInstalledPacks}}(packs);}
+\DoxyCodeLine{01498\ \}}
+\DoxyCodeLine{01499\ }
+\DoxyCodeLine{01500\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a314bf02970831046efc89e4cc92e4811}{LoadSave::markPackInstalled}}(\textcolor{keyword}{const}\ std::string\&\ name)\ \{}
+\DoxyCodeLine{01501\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ packs\ =\ \mbox{\hyperlink{class_load_save_a8fcd8289605f7f2b829bf09888572298}{getInstalledPacks}}();}
+\DoxyCodeLine{01502\ \ \ std::string\ cleaned\ =\ String(name).removeCharacters(\textcolor{stringliteral}{"{}\ .\_"{}}).toLowerCase().toStdString();}
+\DoxyCodeLine{01503\ }
+\DoxyCodeLine{01504\ \ \ packs[cleaned]\ =\ 1;}
+\DoxyCodeLine{01505\ \ \ \mbox{\hyperlink{class_load_save_a4d9a2b876c38ab55f53e5141e4e374c1}{saveInstalledPacks}}(packs);}
+\DoxyCodeLine{01506\ \}}
+\DoxyCodeLine{01507\ }
+\DoxyCodeLine{01508\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_aaed41d6a137273cf519ef0b4d4577677}{LoadSave::saveDataDirectory}}(\textcolor{keyword}{const}\ File\&\ data\_directory)\ \{}
+\DoxyCodeLine{01509\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01510\ \ \ std::string\ path\ =\ data\_directory.getFullPathName().toStdString();}
+\DoxyCodeLine{01511\ \ \ data[\textcolor{stringliteral}{"{}data\_directory"{}}]\ =\ path;}
+\DoxyCodeLine{01512\ \ \ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{saveJsonToConfig}}(data);}
+\DoxyCodeLine{01513\ \}}
+\DoxyCodeLine{01514\ }
+\DoxyCodeLine{01515\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_load_save_a4335f3e5178412645107086fed010eb8}{LoadSave::isInstalled}}()\ \{}
+\DoxyCodeLine{01516\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_load_save_a4688a506ad925f4845c7600e646b907a}{getDataDirectory}}().exists();}
+\DoxyCodeLine{01517\ \}}
+\DoxyCodeLine{01518\ }
+\DoxyCodeLine{01519\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_load_save_afa8bbb8036997efc977569967ff7bd8b}{LoadSave::wasUpgraded}}()\ \{}
+\DoxyCodeLine{01520\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01521\ }
+\DoxyCodeLine{01522\ \ \ \textcolor{keywordflow}{if}\ (!data.count(\textcolor{stringliteral}{"{}synth\_version"{}}))}
+\DoxyCodeLine{01523\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{01524\ }
+\DoxyCodeLine{01525\ \ \ std::string\ version\ =\ data[\textcolor{stringliteral}{"{}synth\_version"{}}];}
+\DoxyCodeLine{01526\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(version,\ ProjectInfo::versionString)\ <\ 0;}
+\DoxyCodeLine{01527\ \}}
+\DoxyCodeLine{01528\ }
+\DoxyCodeLine{01529\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_load_save_ab069ffcf40b5c8445298c873a018816a}{LoadSave::isExpired}}()\ \{}
+\DoxyCodeLine{01530\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_load_save_abefaf6a145d89812bb0a61815abe73fe}{getDaysToExpire}}()\ <\ 0;}
+\DoxyCodeLine{01531\ \}}
+\DoxyCodeLine{01532\ }
+\DoxyCodeLine{01533\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_load_save_a6383ed83a3cbdebe8635b56766d92bb7}{LoadSave::doesExpire}}()\ \{}
+\DoxyCodeLine{01534\ \textcolor{preprocessor}{\#ifdef\ EXPIRE\_DAYS}}
+\DoxyCodeLine{01535\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{01536\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{01537\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01538\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01539\ \}}
+\DoxyCodeLine{01540\ }
+\DoxyCodeLine{01541\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_load_save_abefaf6a145d89812bb0a61815abe73fe}{LoadSave::getDaysToExpire}}()\ \{}
+\DoxyCodeLine{01542\ \textcolor{preprocessor}{\#ifdef\ EXPIRE\_DAYS}}
+\DoxyCodeLine{01543\ \ \ Time\ current\_time\ =\ Time::getCurrentTime();}
+\DoxyCodeLine{01544\ \ \ Time\ build\_time\ =\ getBuildTime();}
+\DoxyCodeLine{01545\ }
+\DoxyCodeLine{01546\ \ \ RelativeTime\ time\_since\_compile\ =\ current\_time\ -\/\ build\_time;}
+\DoxyCodeLine{01547\ \ \ \textcolor{keywordtype}{int}\ days\_since\_compile\ =\ time\_since\_compile.inDays();}
+\DoxyCodeLine{01548\ \ \ \textcolor{keywordflow}{return}\ EXPIRE\_DAYS\ -\/\ days\_since\_compile;}
+\DoxyCodeLine{01549\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{01550\ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{01551\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01552\ \}}
+\DoxyCodeLine{01553\ }
+\DoxyCodeLine{01554\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_load_save_ab133bfad6b6232ad039684b59acefce7}{LoadSave::shouldCheckForUpdates}}()\ \{}
+\DoxyCodeLine{01555\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01556\ }
+\DoxyCodeLine{01557\ \ \ \textcolor{keywordflow}{if}\ (!data.count(\textcolor{stringliteral}{"{}check\_for\_updates"{}}))}
+\DoxyCodeLine{01558\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{01559\ }
+\DoxyCodeLine{01560\ \ \ \textcolor{keywordflow}{return}\ data[\textcolor{stringliteral}{"{}check\_for\_updates"{}}];}
+\DoxyCodeLine{01561\ \}}
+\DoxyCodeLine{01562\ }
+\DoxyCodeLine{01563\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_load_save_a3db75147490a91e237d98a2a1fecfa2c}{LoadSave::shouldWorkOffline}}()\ \{}
+\DoxyCodeLine{01564\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01565\ }
+\DoxyCodeLine{01566\ \ \ \textcolor{keywordflow}{if}\ (!data.count(\textcolor{stringliteral}{"{}work\_offline"{}}))}
+\DoxyCodeLine{01567\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01568\ }
+\DoxyCodeLine{01569\ \ \ \textcolor{keywordflow}{return}\ data[\textcolor{stringliteral}{"{}work\_offline"{}}];}
+\DoxyCodeLine{01570\ \}}
+\DoxyCodeLine{01571\ }
+\DoxyCodeLine{01572\ std::string\ \mbox{\hyperlink{class_load_save_a0b36739967b2cf6f14873f0f1cf29323}{LoadSave::getLoadedSkin}}()\ \{}
+\DoxyCodeLine{01573\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01574\ }
+\DoxyCodeLine{01575\ \ \ \textcolor{keywordflow}{if}\ (!data.count(\textcolor{stringliteral}{"{}loaded\_skin"{}}))}
+\DoxyCodeLine{01576\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{01577\ }
+\DoxyCodeLine{01578\ \ \ \textcolor{keywordflow}{return}\ data[\textcolor{stringliteral}{"{}loaded\_skin"{}}];}
+\DoxyCodeLine{01579\ \}}
+\DoxyCodeLine{01580\ }
+\DoxyCodeLine{01581\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_load_save_a32fcc01bd4000ed2e250b241ef0898ee}{LoadSave::shouldAnimateWidgets}}()\ \{}
+\DoxyCodeLine{01582\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01583\ }
+\DoxyCodeLine{01584\ \ \ \textcolor{keywordflow}{if}\ (!data.count(\textcolor{stringliteral}{"{}animate\_widgets"{}}))}
+\DoxyCodeLine{01585\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{01586\ }
+\DoxyCodeLine{01587\ \ \ \textcolor{keywordflow}{return}\ data[\textcolor{stringliteral}{"{}animate\_widgets"{}}];}
+\DoxyCodeLine{01588\ \}}
+\DoxyCodeLine{01589\ }
+\DoxyCodeLine{01590\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_load_save_a680b79e9f12997b78e838bd02326b933}{LoadSave::displayHzFrequency}}()\ \{}
+\DoxyCodeLine{01591\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01592\ }
+\DoxyCodeLine{01593\ \ \ \textcolor{keywordflow}{if}\ (!data.count(\textcolor{stringliteral}{"{}hz\_frequency"{}}))}
+\DoxyCodeLine{01594\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01595\ }
+\DoxyCodeLine{01596\ \ \ \textcolor{keywordflow}{return}\ data[\textcolor{stringliteral}{"{}hz\_frequency"{}}];}
+\DoxyCodeLine{01597\ \}}
+\DoxyCodeLine{01598\ }
+\DoxyCodeLine{01599\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_load_save_aab3dc3fa77344175e8d426fef4eb819d}{LoadSave::authenticated}}()\ \{}
+\DoxyCodeLine{01600\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01601\ }
+\DoxyCodeLine{01602\ \ \ \textcolor{keywordflow}{if}\ (!data.count(\textcolor{stringliteral}{"{}authenticated"{}}))}
+\DoxyCodeLine{01603\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01604\ }
+\DoxyCodeLine{01605\ \ \ \textcolor{keywordflow}{return}\ data[\textcolor{stringliteral}{"{}authenticated"{}}];}
+\DoxyCodeLine{01606\ \}}
+\DoxyCodeLine{01607\ }
+\DoxyCodeLine{01608\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_load_save_a864dac6b7070c3c37f4a2f73d9e7d6e9}{LoadSave::getOversamplingAmount}}()\ \{}
+\DoxyCodeLine{01609\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01610\ }
+\DoxyCodeLine{01611\ \ \ \textcolor{keywordflow}{if}\ (!data.count(\textcolor{stringliteral}{"{}oversampling\_amount"{}}))}
+\DoxyCodeLine{01612\ \ \ \ \ \textcolor{keywordflow}{return}\ 2;}
+\DoxyCodeLine{01613\ }
+\DoxyCodeLine{01614\ \ \ \textcolor{keywordflow}{return}\ data[\textcolor{stringliteral}{"{}oversampling\_amount"{}}];}
+\DoxyCodeLine{01615\ \}}
+\DoxyCodeLine{01616\ }
+\DoxyCodeLine{01617\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_load_save_a298cda74931ddbcf3f9bbe27ec832cec}{LoadSave::loadWindowSize}}()\ \{}
+\DoxyCodeLine{01618\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMinWindowSize\ =\ 0.25f;}
+\DoxyCodeLine{01619\ }
+\DoxyCodeLine{01620\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01621\ }
+\DoxyCodeLine{01622\ \ \ \textcolor{keywordflow}{if}\ (!data.count(\textcolor{stringliteral}{"{}window\_size"{}}))}
+\DoxyCodeLine{01623\ \ \ \ \ \textcolor{keywordflow}{return}\ 1.0f;}
+\DoxyCodeLine{01624\ }
+\DoxyCodeLine{01625\ \ \ \textcolor{keywordflow}{return}\ std::max<float>(kMinWindowSize,\ data[\textcolor{stringliteral}{"{}window\_size"{}}]);}
+\DoxyCodeLine{01626\ \}}
+\DoxyCodeLine{01627\ }
+\DoxyCodeLine{01628\ String\ \mbox{\hyperlink{class_load_save_a54d23642202511583462726e554bdef6}{LoadSave::loadVersion}}()\ \{}
+\DoxyCodeLine{01629\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01630\ }
+\DoxyCodeLine{01631\ \ \ \textcolor{keywordflow}{if}\ (!data.count(\textcolor{stringliteral}{"{}synth\_version"{}}))}
+\DoxyCodeLine{01632\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}0.0.0"{}};}
+\DoxyCodeLine{01633\ }
+\DoxyCodeLine{01634\ \ \ std::string\ version\ =\ data[\textcolor{stringliteral}{"{}synth\_version"{}}];}
+\DoxyCodeLine{01635\ \ \ \textcolor{keywordflow}{return}\ version;}
+\DoxyCodeLine{01636\ \}}
+\DoxyCodeLine{01637\ }
+\DoxyCodeLine{01638\ String\ \mbox{\hyperlink{class_load_save_a335063440b0348f8f4d589024239f792}{LoadSave::loadContentVersion}}()\ \{}
+\DoxyCodeLine{01639\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01640\ }
+\DoxyCodeLine{01641\ \ \ \textcolor{keywordflow}{if}\ (!data.count(\textcolor{stringliteral}{"{}content\_version"{}}))}
+\DoxyCodeLine{01642\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}0.0"{}};}
+\DoxyCodeLine{01643\ }
+\DoxyCodeLine{01644\ \ \ std::string\ version\ =\ data[\textcolor{stringliteral}{"{}content\_version"{}}];}
+\DoxyCodeLine{01645\ \ \ \textcolor{keywordflow}{return}\ version;}
+\DoxyCodeLine{01646\ \}}
+\DoxyCodeLine{01647\ }
+\DoxyCodeLine{01648\ std::wstring\ \mbox{\hyperlink{class_load_save_ae2ccdb4d86142891f3a1288172a7fd43}{LoadSave::getComputerKeyboardLayout}}()\ \{}
+\DoxyCodeLine{01649\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01650\ }
+\DoxyCodeLine{01651\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}keyboard\_layout"{}}))\ \{}
+\DoxyCodeLine{01652\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ layout\ =\ data[\textcolor{stringliteral}{"{}keyboard\_layout"{}}];}
+\DoxyCodeLine{01653\ }
+\DoxyCodeLine{01654\ \ \ \ \ \textcolor{keywordflow}{if}\ (layout.count(\textcolor{stringliteral}{"{}chromatic\_layout"{}}))}
+\DoxyCodeLine{01655\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ layout[\textcolor{stringliteral}{"{}chromatic\_layout"{}}];}
+\DoxyCodeLine{01656\ \ \ \}}
+\DoxyCodeLine{01657\ }
+\DoxyCodeLine{01658\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_a56bc0cf128b157c538371580d4803f44}{vital::kDefaultKeyboard}};}
+\DoxyCodeLine{01659\ \}}
+\DoxyCodeLine{01660\ }
+\DoxyCodeLine{01661\ std::string\ \mbox{\hyperlink{class_load_save_a8b51054e97768ed745a5aa609fa64347}{LoadSave::getPreferredTTWTLanguage}}()\ \{}
+\DoxyCodeLine{01662\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01663\ }
+\DoxyCodeLine{01664\ \ \ \textcolor{keywordflow}{if}\ (!data.count(\textcolor{stringliteral}{"{}ttwt\_language"{}}))}
+\DoxyCodeLine{01665\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{01666\ }
+\DoxyCodeLine{01667\ \ \ std::string\ language\ =\ data[\textcolor{stringliteral}{"{}ttwt\_language"{}}];}
+\DoxyCodeLine{01668\ \ \ \textcolor{keywordflow}{return}\ language;}
+\DoxyCodeLine{01669\ \}}
+\DoxyCodeLine{01670\ }
+\DoxyCodeLine{01671\ std::string\ \mbox{\hyperlink{class_load_save_abad69d024491ab0ec7c3fb681cc61e84}{LoadSave::getAuthor}}()\ \{}
+\DoxyCodeLine{01672\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01673\ }
+\DoxyCodeLine{01674\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}author"{}}))}
+\DoxyCodeLine{01675\ \ \ \ \ \textcolor{keywordflow}{return}\ data[\textcolor{stringliteral}{"{}author"{}}];}
+\DoxyCodeLine{01676\ }
+\DoxyCodeLine{01677\ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{01678\ \}}
+\DoxyCodeLine{01679\ }
+\DoxyCodeLine{01680\ std::pair<wchar\_t,\ wchar\_t>\ \mbox{\hyperlink{class_load_save_a387f8929aaf5fc308c6192470d1d6e7f}{LoadSave::getComputerKeyboardOctaveControls}}()\ \{}
+\DoxyCodeLine{01681\ \ \ std::pair<wchar\_t,\ wchar\_t>\ octave\_controls(\mbox{\hyperlink{namespacevital_aa9d9f7db397753d33653638db5eefe56}{vital::kDefaultKeyboardOctaveDown}},\ \mbox{\hyperlink{namespacevital_a323171007af46015e54806cd71adbeb0}{vital::kDefaultKeyboardOctaveUp}});}
+\DoxyCodeLine{01682\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01683\ }
+\DoxyCodeLine{01684\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}keyboard\_layout"{}}))\ \{}
+\DoxyCodeLine{01685\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ layout\ =\ data[\textcolor{stringliteral}{"{}keyboard\_layout"{}}];}
+\DoxyCodeLine{01686\ \ \ \ \ std::wstring\ down\ =\ layout[\textcolor{stringliteral}{"{}octave\_down"{}}];}
+\DoxyCodeLine{01687\ \ \ \ \ std::wstring\ up\ =\ layout[\textcolor{stringliteral}{"{}octave\_up"{}}];}
+\DoxyCodeLine{01688\ \ \ \ \ octave\_controls.first\ =\ down[0];}
+\DoxyCodeLine{01689\ \ \ \ \ octave\_controls.second\ =\ up[0];}
+\DoxyCodeLine{01690\ \ \ \}}
+\DoxyCodeLine{01691\ }
+\DoxyCodeLine{01692\ \ \ \textcolor{keywordflow}{return}\ octave\_controls;}
+\DoxyCodeLine{01693\ \}}
+\DoxyCodeLine{01694\ }
+\DoxyCodeLine{01695\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a2a8b9b5b7938230a948f6a04ca3ebab1}{LoadSave::saveAdditionalFolders}}(\textcolor{keyword}{const}\ std::string\&\ name,\ std::vector<std::string>\ folders)\ \{}
+\DoxyCodeLine{01696\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01697\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ wavetable\_folders;}
+\DoxyCodeLine{01698\ \ \ \textcolor{keywordflow}{for}\ (std::string\&\ folder\ :\ folders)}
+\DoxyCodeLine{01699\ \ \ \ \ wavetable\_folders.push\_back(folder);}
+\DoxyCodeLine{01700\ \ \ data[name]\ =\ wavetable\_folders;}
+\DoxyCodeLine{01701\ }
+\DoxyCodeLine{01702\ \ \ \mbox{\hyperlink{class_load_save_a09f86f96e29c3622d21b334ed97abcf4}{saveJsonToConfig}}(data);}
+\DoxyCodeLine{01703\ \}}
+\DoxyCodeLine{01704\ }
+\DoxyCodeLine{01705\ std::vector<std::string>\ \mbox{\hyperlink{class_load_save_a57ee2e7e55cd804a392b65c222c19dee}{LoadSave::getAdditionalFolders}}(\textcolor{keyword}{const}\ std::string\&\ name)\ \{}
+\DoxyCodeLine{01706\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01707\ \ \ std::vector<std::string>\ folders;}
+\DoxyCodeLine{01708\ }
+\DoxyCodeLine{01709\ \ \ \textcolor{keywordflow}{if}\ (data.count(name))\ \{}
+\DoxyCodeLine{01710\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ folder\_list\ =\ data[name];}
+\DoxyCodeLine{01711\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ folder\ :\ folder\_list)}
+\DoxyCodeLine{01712\ \ \ \ \ \ \ folders.push\_back(folder);}
+\DoxyCodeLine{01713\ \ \ \}}
+\DoxyCodeLine{01714\ }
+\DoxyCodeLine{01715\ \ \ \textcolor{keywordflow}{return}\ folders;}
+\DoxyCodeLine{01716\ \}}
+\DoxyCodeLine{01717\ }
+\DoxyCodeLine{01718\ File\ \mbox{\hyperlink{class_load_save_a4688a506ad925f4845c7600e646b907a}{LoadSave::getDataDirectory}}()\ \{}
+\DoxyCodeLine{01719\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_aec544c49459cc7afbf8950528de4709d}{getConfigJson}}();}
+\DoxyCodeLine{01720\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}data\_directory"{}}))\ \{}
+\DoxyCodeLine{01721\ \ \ \ \ std::string\ path\ =\ data[\textcolor{stringliteral}{"{}data\_directory"{}}];}
+\DoxyCodeLine{01722\ \ \ \ \ File\ folder(path);}
+\DoxyCodeLine{01723\ \ \ \ \ \textcolor{keywordflow}{if}\ (folder.exists()\ \&\&\ folder.isDirectory())}
+\DoxyCodeLine{01724\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ folder;}
+\DoxyCodeLine{01725\ \ \ \}}
+\DoxyCodeLine{01726\ }
+\DoxyCodeLine{01727\ \textcolor{preprocessor}{\#ifdef\ LINUX}}
+\DoxyCodeLine{01728\ \ \ File\ directory\ =\ File(kLinuxUserDataDirectory);}
+\DoxyCodeLine{01729\ \ \ String\ xdg\_data\_home\ =\ SystemStats::getEnvironmentVariable\ (\textcolor{stringliteral}{"{}XDG\_DATA\_HOME"{}},\ \{\});}
+\DoxyCodeLine{01730\ }
+\DoxyCodeLine{01731\ \ \ \textcolor{keywordflow}{if}\ (!xdg\_data\_home.trim().isEmpty())}
+\DoxyCodeLine{01732\ \ \ \ \ directory\ =\ File(xdg\_data\_home).getChildFile(\textcolor{stringliteral}{"{}vial"{}});}
+\DoxyCodeLine{01733\ }
+\DoxyCodeLine{01734\ \textcolor{preprocessor}{\#elif\ defined(\_\_APPLE\_\_)}}
+\DoxyCodeLine{01735\ \ \ File\ home\_directory\ =\ File::getSpecialLocation(File::userHomeDirectory);}
+\DoxyCodeLine{01736\ \ \ File\ directory\ =\ home\_directory.getChildFile(\textcolor{stringliteral}{"{}Music"{}}).getChildFile(\textcolor{stringliteral}{"{}Vial"{}});}
+\DoxyCodeLine{01737\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{01738\ \ \ File\ documents\_dir\ =\ File::getSpecialLocation(File::userDocumentsDirectory);}
+\DoxyCodeLine{01739\ \ \ File\ directory\ =\ documents\_dir.getChildFile(\textcolor{stringliteral}{"{}Vial"{}});}
+\DoxyCodeLine{01740\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01741\ }
+\DoxyCodeLine{01742\ \ \ \textcolor{keywordflow}{return}\ directory;}
+\DoxyCodeLine{01743\ \}}
+\DoxyCodeLine{01744\ }
+\DoxyCodeLine{01745\ std::vector<File>\ \mbox{\hyperlink{class_load_save_aaedfc41f7f05e3d9fd1c14ee237fff7f}{LoadSave::getDirectories}}(\textcolor{keyword}{const}\ String\&\ folder\_name)\ \{}
+\DoxyCodeLine{01746\ \ \ File\ data\_dir\ =\ \mbox{\hyperlink{class_load_save_a4688a506ad925f4845c7600e646b907a}{getDataDirectory}}();}
+\DoxyCodeLine{01747\ \ \ std::vector<File>\ directories;}
+\DoxyCodeLine{01748\ }
+\DoxyCodeLine{01749\ \ \ \textcolor{keywordflow}{if}\ (!data\_dir.exists()\ ||\ !data\_dir.isDirectory())}
+\DoxyCodeLine{01750\ \ \ \ \ \textcolor{keywordflow}{return}\ directories;}
+\DoxyCodeLine{01751\ }
+\DoxyCodeLine{01752\ \ \ Array<File>\ sub\_folders;}
+\DoxyCodeLine{01753\ \ \ sub\_folders.add(data\_dir);}
+\DoxyCodeLine{01754\ \ \ data\_dir.findChildFiles(sub\_folders,\ File::findDirectories,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{01755\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ File\&\ sub\_folder\ :\ sub\_folders)\ \{}
+\DoxyCodeLine{01756\ \ \ \ \ File\ directory\ =\ sub\_folder.getChildFile(folder\_name);}
+\DoxyCodeLine{01757\ \ \ \ \ \textcolor{keywordflow}{if}\ (directory.exists()\ \&\&\ directory.isDirectory())}
+\DoxyCodeLine{01758\ \ \ \ \ \ \ directories.push\_back(directory);}
+\DoxyCodeLine{01759\ \ \ \}}
+\DoxyCodeLine{01760\ }
+\DoxyCodeLine{01761\ \ \ \textcolor{keywordflow}{return}\ directories;}
+\DoxyCodeLine{01762\ \}}
+\DoxyCodeLine{01763\ }
+\DoxyCodeLine{01764\ std::vector<File>\ \mbox{\hyperlink{class_load_save_a28371e7585e35e81b2f6411ba139d297}{LoadSave::getPresetDirectories}}()\ \{}
+\DoxyCodeLine{01765\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_load_save_aaedfc41f7f05e3d9fd1c14ee237fff7f}{getDirectories}}(\mbox{\hyperlink{class_load_save_a0676b1ef53e6e0fd81a3eeb711d75e22}{kPresetFolderName}});}
+\DoxyCodeLine{01766\ \}}
+\DoxyCodeLine{01767\ }
+\DoxyCodeLine{01768\ std::vector<File>\ \mbox{\hyperlink{class_load_save_ac308a0d50fd5eca6e69c1650f67cf272}{LoadSave::getWavetableDirectories}}()\ \{}
+\DoxyCodeLine{01769\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_load_save_aaedfc41f7f05e3d9fd1c14ee237fff7f}{getDirectories}}(\mbox{\hyperlink{class_load_save_ada0dc87031b963f8fc0045d3725315e4}{kWavetableFolderName}});}
+\DoxyCodeLine{01770\ \}}
+\DoxyCodeLine{01771\ }
+\DoxyCodeLine{01772\ std::vector<File>\ \mbox{\hyperlink{class_load_save_a0ab01348a7f4110ee6c36adfa2538af8}{LoadSave::getSkinDirectories}}()\ \{}
+\DoxyCodeLine{01773\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_load_save_aaedfc41f7f05e3d9fd1c14ee237fff7f}{getDirectories}}(\mbox{\hyperlink{class_load_save_a0ff1a0c8112b6947ab83e0224ea84f08}{kSkinFolderName}});}
+\DoxyCodeLine{01774\ \}}
+\DoxyCodeLine{01775\ }
+\DoxyCodeLine{01776\ std::vector<File>\ \mbox{\hyperlink{class_load_save_acc78bba9c497856bee00f9a8e4bb921e}{LoadSave::getSampleDirectories}}()\ \{}
+\DoxyCodeLine{01777\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_load_save_aaedfc41f7f05e3d9fd1c14ee237fff7f}{getDirectories}}(\mbox{\hyperlink{class_load_save_a30001ea9bec64d896e62464743312813}{kSampleFolderName}});}
+\DoxyCodeLine{01778\ \}}
+\DoxyCodeLine{01779\ }
+\DoxyCodeLine{01780\ std::vector<File>\ \mbox{\hyperlink{class_load_save_a4f51ae7718ae4ccb28185eb6a9605e6d}{LoadSave::getLfoDirectories}}()\ \{}
+\DoxyCodeLine{01781\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_load_save_aaedfc41f7f05e3d9fd1c14ee237fff7f}{getDirectories}}(\mbox{\hyperlink{class_load_save_aa8cf2c5a2c594561f0d4bfd27aa570e3}{kLfoFolderName}});}
+\DoxyCodeLine{01782\ \}}
+\DoxyCodeLine{01783\ }
+\DoxyCodeLine{01784\ File\ \mbox{\hyperlink{class_load_save_a39eb5a7baf46308492399dc2323429d3}{LoadSave::getUserDirectory}}()\ \{}
+\DoxyCodeLine{01785\ \ \ File\ directory\ =\ \mbox{\hyperlink{class_load_save_a4688a506ad925f4845c7600e646b907a}{getDataDirectory}}().getChildFile(\mbox{\hyperlink{class_load_save_af513b8d901fb27f9721ce876e9995bfc}{kUserDirectoryName}});}
+\DoxyCodeLine{01786\ \ \ \textcolor{keywordflow}{if}\ (!directory.exists())}
+\DoxyCodeLine{01787\ \ \ \ \ directory.createDirectory();}
+\DoxyCodeLine{01788\ \ \ \textcolor{keywordflow}{return}\ directory;}
+\DoxyCodeLine{01789\ \}}
+\DoxyCodeLine{01790\ }
+\DoxyCodeLine{01791\ File\ \mbox{\hyperlink{class_load_save_a42eeb92d06e732e2c43b85d29c5cbcd7}{LoadSave::getUserPresetDirectory}}()\ \{}
+\DoxyCodeLine{01792\ \ \ File\ directory\ =\ \mbox{\hyperlink{class_load_save_a39eb5a7baf46308492399dc2323429d3}{getUserDirectory}}().getChildFile(\mbox{\hyperlink{class_load_save_a0676b1ef53e6e0fd81a3eeb711d75e22}{kPresetFolderName}});}
+\DoxyCodeLine{01793\ \ \ \textcolor{keywordflow}{if}\ (!directory.exists())}
+\DoxyCodeLine{01794\ \ \ \ \ directory.createDirectory();}
+\DoxyCodeLine{01795\ \ \ \textcolor{keywordflow}{return}\ directory;}
+\DoxyCodeLine{01796\ \}}
+\DoxyCodeLine{01797\ }
+\DoxyCodeLine{01798\ File\ \mbox{\hyperlink{class_load_save_a6d891929e782f6775a39b05a56e580a6}{LoadSave::getUserWavetableDirectory}}()\ \{}
+\DoxyCodeLine{01799\ \ \ File\ directory\ =\ \mbox{\hyperlink{class_load_save_a39eb5a7baf46308492399dc2323429d3}{getUserDirectory}}().getChildFile(\mbox{\hyperlink{class_load_save_ada0dc87031b963f8fc0045d3725315e4}{kWavetableFolderName}});}
+\DoxyCodeLine{01800\ \ \ \textcolor{keywordflow}{if}\ (!directory.exists())}
+\DoxyCodeLine{01801\ \ \ \ \ directory.createDirectory();}
+\DoxyCodeLine{01802\ \ \ \textcolor{keywordflow}{return}\ directory;}
+\DoxyCodeLine{01803\ \}}
+\DoxyCodeLine{01804\ }
+\DoxyCodeLine{01805\ File\ \mbox{\hyperlink{class_load_save_a829ab320ffcffaa5614eeb28f19c1209}{LoadSave::getUserSkinDirectory}}()\ \{}
+\DoxyCodeLine{01806\ \ \ File\ directory\ =\ \mbox{\hyperlink{class_load_save_a39eb5a7baf46308492399dc2323429d3}{getUserDirectory}}().getChildFile(\mbox{\hyperlink{class_load_save_a0ff1a0c8112b6947ab83e0224ea84f08}{kSkinFolderName}});}
+\DoxyCodeLine{01807\ \ \ \textcolor{keywordflow}{if}\ (!directory.exists())}
+\DoxyCodeLine{01808\ \ \ \ \ directory.createDirectory();}
+\DoxyCodeLine{01809\ \ \ \textcolor{keywordflow}{return}\ directory;}
+\DoxyCodeLine{01810\ \}}
+\DoxyCodeLine{01811\ }
+\DoxyCodeLine{01812\ File\ \mbox{\hyperlink{class_load_save_adff43be0b3df7cee20c507793ff34401}{LoadSave::getUserSampleDirectory}}()\ \{}
+\DoxyCodeLine{01813\ \ \ File\ directory\ =\ \mbox{\hyperlink{class_load_save_a39eb5a7baf46308492399dc2323429d3}{getUserDirectory}}().getChildFile(\mbox{\hyperlink{class_load_save_a30001ea9bec64d896e62464743312813}{kSampleFolderName}});}
+\DoxyCodeLine{01814\ \ \ \textcolor{keywordflow}{if}\ (!directory.exists())}
+\DoxyCodeLine{01815\ \ \ \ \ directory.createDirectory();}
+\DoxyCodeLine{01816\ \ \ \textcolor{keywordflow}{return}\ directory;}
+\DoxyCodeLine{01817\ \}}
+\DoxyCodeLine{01818\ }
+\DoxyCodeLine{01819\ File\ \mbox{\hyperlink{class_load_save_aeac48fff335435efb363d1f90e2da544}{LoadSave::getUserLfoDirectory}}()\ \{}
+\DoxyCodeLine{01820\ \ \ File\ directory\ =\ \mbox{\hyperlink{class_load_save_a39eb5a7baf46308492399dc2323429d3}{getUserDirectory}}().getChildFile(\mbox{\hyperlink{class_load_save_aa8cf2c5a2c594561f0d4bfd27aa570e3}{kLfoFolderName}});}
+\DoxyCodeLine{01821\ \ \ \textcolor{keywordflow}{if}\ (!directory.exists())}
+\DoxyCodeLine{01822\ \ \ \ \ directory.createDirectory();}
+\DoxyCodeLine{01823\ \ \ \textcolor{keywordflow}{return}\ directory;}
+\DoxyCodeLine{01824\ \}}
+\DoxyCodeLine{01825\ }
+\DoxyCodeLine{01826\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a4920a34938f27eb01a9391c28e73bc47}{LoadSave::getAllFilesOfTypeInDirectories}}(Array<File>\&\ files,\ \textcolor{keyword}{const}\ String\&\ extensions,}
+\DoxyCodeLine{01827\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<File>\&\ directories)\ \{}
+\DoxyCodeLine{01828\ \ \ files.clear();}
+\DoxyCodeLine{01829\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ File\&\ directory\ :\ directories)\ \{}
+\DoxyCodeLine{01830\ \ \ \ \ \textcolor{keywordflow}{if}\ (directory.exists()\ \&\&\ directory.isDirectory())}
+\DoxyCodeLine{01831\ \ \ \ \ \ \ directory.findChildFiles(files,\ File::findFiles,\ \textcolor{keyword}{true},\ extensions);}
+\DoxyCodeLine{01832\ \ \ \}}
+\DoxyCodeLine{01833\ \}}
+\DoxyCodeLine{01834\ }
+\DoxyCodeLine{01835\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a792cf0429c33d392a0e259b8b237d0e8}{LoadSave::getAllPresets}}(Array<File>\&\ presets)\ \{}
+\DoxyCodeLine{01836\ \ \ \mbox{\hyperlink{class_load_save_a4920a34938f27eb01a9391c28e73bc47}{getAllFilesOfTypeInDirectories}}(presets,\ String(\textcolor{stringliteral}{"{}*."{}})\ +\ \mbox{\hyperlink{namespacevital_ae7fd0f09fefdd69d161543d60a76f0f1}{vital::kPresetExtension}},\ \mbox{\hyperlink{class_load_save_a28371e7585e35e81b2f6411ba139d297}{getPresetDirectories}}());}
+\DoxyCodeLine{01837\ \}}
+\DoxyCodeLine{01838\ }
+\DoxyCodeLine{01839\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a0f3dc78acbe115b48228f06f8dbeba2f}{LoadSave::getAllWavetables}}(Array<File>\&\ wavetables)\ \{}
+\DoxyCodeLine{01840\ \ \ \mbox{\hyperlink{class_load_save_a4920a34938f27eb01a9391c28e73bc47}{getAllFilesOfTypeInDirectories}}(wavetables,\ \mbox{\hyperlink{namespacevital_a998daaf7071441df589130d24a37d148}{vital::kWavetableExtensionsList}},\ \mbox{\hyperlink{class_load_save_ac308a0d50fd5eca6e69c1650f67cf272}{getWavetableDirectories}}());}
+\DoxyCodeLine{01841\ \}}
+\DoxyCodeLine{01842\ }
+\DoxyCodeLine{01843\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a8283bf725038b28b4c9a22f4dcbf2794}{LoadSave::getAllSkins}}(Array<File>\&\ skins)\ \{}
+\DoxyCodeLine{01844\ \ \ \mbox{\hyperlink{class_load_save_a4920a34938f27eb01a9391c28e73bc47}{getAllFilesOfTypeInDirectories}}(skins,\ String(\textcolor{stringliteral}{"{}*."{}})\ +\ \mbox{\hyperlink{namespacevital_a3dcf316d609f62440daf661b741d31a4}{vital::kSkinExtension}},\ \mbox{\hyperlink{class_load_save_a0ab01348a7f4110ee6c36adfa2538af8}{getSkinDirectories}}());}
+\DoxyCodeLine{01845\ \}}
+\DoxyCodeLine{01846\ }
+\DoxyCodeLine{01847\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_ad70df30c3f5ecb020c6560508dbd5de5}{LoadSave::getAllLfos}}(Array<File>\&\ lfos)\ \{}
+\DoxyCodeLine{01848\ \ \ \mbox{\hyperlink{class_load_save_a4920a34938f27eb01a9391c28e73bc47}{getAllFilesOfTypeInDirectories}}(lfos,\ String(\textcolor{stringliteral}{"{}*."{}})\ +\ \mbox{\hyperlink{namespacevital_accb181aebf1045817ec8e771bcf47e04}{vital::kLfoExtension}},\ \mbox{\hyperlink{class_load_save_a4f51ae7718ae4ccb28185eb6a9605e6d}{getLfoDirectories}}());}
+\DoxyCodeLine{01849\ \}}
+\DoxyCodeLine{01850\ }
+\DoxyCodeLine{01851\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a1aaab7f01da6751a36aaefd60d94df0a}{LoadSave::getAllSamples}}(Array<File>\&\ samples)\ \{}
+\DoxyCodeLine{01852\ \ \ \mbox{\hyperlink{class_load_save_a4920a34938f27eb01a9391c28e73bc47}{getAllFilesOfTypeInDirectories}}(samples,\ \textcolor{stringliteral}{"{}*.wav"{}},\ \mbox{\hyperlink{class_load_save_acc78bba9c497856bee00f9a8e4bb921e}{getSampleDirectories}}());}
+\DoxyCodeLine{01853\ \}}
+\DoxyCodeLine{01854\ }
+\DoxyCodeLine{01855\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a4b0d33c1f1e9db09f8d9e74d2fc0ecdb}{LoadSave::getAllUserPresets}}(Array<File>\&\ presets)\ \{}
+\DoxyCodeLine{01856\ \ \ std::vector<File>\ directories\ =\ \{}
+\DoxyCodeLine{01857\ \ \ \ \ \mbox{\hyperlink{class_load_save_a4688a506ad925f4845c7600e646b907a}{getDataDirectory}}().getChildFile(\mbox{\hyperlink{class_load_save_a0676b1ef53e6e0fd81a3eeb711d75e22}{kPresetFolderName}}),}
+\DoxyCodeLine{01858\ \ \ \ \ \mbox{\hyperlink{class_load_save_a42eeb92d06e732e2c43b85d29c5cbcd7}{getUserPresetDirectory}}()}
+\DoxyCodeLine{01859\ \ \ \};}
+\DoxyCodeLine{01860\ \ \ \mbox{\hyperlink{class_load_save_a4920a34938f27eb01a9391c28e73bc47}{getAllFilesOfTypeInDirectories}}(presets,\ String(\textcolor{stringliteral}{"{}*."{}})\ +\ \mbox{\hyperlink{namespacevital_ae7fd0f09fefdd69d161543d60a76f0f1}{vital::kPresetExtension}},\ directories);}
+\DoxyCodeLine{01861\ \}}
+\DoxyCodeLine{01862\ }
+\DoxyCodeLine{01863\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_ab0966802491cd5f701bea844d2a9ba9f}{LoadSave::getAllUserWavetables}}(Array<File>\&\ wavetables)\ \{}
+\DoxyCodeLine{01864\ \ \ std::vector<File>\ directories\ =\ \{}
+\DoxyCodeLine{01865\ \ \ \ \ \mbox{\hyperlink{class_load_save_a4688a506ad925f4845c7600e646b907a}{getDataDirectory}}().getChildFile(\mbox{\hyperlink{class_load_save_ada0dc87031b963f8fc0045d3725315e4}{kWavetableFolderName}}),}
+\DoxyCodeLine{01866\ \ \ \ \ \mbox{\hyperlink{class_load_save_a6d891929e782f6775a39b05a56e580a6}{getUserWavetableDirectory}}()}
+\DoxyCodeLine{01867\ \ \ \};}
+\DoxyCodeLine{01868\ \ \ \mbox{\hyperlink{class_load_save_a4920a34938f27eb01a9391c28e73bc47}{getAllFilesOfTypeInDirectories}}(wavetables,\ \mbox{\hyperlink{namespacevital_a998daaf7071441df589130d24a37d148}{vital::kWavetableExtensionsList}},\ directories);}
+\DoxyCodeLine{01869\ \}}
+\DoxyCodeLine{01870\ }
+\DoxyCodeLine{01871\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_a0f124e6e6074b274e5ee4bef0ffdcb4b}{LoadSave::getAllUserLfos}}(Array<File>\&\ lfos)\ \{}
+\DoxyCodeLine{01872\ \ \ std::vector<File>\ directories\ =\ \{}
+\DoxyCodeLine{01873\ \ \ \ \ \mbox{\hyperlink{class_load_save_a4688a506ad925f4845c7600e646b907a}{getDataDirectory}}().getChildFile(\mbox{\hyperlink{class_load_save_aa8cf2c5a2c594561f0d4bfd27aa570e3}{kLfoFolderName}}),}
+\DoxyCodeLine{01874\ \ \ \ \ \mbox{\hyperlink{class_load_save_aeac48fff335435efb363d1f90e2da544}{getUserLfoDirectory}}()}
+\DoxyCodeLine{01875\ \ \ \};}
+\DoxyCodeLine{01876\ \ \ \mbox{\hyperlink{class_load_save_a4920a34938f27eb01a9391c28e73bc47}{getAllFilesOfTypeInDirectories}}(lfos,\ String(\textcolor{stringliteral}{"{}*."{}})\ +\ \mbox{\hyperlink{namespacevital_accb181aebf1045817ec8e771bcf47e04}{vital::kLfoExtension}},\ directories);}
+\DoxyCodeLine{01877\ \}}
+\DoxyCodeLine{01878\ }
+\DoxyCodeLine{01879\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_load_save_afb0ee8a57fc43f94375779ba157ebe1f}{LoadSave::getAllUserSamples}}(Array<File>\&\ samples)\ \{}
+\DoxyCodeLine{01880\ \ \ std::vector<File>\ directories\ =\ \{}
+\DoxyCodeLine{01881\ \ \ \ \ \mbox{\hyperlink{class_load_save_a4688a506ad925f4845c7600e646b907a}{getDataDirectory}}().getChildFile(\mbox{\hyperlink{class_load_save_a30001ea9bec64d896e62464743312813}{kSampleFolderName}}),}
+\DoxyCodeLine{01882\ \ \ \ \ \mbox{\hyperlink{class_load_save_adff43be0b3df7cee20c507793ff34401}{getUserSampleDirectory}}()}
+\DoxyCodeLine{01883\ \ \ \};}
+\DoxyCodeLine{01884\ \ \ \mbox{\hyperlink{class_load_save_a4920a34938f27eb01a9391c28e73bc47}{getAllFilesOfTypeInDirectories}}(samples,\ \textcolor{stringliteral}{"{}*.wav"{}},\ directories);}
+\DoxyCodeLine{01885\ \}}
+\DoxyCodeLine{01886\ }
+\DoxyCodeLine{01887\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_load_save_ae8fcb0feb65de107d20573848a6c3126}{LoadSave::compareFeatureVersionStrings}}(String\ a,\ String\ b)\ \{}
+\DoxyCodeLine{01888\ \ \ a.trim();}
+\DoxyCodeLine{01889\ \ \ b.trim();}
+\DoxyCodeLine{01890\ }
+\DoxyCodeLine{01891\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(a.upToLastOccurrenceOf(\textcolor{stringliteral}{"{}."{}},\ \textcolor{keyword}{false},\ \textcolor{keyword}{true}),}
+\DoxyCodeLine{01892\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ b.upToLastOccurrenceOf(\textcolor{stringliteral}{"{}."{}},\ \textcolor{keyword}{false},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{01893\ \}}
+\DoxyCodeLine{01894\ }
+\DoxyCodeLine{01895\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{LoadSave::compareVersionStrings}}(String\ a,\ String\ b)\ \{}
+\DoxyCodeLine{01896\ \ \ a.trim();}
+\DoxyCodeLine{01897\ \ \ b.trim();}
+\DoxyCodeLine{01898\ }
+\DoxyCodeLine{01899\ \ \ \textcolor{keywordflow}{if}\ (a.isEmpty()\ \&\&\ b.isEmpty())}
+\DoxyCodeLine{01900\ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{01901\ }
+\DoxyCodeLine{01902\ \ \ String\ major\_version\_a\ =\ a.upToFirstOccurrenceOf(\textcolor{stringliteral}{"{}."{}},\ \textcolor{keyword}{false},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{01903\ \ \ String\ major\_version\_b\ =\ b.upToFirstOccurrenceOf(\textcolor{stringliteral}{"{}."{}},\ \textcolor{keyword}{false},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{01904\ }
+\DoxyCodeLine{01905\ \ \ \textcolor{keywordflow}{if}\ (!major\_version\_a.containsOnly(\textcolor{stringliteral}{"{}0123456789"{}}))}
+\DoxyCodeLine{01906\ \ \ \ \ major\_version\_a\ =\ \textcolor{stringliteral}{"{}0"{}};}
+\DoxyCodeLine{01907\ \ \ \textcolor{keywordflow}{if}\ (!major\_version\_b.containsOnly(\textcolor{stringliteral}{"{}0123456789"{}}))}
+\DoxyCodeLine{01908\ \ \ \ \ major\_version\_b\ =\ \textcolor{stringliteral}{"{}0"{}};}
+\DoxyCodeLine{01909\ }
+\DoxyCodeLine{01910\ \ \ \textcolor{keywordtype}{int}\ major\_value\_a\ =\ major\_version\_a.getIntValue();}
+\DoxyCodeLine{01911\ \ \ \textcolor{keywordtype}{int}\ major\_value\_b\ =\ major\_version\_b.getIntValue();}
+\DoxyCodeLine{01912\ }
+\DoxyCodeLine{01913\ \ \ \textcolor{keywordflow}{if}\ (major\_value\_a\ >\ major\_value\_b)}
+\DoxyCodeLine{01914\ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{01915\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (major\_value\_a\ <\ major\_value\_b)}
+\DoxyCodeLine{01916\ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{01917\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{compareVersionStrings}}(a.fromFirstOccurrenceOf(\textcolor{stringliteral}{"{}."{}},\ \textcolor{keyword}{false},\ \textcolor{keyword}{true}),}
+\DoxyCodeLine{01918\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ b.fromFirstOccurrenceOf(\textcolor{stringliteral}{"{}."{}},\ \textcolor{keyword}{false},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{01919\ \}}
+\DoxyCodeLine{01920\ }
+\DoxyCodeLine{01921\ File\ \mbox{\hyperlink{class_load_save_a83671b0114f752dc3af21e03bad41d67}{LoadSave::getShiftedFile}}(\textcolor{keyword}{const}\ String\ directory\_name,\ \textcolor{keyword}{const}\ String\&\ extensions,}
+\DoxyCodeLine{01922\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\&\ additional\_folders\_name,\ \textcolor{keyword}{const}\ File\&\ current\_file,\ \textcolor{keywordtype}{int}\ shift)\ \{}
+\DoxyCodeLine{01923\ \ \ \mbox{\hyperlink{class_load_save_1_1_file_sorter_ascending}{FileSorterAscending}}\ file\_sorter;}
+\DoxyCodeLine{01924\ }
+\DoxyCodeLine{01925\ \ \ std::vector<File>\ directories\ =\ \mbox{\hyperlink{class_load_save_aaedfc41f7f05e3d9fd1c14ee237fff7f}{getDirectories}}(directory\_name);}
+\DoxyCodeLine{01926\ \ \ std::vector<std::string>\ additional\ =\ \mbox{\hyperlink{class_load_save_a57ee2e7e55cd804a392b65c222c19dee}{getAdditionalFolders}}(additional\_folders\_name);}
+\DoxyCodeLine{01927\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ std::string\&\ path\ :\ additional)}
+\DoxyCodeLine{01928\ \ \ \ \ directories.push\_back(File(path));}
+\DoxyCodeLine{01929\ }
+\DoxyCodeLine{01930\ \ \ Array<File>\ all\_files;}
+\DoxyCodeLine{01931\ \ \ \mbox{\hyperlink{class_load_save_a4920a34938f27eb01a9391c28e73bc47}{getAllFilesOfTypeInDirectories}}(all\_files,\ extensions,\ directories);}
+\DoxyCodeLine{01932\ \ \ \textcolor{keywordflow}{if}\ (all\_files.isEmpty())}
+\DoxyCodeLine{01933\ \ \ \ \ \textcolor{keywordflow}{return}\ File();}
+\DoxyCodeLine{01934\ }
+\DoxyCodeLine{01935\ \ \ all\_files.sort(file\_sorter);}
+\DoxyCodeLine{01936\ \ \ \textcolor{keywordtype}{int}\ index\ =\ all\_files.indexOf(current\_file);}
+\DoxyCodeLine{01937\ \ \ \textcolor{keywordflow}{if}\ (index\ <\ 0)}
+\DoxyCodeLine{01938\ \ \ \ \ \textcolor{keywordflow}{return}\ all\_files[0];}
+\DoxyCodeLine{01939\ \ \ \textcolor{keywordflow}{return}\ all\_files[(index\ +\ shift\ +\ all\_files.size())\ \%\ all\_files.size()];}
+\DoxyCodeLine{01940\ \}}
+
+\end{DoxyCode}

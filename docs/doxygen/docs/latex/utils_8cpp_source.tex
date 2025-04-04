@@ -1,0 +1,91 @@
+\doxysection{utils.\+cpp}
+\hypertarget{utils_8cpp_source}{}\label{utils_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/framework/utils.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/framework/utils.cpp}}
+\mbox{\hyperlink{utils_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00012\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{namespacevital_aa587d776bafa875567dd1b61b39881d4}{kPcmScale}}\ =\ 32767.0f;}
+\DoxyCodeLine{00014\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{namespacevital_aeaae6b6195ae496eeafd3ffa446960ed}{kComplexAmplitudePcmScale}}\ =\ 50.0f;}
+\DoxyCodeLine{00016\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{namespacevital_aae7e997995fec930210658e5815ec06d}{kComplexPhasePcmScale}}\ =\ 10000.0f;}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \ \ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespaceutils}{utils}}\ \{}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1utils_1_1_random_generator_a19aafcca5b540ea879f8e54532cfc6c8}{RandomGenerator::next\_seed\_}}\ =\ 0;}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00032\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1utils_aa6b3e2cbf3403f7a88d4ed066b254a10}{encodeOrderToFloat}}(\textcolor{keywordtype}{int}*\ order,\ \textcolor{keywordtype}{int}\ size)\ \{}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \textcolor{comment}{//\ Max\ array\ size\ you\ can\ encode\ in\ 32\ bits.}}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(size\ <=\ \mbox{\hyperlink{namespacevital_1_1utils_a25774307075b91d2e36227c1ddbfc9fb}{kMaxOrderLength}});}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ code\ =\ 0;}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <\ size;\ ++i)\ \{}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 0;}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ j\ =\ 0;\ j\ <\ i;\ ++j)}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \ \ index\ +=\ order[i]\ <\ order[j];}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ code\ *=\ i\ +\ 1;}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ code\ +=\ index;}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ code;}
+\DoxyCodeLine{00047\ \ \ \ \ \}}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacevital_1_1utils_a95f6cd84191afdcf357a37507c6001e4}{decodeFloatToOrder}}(\textcolor{keywordtype}{int}*\ order,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ float\_code,\ \textcolor{keywordtype}{int}\ size)\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \textcolor{comment}{//\ Max\ array\ size\ you\ can\ encode\ in\ 32\ bits.}}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(size\ <=\ \mbox{\hyperlink{namespacevital_1_1utils_a25774307075b91d2e36227c1ddbfc9fb}{kMaxOrderLength}});}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ code\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(float\_code);}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ size;\ ++i)}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ order[i]\ =\ i;}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ size;\ ++i)\ \{}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ remaining\ =\ size\ -\/\ i;}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ remaining\ -\/\ 1;}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ inversions\ =\ code\ \%\ remaining;}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ code\ /=\ remaining;}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ placement\ =\ order[index\ -\/\ inversions];}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ j\ =\ index\ -\/\ inversions;\ j\ <\ index;\ ++j)}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \ \ order[j]\ =\ order[j\ +\ 1];}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ order[index]\ =\ placement;}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00075\ \ \ \ \ \}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacevital_1_1utils_a6f52b77daf0013da4f08f9a19e7bc262}{floatToPcmData}}(int16\_t*\ pcm\_data,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}*\ float\_data,\ \textcolor{keywordtype}{int}\ size)\ \{}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ size;\ ++i)}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ pcm\_data[i]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(float\_data[i]\ *\ \mbox{\hyperlink{namespacevital_aa587d776bafa875567dd1b61b39881d4}{kPcmScale}},\ -\/\mbox{\hyperlink{namespacevital_aa587d776bafa875567dd1b61b39881d4}{kPcmScale}},\ \mbox{\hyperlink{namespacevital_aa587d776bafa875567dd1b61b39881d4}{kPcmScale}});}
+\DoxyCodeLine{00080\ \ \ \ \ \}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacevital_1_1utils_aca41e42d805b87b54a7f3bf14ed577d6}{complexToPcmData}}(int16\_t*\ pcm\_data,\ \textcolor{keyword}{const}\ std::complex<float>*\ complex\_data,\ \textcolor{keywordtype}{int}\ size)\ \{}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \textcolor{comment}{//\ Interprets\ the\ complex\ data\ as\ (amplitude,\ phase)\ pairs.}}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \textcolor{comment}{//\ The\ size\ argument\ is\ the\ total\ number\ of\ float\ samples\ in\ complex\_data,}}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \textcolor{comment}{//\ but\ each\ complex\ entry\ uses\ 2\ in\ PCM\ (amp,\ phase).}}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ size\ /\ 2;\ ++i)\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ amp\ =\ std::abs(complex\_data[i]);}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ phase\ =\ std::arg(complex\_data[i]);}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ pcm\_data[i\ *\ 2]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(amp\ *\ \mbox{\hyperlink{namespacevital_aeaae6b6195ae496eeafd3ffa446960ed}{kComplexAmplitudePcmScale}},\ -\/\mbox{\hyperlink{namespacevital_aa587d776bafa875567dd1b61b39881d4}{kPcmScale}},\ \mbox{\hyperlink{namespacevital_aa587d776bafa875567dd1b61b39881d4}{kPcmScale}});}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ pcm\_data[i\ *\ 2\ +\ 1]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(phase\ *\ \mbox{\hyperlink{namespacevital_aae7e997995fec930210658e5815ec06d}{kComplexPhasePcmScale}},\ -\/\mbox{\hyperlink{namespacevital_aa587d776bafa875567dd1b61b39881d4}{kPcmScale}},\ \mbox{\hyperlink{namespacevital_aa587d776bafa875567dd1b61b39881d4}{kPcmScale}});}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00092\ \ \ \ \ \}}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacevital_1_1utils_ad7cdd481f6e7741d1578a777a75d0b87}{pcmToFloatData}}(\textcolor{keywordtype}{float}*\ float\_data,\ \textcolor{keyword}{const}\ int16\_t*\ pcm\_data,\ \textcolor{keywordtype}{int}\ size)\ \{}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ size;\ ++i)}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ float\_data[i]\ =\ pcm\_data[i]\ *\ (1.0f\ /\ \mbox{\hyperlink{namespacevital_aa587d776bafa875567dd1b61b39881d4}{kPcmScale}});}
+\DoxyCodeLine{00097\ \ \ \ \ \}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacevital_1_1utils_a6bb3ba8e0133d35d2cfd88def0a1d5fe}{pcmToComplexData}}(std::complex<float>*\ complex\_data,\ \textcolor{keyword}{const}\ int16\_t*\ pcm\_data,\ \textcolor{keywordtype}{int}\ size)\ \{}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \textcolor{comment}{//\ Inverse\ of\ complexToPcmData:\ decode\ amplitude\ and\ phase\ from\ PCM\ to\ std::polar\ form.}}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ size\ /\ 2;\ ++i)\ \{}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ amp\ =\ pcm\_data[i\ *\ 2]\ *\ (1.0f\ /\ \mbox{\hyperlink{namespacevital_aeaae6b6195ae496eeafd3ffa446960ed}{kComplexAmplitudePcmScale}});}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ phase\ =\ pcm\_data[i\ *\ 2\ +\ 1]\ *\ (1.0f\ /\ \mbox{\hyperlink{namespacevital_aae7e997995fec930210658e5815ec06d}{kComplexPhasePcmScale}});}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ complex\_data[i]\ =\ std::polar(amp,\ phase);}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00106\ \ \ \ \ \}}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \ \ \}\ \textcolor{comment}{//\ namespace\ utils}}
+\DoxyCodeLine{00109\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

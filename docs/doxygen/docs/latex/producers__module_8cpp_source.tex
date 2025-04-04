@@ -1,0 +1,151 @@
+\doxysection{producers\+\_\+module.\+cpp}
+\hypertarget{producers__module_8cpp_source}{}\label{producers__module_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/modules/producers\_module.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/modules/producers\_module.cpp}}
+\mbox{\hyperlink{producers__module_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{producers__module_8h}{producers\_module.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00010\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_a0ce8ba9a055020a93258670dcc179c84}{ProducersModule::ProducersModule}}()\ :}
+\DoxyCodeLine{00011\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module}{SynthModule}}(kNumInputs,\ kNumOutputs),\ sample\_destination\_(nullptr),}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ \ \ \ \ filter1\_on\_(nullptr),\ filter2\_on\_(nullptr)\ \{}
+\DoxyCodeLine{00013\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Create\ and\ configure\ oscillators.}}
+\DoxyCodeLine{00014\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a0e4fccbd130334777730a520c067fdf9}{kNumOscillators}};\ ++i)\ \{}
+\DoxyCodeLine{00015\ \ \ \ \ \ \ \ \ \ \ \ \ std::string\ number\ =\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00016\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[i]\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{classvital_1_1_oscillator_module}{OscillatorModule}}(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number);}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac711ab2fcf3df34bc0ab9bf0c67f2b13}{addSubmodule}}(\mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[i]);}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_af5322ce72a1e53f6d81ce917f07427e7}{addProcessor}}(\mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[i]);}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[i]-\/>\mbox{\hyperlink{classvital_1_1_synth_module_ad4f615773fab56c5a41aa4229bd26089}{enable}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_a763d73cae7c2d05b3403f5d71a8a627a}{oscillator\_destinations\_}}[i]\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Create\ and\ configure\ sampler.}}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_a676102fc4a218078734c4899e4d8391d}{sampler\_}}\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{classvital_1_1_sample_module}{SampleModule}}();}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module_ac711ab2fcf3df34bc0ab9bf0c67f2b13}{addSubmodule}}(\mbox{\hyperlink{classvital_1_1_producers_module_a676102fc4a218078734c4899e4d8391d}{sampler\_}});}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_af5322ce72a1e53f6d81ce917f07427e7}{addProcessor}}(\mbox{\hyperlink{classvital_1_1_producers_module_a676102fc4a218078734c4899e4d8391d}{sampler\_}});}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_a676102fc4a218078734c4899e4d8391d}{sampler\_}}-\/>\mbox{\hyperlink{classvital_1_1_synth_module_ad4f615773fab56c5a41aa4229bd26089}{enable}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00028\ \ \ \ \ \}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_producers_module_a820cd4ac51d747a9ac1fd3ef09ba0ead}{ProducersModule::init}}()\ \{}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a0e4fccbd130334777730a520c067fdf9}{kNumOscillators}};\ ++i)\ \{}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \ \ \ \ std::string\ number\ =\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_a763d73cae7c2d05b3403f5d71a8a627a}{oscillator\_destinations\_}}[i]\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_a3829cadfd1dfc7802119541ca1753d69}{createBaseControl}}(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_destination"{}});}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[i]-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_producers_module_a5adb0f89852e1b53e1d15845f0f7d12aa001678fb8b8820b91a376b304fbb7419}{kReset}}),\ \mbox{\hyperlink{classvital_1_1_oscillator_module_af1d03fdffe598be4186d5305d906682ba9951729cea98568afd662e8688a8f818}{OscillatorModule::kReset}});}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[i]-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_producers_module_a5adb0f89852e1b53e1d15845f0f7d12aac3aeaadb75f8847072a36cc6ea60ca2c}{kRetrigger}}),\ \mbox{\hyperlink{classvital_1_1_oscillator_module_af1d03fdffe598be4186d5305d906682bacc6436deb349324faf4c9595bcc0a0d9}{OscillatorModule::kRetrigger}});}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[i]-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_producers_module_a5adb0f89852e1b53e1d15845f0f7d12aa167f18658977a9f2b38131999482e4f8}{kMidi}}),\ \mbox{\hyperlink{classvital_1_1_oscillator_module_af1d03fdffe598be4186d5305d906682ba29a40b78ea70d721b5014460176cc486}{OscillatorModule::kMidi}});}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[i]-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_producers_module_a5adb0f89852e1b53e1d15845f0f7d12aa00032c7fba349dd619f75e798d321686}{kActiveVoices}}),\ \mbox{\hyperlink{classvital_1_1_oscillator_module_af1d03fdffe598be4186d5305d906682ba3d5e6d99e4de23df62aea07c96f3b85d}{OscillatorModule::kActiveVoices}});}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_a98aeeb47b94a20cba127b323884dbcd7}{sample\_destination\_}}\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_a3829cadfd1dfc7802119541ca1753d69}{createBaseControl}}(\textcolor{stringliteral}{"{}sample\_destination"{}});}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_a676102fc4a218078734c4899e4d8391d}{sampler\_}}-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_producers_module_a5adb0f89852e1b53e1d15845f0f7d12aa001678fb8b8820b91a376b304fbb7419}{kReset}}),\ \mbox{\hyperlink{classvital_1_1_sample_module_a0a43b970d4d1ab58cb934c6a9528f64da6048fddeecdecba71f9a46fc58d15a1c}{SampleModule::kReset}});}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_a676102fc4a218078734c4899e4d8391d}{sampler\_}}-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_producers_module_a5adb0f89852e1b53e1d15845f0f7d12aa7409101f35e82f80835145f251ecf7c5}{kNoteCount}}),\ \mbox{\hyperlink{classvital_1_1_sample_module_a0a43b970d4d1ab58cb934c6a9528f64daf19d2a55605a70553be94e9c63565437}{SampleModule::kNoteCount}});}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_a676102fc4a218078734c4899e4d8391d}{sampler\_}}-\/>\mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{useInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_producers_module_a5adb0f89852e1b53e1d15845f0f7d12aa167f18658977a9f2b38131999482e4f8}{kMidi}}),\ \mbox{\hyperlink{classvital_1_1_sample_module_a0a43b970d4d1ab58cb934c6a9528f64da3c278737ea3fdba877de47e3f498739f}{SampleModule::kMidi}});}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_adb6eaa40b95275a42029ed4c0c4bcba4}{SynthModule::init}}();}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Set\ up\ modulation\ references\ between\ oscillators\ and\ the\ sampler\ output.}}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a0e4fccbd130334777730a520c067fdf9}{kNumOscillators}};\ ++i)\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index1\ =\ \mbox{\hyperlink{classvital_1_1_producers_module_a5f57c9680901ad2b3ea9e94967adf5d4}{getFirstModulationIndex}}(i);}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index2\ =\ \mbox{\hyperlink{classvital_1_1_producers_module_aefff78cf6e2a7549adc21445767ebf1d}{getSecondModulationIndex}}(i);}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[i]-\/>\mbox{\hyperlink{classvital_1_1_oscillator_module_acfaf7b72e6137681b2c9710c9d4f29bd}{oscillator}}()-\/>\mbox{\hyperlink{classvital_1_1_synth_oscillator_a8efd206d7423123f53c1af8569c74e8b}{setFirstOscillatorOutput}}(\mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[index1]-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_oscillator_module_ab26162f046f477df3148562db5795bf3ad149af16469744a062665a81ae80d3ea}{OscillatorModule::kRaw}}));}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[i]-\/>\mbox{\hyperlink{classvital_1_1_oscillator_module_acfaf7b72e6137681b2c9710c9d4f29bd}{oscillator}}()-\/>\mbox{\hyperlink{classvital_1_1_synth_oscillator_a51ff226ecb06cafe78a6f8c2aea5efb3}{setSecondOscillatorOutput}}(\mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[index2]-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_oscillator_module_ab26162f046f477df3148562db5795bf3ad149af16469744a062665a81ae80d3ea}{OscillatorModule::kRaw}}));}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[i]-\/>\mbox{\hyperlink{classvital_1_1_oscillator_module_acfaf7b72e6137681b2c9710c9d4f29bd}{oscillator}}()-\/>\mbox{\hyperlink{classvital_1_1_synth_oscillator_a57fe5dd18e3db1553b3d238ff4b2f19f}{setSampleOutput}}(\mbox{\hyperlink{classvital_1_1_producers_module_a676102fc4a218078734c4899e4d8391d}{sampler\_}}-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_sample_module_a73cf6b87c726628e47eed13085af1611ac54c5fa083835c388dd2b85b1b84a343}{SampleModule::kRaw}}));}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00061\ \ \ \ \ \}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_producers_module_acdc5d48196766a8547848480b95131d1}{ProducersModule::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Base\ processing\ for\ this\ module.}}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_aa88622055da34fca35bb4192d524dd9d}{SynthModule::process}}(num\_samples);}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Process\ the\ sampler.}}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_af1221aabafb55e72099c46e094b75f72}{getLocalProcessor}}(\mbox{\hyperlink{classvital_1_1_producers_module_a676102fc4a218078734c4899e4d8391d}{sampler\_}})-\/>\mbox{\hyperlink{classvital_1_1_processor_aa88622055da34fca35bb4192d524dd9d}{process}}(num\_samples);}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Track\ distortion\ types\ and\ processing\ states\ of\ oscillators\ to\ handle\ modulation\ dependencies.}}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1}{SynthOscillator::DistortionType}}\ distortion\_types[\mbox{\hyperlink{namespacevital_a0e4fccbd130334777730a520c067fdf9}{kNumOscillators}}];}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ processed[\mbox{\hyperlink{namespacevital_a0e4fccbd130334777730a520c067fdf9}{kNumOscillators}}];}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a0e4fccbd130334777730a520c067fdf9}{kNumOscillators}};\ ++i)\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \ \ \ \ distortion\_types[i]\ =\ \mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[i]-\/>\mbox{\hyperlink{classvital_1_1_oscillator_module_a3edde248c98121887cd3bd40575b20bb}{getDistortionType}}();}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \ \ \ \ processed[i]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Process\ oscillators\ in\ an\ order\ that\ respects\ their\ modulation\ dependencies.}}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_processed\ =\ 0;}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 0;}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a0e4fccbd130334777730a520c067fdf9}{kNumOscillators}}\ *\ \mbox{\hyperlink{namespacevital_a0e4fccbd130334777730a520c067fdf9}{kNumOscillators}}\ \&\&\ num\_processed\ <\ \mbox{\hyperlink{namespacevital_a0e4fccbd130334777730a520c067fdf9}{kNumOscillators}};\ ++i)\ \{}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_oscillator_module}{OscillatorModule}}*\ module\ =\ \mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[index];}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ first\_source\ =\ \mbox{\hyperlink{classvital_1_1_producers_module_a5f57c9680901ad2b3ea9e94967adf5d4}{getFirstModulationIndex}}(index);}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ second\_source\ =\ \mbox{\hyperlink{classvital_1_1_producers_module_aefff78cf6e2a7549adc21445767ebf1d}{getSecondModulationIndex}}(index);}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((!\mbox{\hyperlink{classvital_1_1_synth_oscillator_a0f9202d02c3c0d98e00d5db165f39fbf}{SynthOscillator::isFirstModulation}}(distortion\_types[index])\ ||\ processed[first\_source])\ \&\&}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (!\mbox{\hyperlink{classvital_1_1_synth_oscillator_aff0873758fe53480d45719c1c67d090e}{SynthOscillator::isSecondModulation}}(distortion\_types[index])\ ||\ processed[second\_source])\ \&\&}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ !processed[index])\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_processed++;}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ processed[index]\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_af1221aabafb55e72099c46e094b75f72}{getLocalProcessor}}(module)-\/>\mbox{\hyperlink{classvital_1_1_processor_aa88622055da34fca35bb4192d524dd9d}{process}}(num\_samples);}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ index\ =\ (index\ +\ 1)\ \%\ \mbox{\hyperlink{namespacevital_a0e4fccbd130334777730a520c067fdf9}{kNumOscillators}};}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Prepare\ the\ output\ buffers\ for\ mixing.}}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ filter1\_output\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_producers_module_ab951befa5089c179084b9fb132f5653ca32a6b2454bc9ddf793b9dfc512b0da52}{kToFilter1}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ filter2\_output\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_producers_module_ab951befa5089c179084b9fb132f5653caebf63fd007497472d267399c10cd82fe}{kToFilter2}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ raw\_output\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_producers_module_ab951befa5089c179084b9fb132f5653ca2e9a344184ee3ba9cc5f1046dc183b41}{kRawOut}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ direct\_output\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_producers_module_ab951befa5089c179084b9fb132f5653ca934c84497dd1f6ad3227ff8581bd137f}{kDirectOut}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a23be57085c57f535eb29b1de54525373}{utils::zeroBuffer}}(filter1\_output,\ num\_samples);}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a23be57085c57f535eb29b1de54525373}{utils::zeroBuffer}}(filter2\_output,\ num\_samples);}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a23be57085c57f535eb29b1de54525373}{utils::zeroBuffer}}(raw\_output,\ num\_samples);}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a23be57085c57f535eb29b1de54525373}{utils::zeroBuffer}}(direct\_output,\ num\_samples);}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ filter1\_on\ =\ \mbox{\hyperlink{classvital_1_1_producers_module_a2a20432f51969b3752734fca7dd1ca68}{isFilter1On}}();}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ filter2\_on\ =\ \mbox{\hyperlink{classvital_1_1_producers_module_a47658c86529701a3e3e8e3f59d01cc63}{isFilter2On}}();}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Mix\ the\ oscillator\ outputs\ into\ their\ destinations\ based\ on\ their\ assigned\ routes.}}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a0e4fccbd130334777730a520c067fdf9}{kNumOscillators}};\ ++i)\ \{}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ buffer\ =\ \mbox{\hyperlink{classvital_1_1_producers_module_aef908e7f6cd2cbfbbfe10e0aa9dc0abd}{oscillators\_}}[i]-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_oscillator_module_ab26162f046f477df3148562db5795bf3a58bf34bb6cb43f3b0f823f4c74031ce7}{OscillatorModule::kLevelled}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ destination\ =\ \mbox{\hyperlink{classvital_1_1_producers_module_a763d73cae7c2d05b3403f5d71a8a627a}{oscillator\_destinations\_}}[i]-\/>\mbox{\hyperlink{classvital_1_1_value_abb1c46e9f067933eed8c3af6b11d0b9a}{value}}();}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ raw\ =\ destination\ ==\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a2af9a941c500efb6ae2e8875fc4ffa07}{constants::kEffects}};}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ filter1\ =\ (destination\ ==\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a5179e39d8a1834d7226d38f491c8a138}{constants::kFilter1}}\ ||\ destination\ ==\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a153982460d0d93d4028c1aec103b0dc5}{constants::kDualFilters}});}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ filter2\ =\ (destination\ ==\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a253940b40436cb3ed5c2e6a998dc5a3c}{constants::kFilter2}}\ ||\ destination\ ==\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a153982460d0d93d4028c1aec103b0dc5}{constants::kDualFilters}});}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ direct\_out\ =\ (destination\ ==\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a8b667cfb8f169062a072f19cdcbe3eba}{constants::kDirectOut}});}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Handle\ routing\ logic\ based\ on\ filter\ states\ and\ destinations.}}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (raw\ ||\ (!filter2\ \&\&\ filter1\ \&\&\ !filter1\_on)\ ||}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (!filter1\ \&\&\ filter2\ \&\&\ !filter2\_on)\ ||}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (filter1\ \&\&\ filter2\ \&\&\ !filter1\_on\ \&\&\ !filter2\_on))\ \{}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a0fdb6a8a17e0c7bac4a7f314563a643c}{utils::addBuffers}}(raw\_output,\ raw\_output,\ buffer,\ num\_samples);}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (filter1)}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a0fdb6a8a17e0c7bac4a7f314563a643c}{utils::addBuffers}}(filter1\_output,\ filter1\_output,\ buffer,\ num\_samples);}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (filter2)}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a0fdb6a8a17e0c7bac4a7f314563a643c}{utils::addBuffers}}(filter2\_output,\ filter2\_output,\ buffer,\ num\_samples);}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (direct\_out)}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a0fdb6a8a17e0c7bac4a7f314563a643c}{utils::addBuffers}}(direct\_output,\ direct\_output,\ buffer,\ num\_samples);}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Add\ the\ sampler\ output\ according\ to\ its\ destination.}}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ sample\ =\ \mbox{\hyperlink{classvital_1_1_producers_module_a676102fc4a218078734c4899e4d8391d}{sampler\_}}-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_sample_module_a73cf6b87c726628e47eed13085af1611abacb8ab07b821f6730998b608a8f561b}{SampleModule::kLevelled}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ sample\_destination\ =\ \mbox{\hyperlink{classvital_1_1_producers_module_a98aeeb47b94a20cba127b323884dbcd7}{sample\_destination\_}}-\/>\mbox{\hyperlink{classvital_1_1_value_abb1c46e9f067933eed8c3af6b11d0b9a}{value}}();}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ sample\_raw\ =\ sample\_destination\ ==\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a2af9a941c500efb6ae2e8875fc4ffa07}{constants::kEffects}};}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ filter1\_sample\ =\ (sample\_destination\ ==\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a5179e39d8a1834d7226d38f491c8a138}{constants::kFilter1}}\ ||\ sample\_destination\ ==\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a153982460d0d93d4028c1aec103b0dc5}{constants::kDualFilters}});}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ filter2\_sample\ =\ (sample\_destination\ ==\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a253940b40436cb3ed5c2e6a998dc5a3c}{constants::kFilter2}}\ ||\ sample\_destination\ ==\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a153982460d0d93d4028c1aec103b0dc5}{constants::kDualFilters}});}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ sample\_direct\_out\ =\ (sample\_destination\ ==\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a8b667cfb8f169062a072f19cdcbe3eba}{constants::kDirectOut}});}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Handle\ routing\ logic\ for\ the\ sampler\ output\ similar\ to\ oscillators.}}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (sample\_raw\ ||\ (!filter2\_sample\ \&\&\ filter1\_sample\ \&\&\ !filter1\_on)\ ||}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ \ \ \ \ (!filter1\_sample\ \&\&\ filter2\_sample\ \&\&\ !filter2\_on)\ ||}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \ \ \ \ (filter1\_sample\ \&\&\ filter2\_sample\ \&\&\ !filter1\_on\ \&\&\ !filter2\_on))\ \{}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a0fdb6a8a17e0c7bac4a7f314563a643c}{utils::addBuffers}}(raw\_output,\ raw\_output,\ sample,\ num\_samples);}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (filter1\_sample)}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a0fdb6a8a17e0c7bac4a7f314563a643c}{utils::addBuffers}}(filter1\_output,\ filter1\_output,\ sample,\ num\_samples);}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (filter2\_sample)}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a0fdb6a8a17e0c7bac4a7f314563a643c}{utils::addBuffers}}(filter2\_output,\ filter2\_output,\ sample,\ num\_samples);}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (sample\_direct\_out)}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a0fdb6a8a17e0c7bac4a7f314563a643c}{utils::addBuffers}}(direct\_output,\ direct\_output,\ sample,\ num\_samples);}
+\DoxyCodeLine{00161\ \ \ \ \ \}}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

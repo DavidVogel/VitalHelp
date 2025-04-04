@@ -1,0 +1,144 @@
+\doxysection{distortion\+\_\+section.\+h}
+\hypertarget{distortion__section_8h_source}{}\label{distortion__section_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/distortion\_section.h@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/distortion\_section.h}}
+\mbox{\hyperlink{distortion__section_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}JuceHeader.h"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{open__gl__line__renderer_8h}{open\_gl\_line\_renderer.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__section_8h}{synth\_section.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{digital__svf_8h}{digital\_svf.h}}"{}}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_synth_button}{SynthButton}};}
+\DoxyCodeLine{00012\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_synth_slider}{SynthSlider}};}
+\DoxyCodeLine{00013\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_tab_selector}{TabSelector}};}
+\DoxyCodeLine{00014\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_text_selector}{TextSelector}};}
+\DoxyCodeLine{00015\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_distortion_viewer}{DistortionViewer}};}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_distortion_filter_response}{DistortionFilterResponse}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_open_gl_line_renderer}{OpenGlLineRenderer}}\ \{}
+\DoxyCodeLine{00024\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_distortion_filter_response_a33b24c4843514fd2401e85154a26805e}{kResolution}}\ =\ 256;\ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_distortion_filter_response_a940f038d226017d6fab1c1c3c274cc4e}{kDefaultVisualSampleRate}}\ =\ 200000;\ }
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00030\ \ \ \ \ \mbox{\hyperlink{class_distortion_filter_response_ab5776f37493711ea6f2045a73e142de0}{DistortionFilterResponse}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ mono\_modulations);}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_distortion_filter_response_a15fbddb9686cff55361ebd06ce99ef25}{\string~DistortionFilterResponse}}();}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_filter_response_a2a378c7e974f8839c05b7b78bb3e71c1}{init}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_filter_response_a051125ca8f8a24b379b95094600aff3b}{render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_filter_response_a1da9f894751b5318ddde7c91d1f38e9c}{destroy}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_filter_response_ab9ea102105eb652d0933217812c3e813}{mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ last\_mouse\_position\_\ =\ e.getPosition();}
+\DoxyCodeLine{00050\ \ \ \ \ \}}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_filter_response_aac04ea981df07872025d843d82dcbc61}{mouseDrag}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ Point<int>\ delta\ =\ e.getPosition()\ -\/\ last\_mouse\_position\_;}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ last\_mouse\_position\_\ =\ e.getPosition();}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ cutoff\_range\ =\ cutoff\_slider\_-\/>getMaximum()\ -\/\ cutoff\_slider\_-\/>getMinimum();}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ cutoff\_slider\_-\/>setValue(cutoff\_slider\_-\/>getValue()\ +\ delta.x\ *\ cutoff\_range\ /\ getWidth());}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ resonance\_range\ =\ resonance\_slider\_-\/>getMaximum()\ -\/\ resonance\_slider\_-\/>getMinimum();}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ resonance\_slider\_-\/>setValue(resonance\_slider\_-\/>getValue()\ -\/\ delta.y\ *\ resonance\_range\ /\ getHeight());}
+\DoxyCodeLine{00062\ \ \ \ \ \}}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_filter_response_a2d2c5d7fc80ca3efef2f1ab72562fad1}{setCutoffSlider}}(\mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ cutoff\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_filter_response_a6f4a0484afa20ccdab75a23d6c556469}{setResonanceSlider}}(\mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ resonance\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_filter_response_abec8c85101e1ec385fb2489cfa6be8dc}{setBlendSlider}}(\mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ blend\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_filter_response_adcaa8e7b011ab04a61d9f81ba88337be}{setActive}}(\textcolor{keywordtype}{bool}\ active)\ \{\ active\_\ =\ active;\ \}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keyword}{struct\ }FilterResponseShader\ \{}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMaxStages\ =\ 5;}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ OpenGLShaderProgram*\ shader;}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ std::unique\_ptr<OpenGLShaderProgram::Attribute>\ position;}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \ \ \ \ std::unique\_ptr<OpenGLShaderProgram::Uniform>\ mix;}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ std::unique\_ptr<OpenGLShaderProgram::Uniform>\ midi\_cutoff;}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ std::unique\_ptr<OpenGLShaderProgram::Uniform>\ resonance;}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ std::unique\_ptr<OpenGLShaderProgram::Uniform>\ drive;}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ std::unique\_ptr<OpenGLShaderProgram::Uniform>\ db24;}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ std::unique\_ptr<OpenGLShaderProgram::Uniform>\ stages[kMaxStages];}
+\DoxyCodeLine{00093\ \ \ \ \ \};}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keywordtype}{void}\ drawFilterResponse(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate);}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00101\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ getOutputTotal(\mbox{\hyperlink{structvital_1_1_output}{vital::Output}}*\ output,\ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ default\_value);}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keywordtype}{void}\ setupFilterState();}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordtype}{void}\ loadShader(\textcolor{keywordtype}{int}\ index);}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{keywordtype}{void}\ bind(OpenGLContext\&\ open\_gl\_context);}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{keywordtype}{void}\ unbind(OpenGLContext\&\ open\_gl\_context);}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keywordtype}{void}\ renderLineResponse(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl);}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keywordtype}{bool}\ active\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00122\ \ \ \ \ Point<int>\ last\_mouse\_position\_;\ \ \ \ }
+\DoxyCodeLine{00123\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_digital_svf}{vital::DigitalSvf}}\ filter\_;\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00124\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state}{vital::SynthFilter::FilterState}}\ filter\_state\_;}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \ \ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ cutoff\_slider\_;\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00127\ \ \ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ resonance\_slider\_;\ \ \ \ \ }
+\DoxyCodeLine{00128\ \ \ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ blend\_slider\_;\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00130\ \ \ \ \ \mbox{\hyperlink{structvital_1_1_output}{vital::Output}}*\ cutoff\_output\_;\ \ \ \ \ \ }
+\DoxyCodeLine{00131\ \ \ \ \ \mbox{\hyperlink{structvital_1_1_output}{vital::Output}}*\ resonance\_output\_;\ \ \ }
+\DoxyCodeLine{00132\ \ \ \ \ \mbox{\hyperlink{structvital_1_1_output}{vital::Output}}*\ blend\_output\_;\ \ \ \ \ \ \ }
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ \ \ \ \ FilterResponseShader\ response\_shader\_;\ }
+\DoxyCodeLine{00135\ \ \ \ \ std::unique\_ptr<float[]>\ line\_data\_;\ \ \ \ }
+\DoxyCodeLine{00136\ \ \ \ \ GLuint\ vertex\_array\_object\_;\ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00137\ \ \ \ \ GLuint\ line\_buffer\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00138\ \ \ \ \ GLuint\ response\_buffer\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(\mbox{\hyperlink{class_distortion_filter_response}{DistortionFilterResponse}})}
+\DoxyCodeLine{00141\ \};}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00149\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_distortion_section}{DistortionSection}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_synth_section}{SynthSection}}\ \{}
+\DoxyCodeLine{00150\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00151\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_distortion_section_a2f72c59c45fba5e3e243e810d11680b6}{kViewerResolution}}\ =\ 124;\ }
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00156\ \ \ \ \ \mbox{\hyperlink{class_distortion_section_abe6aab1bfa11139ac674d70e9e8ba875}{DistortionSection}}(String\ name,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ mono\_modulations);}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_distortion_section_a00e8c333033268741e13cf3071b11b8d}{\string~DistortionSection}}();}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_section_a6cdebc76a2015339c5058617ae87c0ef}{paintBackground}}(Graphics\&\ g)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_section_a262196f4070737fd8810579ae94125cd}{paintBackgroundShadow}}(Graphics\&\ g)\textcolor{keyword}{\ override\ }\{\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_synth_section_aa69758e37d2860da80a1d6acdea0b419}{isActive}}())\ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g);\ \}}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00170\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_section_ab3ba47f74de3380c566f6c35f3fca3b7}{resized}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00174\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_section_a08c67a9e57659ad462345dbca92ec16e}{setActive}}(\textcolor{keywordtype}{bool}\ active)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00178\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_section_a2b5efea3fa75fb05fef38aab42a84cb1}{sliderValueChanged}}(Slider*\ changed\_slider)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00179\ }
+\DoxyCodeLine{00182\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_section_ab01f3e48c1190541e086b54ed680c02a}{setAllValues}}(\mbox{\hyperlink{namespacevital_aa714e9b3957a28c9eaf0105959aea482}{vital::control\_map}}\&\ controls)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00186\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_distortion_section_ad5ad9aed472605497f1671a06b27639a}{setFilterActive}}(\textcolor{keywordtype}{bool}\ active);}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00189\ \ \ \ \ std::unique\_ptr<SynthButton>\ on\_;\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00190\ \ \ \ \ std::unique\_ptr<TextSelector>\ type\_;\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00191\ \ \ \ \ std::unique\_ptr<TextSelector>\ filter\_order\_;\ \ }
+\DoxyCodeLine{00192\ \ \ \ \ std::unique\_ptr<SynthSlider>\ drive\_;\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00193\ \ \ \ \ std::unique\_ptr<SynthSlider>\ mix\_;\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00194\ \ \ \ \ std::unique\_ptr<SynthSlider>\ filter\_cutoff\_;\ \ }
+\DoxyCodeLine{00195\ \ \ \ \ std::unique\_ptr<SynthSlider>\ filter\_resonance\_;\ }
+\DoxyCodeLine{00196\ \ \ \ \ std::unique\_ptr<SynthSlider>\ filter\_blend\_;\ \ \ }
+\DoxyCodeLine{00197\ \ \ \ \ std::unique\_ptr<DistortionViewer>\ distortion\_viewer\_;\ }
+\DoxyCodeLine{00198\ \ \ \ \ std::unique\_ptr<DistortionFilterResponse>\ filter\_response\_;\ }
+\DoxyCodeLine{00199\ }
+\DoxyCodeLine{00200\ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(\mbox{\hyperlink{class_distortion_section}{DistortionSection}})}
+\DoxyCodeLine{00201\ \};}
+\DoxyCodeLine{00202\ }
+
+\end{DoxyCode}

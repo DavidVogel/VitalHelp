@@ -1,0 +1,226 @@
+\doxysection{synth\+\_\+gui\+\_\+interface.\+cpp}
+\hypertarget{synth__gui__interface_8cpp_source}{}\label{synth__gui__interface_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/synth\_gui\_interface.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/synth\_gui\_interface.cpp}}
+\mbox{\hyperlink{synth__gui__interface_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{The\ SynthGuiInterface\ class\ mediates\ between\ the\ SynthBase\ (synth\ engine\ backend)\ and\ a\ graphical\ front\ end\ (FullInterface).\ It\ updates\ GUI\ elements\ when\ parameters\ or\ modulations\ change,\ and\ also\ handles\ user\ actions\ from\ the\ GUI\ such\ as\ connecting\ modulations\ or\ resizing\ the\ window.\ In\ HEADLESS\ mode,\ these\ functionalities\ become\ no-\/ops.\ The\ SynthGuiData\ struct\ provides\ a\ data\ snapshot\ of\ engine\ state\ (controls,\ modulations,\ wavetable\ creators)\ to\ the\ GUI\ for\ display\ and\ interaction.}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__gui__interface_8h}{synth\_gui\_interface.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{authentication_8h}{authentication.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{modulation__connection__processor_8h}{modulation\_connection\_processor.h}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}sound\_engine.h"{}}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{load__save_8h}{load\_save.h}}"{}}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__base_8h}{synth\_base.h}}"{}}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \mbox{\hyperlink{struct_synth_gui_data_af0764cb1a69559ba898d771efc3e6ddf}{SynthGuiData::SynthGuiData}}(\mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth\_base)\ :\ synth(synth\_base)\ \{}
+\DoxyCodeLine{00015\ \ \ \textcolor{comment}{//\ Capture\ current\ control\ and\ modulation\ maps,\ as\ well\ as\ wavetable\ creators.}}
+\DoxyCodeLine{00016\ \ \ \mbox{\hyperlink{struct_synth_gui_data_a2b2f4f390e3620fc86104057a51a4ce8}{controls}}\ =\ \mbox{\hyperlink{struct_synth_gui_data_a9de8894a45ac52a70516cfdb066e2a14}{synth}}-\/>\mbox{\hyperlink{class_synth_base_ad2fdb3e59ed76a79cf445ed41476196f}{getControls}}();}
+\DoxyCodeLine{00017\ \ \ \mbox{\hyperlink{struct_synth_gui_data_a92054f38577ae47e902766a0ba482948}{mono\_modulations}}\ =\ \mbox{\hyperlink{struct_synth_gui_data_a9de8894a45ac52a70516cfdb066e2a14}{synth}}-\/>\mbox{\hyperlink{class_synth_base_ae2d1bcc3e7ea655bb4d0c3cbd3dabfdd}{getEngine}}()-\/>getMonoModulations();}
+\DoxyCodeLine{00018\ \ \ \mbox{\hyperlink{struct_synth_gui_data_a0b47ccb776e8f47b53a2341c3c6341f3}{poly\_modulations}}\ =\ \mbox{\hyperlink{struct_synth_gui_data_a9de8894a45ac52a70516cfdb066e2a14}{synth}}-\/>\mbox{\hyperlink{class_synth_base_ae2d1bcc3e7ea655bb4d0c3cbd3dabfdd}{getEngine}}()-\/>getPolyModulations();}
+\DoxyCodeLine{00019\ \ \ \mbox{\hyperlink{struct_synth_gui_data_a5821c62a8be6dd4829fd680546b6fa1b}{modulation\_sources}}\ =\ \mbox{\hyperlink{struct_synth_gui_data_a9de8894a45ac52a70516cfdb066e2a14}{synth}}-\/>\mbox{\hyperlink{class_synth_base_ae2d1bcc3e7ea655bb4d0c3cbd3dabfdd}{getEngine}}()-\/>getModulationSources();}
+\DoxyCodeLine{00020\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a0e4fccbd130334777730a520c067fdf9}{vital::kNumOscillators}};\ ++i)}
+\DoxyCodeLine{00021\ \ \ \ \ \mbox{\hyperlink{struct_synth_gui_data_abbc4edec4ae4822da754572710921174}{wavetable\_creators}}[i]\ =\ \mbox{\hyperlink{struct_synth_gui_data_a9de8894a45ac52a70516cfdb066e2a14}{synth}}-\/>\mbox{\hyperlink{class_synth_base_aaadb0d2896bc633ad243eec126ea2747}{getWavetableCreator}}(i);}
+\DoxyCodeLine{00022\ \}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#if\ HEADLESS}}
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ In\ HEADLESS\ mode,\ these\ methods\ do\ nothing.}}
+\DoxyCodeLine{00026\ \mbox{\hyperlink{class_synth_gui_interface_a2ce3e83d5f656f423d2b37f6c88955db}{SynthGuiInterface::SynthGuiInterface}}(\mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth,\ \textcolor{keywordtype}{bool}\ use\_gui)\ :\ synth\_(synth)\ \{\ \}}
+\DoxyCodeLine{00027\ \mbox{\hyperlink{class_synth_gui_interface_ac426553c9eea8b5e2c354a39700e391b}{SynthGuiInterface::\string~SynthGuiInterface}}()\ \{\ \}}
+\DoxyCodeLine{00028\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_ae026d18eef053aed9d73797400f236d4}{SynthGuiInterface::updateFullGui}}()\ \{\ \}}
+\DoxyCodeLine{00029\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a70189df1a34db4d013cade41fec7f27d}{SynthGuiInterface::updateGuiControl}}(\textcolor{keyword}{const}\ std::string\&\ name,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ value)\ \{\ \}}
+\DoxyCodeLine{00030\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ \mbox{\hyperlink{class_synth_gui_interface_a4494350af8fcffc8cbc62811d69191e9}{SynthGuiInterface::getControlValue}}(\textcolor{keyword}{const}\ std::string\&\ name)\ \{\ \textcolor{keywordflow}{return}\ 0.0f;\ \}}
+\DoxyCodeLine{00031\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a88576505a339eba1984a72bba9f37ad2}{SynthGuiInterface::connectModulation}}(std::string\ source,\ std::string\ destination)\ \{\ \}}
+\DoxyCodeLine{00032\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a88576505a339eba1984a72bba9f37ad2}{SynthGuiInterface::connectModulation}}(\mbox{\hyperlink{structvital_1_1_modulation_connection}{vital::ModulationConnection}}*\ connection)\ \{\ \}}
+\DoxyCodeLine{00033\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a5e6c5e234e4b05850acec431cecba27a}{SynthGuiInterface::setModulationValues}}(\textcolor{keyword}{const}\ std::string\&\ source,\ \textcolor{keyword}{const}\ std::string\&\ destination,}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ amount,\ \textcolor{keywordtype}{bool}\ bipolar,\ \textcolor{keywordtype}{bool}\ stereo,\ \textcolor{keywordtype}{bool}\ bypass)\ \{\ \}}
+\DoxyCodeLine{00035\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a83c03b5f772f39bca3f4eb301dee3e6e}{SynthGuiInterface::disconnectModulation}}(std::string\ source,\ std::string\ destination)\ \{\ \}}
+\DoxyCodeLine{00036\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a83c03b5f772f39bca3f4eb301dee3e6e}{SynthGuiInterface::disconnectModulation}}(\mbox{\hyperlink{structvital_1_1_modulation_connection}{vital::ModulationConnection}}*\ connection)\ \{\ \}}
+\DoxyCodeLine{00037\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a992af539b2d8cf55ef29914a3b7690dd}{SynthGuiInterface::setFocus}}()\ \{\ \}}
+\DoxyCodeLine{00038\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a548667bab35a03d0382e31ebc563bfe2}{SynthGuiInterface::notifyChange}}()\ \{\ \}}
+\DoxyCodeLine{00039\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_aee2dc7c0d91f1dc959225d2e2edade26}{SynthGuiInterface::notifyFresh}}()\ \{\ \}}
+\DoxyCodeLine{00040\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_acfa1684579547d58108e8647e2848af0}{SynthGuiInterface::openSaveDialog}}()\ \{\ \}}
+\DoxyCodeLine{00041\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_ae9608a155bd4d1999a8042fcc3a9eaaa}{SynthGuiInterface::externalPresetLoaded}}(File\ preset)\ \{\ \}}
+\DoxyCodeLine{00042\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a58ef863b11da4315619dce6e0a45dfce}{SynthGuiInterface::setGuiSize}}(\textcolor{keywordtype}{float}\ scale)\ \{\ \}}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{default__look__and__feel_8h}{default\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{full__interface_8h}{full\_interface.h}}"{}}}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \mbox{\hyperlink{class_synth_gui_interface_a2ce3e83d5f656f423d2b37f6c88955db}{SynthGuiInterface::SynthGuiInterface}}(\mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth,\ \textcolor{keywordtype}{bool}\ use\_gui)\ :\ synth\_(synth)\ \{}
+\DoxyCodeLine{00050\ \ \ \textcolor{keywordflow}{if}\ (use\_gui)\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ Create\ the\ FullInterface\ GUI\ and\ initialize\ it\ with\ current\ synth\ data.}}
+\DoxyCodeLine{00052\ \ \ \ \ \mbox{\hyperlink{class_line_generator}{LineGenerator}}*\ lfo\_sources[\mbox{\hyperlink{namespacevital_aba56646bec643d6d416700b782ed978b}{vital::kNumLfos}}];}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_aba56646bec643d6d416700b782ed978b}{vital::kNumLfos}};\ ++i)}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ lfo\_sources[i]\ =\ synth-\/>\mbox{\hyperlink{class_synth_base_a80af5aada8edd7fd057c7b4251f968fb}{getLfoSource}}(i);}
+\DoxyCodeLine{00055\ \ \ \ \ \mbox{\hyperlink{struct_synth_gui_data}{SynthGuiData}}\ synth\_data(\mbox{\hyperlink{class_synth_gui_interface_a29fed2a0136503808f1cc52375a039c0}{synth\_}});}
+\DoxyCodeLine{00056\ \ \ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}\ =\ std::make\_unique<FullInterface>(\&synth\_data);}
+\DoxyCodeLine{00057\ \ \ \}}
+\DoxyCodeLine{00058\ \}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \mbox{\hyperlink{class_synth_gui_interface_ac426553c9eea8b5e2c354a39700e391b}{SynthGuiInterface::\string~SynthGuiInterface}}()\ \{\ \}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_ae026d18eef053aed9d73797400f236d4}{SynthGuiInterface::updateFullGui}}()\ \{}
+\DoxyCodeLine{00063\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \textcolor{comment}{//\ Refresh\ all\ parameter\ values\ and\ GUI\ components.}}
+\DoxyCodeLine{00067\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>setAllValues(\mbox{\hyperlink{class_synth_gui_interface_a29fed2a0136503808f1cc52375a039c0}{synth\_}}-\/>\mbox{\hyperlink{class_synth_base_ad2fdb3e59ed76a79cf445ed41476196f}{getControls}}());}
+\DoxyCodeLine{00068\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>reset();}
+\DoxyCodeLine{00069\ \}}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a70189df1a34db4d013cade41fec7f27d}{SynthGuiInterface::updateGuiControl}}(\textcolor{keyword}{const}\ std::string\&\ name,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ value)\ \{}
+\DoxyCodeLine{00072\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \textcolor{comment}{//\ Update\ a\ single\ control\ in\ the\ GUI.}}
+\DoxyCodeLine{00076\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>setValue(name,\ value,\ NotificationType::dontSendNotification);}
+\DoxyCodeLine{00077\ \}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ \mbox{\hyperlink{class_synth_gui_interface_a4494350af8fcffc8cbc62811d69191e9}{SynthGuiInterface::getControlValue}}(\textcolor{keyword}{const}\ std::string\&\ name)\ \{}
+\DoxyCodeLine{00080\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_synth_gui_interface_a29fed2a0136503808f1cc52375a039c0}{synth\_}}-\/>\mbox{\hyperlink{class_synth_base_ad2fdb3e59ed76a79cf445ed41476196f}{getControls}}()[name]-\/>value();}
+\DoxyCodeLine{00081\ \}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a2350456774cc9efae5c0c9a19f69fbdf}{SynthGuiInterface::notifyModulationsChanged}}()\ \{}
+\DoxyCodeLine{00084\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>modulationChanged();}
+\DoxyCodeLine{00085\ \}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_ad178960fdd7ae50a0b43eacabb526947}{SynthGuiInterface::notifyModulationValueChanged}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00088\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>modulationValueChanged(index);}
+\DoxyCodeLine{00089\ \}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a88576505a339eba1984a72bba9f37ad2}{SynthGuiInterface::connectModulation}}(std::string\ source,\ std::string\ destination)\ \{}
+\DoxyCodeLine{00092\ \ \ \textcolor{keywordtype}{bool}\ created\ =\ \mbox{\hyperlink{class_synth_gui_interface_a29fed2a0136503808f1cc52375a039c0}{synth\_}}-\/>\mbox{\hyperlink{class_synth_base_a20f5d5c0d63b354ce557a849624ce16f}{connectModulation}}(source,\ destination);}
+\DoxyCodeLine{00093\ \ \ \textcolor{keywordflow}{if}\ (created)}
+\DoxyCodeLine{00094\ \ \ \ \ \mbox{\hyperlink{class_synth_gui_interface_a5d8cac6d909c7a461cf7d3ca40394291}{initModulationValues}}(source,\ destination);}
+\DoxyCodeLine{00095\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2350456774cc9efae5c0c9a19f69fbdf}{notifyModulationsChanged}}();}
+\DoxyCodeLine{00096\ \}}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a88576505a339eba1984a72bba9f37ad2}{SynthGuiInterface::connectModulation}}(\mbox{\hyperlink{structvital_1_1_modulation_connection}{vital::ModulationConnection}}*\ connection)\ \{}
+\DoxyCodeLine{00099\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a29fed2a0136503808f1cc52375a039c0}{synth\_}}-\/>\mbox{\hyperlink{class_synth_base_a20f5d5c0d63b354ce557a849624ce16f}{connectModulation}}(connection);}
+\DoxyCodeLine{00100\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2350456774cc9efae5c0c9a19f69fbdf}{notifyModulationsChanged}}();}
+\DoxyCodeLine{00101\ \}}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a5d8cac6d909c7a461cf7d3ca40394291}{SynthGuiInterface::initModulationValues}}(\textcolor{keyword}{const}\ std::string\&\ source,\ \textcolor{keyword}{const}\ std::string\&\ destination)\ \{}
+\DoxyCodeLine{00104\ \ \ \textcolor{comment}{//\ Initialize\ newly\ created\ modulations\ with\ default\ line\ mappings\ and\ values.}}
+\DoxyCodeLine{00105\ \ \ \textcolor{keywordtype}{int}\ connection\_index\ =\ \mbox{\hyperlink{class_synth_gui_interface_a29fed2a0136503808f1cc52375a039c0}{synth\_}}-\/>\mbox{\hyperlink{class_synth_base_a35cf6ffbfd976724f89921ae5206ce46}{getConnectionIndex}}(source,\ destination);}
+\DoxyCodeLine{00106\ \ \ \textcolor{keywordflow}{if}\ (connection\_index\ <\ 0)}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \mbox{\hyperlink{structvital_1_1_modulation_connection}{vital::ModulationConnection}}*\ connection\ =\ \mbox{\hyperlink{class_synth_gui_interface_a29fed2a0136503808f1cc52375a039c0}{synth\_}}-\/>\mbox{\hyperlink{class_synth_base_a43450b931d0e00252383cc51c33b416c}{getModulationBank}}().\mbox{\hyperlink{classvital_1_1_modulation_connection_bank_a12e4e9852ad8f0828340b74c0af06a83}{atIndex}}(connection\_index);}
+\DoxyCodeLine{00110\ \ \ \mbox{\hyperlink{class_line_generator}{LineGenerator}}*\ map\_generator\ =\ connection-\/>\mbox{\hyperlink{structvital_1_1_modulation_connection_a3e60937dc576522f7c477da963dda169}{modulation\_processor}}-\/>lineMapGenerator();}
+\DoxyCodeLine{00111\ \ \ map\_generator-\/>\mbox{\hyperlink{class_line_generator_adfacb667753a2d718e74e7db8b7d961e}{initLinear}}();}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \textcolor{comment}{//\ Reset\ power\ to\ zero\ and\ update\ GUI.}}
+\DoxyCodeLine{00114\ \ \ std::string\ power\_name\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ std::to\_string(connection\_index\ +\ 1)\ +\ \textcolor{stringliteral}{"{}\_power"{}};}
+\DoxyCodeLine{00115\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a29fed2a0136503808f1cc52375a039c0}{synth\_}}-\/>\mbox{\hyperlink{class_synth_base_af076fe084247815912164526ef977fd6}{valueChanged}}(power\_name,\ 0.0f);}
+\DoxyCodeLine{00116\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>setValue(power\_name,\ 0.0f,\ NotificationType::dontSendNotification);}
+\DoxyCodeLine{00117\ \}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a5e6c5e234e4b05850acec431cecba27a}{SynthGuiInterface::setModulationValues}}(\textcolor{keyword}{const}\ std::string\&\ source,\ \textcolor{keyword}{const}\ std::string\&\ destination,}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ amount,\ \textcolor{keywordtype}{bool}\ bipolar,\ \textcolor{keywordtype}{bool}\ stereo,\ \textcolor{keywordtype}{bool}\ bypass)\ \{}
+\DoxyCodeLine{00121\ \ \ \textcolor{comment}{//\ Update\ modulation\ parameters\ in\ both\ the\ synth\ and\ GUI.}}
+\DoxyCodeLine{00122\ \ \ \textcolor{keywordtype}{int}\ connection\_index\ =\ \mbox{\hyperlink{class_synth_gui_interface_a29fed2a0136503808f1cc52375a039c0}{synth\_}}-\/>\mbox{\hyperlink{class_synth_base_a35cf6ffbfd976724f89921ae5206ce46}{getConnectionIndex}}(source,\ destination);}
+\DoxyCodeLine{00123\ \ \ \textcolor{keywordflow}{if}\ (connection\_index\ <\ 0)}
+\DoxyCodeLine{00124\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \ \ std::string\ number\ =\ std::to\_string(connection\_index\ +\ 1);}
+\DoxyCodeLine{00127\ \ \ std::string\ amount\_name\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_amount"{}};}
+\DoxyCodeLine{00128\ \ \ std::string\ bipolar\_name\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_bipolar"{}};}
+\DoxyCodeLine{00129\ \ \ std::string\ stereo\_name\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_stereo"{}};}
+\DoxyCodeLine{00130\ \ \ std::string\ bypass\_name\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_bypass"{}};}
+\DoxyCodeLine{00131\ }
+\DoxyCodeLine{00132\ \ \ \textcolor{keywordtype}{float}\ bipolar\_amount\ =\ bipolar\ ?\ 1.0f\ :\ 0.0f;}
+\DoxyCodeLine{00133\ \ \ \textcolor{keywordtype}{float}\ stereo\_amount\ =\ stereo\ ?\ 1.0f\ :\ 0.0f;}
+\DoxyCodeLine{00134\ \ \ \textcolor{keywordtype}{float}\ bypass\_amount\ =\ bypass\ ?\ 1.0f\ :\ 0.0f;}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a29fed2a0136503808f1cc52375a039c0}{synth\_}}-\/>\mbox{\hyperlink{class_synth_base_af076fe084247815912164526ef977fd6}{valueChanged}}(amount\_name,\ amount);}
+\DoxyCodeLine{00137\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a29fed2a0136503808f1cc52375a039c0}{synth\_}}-\/>\mbox{\hyperlink{class_synth_base_af076fe084247815912164526ef977fd6}{valueChanged}}(bipolar\_name,\ bipolar\_amount);}
+\DoxyCodeLine{00138\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a29fed2a0136503808f1cc52375a039c0}{synth\_}}-\/>\mbox{\hyperlink{class_synth_base_af076fe084247815912164526ef977fd6}{valueChanged}}(stereo\_name,\ stereo\_amount);}
+\DoxyCodeLine{00139\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a29fed2a0136503808f1cc52375a039c0}{synth\_}}-\/>\mbox{\hyperlink{class_synth_base_af076fe084247815912164526ef977fd6}{valueChanged}}(bypass\_name,\ bypass\_amount);}
+\DoxyCodeLine{00140\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>setValue(amount\_name,\ amount,\ NotificationType::dontSendNotification);}
+\DoxyCodeLine{00141\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>setValue(bipolar\_name,\ bipolar\_amount,\ NotificationType::dontSendNotification);}
+\DoxyCodeLine{00142\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>setValue(stereo\_name,\ stereo\_amount,\ NotificationType::dontSendNotification);}
+\DoxyCodeLine{00143\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>setValue(bypass\_name,\ bypass\_amount,\ NotificationType::dontSendNotification);}
+\DoxyCodeLine{00144\ \}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a83c03b5f772f39bca3f4eb301dee3e6e}{SynthGuiInterface::disconnectModulation}}(std::string\ source,\ std::string\ destination)\ \{}
+\DoxyCodeLine{00147\ \ \ \textcolor{comment}{//\ Remove\ a\ modulation\ connection\ and\ notify\ GUI.}}
+\DoxyCodeLine{00148\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a29fed2a0136503808f1cc52375a039c0}{synth\_}}-\/>\mbox{\hyperlink{class_synth_base_a80b1c77b9fbdfec20214d0703ad74f8a}{disconnectModulation}}(source,\ destination);}
+\DoxyCodeLine{00149\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2350456774cc9efae5c0c9a19f69fbdf}{notifyModulationsChanged}}();}
+\DoxyCodeLine{00150\ \}}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a83c03b5f772f39bca3f4eb301dee3e6e}{SynthGuiInterface::disconnectModulation}}(\mbox{\hyperlink{structvital_1_1_modulation_connection}{vital::ModulationConnection}}*\ connection)\ \{}
+\DoxyCodeLine{00153\ \ \ \textcolor{comment}{//\ Remove\ a\ modulation\ connection\ given\ a\ ModulationConnection\ object.}}
+\DoxyCodeLine{00154\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a29fed2a0136503808f1cc52375a039c0}{synth\_}}-\/>\mbox{\hyperlink{class_synth_base_a80b1c77b9fbdfec20214d0703ad74f8a}{disconnectModulation}}(connection);}
+\DoxyCodeLine{00155\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2350456774cc9efae5c0c9a19f69fbdf}{notifyModulationsChanged}}();}
+\DoxyCodeLine{00156\ \}}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a992af539b2d8cf55ef29914a3b7690dd}{SynthGuiInterface::setFocus}}()\ \{}
+\DoxyCodeLine{00159\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>setFocus();}
+\DoxyCodeLine{00163\ \}}
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00165\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a548667bab35a03d0382e31ebc563bfe2}{SynthGuiInterface::notifyChange}}()\ \{}
+\DoxyCodeLine{00166\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>notifyChange();}
+\DoxyCodeLine{00170\ \}}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00172\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_aee2dc7c0d91f1dc959225d2e2edade26}{SynthGuiInterface::notifyFresh}}()\ \{}
+\DoxyCodeLine{00173\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00174\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>notifyFresh();}
+\DoxyCodeLine{00177\ \}}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00179\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_acfa1684579547d58108e8647e2848af0}{SynthGuiInterface::openSaveDialog}}()\ \{}
+\DoxyCodeLine{00180\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00181\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00182\ }
+\DoxyCodeLine{00183\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>openSaveDialog();}
+\DoxyCodeLine{00184\ \}}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_ae9608a155bd4d1999a8042fcc3a9eaaa}{SynthGuiInterface::externalPresetLoaded}}(File\ preset)\ \{}
+\DoxyCodeLine{00187\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00188\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>externalPresetLoaded(preset);}
+\DoxyCodeLine{00191\ \}}
+\DoxyCodeLine{00192\ }
+\DoxyCodeLine{00193\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_gui_interface_a58ef863b11da4315619dce6e0a45dfce}{SynthGuiInterface::setGuiSize}}(\textcolor{keywordtype}{float}\ scale)\ \{}
+\DoxyCodeLine{00194\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00195\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \ \ \textcolor{comment}{//\ Adjust\ GUI\ size\ based\ on\ given\ scale\ and\ display\ constraints.}}
+\DoxyCodeLine{00198\ \ \ Point<int>\ position\ =\ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>getScreenBounds().getCentre();}
+\DoxyCodeLine{00199\ \ \ \textcolor{keyword}{const}\ Displays::Display\&\ display\ =\ Desktop::getInstance().getDisplays().findDisplayForPoint(position);}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ Rectangle<int>\ display\_area\ =\ Desktop::getInstance().getDisplays().getTotalBounds(\textcolor{keyword}{true});}
+\DoxyCodeLine{00202\ \ \ ComponentPeer*\ peer\ =\ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>getPeer();}
+\DoxyCodeLine{00203\ \ \ \textcolor{keywordflow}{if}\ (peer)}
+\DoxyCodeLine{00204\ \ \ \ \ peer-\/>getFrameSize().subtractFrom(display\_area);}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00206\ \ \ \textcolor{keywordtype}{float}\ window\_size\ =\ scale\ /\ display.scale;}
+\DoxyCodeLine{00207\ \ \ window\_size\ =\ std::min(window\_size,\ display\_area.getWidth()\ *\ 1.0f\ /\ \mbox{\hyperlink{namespacevital_a3c613ddce78d8961a63a58a10004495c}{vital::kDefaultWindowWidth}});}
+\DoxyCodeLine{00208\ \ \ window\_size\ =\ std::min(window\_size,\ display\_area.getHeight()\ *\ 1.0f\ /\ \mbox{\hyperlink{namespacevital_a22cbce43dcd4f637f8fb08871ef51e0e}{vital::kDefaultWindowHeight}});}
+\DoxyCodeLine{00209\ \ \ \mbox{\hyperlink{class_load_save_a00147a85fddd9bd48babec10565957c1}{LoadSave::saveWindowSize}}(window\_size);}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ \ \ \textcolor{keywordtype}{int}\ width\ =\ std::round(window\_size\ *\ \mbox{\hyperlink{namespacevital_a3c613ddce78d8961a63a58a10004495c}{vital::kDefaultWindowWidth}});}
+\DoxyCodeLine{00212\ \ \ \textcolor{keywordtype}{int}\ height\ =\ std::round(window\_size\ *\ \mbox{\hyperlink{namespacevital_a22cbce43dcd4f637f8fb08871ef51e0e}{vital::kDefaultWindowHeight}});}
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00214\ \ \ Rectangle<int>\ bounds\ =\ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>getBounds();}
+\DoxyCodeLine{00215\ \ \ bounds.setWidth(width);}
+\DoxyCodeLine{00216\ \ \ bounds.setHeight(height);}
+\DoxyCodeLine{00217\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>getParentComponent()-\/>setBounds(bounds);}
+\DoxyCodeLine{00218\ \ \ \mbox{\hyperlink{class_synth_gui_interface_a2ca823c3b72d8c41e831e87be8cf0e8c}{gui\_}}-\/>redoBackground();}
+\DoxyCodeLine{00219\ \}}
+\DoxyCodeLine{00220\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

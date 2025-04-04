@@ -1,0 +1,1096 @@
+\doxysection{line\+\_\+editor.\+cpp}
+\hypertarget{line__editor_8cpp_source}{}\label{line__editor_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/line\_editor.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/line\_editor.cpp}}
+\mbox{\hyperlink{line__editor_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{line__editor_8h}{line\_editor.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{default__look__and__feel_8h}{default\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{full__interface_8h}{full\_interface.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{shaders_8h}{shaders.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__gui__interface_8h}{synth\_gui\_interface.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00012\ \ \ Point<float>\ pairToPoint(std::pair<float,\ float>\ pair)\ \{}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{keywordflow}{return}\ \{\ pair.first,\ pair.second\ \};}
+\DoxyCodeLine{00014\ \ \ \}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ std::pair<float,\ float>\ pointToPair(Point<float>\ point)\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keywordflow}{return}\ \{\ point.x,\ point.y\ \};}
+\DoxyCodeLine{00018\ \ \ \}}
+\DoxyCodeLine{00019\ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \mbox{\hyperlink{class_line_editor_ae1582b30cfdd7640c628477c6bcaa151}{LineEditor::LineEditor}}(\mbox{\hyperlink{class_line_generator}{LineGenerator}}*\ line\_source)\ :}
+\DoxyCodeLine{00022\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer}{OpenGlLineRenderer}}(kTotalPoints),}
+\DoxyCodeLine{00023\ \ \ \ \ drag\_circle\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kCircleFragment),}
+\DoxyCodeLine{00024\ \ \ \ \ hover\_circle\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kRingFragment),}
+\DoxyCodeLine{00025\ \ \ \ \ grid\_lines\_(kMaxGridSizeX\ +\ kMaxGridSizeY\ +\ 1),}
+\DoxyCodeLine{00026\ \ \ \ \ position\_circle\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kRingFragment),}
+\DoxyCodeLine{00027\ \ \ \ \ point\_circles\_(\mbox{\hyperlink{class_line_generator}{LineGenerator}}::kMaxPoints,\ \mbox{\hyperlink{class_shaders}{Shaders}}::kRingFragment),}
+\DoxyCodeLine{00028\ \ \ \ \ power\_circles\_(\mbox{\hyperlink{class_line_generator}{LineGenerator}}::kMaxPoints,\ \mbox{\hyperlink{class_shaders}{Shaders}}::kCircleFragment)\ \{}
+\DoxyCodeLine{00029\ \ \ addAndMakeVisible(drag\_circle\_);}
+\DoxyCodeLine{00030\ \ \ addAndMakeVisible(hover\_circle\_);}
+\DoxyCodeLine{00031\ \ \ addAndMakeVisible(grid\_lines\_);}
+\DoxyCodeLine{00032\ \ \ addAndMakeVisible(position\_circle\_);}
+\DoxyCodeLine{00033\ \ \ addAndMakeVisible(point\_circles\_);}
+\DoxyCodeLine{00034\ \ \ addAndMakeVisible(power\_circles\_);}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \textcolor{preprocessor}{\#if\ !defined(NO\_TEXT\_ENTRY)}}
+\DoxyCodeLine{00037\ \ \ value\_entry\_\ =\ std::make\_unique<OpenGlTextEditor>(\textcolor{stringliteral}{"{}text\_entry"{}});}
+\DoxyCodeLine{00038\ \ \ value\_entry\_-\/>setMonospace();}
+\DoxyCodeLine{00039\ \ \ value\_entry\_-\/>setMultiLine(\textcolor{keyword}{false});}
+\DoxyCodeLine{00040\ \ \ value\_entry\_-\/>setScrollToShowCursor(\textcolor{keyword}{false});}
+\DoxyCodeLine{00041\ \ \ value\_entry\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00042\ \ \ value\_entry\_-\/>setSelectAllWhenFocused(\textcolor{keyword}{true});}
+\DoxyCodeLine{00043\ \ \ value\_entry\_-\/>setKeyboardType(TextEditor::numericKeyboard);}
+\DoxyCodeLine{00044\ \ \ value\_entry\_-\/>setJustification(Justification::centred);}
+\DoxyCodeLine{00045\ \ \ addChildComponent(value\_entry\_.get());}
+\DoxyCodeLine{00046\ \ \ value\_entry\_-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00047\ \ \ value\_entry\_-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00048\ \ \ value\_entry\_-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00049\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ hover\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a0e0f55028083ff593df1457f746a173a}{setThickness}}(1.0f);}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \mbox{\hyperlink{class_line_editor_a0dc5d2fdcb5e5ea69212cc3c1b68d26a}{active\_}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00054\ \ \ model\_\ =\ line\_source;}
+\DoxyCodeLine{00055\ \ \ size\_ratio\_\ =\ 1.0f;}
+\DoxyCodeLine{00056\ \ \ loop\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00057\ \ \ grid\_size\_x\_\ =\ 1;}
+\DoxyCodeLine{00058\ \ \ grid\_size\_y\_\ =\ 1;}
+\DoxyCodeLine{00059\ \ \ paint\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00060\ \ \ temporary\_paint\_toggle\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00061\ \ \ entering\_phase\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00062\ \ \ entering\_index\_\ =\ -\/1;}
+\DoxyCodeLine{00063\ \ \ last\_model\_render\_\ =\ -\/1;}
+\DoxyCodeLine{00064\ \ \ paint\_pattern\_\ =\ \{}
+\DoxyCodeLine{00065\ \ \ \ \ std::pair<float,\ float>(0.0f,\ 1.0f),}
+\DoxyCodeLine{00066\ \ \ \ \ std::pair<float,\ float>(1.0f,\ 0.0f)}
+\DoxyCodeLine{00067\ \ \ \};}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ last\_phase\_\ =\ 0.0f;}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a2370751b939ff421b5ad9049ce7e008d}{setFill}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00072\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a189b7b9f30f4d7e46095ad96df34489e}{setFillCenter}}(-\/1.0f);}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ active\_point\_\ =\ -\/1;}
+\DoxyCodeLine{00075\ \ \ active\_power\_\ =\ -\/1;}
+\DoxyCodeLine{00076\ \ \ active\_grid\_section\_\ =\ -\/1;}
+\DoxyCodeLine{00077\ \ \ last\_voice\_\ =\ -\/1.0f;}
+\DoxyCodeLine{00078\ \ \ last\_last\_voice\_\ =\ -\/1.0f;}
+\DoxyCodeLine{00079\ \ \ dragging\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00080\ \ \ reset\_positions\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00081\ \ \ allow\_file\_loading\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00082\ \ \ drag\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a11c7d32833ea8910f9301d6c98e4daff}{setActive}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00083\ \ \ hover\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a11c7d32833ea8910f9301d6c98e4daff}{setActive}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00084\ \ \ setWantsKeyboardFocus(\textcolor{keyword}{true});}
+\DoxyCodeLine{00085\ \}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \mbox{\hyperlink{class_line_editor_af1ec5b901f227b48659f9b2360092b27}{LineEditor::\string~LineEditor}}()\ \{\ \}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \textcolor{keywordtype}{int}\ LineEditor::getHoverPoint(Point<float>\ position)\ \{}
+\DoxyCodeLine{00090\ \ \ position.x\ =\ \mbox{\hyperlink{class_line_editor_af90774ce76f35df33034e6986f13c931}{unpadX}}(position.x);}
+\DoxyCodeLine{00091\ \ \ position.y\ =\ \mbox{\hyperlink{class_line_editor_a9f6b36a2131592c83f6951a0ae4df9bf}{unpadY}}(position.y);}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \ \textcolor{keywordtype}{float}\ grab\_radius\ =\ \mbox{\hyperlink{class_line_editor_afbb5e4e2c0b9e1d1dbfd9d9c4e40f979}{kGrabRadius}}\ *\ size\_ratio\_;}
+\DoxyCodeLine{00094\ \ \ \textcolor{keywordtype}{float}\ min\_distance\_squared\ =\ grab\_radius\ *\ grab\_radius;}
+\DoxyCodeLine{00095\ \ \ \textcolor{keywordtype}{int}\ hover\_point\ =\ -\/1;}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ \textcolor{keywordtype}{int}\ num\_points\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}();}
+\DoxyCodeLine{00098\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_points;\ ++i)\ \{}
+\DoxyCodeLine{00099\ \ \ \ \ std::pair<float,\ float>\ point\_pair\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(i);}
+\DoxyCodeLine{00100\ \ \ \ \ Point<float>\ point\_position(point\_pair.first,\ point\_pair.second);}
+\DoxyCodeLine{00101\ \ \ \ \ point\_position.x\ *=\ getWidth();}
+\DoxyCodeLine{00102\ \ \ \ \ point\_position.y\ *=\ getHeight();}
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keywordtype}{float}\ distance\_squared\ =\ position.getDistanceSquaredFrom(point\_position);}
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keywordflow}{if}\ (distance\_squared\ <\ min\_distance\_squared)\ \{}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ min\_distance\_squared\ =\ distance\_squared;}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ hover\_point\ =\ i;}
+\DoxyCodeLine{00107\ \ \ \ \ \}}
+\DoxyCodeLine{00108\ \ \ \}}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ \textcolor{keywordflow}{return}\ hover\_point;}
+\DoxyCodeLine{00111\ \}}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \textcolor{keywordtype}{int}\ LineEditor::getHoverPower(Point<float>\ position)\ \{}
+\DoxyCodeLine{00114\ \ \ position.x\ =\ \mbox{\hyperlink{class_line_editor_af90774ce76f35df33034e6986f13c931}{unpadX}}(position.x);}
+\DoxyCodeLine{00115\ \ \ position.y\ =\ \mbox{\hyperlink{class_line_editor_a9f6b36a2131592c83f6951a0ae4df9bf}{unpadY}}(position.y);}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \ \ \textcolor{keywordtype}{float}\ grab\_radius\ =\ \mbox{\hyperlink{class_line_editor_afbb5e4e2c0b9e1d1dbfd9d9c4e40f979}{kGrabRadius}}\ *\ size\_ratio\_;}
+\DoxyCodeLine{00118\ \ \ \textcolor{keywordtype}{float}\ min\_distance\_squared\ =\ grab\_radius\ *\ grab\_radius;}
+\DoxyCodeLine{00119\ \ \ \textcolor{keywordtype}{int}\ hover\_power\ =\ -\/1;}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ \textcolor{keywordtype}{int}\ num\_points\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}();}
+\DoxyCodeLine{00122\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_points;\ ++i)\ \{}
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{keywordflow}{if}\ (powerActive(i))\ \{}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ Point<float>\ power\_position\ =\ getPowerPosition(i);}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ power\_position.x\ *=\ getWidth();}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ power\_position.y\ *=\ getHeight();}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ distance\_squared\ =\ position.getDistanceSquaredFrom(power\_position);}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (distance\_squared\ <\ min\_distance\_squared)\ \{}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ min\_distance\_squared\ =\ distance\_squared;}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ hover\_power\ =\ i;}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00132\ \ \ \ \ \}}
+\DoxyCodeLine{00133\ \ \ \}}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \ \ \textcolor{keywordflow}{return}\ hover\_power;}
+\DoxyCodeLine{00136\ \}}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \textcolor{keywordtype}{float}\ LineEditor::getSnapRadiusX()\ \{}
+\DoxyCodeLine{00139\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{float}\ kGridProximity\ =\ 0.02f;}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ \textcolor{keywordflow}{if}\ (grid\_size\_x\_\ <=\ 1)}
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{keywordflow}{return}\ 0.0f;}
+\DoxyCodeLine{00143\ \ \ \textcolor{keywordflow}{return}\ kGridProximity;}
+\DoxyCodeLine{00144\ \}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \textcolor{keywordtype}{float}\ LineEditor::getSnapRadiusY()\ \{}
+\DoxyCodeLine{00147\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{float}\ kGridProximity\ =\ 0.04f;}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \ \ \textcolor{keywordflow}{if}\ (grid\_size\_y\_\ <=\ 1)}
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keywordflow}{return}\ 0.0f;}
+\DoxyCodeLine{00151\ \ \ \textcolor{keywordflow}{return}\ kGridProximity;}
+\DoxyCodeLine{00152\ \}}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \textcolor{keywordtype}{float}\ LineEditor::getSnappedX(\textcolor{keywordtype}{float}\ x)\ \{}
+\DoxyCodeLine{00155\ \ \ \textcolor{keywordflow}{return}\ std::roundf(x\ *\ grid\_size\_x\_)\ /\ grid\_size\_x\_;}
+\DoxyCodeLine{00156\ \}}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \textcolor{keywordtype}{float}\ LineEditor::getSnappedY(\textcolor{keywordtype}{float}\ y)\ \{}
+\DoxyCodeLine{00159\ \ \ \textcolor{keywordflow}{return}\ std::roundf(y\ *\ grid\_size\_y\_)\ /\ grid\_size\_y\_;}
+\DoxyCodeLine{00160\ \}}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ \textcolor{keywordtype}{void}\ LineEditor::addPointAt(Point<float>\ position)\ \{}
+\DoxyCodeLine{00163\ \ \ \textcolor{keywordflow}{if}\ (model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}()\ >=\ \mbox{\hyperlink{class_line_generator_ad0c45d07732247d3994bdc4c4da79c21}{LineGenerator::kMaxPoints}})}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ \textcolor{keywordtype}{int}\ index\ =\ 0;}
+\DoxyCodeLine{00167\ \ \ \textcolor{keywordtype}{float}\ x\ =\ position.x;}
+\DoxyCodeLine{00168\ \ \ \textcolor{keywordtype}{int}\ num\_points\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}();}
+\DoxyCodeLine{00169\ \ \ \textcolor{keywordflow}{for}\ (;\ index\ <\ num\_points;\ ++index)\ \{}
+\DoxyCodeLine{00170\ \ \ \ \ \textcolor{keywordflow}{if}\ (model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(index).first\ >\ x)}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00172\ \ \ \}}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_ae834dac40f848592e5176dd88e8bbed9}{addPoint}}(index,\ pointToPair(position));}
+\DoxyCodeLine{00175\ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00176\ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00179\ \ \ \ \ listener-\/>pointAdded(index,\ position);}
+\DoxyCodeLine{00180\ \}}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \textcolor{keywordtype}{void}\ LineEditor::movePoint(\textcolor{keywordtype}{int}\ index,\ Point<float>\ position,\ \textcolor{keywordtype}{bool}\ snap)\ \{}
+\DoxyCodeLine{00183\ \ \ \textcolor{keywordtype}{float}\ min\_x\ =\ getMinX(index);}
+\DoxyCodeLine{00184\ \ \ \textcolor{keywordtype}{float}\ max\_x\ =\ getMaxX(index);}
+\DoxyCodeLine{00185\ \ \ \textcolor{keywordtype}{int}\ last\_point\_index\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}()\ -\/\ 1;}
+\DoxyCodeLine{00186\ }
+\DoxyCodeLine{00187\ \ \ Point<float>\ local\_position(position.x\ /\ getWidth(),\ position.y\ /\ getHeight());}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \ \ local\_position.x\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(local\_position.x,\ min\_x,\ max\_x);}
+\DoxyCodeLine{00190\ \ \ local\_position.y\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(local\_position.y,\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00191\ \ \ \textcolor{keywordflow}{if}\ (snap\ \&\&\ grid\_size\_x\_\ >\ 0)\ \{}
+\DoxyCodeLine{00192\ \ \ \ \ \textcolor{keywordtype}{float}\ snap\_radius\ =\ getSnapRadiusX();}
+\DoxyCodeLine{00193\ \ \ \ \ \textcolor{keywordtype}{float}\ snapped\_x\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(getSnappedX(local\_position.x),\ min\_x,\ max\_x);}
+\DoxyCodeLine{00194\ \ \ \ \ \textcolor{keywordflow}{if}\ (fabsf(snapped\_x\ -\/\ local\_position.x)\ <\ snap\_radius)}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ local\_position.x\ =\ snapped\_x;}
+\DoxyCodeLine{00196\ \ \ \}}
+\DoxyCodeLine{00197\ \ \ \textcolor{keywordflow}{if}\ (snap\ \&\&\ grid\_size\_y\_\ >\ 0)\ \{}
+\DoxyCodeLine{00198\ \ \ \ \ \textcolor{keywordtype}{float}\ snap\_radius\ =\ getSnapRadiusY();}
+\DoxyCodeLine{00199\ \ \ \ \ \textcolor{keywordtype}{float}\ snapped\_y\ =\ getSnappedY(local\_position.y);}
+\DoxyCodeLine{00200\ \ \ \ \ \textcolor{keywordflow}{if}\ (fabsf(snapped\_y\ -\/\ local\_position.y)\ <\ snap\_radius)}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ local\_position.y\ =\ snapped\_y;}
+\DoxyCodeLine{00202\ \ \ \}}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \ \ \textcolor{keywordflow}{if}\ (loop\_\ \&\&\ model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(0).second\ ==\ model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(last\_point\_index).second)\ \{}
+\DoxyCodeLine{00205\ \ \ \ \ \textcolor{keywordflow}{if}\ (index\ ==\ 0)}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a7b5ca1308544d3b4efd41f3dcf993f93}{setPoint}}(last\_point\_index,\ pointToPair(\{\ 1.0f,\ local\_position.y\ \}));}
+\DoxyCodeLine{00207\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (index\ ==\ last\_point\_index)}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a7b5ca1308544d3b4efd41f3dcf993f93}{setPoint}}(0,\ pointToPair(\{\ 0.0f,\ local\_position.y\ \}));}
+\DoxyCodeLine{00209\ \ \ \}}
+\DoxyCodeLine{00210\ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a7b5ca1308544d3b4efd41f3dcf993f93}{setPoint}}(index,\ pointToPair(local\_position));}
+\DoxyCodeLine{00211\ }
+\DoxyCodeLine{00212\ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00213\ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00215\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00216\ \ \ \ \ listener-\/>pointChanged(index,\ position,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00217\ \}}
+\DoxyCodeLine{00218\ }
+\DoxyCodeLine{00219\ \textcolor{keywordtype}{void}\ LineEditor::movePower(\textcolor{keywordtype}{int}\ index,\ Point<float>\ position,\ \textcolor{keywordtype}{bool}\ all,\ \textcolor{keywordtype}{bool}\ alternate)\ \{}
+\DoxyCodeLine{00220\ \ \ \textcolor{keywordtype}{float}\ delta\_change\ =\ (position.y\ -\/\ last\_mouse\_position\_.y)\ /\ getHeight();}
+\DoxyCodeLine{00221\ \ \ \textcolor{keywordtype}{int}\ start\ =\ index;}
+\DoxyCodeLine{00222\ \ \ \textcolor{keywordtype}{int}\ end\ =\ index;}
+\DoxyCodeLine{00223\ \ \ \textcolor{keywordflow}{if}\ (all)\ \{}
+\DoxyCodeLine{00224\ \ \ \ \ start\ =\ 0;}
+\DoxyCodeLine{00225\ \ \ \ \ end\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}()\ -\/\ 2;}
+\DoxyCodeLine{00226\ \ \ \}}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00228\ \ \ \textcolor{keywordtype}{float}\ alternate\_mult\ =\ 1.0f;}
+\DoxyCodeLine{00229\ \ \ \textcolor{keywordflow}{if}\ (!alternate\ \&\&\ model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(index).second\ <\ model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}((index\ +\ 1)\ \%\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}()).second)}
+\DoxyCodeLine{00230\ \ \ \ \ alternate\_mult\ =\ -\/1.0f;}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00232\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ start;\ i\ <=\ end;\ ++i)\ \{}
+\DoxyCodeLine{00233\ \ \ \ \ \textcolor{keywordtype}{float}\ from\_y\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(i).second;}
+\DoxyCodeLine{00234\ \ \ \ \ \textcolor{keywordtype}{float}\ to\_y\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}((i\ +\ 1)\ \%\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}()).second;}
+\DoxyCodeLine{00235\ \ \ \ \ \textcolor{keywordflow}{if}\ (from\_y\ ==\ to\_y)}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00237\ }
+\DoxyCodeLine{00238\ \ \ \ \ \textcolor{keywordtype}{float}\ max\_power\ =\ \mbox{\hyperlink{classvital_1_1_synth_lfo_a76362ff3e2e286e763cfe1be2faeb7db}{vital::SynthLfo::kMaxPower}};}
+\DoxyCodeLine{00239\ \ \ \ \ \textcolor{keywordtype}{float}\ power\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_ae437c231493f083a30cba07a135e81e9}{getPower}}(i);}
+\DoxyCodeLine{00240\ \ \ \ \ \textcolor{keywordtype}{float}\ delta\_amount\ =\ delta\_change\ *\ alternate\_mult;}
+\DoxyCodeLine{00241\ \ \ \ \ \textcolor{keywordflow}{if}\ (from\_y\ <\ to\_y\ \&\&\ alternate)}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ delta\_amount\ *=\ -\/1.0f;}
+\DoxyCodeLine{00243\ }
+\DoxyCodeLine{00244\ \ \ \ \ power\ +=\ delta\_amount\ *\ \mbox{\hyperlink{class_line_editor_ab3274c17ac61e30dd402036000ad7187}{kPowerMouseMultiplier}};}
+\DoxyCodeLine{00245\ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a6cb53b6d40e2f313dc0fe149b4d55e30}{setPower}}(i,\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(power,\ -\/max\_power,\ max\_power));}
+\DoxyCodeLine{00246\ \ \ \}}
+\DoxyCodeLine{00247\ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00248\ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00249\ }
+\DoxyCodeLine{00250\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00251\ \ \ \ \ listener-\/>powersChanged(\textcolor{keyword}{false});}
+\DoxyCodeLine{00252\ \}}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \textcolor{keywordtype}{void}\ LineEditor::removePoint(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00255\ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}()\ >\ 1);}
+\DoxyCodeLine{00256\ }
+\DoxyCodeLine{00257\ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_aa4ea2ba9cf630300a103933798c96625}{removePoint}}(index);}
+\DoxyCodeLine{00258\ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00259\ }
+\DoxyCodeLine{00260\ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00261\ }
+\DoxyCodeLine{00262\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00263\ \ \ \ \ listener-\/>pointRemoved(index);}
+\DoxyCodeLine{00264\ \}}
+\DoxyCodeLine{00265\ }
+\DoxyCodeLine{00266\ \textcolor{keywordtype}{float}\ LineEditor::getMinX(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00267\ \ \ \textcolor{keywordflow}{if}\ (index\ ==\ 0)}
+\DoxyCodeLine{00268\ \ \ \ \ \textcolor{keywordflow}{return}\ 0.0f;}
+\DoxyCodeLine{00269\ }
+\DoxyCodeLine{00270\ \ \ \textcolor{keywordtype}{int}\ last\_point\_index\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}()\ -\/\ 1;}
+\DoxyCodeLine{00271\ \ \ \textcolor{keywordflow}{if}\ (index\ ==\ last\_point\_index)}
+\DoxyCodeLine{00272\ \ \ \ \ \textcolor{keywordflow}{return}\ 1.0f;}
+\DoxyCodeLine{00273\ \ \ \textcolor{keywordflow}{return}\ model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(index\ -\/\ 1).first;}
+\DoxyCodeLine{00274\ \}}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00276\ \textcolor{keywordtype}{float}\ LineEditor::getMaxX(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00277\ \ \ \textcolor{keywordflow}{if}\ (index\ ==\ 0)}
+\DoxyCodeLine{00278\ \ \ \ \ \textcolor{keywordflow}{return}\ 0.0f;}
+\DoxyCodeLine{00279\ }
+\DoxyCodeLine{00280\ \ \ \textcolor{keywordtype}{int}\ last\_point\_index\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}()\ -\/\ 1;}
+\DoxyCodeLine{00281\ \ \ \textcolor{keywordflow}{if}\ (index\ ==\ last\_point\_index)}
+\DoxyCodeLine{00282\ \ \ \ \ \textcolor{keywordflow}{return}\ 1.0f;}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00284\ \ \ \textcolor{keywordflow}{return}\ model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(index\ +\ 1).first;}
+\DoxyCodeLine{00285\ \}}
+\DoxyCodeLine{00286\ }
+\DoxyCodeLine{00287\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_ac59f867072cdc3844881e08eee5fb93a}{LineEditor::respondToCallback}}(\textcolor{keywordtype}{int}\ point,\ \textcolor{keywordtype}{int}\ power,\ \textcolor{keywordtype}{int}\ option)\ \{}
+\DoxyCodeLine{00288\ \ \ \textcolor{keywordflow}{if}\ (option\ ==\ \mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5a122dd8b72e05384e6d23f1e9ae97b412}{kFlipHorizontal}})\ \{}
+\DoxyCodeLine{00289\ \ \ \ \ \mbox{\hyperlink{class_line_editor_a5bb57055fa4759d47be1cebe9ed39c54}{getModel}}()-\/>\mbox{\hyperlink{class_line_generator_aa9693c409642b390ed15c6fcf512538c}{flipHorizontal}}();}
+\DoxyCodeLine{00290\ \ \ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00291\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_line_editor_1_1_listener}{Listener}}*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ listener-\/>pointChanged(0,\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(0)),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00293\ \ \ \}}
+\DoxyCodeLine{00294\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (option\ ==\ \mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5aedebadfd1cb2c52d85fa5eef3a858f88}{kFlipVertical}})\ \{}
+\DoxyCodeLine{00295\ \ \ \ \ \mbox{\hyperlink{class_line_editor_a5bb57055fa4759d47be1cebe9ed39c54}{getModel}}()-\/>\mbox{\hyperlink{class_line_generator_aebcea1df83c0f5268a196053d4db068d}{flipVertical}}();}
+\DoxyCodeLine{00296\ \ \ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00297\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_line_editor_1_1_listener}{Listener}}*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ listener-\/>pointChanged(0,\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(0)),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00299\ \ \ \}}
+\DoxyCodeLine{00300\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (option\ ==\ \mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5a15f5bcc508ce0bc7d7410907df6933e2}{kRemovePoint}})\ \{}
+\DoxyCodeLine{00301\ \ \ \ \ \textcolor{keywordflow}{if}\ (point\ >\ 0\ \&\&\ point\ <\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}()\ -\/\ 1)}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ removePoint(point);}
+\DoxyCodeLine{00303\ \ \ \}}
+\DoxyCodeLine{00304\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (option\ ==\ \mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5aa15b5b5b822887bf6de0b1dee2df58eb}{kResetPower}})\ \{}
+\DoxyCodeLine{00305\ \ \ \ \ \textcolor{keywordflow}{if}\ (power\ >=\ 0\ \&\&\ power\ <\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}()\ -\/\ 1)\ \{}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a6cb53b6d40e2f313dc0fe149b4d55e30}{setPower}}(power,\ 0.0f);}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00309\ \ \ \ \ \}}
+\DoxyCodeLine{00310\ \ \ \}}
+\DoxyCodeLine{00311\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (option\ ==\ \mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5abb3bd8b71b76ea0e2b5c1215a4862a75}{kEnterPhase}}\ ||\ option\ ==\ \mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5a63e4a24b9e17b6dd722989a109c1e431}{kEnterValue}})\ \{}
+\DoxyCodeLine{00312\ \ \ \ \ entering\_phase\_\ =\ option\ ==\ \mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5abb3bd8b71b76ea0e2b5c1215a4862a75}{kEnterPhase}};}
+\DoxyCodeLine{00313\ \ \ \ \ entering\_index\_\ =\ point;}
+\DoxyCodeLine{00314\ \ \ \ \ \textcolor{keywordflow}{if}\ (entering\_index\_\ >=\ 0\ \&\&\ entering\_index\_\ <\ model\_-\/>getNumPoints())}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \mbox{\hyperlink{class_line_editor_a1ba00e442719099e1b736b11e57626a4}{showTextEntry}}();}
+\DoxyCodeLine{00316\ \ \ \}}
+\DoxyCodeLine{00317\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (option\ ==\ \mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5acd0f9021d07e45ffb01e08f6f47a179c}{kCopy}})\ \{}
+\DoxyCodeLine{00318\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_data\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_ad89103d3ef0b3f99dee5075f114decd2}{stateToJson}}();}
+\DoxyCodeLine{00319\ \ \ \ \ SystemClipboard::copyTextToClipboard(json\_data.dump());}
+\DoxyCodeLine{00320\ \ \ \}}
+\DoxyCodeLine{00321\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (option\ ==\ \mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5aececa6253bdc5f18b5cd209fffd2a0d3}{kPaste}})\ \{}
+\DoxyCodeLine{00322\ \ \ \ \ String\ text\ =\ SystemClipboard::getTextFromClipboard();}
+\DoxyCodeLine{00323\ }
+\DoxyCodeLine{00324\ \ \ \ \ \textcolor{keywordflow}{try}\ \{}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ parsed\_json\_state\ =\ json::parse(text.toStdString(),\ \textcolor{keyword}{nullptr},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_generator_a920cb1d666de445e22d0875bdeb7a107}{LineGenerator::isValidJson}}(parsed\_json\_state))}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_acaa5e05d5e1210bf3433fb9456895fed}{jsonToState}}(parsed\_json\_state);}
+\DoxyCodeLine{00328\ \ \ \ \ \}}
+\DoxyCodeLine{00329\ \ \ \ \ \textcolor{keywordflow}{catch}\ (\textcolor{keyword}{const}\ json::exception\&\ e)\ \{}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00331\ \ \ \ \ \}}
+\DoxyCodeLine{00332\ }
+\DoxyCodeLine{00333\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_line_editor_1_1_listener}{Listener}}*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ listener-\/>fileLoaded();}
+\DoxyCodeLine{00335\ }
+\DoxyCodeLine{00336\ \ \ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00337\ \ \ \}}
+\DoxyCodeLine{00338\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (option\ ==\ \mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5a299b41bb18c160a751e0e365471b11f4}{kSave}})\ \{}
+\DoxyCodeLine{00339\ \ \ \ \ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ parent\ =\ findParentComponentOfClass<FullInterface>();}
+\DoxyCodeLine{00340\ \ \ \ \ \textcolor{keywordflow}{if}\ (parent\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00342\ }
+\DoxyCodeLine{00343\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_full_interface_a2849f210be2fc831ceb528f30ee5ff89}{saveLfo}}(model\_-\/>\mbox{\hyperlink{class_line_generator_ad89103d3ef0b3f99dee5075f114decd2}{stateToJson}}());}
+\DoxyCodeLine{00344\ \ \ \}}
+\DoxyCodeLine{00345\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (option\ ==\ \mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5a761ce6dae1adba72c5c9ba528d9799cb}{kInit}})\ \{}
+\DoxyCodeLine{00346\ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_adfacb667753a2d718e74e7db8b7d961e}{initLinear}}();}
+\DoxyCodeLine{00347\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_line_editor_1_1_listener}{Listener}}*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00348\ \ \ \ \ \ \ listener-\/>fileLoaded();}
+\DoxyCodeLine{00349\ \ \ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00350\ \ \ \}}
+\DoxyCodeLine{00351\ \}}
+\DoxyCodeLine{00352\ }
+\DoxyCodeLine{00353\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_line_editor_a60e5f98611e860de635342ebff38f677}{LineEditor::hasMatchingSystemClipboard}}()\ \{}
+\DoxyCodeLine{00354\ \ \ String\ text\ =\ SystemClipboard::getTextFromClipboard();}
+\DoxyCodeLine{00355\ \ \ \textcolor{keywordflow}{try}\ \{}
+\DoxyCodeLine{00356\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ parsed\_json\_state\ =\ json::parse(text.toStdString(),\ \textcolor{keyword}{nullptr},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00357\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_line_generator_a920cb1d666de445e22d0875bdeb7a107}{LineGenerator::isValidJson}}(parsed\_json\_state);}
+\DoxyCodeLine{00358\ \ \ \}}
+\DoxyCodeLine{00359\ \ \ \textcolor{keywordflow}{catch}\ (\textcolor{keyword}{const}\ json::exception\&\ e)\ \{}
+\DoxyCodeLine{00360\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00361\ \ \ \}}
+\DoxyCodeLine{00362\ \}}
+\DoxyCodeLine{00363\ }
+\DoxyCodeLine{00364\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a807357064baa40512cd10596f2c18c06}{LineEditor::paintLine}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00365\ \ \ \textcolor{keywordtype}{float}\ percent\_x\ =\ e.position.x\ /\ getWidth();}
+\DoxyCodeLine{00366\ \ \ \textcolor{keywordtype}{float}\ percent\_y\ =\ std::max(0.0f,\ std::min(1.0f,\ e.position.y\ /\ getHeight()));}
+\DoxyCodeLine{00367\ \ \ active\_grid\_section\_\ =\ std::max<int>(0,\ std::min<int>(grid\_size\_x\_\ *\ percent\_x,\ grid\_size\_x\_\ -\/\ 1));}
+\DoxyCodeLine{00368\ }
+\DoxyCodeLine{00369\ \ \ \textcolor{keywordtype}{float}\ from\_x\ =\ (1.0f\ *\ active\_grid\_section\_)\ /\ grid\_size\_x\_;}
+\DoxyCodeLine{00370\ \ \ \textcolor{keywordtype}{float}\ to\_x\ =\ (active\_grid\_section\_\ +\ 1.0f)\ /\ grid\_size\_x\_;}
+\DoxyCodeLine{00371\ }
+\DoxyCodeLine{00372\ \ \ \textcolor{keywordflow}{if}\ (!e.mods.isAltDown()\ \&\&\ grid\_size\_y\_\ >\ 0)\ \{}
+\DoxyCodeLine{00373\ \ \ \ \ \textcolor{keywordtype}{float}\ snap\_radius\ =\ getSnapRadiusY();}
+\DoxyCodeLine{00374\ \ \ \ \ \textcolor{keywordtype}{float}\ snapped\_y\ =\ getSnappedY(percent\_y);}
+\DoxyCodeLine{00375\ \ \ \ \ \textcolor{keywordflow}{if}\ (fabsf(snapped\_y\ -\/\ percent\_y)\ <\ snap\_radius)}
+\DoxyCodeLine{00376\ \ \ \ \ \ \ percent\_y\ =\ snapped\_y;}
+\DoxyCodeLine{00377\ \ \ \}}
+\DoxyCodeLine{00378\ }
+\DoxyCodeLine{00379\ \ \ \textcolor{keywordtype}{int}\ from\_index\ =\ -\/1;}
+\DoxyCodeLine{00380\ \ \ \textcolor{keywordtype}{int}\ start\_num\_points\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}();}
+\DoxyCodeLine{00381\ \ \ \textcolor{keywordtype}{int}\ to\_index\ =\ start\_num\_points;}
+\DoxyCodeLine{00382\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ start\_num\_points;\ ++i)\ \{}
+\DoxyCodeLine{00383\ \ \ \ \ \textcolor{keywordflow}{if}\ (model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(i).first\ <\ from\_x)}
+\DoxyCodeLine{00384\ \ \ \ \ \ \ from\_index\ =\ i;}
+\DoxyCodeLine{00385\ }
+\DoxyCodeLine{00386\ \ \ \ \ \textcolor{keywordtype}{int}\ reverse\_index\ =\ start\_num\_points\ -\/\ i\ -\/\ 1;}
+\DoxyCodeLine{00387\ \ \ \ \ \textcolor{keywordflow}{if}\ (model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(reverse\_index).first\ >\ to\_x)}
+\DoxyCodeLine{00388\ \ \ \ \ \ \ to\_index\ =\ reverse\_index;}
+\DoxyCodeLine{00389\ \ \ \}}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00391\ \ \ std::vector<Point<float>>\ new\_points;}
+\DoxyCodeLine{00392\ \ \ \textcolor{keywordtype}{float}\ from\_intersect\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_ac9a1556e29bfb12d747963545bb16796}{getValueAtPhase}}(from\_x);}
+\DoxyCodeLine{00393\ \ \ \textcolor{keywordtype}{float}\ to\_intersect\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_ac9a1556e29bfb12d747963545bb16796}{getValueAtPhase}}(to\_x);}
+\DoxyCodeLine{00394\ \ \ \textcolor{keywordflow}{if}\ (model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(from\_index\ +\ 1).first\ !=\ from\_x)\ \{}
+\DoxyCodeLine{00395\ \ \ \ \ new\_points.emplace\_back(Point<float>(from\_x,\ from\_intersect));}
+\DoxyCodeLine{00396\ \ \ \ \ to\_index++;}
+\DoxyCodeLine{00397\ \ \ \ \ start\_num\_points++;}
+\DoxyCodeLine{00398\ \ \ \}}
+\DoxyCodeLine{00399\ \ \ from\_index++;}
+\DoxyCodeLine{00400\ }
+\DoxyCodeLine{00401\ \ \ \textcolor{keywordflow}{if}\ (model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(to\_index\ -\/\ 1).first\ !=\ to\_x)\ \{}
+\DoxyCodeLine{00402\ \ \ \ \ new\_points.emplace\_back(Point<float>(to\_x,\ to\_intersect));}
+\DoxyCodeLine{00403\ \ \ \ \ start\_num\_points++;}
+\DoxyCodeLine{00404\ \ \ \}}
+\DoxyCodeLine{00405\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00406\ \ \ \ \ to\_index-\/-\/;}
+\DoxyCodeLine{00407\ }
+\DoxyCodeLine{00408\ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(from\_index\ <\ to\_index);}
+\DoxyCodeLine{00409\ }
+\DoxyCodeLine{00410\ \ \ \textcolor{keywordtype}{int}\ pattern\_length\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(paint\_pattern\_.size());}
+\DoxyCodeLine{00411\ \ \ \textcolor{keywordtype}{int}\ delta\_size\ =\ pattern\_length\ -\/\ std::max(0,\ (to\_index\ -\/\ from\_index\ -\/\ 1));}
+\DoxyCodeLine{00412\ \ \ \textcolor{keywordtype}{int}\ num\_points\ =\ start\_num\_points\ +\ delta\_size;}
+\DoxyCodeLine{00413\ \ \ \textcolor{keywordflow}{if}\ (num\_points\ >=\ \mbox{\hyperlink{class_line_generator_ad0c45d07732247d3994bdc4c4da79c21}{LineGenerator::kMaxPoints}})}
+\DoxyCodeLine{00414\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00415\ }
+\DoxyCodeLine{00416\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ Point<float>\&\ new\_point\ :\ new\_points)}
+\DoxyCodeLine{00417\ \ \ \ \ addPointAt(new\_point);}
+\DoxyCodeLine{00418\ }
+\DoxyCodeLine{00419\ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_acdb39dc84482a37f744bbf60dc1a9a87}{setNumPoints}}(num\_points);}
+\DoxyCodeLine{00420\ }
+\DoxyCodeLine{00421\ \ \ \textcolor{keywordflow}{if}\ (delta\_size\ >\ 0)\ \{}
+\DoxyCodeLine{00422\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ num\_points\ -\/\ 1;\ i\ >=\ std::max(delta\_size,\ to\_index);\ -\/-\/i)\ \{}
+\DoxyCodeLine{00423\ \ \ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a7b5ca1308544d3b4efd41f3dcf993f93}{setPoint}}(i,\ model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(i\ -\/\ delta\_size));}
+\DoxyCodeLine{00424\ \ \ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a6cb53b6d40e2f313dc0fe149b4d55e30}{setPower}}(i,\ model\_-\/>\mbox{\hyperlink{class_line_generator_ae437c231493f083a30cba07a135e81e9}{getPower}}(i\ -\/\ delta\_size));}
+\DoxyCodeLine{00425\ \ \ \ \ \}}
+\DoxyCodeLine{00426\ }
+\DoxyCodeLine{00427\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_line_editor_1_1_listener}{Listener}}*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00428\ \ \ \ \ \ \ listener-\/>pointsAdded(from\_index\ +\ 1,\ delta\_size);}
+\DoxyCodeLine{00429\ \ \ \}}
+\DoxyCodeLine{00430\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (delta\_size\ <\ 0)\ \{}
+\DoxyCodeLine{00431\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ from\_index\ +\ 1;\ i\ <\ num\_points;\ ++i)\ \{}
+\DoxyCodeLine{00432\ \ \ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a7b5ca1308544d3b4efd41f3dcf993f93}{setPoint}}(i,\ model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(i\ -\/\ delta\_size));}
+\DoxyCodeLine{00433\ \ \ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a6cb53b6d40e2f313dc0fe149b4d55e30}{setPower}}(i,\ model\_-\/>\mbox{\hyperlink{class_line_generator_ae437c231493f083a30cba07a135e81e9}{getPower}}(i\ -\/\ delta\_size));}
+\DoxyCodeLine{00434\ \ \ \ \ \}}
+\DoxyCodeLine{00435\ }
+\DoxyCodeLine{00436\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_line_editor_1_1_listener}{Listener}}*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00437\ \ \ \ \ \ \ listener-\/>pointsRemoved(from\_index\ +\ 1,\ -\/delta\_size);}
+\DoxyCodeLine{00438\ \ \ \}}
+\DoxyCodeLine{00439\ }
+\DoxyCodeLine{00440\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ pattern\_length;\ ++i)\ \{}
+\DoxyCodeLine{00441\ \ \ \ \ std::pair<float,\ float>\ pattern\_point\ =\ paint\_pattern\_[i];}
+\DoxyCodeLine{00442\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ pattern\_point.first;}
+\DoxyCodeLine{00443\ \ \ \ \ pattern\_point.first\ =\ from\_x\ *\ (1.0f\ -\/\ t)\ +\ to\_x\ *\ t;}
+\DoxyCodeLine{00444\ \ \ \ \ pattern\_point.second\ =\ 1.0f\ -\/\ pattern\_point.second\ *\ (1.0\ -\/\ percent\_y);}
+\DoxyCodeLine{00445\ }
+\DoxyCodeLine{00446\ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ from\_index\ +\ 1\ +\ i;}
+\DoxyCodeLine{00447\ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a7b5ca1308544d3b4efd41f3dcf993f93}{setPoint}}(index,\ pattern\_point);}
+\DoxyCodeLine{00448\ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a6cb53b6d40e2f313dc0fe149b4d55e30}{setPower}}(index,\ 0.0f);}
+\DoxyCodeLine{00449\ \ \ \}}
+\DoxyCodeLine{00450\ }
+\DoxyCodeLine{00451\ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00452\ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00453\ \}}
+\DoxyCodeLine{00454\ }
+\DoxyCodeLine{00455\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_ae769a0567e4f1e80a749e007cf59e550}{LineEditor::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00456\ \ \ \mbox{\hyperlink{class_line_editor_a755f48c5a59a637f13d5107c9201187d}{enableTemporaryPaintToggle}}(e.mods.isCommandDown());}
+\DoxyCodeLine{00457\ \ \ \textcolor{keywordflow}{if}\ (e.mods.isPopupMenu())\ \{}
+\DoxyCodeLine{00458\ \ \ \ \ \mbox{\hyperlink{struct_popup_items}{PopupItems}}\ options;}
+\DoxyCodeLine{00459\ }
+\DoxyCodeLine{00460\ \ \ \ \ \textcolor{keywordtype}{int}\ active\_point\ =\ \mbox{\hyperlink{class_line_editor_aca7b3ba5e385b35a5cb7705710405a0e}{getActivePoint}}();}
+\DoxyCodeLine{00461\ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_point\ >=\ 0)\ \{}
+\DoxyCodeLine{00462\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_point\ >\ 0\ \&\&\ active\_point\ <\ model\_-\/>getNumPoints()\ -\/\ 1)\ \{}
+\DoxyCodeLine{00463\ \ \ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5a15f5bcc508ce0bc7d7410907df6933e2}{kRemovePoint}},\ \textcolor{stringliteral}{"{}Remove\ Point"{}});}
+\DoxyCodeLine{00464\ \ \ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5abb3bd8b71b76ea0e2b5c1215a4862a75}{kEnterPhase}},\ \textcolor{stringliteral}{"{}Enter\ Point\ Phase"{}});}
+\DoxyCodeLine{00465\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00466\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5a63e4a24b9e17b6dd722989a109c1e431}{kEnterValue}},\ \textcolor{stringliteral}{"{}Enter\ Point\ Value"{}});}
+\DoxyCodeLine{00467\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(-\/1,\ \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00468\ \ \ \ \ \}}
+\DoxyCodeLine{00469\ \ \ \ \ \textcolor{keywordtype}{int}\ active\_power\ =\ \mbox{\hyperlink{class_line_editor_a7076df48eb6553d66d187550c2aab34a}{getActivePower}}();}
+\DoxyCodeLine{00470\ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_power\ >=\ 0)}
+\DoxyCodeLine{00471\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5aa15b5b5b822887bf6de0b1dee2df58eb}{kResetPower}},\ \textcolor{stringliteral}{"{}Reset\ Power"{}});}
+\DoxyCodeLine{00472\ }
+\DoxyCodeLine{00473\ \ \ \ \ \textcolor{keywordflow}{if}\ (allow\_file\_loading\_)\ \{}
+\DoxyCodeLine{00474\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5acd0f9021d07e45ffb01e08f6f47a179c}{kCopy}},\ \textcolor{stringliteral}{"{}Copy"{}});}
+\DoxyCodeLine{00475\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_editor_a60e5f98611e860de635342ebff38f677}{hasMatchingSystemClipboard}}())}
+\DoxyCodeLine{00476\ \ \ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5aececa6253bdc5f18b5cd209fffd2a0d3}{kPaste}},\ \textcolor{stringliteral}{"{}Paste"{}});}
+\DoxyCodeLine{00477\ }
+\DoxyCodeLine{00478\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5a299b41bb18c160a751e0e365471b11f4}{kSave}},\ \textcolor{stringliteral}{"{}Save\ to\ LFOs"{}});}
+\DoxyCodeLine{00479\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5a761ce6dae1adba72c5c9ba528d9799cb}{kInit}},\ \textcolor{stringliteral}{"{}Initialize"{}});}
+\DoxyCodeLine{00480\ \ \ \ \ \}}
+\DoxyCodeLine{00481\ }
+\DoxyCodeLine{00482\ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5a122dd8b72e05384e6d23f1e9ae97b412}{kFlipHorizontal}},\ \textcolor{stringliteral}{"{}Flip\ Horizontal"{}});}
+\DoxyCodeLine{00483\ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5aedebadfd1cb2c52d85fa5eef3a858f88}{kFlipVertical}},\ \textcolor{stringliteral}{"{}Flip\ Vertical"{}});}
+\DoxyCodeLine{00484\ }
+\DoxyCodeLine{00485\ \ \ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}*\ parent\ =\ findParentComponentOfClass<SynthSection>();}
+\DoxyCodeLine{00486\ \ \ \ \ \textcolor{keywordtype}{int}\ point\ =\ active\_point\_;}
+\DoxyCodeLine{00487\ \ \ \ \ \textcolor{keywordtype}{int}\ power\ =\ active\_power\_;}
+\DoxyCodeLine{00488\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_synth_section_a9424df12646a0b756b1b58904b9be6ff}{showPopupSelector}}(\textcolor{keyword}{this},\ e.getPosition(),\ options,}
+\DoxyCodeLine{00489\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ [=](\textcolor{keywordtype}{int}\ selection)\ \{\ respondToCallback(point,\ power,\ selection);\ \});}
+\DoxyCodeLine{00490\ \ \ \}}
+\DoxyCodeLine{00491\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_editor_a01efc6001d74678c53d58a9be404fe59}{isPainting}}())}
+\DoxyCodeLine{00492\ \ \ \ \ \mbox{\hyperlink{class_line_editor_a807357064baa40512cd10596f2c18c06}{paintLine}}(e);}
+\DoxyCodeLine{00493\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00494\ \ \ \ \ \mbox{\hyperlink{class_line_editor_ab1d201df9354c7a279fa590728513d1f}{drawDown}}(e);}
+\DoxyCodeLine{00495\ \}}
+\DoxyCodeLine{00496\ }
+\DoxyCodeLine{00497\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_ab1d201df9354c7a279fa590728513d1f}{LineEditor::drawDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00498\ \ \ last\_mouse\_position\_\ =\ e.position;}
+\DoxyCodeLine{00499\ \ \ \textcolor{keywordtype}{int}\ hover\_point\ =\ getHoverPoint(e.position);}
+\DoxyCodeLine{00500\ \ \ \textcolor{keywordflow}{if}\ (hover\_point\ >=\ 0)\ \{}
+\DoxyCodeLine{00501\ \ \ \ \ active\_point\_\ =\ hover\_point;}
+\DoxyCodeLine{00502\ \ \ \ \ active\_power\_\ =\ -\/1;}
+\DoxyCodeLine{00503\ \ \ \ \ dragging\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00504\ \ \ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00505\ \ \ \}}
+\DoxyCodeLine{00506\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00507\ \ \ \ \ \textcolor{keywordtype}{int}\ hover\_power\ =\ getHoverPower(e.position);}
+\DoxyCodeLine{00508\ \ \ \ \ \textcolor{keywordflow}{if}\ (hover\_power\ >=\ 0)\ \{}
+\DoxyCodeLine{00509\ \ \ \ \ \ \ active\_power\_\ =\ hover\_power;}
+\DoxyCodeLine{00510\ \ \ \ \ \ \ active\_point\_\ =\ -\/1;}
+\DoxyCodeLine{00511\ \ \ \ \ \ \ dragging\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00512\ \ \ \ \ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00513\ \ \ \ \ \}}
+\DoxyCodeLine{00514\ \ \ \}}
+\DoxyCodeLine{00515\ \}}
+\DoxyCodeLine{00516\ }
+\DoxyCodeLine{00517\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a5673d4608a598f62e2419654eb8848ff}{LineEditor::mouseDoubleClick}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00518\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_editor_a01efc6001d74678c53d58a9be404fe59}{isPainting}}())}
+\DoxyCodeLine{00519\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00520\ }
+\DoxyCodeLine{00521\ \ \ \textcolor{keywordtype}{int}\ hover\_point\ =\ getHoverPoint(e.position);}
+\DoxyCodeLine{00522\ \ \ \textcolor{keywordtype}{int}\ hover\_power\ =\ getHoverPower(e.position);}
+\DoxyCodeLine{00523\ \ \ \textcolor{keywordtype}{int}\ num\_points\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}();}
+\DoxyCodeLine{00524\ }
+\DoxyCodeLine{00525\ \ \ \textcolor{keywordflow}{if}\ (hover\_point\ >=\ 0)\ \{}
+\DoxyCodeLine{00526\ \ \ \ \ \textcolor{keywordflow}{if}\ (hover\_point\ ==\ 0\ ||\ hover\_point\ ==\ num\_points\ -\/\ 1)}
+\DoxyCodeLine{00527\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00528\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_points\ <=\ 1)}
+\DoxyCodeLine{00529\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00530\ }
+\DoxyCodeLine{00531\ \ \ \ \ removePoint(hover\_point);}
+\DoxyCodeLine{00532\ \ \ \}}
+\DoxyCodeLine{00533\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (hover\_power\ >=\ 0)\ \{}
+\DoxyCodeLine{00534\ \ \ \ \ \textcolor{keywordflow}{if}\ (e.mods.isShiftDown())\ \{}
+\DoxyCodeLine{00535\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}()\ -\/\ 1;\ ++i)}
+\DoxyCodeLine{00536\ \ \ \ \ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a6cb53b6d40e2f313dc0fe149b4d55e30}{setPower}}(i,\ 0.0f);}
+\DoxyCodeLine{00537\ \ \ \ \ \}}
+\DoxyCodeLine{00538\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00539\ \ \ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a6cb53b6d40e2f313dc0fe149b4d55e30}{setPower}}(hover\_power,\ 0.0f);}
+\DoxyCodeLine{00540\ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00541\ \ \ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00542\ \ \ \}}
+\DoxyCodeLine{00543\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00544\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_points\ >=\ \mbox{\hyperlink{class_line_generator_ad0c45d07732247d3994bdc4c4da79c21}{LineGenerator::kMaxPoints}})}
+\DoxyCodeLine{00545\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00546\ }
+\DoxyCodeLine{00547\ \ \ \ \ Point<float>\ position\ =\ e.position;}
+\DoxyCodeLine{00548\ \ \ \ \ position.x\ /=\ getWidth();}
+\DoxyCodeLine{00549\ \ \ \ \ position.y\ /=\ getHeight();}
+\DoxyCodeLine{00550\ \ \ \ \ addPointAt(position);}
+\DoxyCodeLine{00551\ \ \ \}}
+\DoxyCodeLine{00552\ \ \ active\_point\_\ =\ getHoverPoint(e.position);}
+\DoxyCodeLine{00553\ \ \ active\_power\_\ =\ -\/1;}
+\DoxyCodeLine{00554\ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00555\ \}}
+\DoxyCodeLine{00556\ }
+\DoxyCodeLine{00557\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_ac1a220361c4805de3bd0bdff7f50a9f5}{LineEditor::mouseMove}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00558\ \ \ \mbox{\hyperlink{class_line_editor_a755f48c5a59a637f13d5107c9201187d}{enableTemporaryPaintToggle}}(e.mods.isCommandDown());}
+\DoxyCodeLine{00559\ }
+\DoxyCodeLine{00560\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_editor_a01efc6001d74678c53d58a9be404fe59}{isPainting}}())\ \{}
+\DoxyCodeLine{00561\ \ \ \ \ \textcolor{keywordtype}{float}\ percent\_x\ =\ e.position.x\ /\ getWidth();}
+\DoxyCodeLine{00562\ \ \ \ \ \textcolor{keywordtype}{int}\ active\_section\ =\ std::max<int>(0,\ std::min<int>(grid\_size\_x\_\ *\ percent\_x,\ grid\_size\_x\_\ -\/\ 1));}
+\DoxyCodeLine{00563\ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_section\ !=\ active\_grid\_section\_)\ \{}
+\DoxyCodeLine{00564\ \ \ \ \ \ \ active\_grid\_section\_\ =\ active\_section;}
+\DoxyCodeLine{00565\ \ \ \ \ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00566\ \ \ \ \ \}}
+\DoxyCodeLine{00567\ \ \ \}}
+\DoxyCodeLine{00568\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00569\ \ \ \ \ \textcolor{keywordtype}{int}\ hovered\ =\ getHoverPoint(e.position);}
+\DoxyCodeLine{00570\ \ \ \ \ \textcolor{keywordtype}{int}\ power\_hover\ =\ -\/1;}
+\DoxyCodeLine{00571\ \ \ \ \ \textcolor{keywordflow}{if}\ (hovered\ <\ 0)}
+\DoxyCodeLine{00572\ \ \ \ \ \ \ power\_hover\ =\ getHoverPower(e.position);}
+\DoxyCodeLine{00573\ }
+\DoxyCodeLine{00574\ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_point\_\ !=\ hovered\ ||\ active\_power\_\ !=\ power\_hover)\ \{}
+\DoxyCodeLine{00575\ \ \ \ \ \ \ active\_point\_\ =\ hovered;}
+\DoxyCodeLine{00576\ \ \ \ \ \ \ active\_power\_\ =\ power\_hover;}
+\DoxyCodeLine{00577\ \ \ \ \ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00578\ \ \ \ \ \}}
+\DoxyCodeLine{00579\ \ \ \}}
+\DoxyCodeLine{00580\ \}}
+\DoxyCodeLine{00581\ }
+\DoxyCodeLine{00582\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_ad22c016d103ce85ed80d5c3c2d92b30e}{LineEditor::mouseDrag}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00583\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_editor_a01efc6001d74678c53d58a9be404fe59}{isPainting}}())}
+\DoxyCodeLine{00584\ \ \ \ \ \mbox{\hyperlink{class_line_editor_a807357064baa40512cd10596f2c18c06}{paintLine}}(e);}
+\DoxyCodeLine{00585\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00586\ \ \ \ \ \mbox{\hyperlink{class_line_editor_a6f40997362492f94ae0044d726b2ebfc}{drawDrag}}(e);}
+\DoxyCodeLine{00587\ }
+\DoxyCodeLine{00588\ \ \ last\_mouse\_position\_\ =\ e.position;}
+\DoxyCodeLine{00589\ \}}
+\DoxyCodeLine{00590\ }
+\DoxyCodeLine{00591\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a6f40997362492f94ae0044d726b2ebfc}{LineEditor::drawDrag}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00592\ \ \ \textcolor{keywordflow}{if}\ (!dragging\_)}
+\DoxyCodeLine{00593\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00594\ }
+\DoxyCodeLine{00595\ \ \ \textcolor{keywordflow}{if}\ (active\_point\_\ >=\ 0)}
+\DoxyCodeLine{00596\ \ \ \ \ movePoint(active\_point\_,\ e.position,\ !e.mods.isAltDown());}
+\DoxyCodeLine{00597\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (active\_power\_\ >=\ 0)}
+\DoxyCodeLine{00598\ \ \ \ \ movePower(active\_power\_,\ e.position,\ e.mods.isShiftDown(),\ e.mods.isAltDown());}
+\DoxyCodeLine{00599\ }
+\DoxyCodeLine{00600\ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00601\ \}}
+\DoxyCodeLine{00602\ }
+\DoxyCodeLine{00603\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a36433358f5873de0293d2590e8d84c0e}{LineEditor::mouseUp}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00604\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{class_line_editor_a01efc6001d74678c53d58a9be404fe59}{isPainting}}())}
+\DoxyCodeLine{00605\ \ \ \ \ \mbox{\hyperlink{class_line_editor_a74f25f154bb96bbca917dcedec0f2523}{drawUp}}(e);}
+\DoxyCodeLine{00606\ }
+\DoxyCodeLine{00607\ \ \ \mbox{\hyperlink{class_line_editor_a755f48c5a59a637f13d5107c9201187d}{enableTemporaryPaintToggle}}(e.mods.isCommandDown());}
+\DoxyCodeLine{00608\ \}}
+\DoxyCodeLine{00609\ }
+\DoxyCodeLine{00610\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a74f25f154bb96bbca917dcedec0f2523}{LineEditor::drawUp}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00611\ \ \ dragging\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00612\ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00613\ }
+\DoxyCodeLine{00614\ \ \ \textcolor{keywordflow}{if}\ (active\_point\_\ >=\ 0)\ \{}
+\DoxyCodeLine{00615\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_line_editor_1_1_listener}{Listener}}*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00616\ \ \ \ \ \ \ listener-\/>pointChanged(active\_point\_,\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(active\_point\_)),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00617\ \ \ \}}
+\DoxyCodeLine{00618\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (active\_power\_\ >=\ 0)\ \{}
+\DoxyCodeLine{00619\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_line_editor_1_1_listener}{Listener}}*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00620\ \ \ \ \ \ \ listener-\/>powersChanged(\textcolor{keyword}{true});}
+\DoxyCodeLine{00621\ \ \ \}}
+\DoxyCodeLine{00622\ \}}
+\DoxyCodeLine{00623\ }
+\DoxyCodeLine{00624\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a94ba67716aca1f1a5778b89846895456}{LineEditor::mouseExit}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00625\ \ \ \mbox{\hyperlink{class_line_editor_a755f48c5a59a637f13d5107c9201187d}{enableTemporaryPaintToggle}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00626\ \ \ \mbox{\hyperlink{class_line_editor_a0986102c0e92251d948a1d846fb067e6}{clearActiveMouseActions}}();}
+\DoxyCodeLine{00627\ \}}
+\DoxyCodeLine{00628\ }
+\DoxyCodeLine{00629\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a55d39a8abb999f4b96826b9257f006f4}{LineEditor::mouseWheelMove}}(\textcolor{keyword}{const}\ MouseEvent\&\ e,\ \textcolor{keyword}{const}\ MouseWheelDetails\&\ wheel)\ \{}
+\DoxyCodeLine{00630\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_line_editor_1_1_listener}{Listener}}*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00631\ \ \ \ \ listener-\/>lineEditorScrolled(e,\ wheel);}
+\DoxyCodeLine{00632\ \}}
+\DoxyCodeLine{00633\ }
+\DoxyCodeLine{00634\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a0986102c0e92251d948a1d846fb067e6}{LineEditor::clearActiveMouseActions}}()\ \{}
+\DoxyCodeLine{00635\ \ \ dragging\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00636\ \ \ active\_point\_\ =\ -\/1;}
+\DoxyCodeLine{00637\ \ \ active\_power\_\ =\ -\/1;}
+\DoxyCodeLine{00638\ \ \ active\_grid\_section\_\ =\ -\/1;}
+\DoxyCodeLine{00639\ }
+\DoxyCodeLine{00640\ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{00641\ \}}
+\DoxyCodeLine{00642\ }
+\DoxyCodeLine{00643\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a3a2241b4c39b07d320db8da0ebd0a8fe}{LineEditor::resetWavePath}}()\ \{}
+\DoxyCodeLine{00644\ \ \ \textcolor{keywordtype}{int}\ num\_points\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}();}
+\DoxyCodeLine{00645\ \ \ \textcolor{keywordtype}{int}\ intermediate\_points\ =\ \mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ -\/\ num\_points;}
+\DoxyCodeLine{00646\ \ \ Point<float>\ prev\_point\ =\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_a1afe833e851003dda4ea1373a1d6fe3d}{lastPoint}}());}
+\DoxyCodeLine{00647\ \ \ \textcolor{keywordtype}{float}\ power\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_a5b7bea68415894826d37e286626469e9}{lastPower}}();}
+\DoxyCodeLine{00648\ \ \ prev\_point.x\ -\/=\ 1.0f;}
+\DoxyCodeLine{00649\ }
+\DoxyCodeLine{00650\ \ \ \textcolor{keywordtype}{float}\ width\ =\ getWidth();}
+\DoxyCodeLine{00651\ \ \ \textcolor{keywordtype}{float}\ height\ =\ getHeight();}
+\DoxyCodeLine{00652\ }
+\DoxyCodeLine{00653\ \ \ \textcolor{keywordtype}{int}\ draw\_index\ =\ 0;}
+\DoxyCodeLine{00654\ \ \ \textcolor{keywordtype}{int}\ point\_index\ =\ 0;}
+\DoxyCodeLine{00655\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ intermediate\_points;\ ++i)\ \{}
+\DoxyCodeLine{00656\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ i\ /\ (intermediate\_points\ -\/\ 1.0f);}
+\DoxyCodeLine{00657\ }
+\DoxyCodeLine{00658\ \ \ \ \ \textcolor{keywordflow}{while}\ (point\_index\ <\ num\_points\ \&\&\ t\ >=\ model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(point\_index).first)\ \{}
+\DoxyCodeLine{00659\ \ \ \ \ \ \ prev\_point\ =\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(point\_index));}
+\DoxyCodeLine{00660\ \ \ \ \ \ \ power\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_ae437c231493f083a30cba07a135e81e9}{getPower}}(point\_index);}
+\DoxyCodeLine{00661\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(\mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}}\ +\ draw\_index,\ \mbox{\hyperlink{class_line_editor_ad72805eab92ebb9aae9f6ccac2852e46}{padX}}(width\ *\ model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(point\_index).first));}
+\DoxyCodeLine{00662\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(\mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}}\ +\ draw\_index,\ \mbox{\hyperlink{class_line_editor_a7031acc53ec7a9c0145ae08ddb01d120}{padY}}(height\ *\ model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(point\_index).second));}
+\DoxyCodeLine{00663\ \ \ \ \ \ \ point\_index++;}
+\DoxyCodeLine{00664\ \ \ \ \ \ \ draw\_index++;}
+\DoxyCodeLine{00665\ \ \ \ \ \}}
+\DoxyCodeLine{00666\ }
+\DoxyCodeLine{00667\ \ \ \ \ Point<float>\ next\_point;}
+\DoxyCodeLine{00668\ \ \ \ \ \textcolor{keywordflow}{if}\ (point\_index\ <\ num\_points)\ \{}
+\DoxyCodeLine{00669\ \ \ \ \ \ \ next\_point\ =\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(point\_index));}
+\DoxyCodeLine{00670\ \ \ \ \ \}}
+\DoxyCodeLine{00671\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00672\ \ \ \ \ \ \ next\_point\ =\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(0));}
+\DoxyCodeLine{00673\ \ \ \ \ \ \ next\_point.x\ +=\ 1.0f;}
+\DoxyCodeLine{00674\ \ \ \ \ \}}
+\DoxyCodeLine{00675\ }
+\DoxyCodeLine{00676\ \ \ \ \ \textcolor{keywordtype}{float}\ x\_distance\ =\ next\_point.x\ -\/\ prev\_point.x;}
+\DoxyCodeLine{00677\ \ \ \ \ \textcolor{keywordtype}{float}\ point\_t\ =\ 0.0f;}
+\DoxyCodeLine{00678\ \ \ \ \ \textcolor{keywordflow}{if}\ (x\_distance\ >\ 0.0f)}
+\DoxyCodeLine{00679\ \ \ \ \ \ \ point\_t\ =\ (t\ -\/\ prev\_point.x)\ /\ x\_distance;}
+\DoxyCodeLine{00680\ }
+\DoxyCodeLine{00681\ \ \ \ \ \textcolor{keywordflow}{if}\ (model\_-\/>\mbox{\hyperlink{class_line_generator_a2e1674a8c96e24da8d489cf28d6e92dd}{smooth}}())}
+\DoxyCodeLine{00682\ \ \ \ \ \ \ point\_t\ =\ \mbox{\hyperlink{class_line_generator_ac91f2c0b9b4f597c7dd9e37d4ec1afdd}{LineGenerator::smoothTransition}}(point\_t);}
+\DoxyCodeLine{00683\ }
+\DoxyCodeLine{00684\ \ \ \ \ point\_t\ =\ \mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{vital::futils::powerScale}}(point\_t,\ power);}
+\DoxyCodeLine{00685\ }
+\DoxyCodeLine{00686\ \ \ \ \ \textcolor{keywordtype}{float}\ val\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(prev\_point.y,\ next\_point.y,\ point\_t);}
+\DoxyCodeLine{00687\ }
+\DoxyCodeLine{00688\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(\mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}}\ +\ draw\_index,\ \mbox{\hyperlink{class_line_editor_ad72805eab92ebb9aae9f6ccac2852e46}{padX}}(width\ *\ t));}
+\DoxyCodeLine{00689\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(\mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}}\ +\ draw\_index,\ \mbox{\hyperlink{class_line_editor_a7031acc53ec7a9c0145ae08ddb01d120}{padY}}(height\ *\ val));}
+\DoxyCodeLine{00690\ \ \ \ \ draw\_index++;}
+\DoxyCodeLine{00691\ \ \ \}}
+\DoxyCodeLine{00692\ }
+\DoxyCodeLine{00693\ \ \ \textcolor{keywordtype}{float}\ end\_val\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(num\_points\ -\/\ 1).second;}
+\DoxyCodeLine{00694\ }
+\DoxyCodeLine{00695\ \ \ \textcolor{keywordflow}{for}\ (;\ draw\_index\ <\ \mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}};\ ++draw\_index)\ \{}
+\DoxyCodeLine{00696\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(\mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}}\ +\ draw\_index,\ \mbox{\hyperlink{class_line_editor_ad72805eab92ebb9aae9f6ccac2852e46}{padX}}(width));}
+\DoxyCodeLine{00697\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(\mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}}\ +\ draw\_index,\ \mbox{\hyperlink{class_line_editor_a7031acc53ec7a9c0145ae08ddb01d120}{padY}}(height\ *\ end\_val));}
+\DoxyCodeLine{00698\ \ \ \}}
+\DoxyCodeLine{00699\ }
+\DoxyCodeLine{00700\ \ \ \textcolor{keywordflow}{if}\ (loop\_)\ \{}
+\DoxyCodeLine{00701\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}};\ ++i)\ \{}
+\DoxyCodeLine{00702\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(i,\ \mbox{\hyperlink{class_open_gl_line_renderer_a1644dfc0099065cc79cab659d906626b}{xAt}}(\mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ +\ i)\ -\/\ width);}
+\DoxyCodeLine{00703\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(i,\ \mbox{\hyperlink{class_open_gl_line_renderer_ab1f19abc92d00a41c4b922ec4cf0a94f}{yAt}}(\mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ +\ i));}
+\DoxyCodeLine{00704\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ac8d022f7bbaab92019bb55ff606806fd}{setBoostLeft}}(i,\ \mbox{\hyperlink{class_open_gl_line_renderer_a4be69ef679d3a855f6d04c0606578eb0}{boostLeftAt}}(\mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ +\ i));}
+\DoxyCodeLine{00705\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a5bb644e774ea3147d6feea225118bdd4}{setBoostRight}}(i,\ \mbox{\hyperlink{class_open_gl_line_renderer_ab86509f96f5811d04cf20847ff662c5c}{boostRightAt}}(\mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ +\ i));}
+\DoxyCodeLine{00706\ }
+\DoxyCodeLine{00707\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(i\ +\ \mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ +\ \mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}},\ \mbox{\hyperlink{class_open_gl_line_renderer_a1644dfc0099065cc79cab659d906626b}{xAt}}(\mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}}\ +\ i)\ +\ width);}
+\DoxyCodeLine{00708\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(i\ +\ \mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ +\ \mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}},\ \mbox{\hyperlink{class_open_gl_line_renderer_ab1f19abc92d00a41c4b922ec4cf0a94f}{yAt}}(\mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}}\ +\ i));}
+\DoxyCodeLine{00709\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ac8d022f7bbaab92019bb55ff606806fd}{setBoostLeft}}(i\ +\ \mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ +\ \mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}},\ \mbox{\hyperlink{class_open_gl_line_renderer_a4be69ef679d3a855f6d04c0606578eb0}{boostLeftAt}}(\mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}}\ +\ i));}
+\DoxyCodeLine{00710\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a5bb644e774ea3147d6feea225118bdd4}{setBoostRight}}(i\ +\ \mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ +\ \mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}},\ \mbox{\hyperlink{class_open_gl_line_renderer_ab86509f96f5811d04cf20847ff662c5c}{boostRightAt}}(\mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}}\ +\ i));}
+\DoxyCodeLine{00711\ \ \ \ \ \}}
+\DoxyCodeLine{00712\ \ \ \}}
+\DoxyCodeLine{00713\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00714\ \ \ \ \ \textcolor{keywordtype}{int}\ last\_index\ =\ \mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}}\ +\ \mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ -\/\ 1;}
+\DoxyCodeLine{00715\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}};\ ++i)\ \{}
+\DoxyCodeLine{00716\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(i,\ \mbox{\hyperlink{class_open_gl_line_renderer_a1644dfc0099065cc79cab659d906626b}{xAt}}(\mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}}));}
+\DoxyCodeLine{00717\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(i,\ \mbox{\hyperlink{class_open_gl_line_renderer_ab1f19abc92d00a41c4b922ec4cf0a94f}{yAt}}(\mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}}));}
+\DoxyCodeLine{00718\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ac8d022f7bbaab92019bb55ff606806fd}{setBoostLeft}}(i,\ \mbox{\hyperlink{class_open_gl_line_renderer_a4be69ef679d3a855f6d04c0606578eb0}{boostLeftAt}}(\mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}}));}
+\DoxyCodeLine{00719\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a5bb644e774ea3147d6feea225118bdd4}{setBoostRight}}(i,\ \mbox{\hyperlink{class_open_gl_line_renderer_ab86509f96f5811d04cf20847ff662c5c}{boostRightAt}}(\mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}}));}
+\DoxyCodeLine{00720\ }
+\DoxyCodeLine{00721\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(i\ +\ \mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ +\ \mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}},\ \mbox{\hyperlink{class_open_gl_line_renderer_a1644dfc0099065cc79cab659d906626b}{xAt}}(last\_index));}
+\DoxyCodeLine{00722\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(i\ +\ \mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ +\ \mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}},\ \mbox{\hyperlink{class_open_gl_line_renderer_ab1f19abc92d00a41c4b922ec4cf0a94f}{yAt}}(last\_index));}
+\DoxyCodeLine{00723\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ac8d022f7bbaab92019bb55ff606806fd}{setBoostLeft}}(i\ +\ \mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ +\ \mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}},\ \mbox{\hyperlink{class_open_gl_line_renderer_a4be69ef679d3a855f6d04c0606578eb0}{boostLeftAt}}(last\_index));}
+\DoxyCodeLine{00724\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a5bb644e774ea3147d6feea225118bdd4}{setBoostRight}}(i\ +\ \mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ +\ \mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}},\ \mbox{\hyperlink{class_open_gl_line_renderer_ab86509f96f5811d04cf20847ff662c5c}{boostRightAt}}(last\_index));}
+\DoxyCodeLine{00725\ \ \ \ \ \}}
+\DoxyCodeLine{00726\ \ \ \}}
+\DoxyCodeLine{00727\ \}}
+\DoxyCodeLine{00728\ }
+\DoxyCodeLine{00729\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_line_editor_a7031acc53ec7a9c0145ae08ddb01d120}{LineEditor::padY}}(\textcolor{keywordtype}{float}\ y)\ \{}
+\DoxyCodeLine{00730\ \ \ \textcolor{keywordtype}{float}\ pad\ =\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_a7a03ac220218721857a7c09f736e9e43}{kPaddingY}};}
+\DoxyCodeLine{00731\ \ \ \textcolor{keywordflow}{return}\ y\ *\ (getHeight()\ -\/\ 2.0f\ *\ pad)\ /\ getHeight()\ +\ pad;}
+\DoxyCodeLine{00732\ \}}
+\DoxyCodeLine{00733\ }
+\DoxyCodeLine{00734\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_line_editor_a9f6b36a2131592c83f6951a0ae4df9bf}{LineEditor::unpadY}}(\textcolor{keywordtype}{float}\ y)\ \{}
+\DoxyCodeLine{00735\ \ \ \textcolor{keywordtype}{float}\ pad\ =\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_a7a03ac220218721857a7c09f736e9e43}{kPaddingY}};}
+\DoxyCodeLine{00736\ \ \ \textcolor{keywordflow}{return}\ (y\ -\/\ pad)\ *\ getHeight()\ /\ (getHeight()\ -\/\ 2.0f\ *\ pad);}
+\DoxyCodeLine{00737\ \}}
+\DoxyCodeLine{00738\ }
+\DoxyCodeLine{00739\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_line_editor_ad72805eab92ebb9aae9f6ccac2852e46}{LineEditor::padX}}(\textcolor{keywordtype}{float}\ x)\ \{}
+\DoxyCodeLine{00740\ \ \ \textcolor{keywordflow}{if}\ (loop\_)}
+\DoxyCodeLine{00741\ \ \ \ \ \textcolor{keywordflow}{return}\ x;}
+\DoxyCodeLine{00742\ \ \ \textcolor{keywordtype}{float}\ pad\ =\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_a0847f3b26a0284ba6d852c566289005d}{kPaddingX}};}
+\DoxyCodeLine{00743\ \ \ \textcolor{keywordflow}{return}\ x\ *\ (getWidth()\ -\/\ 2.0f\ *\ pad)\ /\ getWidth()\ +\ pad;}
+\DoxyCodeLine{00744\ \}}
+\DoxyCodeLine{00745\ }
+\DoxyCodeLine{00746\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_line_editor_af90774ce76f35df33034e6986f13c931}{LineEditor::unpadX}}(\textcolor{keywordtype}{float}\ x)\ \{}
+\DoxyCodeLine{00747\ \ \ \textcolor{keywordflow}{if}\ (loop\_)}
+\DoxyCodeLine{00748\ \ \ \ \ \textcolor{keywordflow}{return}\ x;}
+\DoxyCodeLine{00749\ \ \ \textcolor{keywordtype}{float}\ pad\ =\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_a0847f3b26a0284ba6d852c566289005d}{kPaddingX}};}
+\DoxyCodeLine{00750\ \ \ \textcolor{keywordflow}{return}\ (x\ -\/\ pad)\ *\ getWidth()\ /\ (getWidth()\ -\/\ 2.0f\ *\ pad);}
+\DoxyCodeLine{00751\ \}}
+\DoxyCodeLine{00752\ }
+\DoxyCodeLine{00753\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a2c477c763ea963c68a582163801174b6}{LineEditor::init}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00754\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a0fa1ef67e942cb6dba85c5980cc3c544}{OpenGlLineRenderer::init}}(open\_gl);}
+\DoxyCodeLine{00755\ \ \ drag\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00756\ \ \ hover\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00757\ \ \ grid\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00758\ \ \ point\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00759\ \ \ power\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00760\ \ \ position\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00761\ \}}
+\DoxyCodeLine{00762\ }
+\DoxyCodeLine{00763\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a0dd2d0c4d12de68b100210fcc8c461e2}{LineEditor::renderGrid}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00764\ \ \ grid\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00765\ \ \ grid\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ animate);}
+\DoxyCodeLine{00766\ \}}
+\DoxyCodeLine{00767\ }
+\DoxyCodeLine{00768\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_ae17c347d018abdfc556e88c8a54b2f4b}{LineEditor::renderPoints}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00769\ \ \ Colour\ center\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cabbaf3da4792c5389424b537b943e52ac}{Skin::kWidgetCenterLine}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00770\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{class_line_editor_a0dc5d2fdcb5e5ea69212cc3c1b68d26a}{active\_}})}
+\DoxyCodeLine{00771\ \ \ \ \ center\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4f6dbca7fdb5224fc3d7e4beb68970fc}{Skin::kWidgetPrimaryDisabled}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00772\ }
+\DoxyCodeLine{00773\ \ \ Colour\ background\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5a30a22b4659bc04528e89d1759558a7}{Skin::kWidgetBackground}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00774\ \ \ point\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(center);}
+\DoxyCodeLine{00775\ \ \ point\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a46dfe42ce452467df0b7b2faeee64c03}{setAltColor}}(background);}
+\DoxyCodeLine{00776\ \ \ point\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ animate);}
+\DoxyCodeLine{00777\ }
+\DoxyCodeLine{00778\ \ \ power\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(center);}
+\DoxyCodeLine{00779\ \ \ power\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ animate);}
+\DoxyCodeLine{00780\ }
+\DoxyCodeLine{00781\ \ \ drag\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caf911444fc8e39321d57b23c144a5f3d5}{Skin::kWidgetAccent2}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00782\ \ \ drag\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ animate);}
+\DoxyCodeLine{00783\ }
+\DoxyCodeLine{00784\ \ \ hover\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca2dbe5efa84f5aaa45d87a00fbfdb54e2}{Skin::kWidgetAccent1}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00785\ \ \ hover\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ animate);}
+\DoxyCodeLine{00786\ \}}
+\DoxyCodeLine{00787\ }
+\DoxyCodeLine{00788\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a1eec12f3df90ba877ca0ce9f1d37c536}{LineEditor::render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00789\ \ \ \textcolor{keywordflow}{if}\ (last\_model\_render\_\ !=\ model\_-\/>\mbox{\hyperlink{class_line_generator_a4c430cc1be56fd1981ee23db4775ce63}{getRenderCount}}())\ \{}
+\DoxyCodeLine{00790\ \ \ \ \ reset\_positions\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00791\ \ \ \ \ last\_model\_render\_\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_a4c430cc1be56fd1981ee23db4775ce63}{getRenderCount}}();}
+\DoxyCodeLine{00792\ \ \ \}}
+\DoxyCodeLine{00793\ \ \ \mbox{\hyperlink{class_line_editor_aab19ed03fb2a6051de6ca202feaac605}{setGlPositions}}();}
+\DoxyCodeLine{00794\ \ \ \mbox{\hyperlink{class_line_editor_a0dd2d0c4d12de68b100210fcc8c461e2}{renderGrid}}(open\_gl,\ animate);}
+\DoxyCodeLine{00795\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a190b43b9e98973f2bf94d8ba6a240a11}{OpenGlLineRenderer::render}}(open\_gl,\ animate);}
+\DoxyCodeLine{00796\ \ \ \mbox{\hyperlink{class_line_editor_ae17c347d018abdfc556e88c8a54b2f4b}{renderPoints}}(open\_gl,\ animate);}
+\DoxyCodeLine{00797\ \ \ \mbox{\hyperlink{class_open_gl_component_a5c6aa6d7c8a20882ce3b621efbf7e18b}{renderCorners}}(open\_gl,\ animate);}
+\DoxyCodeLine{00798\ \}}
+\DoxyCodeLine{00799\ }
+\DoxyCodeLine{00800\ Point<float>\ LineEditor::valuesToOpenGlPosition(\textcolor{keywordtype}{float}\ x,\ \textcolor{keywordtype}{float}\ y)\ \{}
+\DoxyCodeLine{00801\ \ \ \textcolor{keywordtype}{float}\ padding\_x\ =\ 2.0f\ *\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_a0847f3b26a0284ba6d852c566289005d}{kPaddingX}}\ /\ getWidth();}
+\DoxyCodeLine{00802\ \ \ \textcolor{keywordtype}{float}\ padding\_y\ =\ 2.0f\ *\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_a7a03ac220218721857a7c09f736e9e43}{kPaddingY}}\ /\ getHeight();}
+\DoxyCodeLine{00803\ \ \ \textcolor{keywordtype}{float}\ adjusted\_x\ =\ (x\ *\ 2.0f\ -\/\ 1.0f)\ *\ (1.0f\ -\/\ padding\_x);}
+\DoxyCodeLine{00804\ \ \ \textcolor{keywordtype}{float}\ adjusted\_y\ =\ (y\ *\ 2.0f\ -\/\ 1.0f)\ *\ (1.0f\ -\/\ padding\_y);}
+\DoxyCodeLine{00805\ \ \ \textcolor{keywordflow}{return}\ Point<float>(adjusted\_x,\ adjusted\_y);}
+\DoxyCodeLine{00806\ \}}
+\DoxyCodeLine{00807\ }
+\DoxyCodeLine{00808\ Point<float>\ LineEditor::getPowerPosition(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00809\ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(index\ >=\ 0\ \&\&\ index\ <\ model\_-\/>getNumPoints());}
+\DoxyCodeLine{00810\ \ \ Point<float>\ from\ =\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(index));}
+\DoxyCodeLine{00811\ \ \ Point<float>\ to;}
+\DoxyCodeLine{00812\ \ \ \textcolor{keywordflow}{if}\ (index\ <\ model\_-\/>getNumPoints()\ -\/\ 1)}
+\DoxyCodeLine{00813\ \ \ \ \ to\ =\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(index\ +\ 1));}
+\DoxyCodeLine{00814\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00815\ \ \ \ \ to\ =\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(0));}
+\DoxyCodeLine{00816\ \ \ \ \ to.x\ +=\ 1.0f;}
+\DoxyCodeLine{00817\ \ \ \}}
+\DoxyCodeLine{00818\ }
+\DoxyCodeLine{00819\ \ \ \textcolor{keywordtype}{float}\ x\ =\ (from.x\ +\ to.x)\ /\ 2.0f;}
+\DoxyCodeLine{00820\ \ \ \textcolor{keywordflow}{if}\ (x\ >=\ 1.0f)}
+\DoxyCodeLine{00821\ \ \ \ \ x\ -\/=\ 1.0f;}
+\DoxyCodeLine{00822\ \ \ \textcolor{keywordtype}{float}\ power\_t\ =\ \mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{vital::futils::powerScale}}(0.5f,\ model\_-\/>\mbox{\hyperlink{class_line_generator_ae437c231493f083a30cba07a135e81e9}{getPower}}(index));}
+\DoxyCodeLine{00823\ \ \ \textcolor{keywordtype}{float}\ y\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(from.y,\ to.y,\ power\_t);}
+\DoxyCodeLine{00824\ \ \ \textcolor{keywordflow}{return}\ Point<float>(x,\ y);}
+\DoxyCodeLine{00825\ \}}
+\DoxyCodeLine{00826\ }
+\DoxyCodeLine{00827\ \textcolor{keywordtype}{bool}\ LineEditor::powerActive(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00828\ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(index\ >=\ 0\ \&\&\ index\ <\ model\_-\/>getNumPoints());}
+\DoxyCodeLine{00829\ \ \ Point<float>\ delta;}
+\DoxyCodeLine{00830\ \ \ \textcolor{keywordflow}{if}\ (index\ <\ model\_-\/>getNumPoints()\ -\/\ 1)}
+\DoxyCodeLine{00831\ \ \ \ \ delta\ =\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(index\ +\ 1))\ -\/\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(index));}
+\DoxyCodeLine{00832\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00833\ \ \ \ \ delta\ =\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(0))\ -\/\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_a1afe833e851003dda4ea1373a1d6fe3d}{lastPoint}}())\ +\ Point<float>(1.0f,\ 0.0f);}
+\DoxyCodeLine{00834\ }
+\DoxyCodeLine{00835\ \ \ \textcolor{keywordflow}{return}\ getWidth()\ *\ delta.x\ >=\ \mbox{\hyperlink{class_line_editor_a1d4aa05614ca6023bbdbe6b9966ccd50}{kMinPointDistanceForPower}}\ \&\&\ delta.y;}
+\DoxyCodeLine{00836\ \}}
+\DoxyCodeLine{00837\ }
+\DoxyCodeLine{00838\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_ac91f850123f6738190d402fdc89d123f}{LineEditor::drawPosition}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ Colour\ color,\ \textcolor{keywordtype}{float}\ fraction\_x)\ \{}
+\DoxyCodeLine{00839\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kCenterFade\ =\ 0.2f;}
+\DoxyCodeLine{00840\ }
+\DoxyCodeLine{00841\ \ \ \textcolor{keywordflow}{if}\ (fraction\_x\ ==\ 0.0f)}
+\DoxyCodeLine{00842\ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00843\ }
+\DoxyCodeLine{00844\ \ \ \textcolor{keywordtype}{float}\ fraction\_y\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_a33bc4b29dd3de919bd4d75e007330405}{valueAtPhase}}(fraction\_x);}
+\DoxyCodeLine{00845\ \ \ Point<float>\ point\ =\ valuesToOpenGlPosition(fraction\_x,\ fraction\_y);}
+\DoxyCodeLine{00846\ \ \ \textcolor{keywordtype}{float}\ x\ =\ point.x;}
+\DoxyCodeLine{00847\ \ \ \textcolor{keywordtype}{float}\ y\ =\ point.y;}
+\DoxyCodeLine{00848\ }
+\DoxyCodeLine{00849\ \ \ glEnable(GL\_BLEND);}
+\DoxyCodeLine{00850\ \ \ glBlendFunc(GL\_ONE,\ GL\_ONE\_MINUS\_SRC\_ALPHA);}
+\DoxyCodeLine{00851\ }
+\DoxyCodeLine{00852\ \ \ \textcolor{keywordtype}{int}\ draw\_width\ =\ getWidth();}
+\DoxyCodeLine{00853\ \ \ \textcolor{keywordtype}{int}\ draw\_height\ =\ getHeight();}
+\DoxyCodeLine{00854\ }
+\DoxyCodeLine{00855\ \ \ glTexParameteri(GL\_TEXTURE\_2D,\ GL\_TEXTURE\_WRAP\_S,\ GL\_CLAMP\_TO\_EDGE);}
+\DoxyCodeLine{00856\ \ \ glTexParameteri(GL\_TEXTURE\_2D,\ GL\_TEXTURE\_WRAP\_T,\ GL\_CLAMP\_TO\_EDGE);}
+\DoxyCodeLine{00857\ }
+\DoxyCodeLine{00858\ \ \ Colour\ background\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5a30a22b4659bc04528e89d1759558a7}{Skin::kWidgetBackground}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00859\ }
+\DoxyCodeLine{00860\ \ \ \textcolor{keywordtype}{float}\ position\_height\ =\ 2.0f\ *\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_a943d0d95649b721abc1b3353ea87481d}{kPositionWidth}}\ /\ draw\_height;}
+\DoxyCodeLine{00861\ \ \ \textcolor{keywordtype}{float}\ position\_width\ =\ 2.0f\ *\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_a943d0d95649b721abc1b3353ea87481d}{kPositionWidth}}\ /\ draw\_width;}
+\DoxyCodeLine{00862\ \ \ position\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ x\ -\/\ position\_width\ *\ 0.5f,\ y\ -\/\ position\_height\ *\ 0.5f,\ position\_width,\ position\_height);}
+\DoxyCodeLine{00863\ \ \ position\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(\mbox{\hyperlink{class_open_gl_line_renderer_af0c2ca2c270b4a3439bb87eff7021e61}{color}});}
+\DoxyCodeLine{00864\ \ \ position\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a46dfe42ce452467df0b7b2faeee64c03}{setAltColor}}(\mbox{\hyperlink{class_open_gl_line_renderer_af0c2ca2c270b4a3439bb87eff7021e61}{color}}.interpolatedWith(background,\ kCenterFade));}
+\DoxyCodeLine{00865\ \ \ position\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a0e0f55028083ff593df1457f746a173a}{setThickness}}(size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_a943d0d95649b721abc1b3353ea87481d}{kPositionWidth}}\ *\ \mbox{\hyperlink{class_line_editor_a7218ee2bca91b3e2cb6e7e7b325fe17f}{kRingThickness}}\ *\ 0.5f);}
+\DoxyCodeLine{00866\ \ \ position\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00867\ \}}
+\DoxyCodeLine{00868\ }
+\DoxyCodeLine{00869\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a49eef32a3aa146e42ebf7649a04429b2}{LineEditor::setEditingCircleBounds}}()\ \{}
+\DoxyCodeLine{00870\ \ \ Point<float>\ edit\_position;}
+\DoxyCodeLine{00871\ \ \ \textcolor{keywordflow}{if}\ (active\_point\_\ >=\ 0)}
+\DoxyCodeLine{00872\ \ \ \ \ edit\_position\ =\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(active\_point\_));}
+\DoxyCodeLine{00873\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (active\_power\_\ >=\ 0)}
+\DoxyCodeLine{00874\ \ \ \ \ edit\_position\ =\ getPowerPosition(active\_power\_);}
+\DoxyCodeLine{00875\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00876\ \ \ \ \ drag\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a11c7d32833ea8910f9301d6c98e4daff}{setActive}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00877\ \ \ \ \ hover\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a11c7d32833ea8910f9301d6c98e4daff}{setActive}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00878\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00879\ \ \ \}}
+\DoxyCodeLine{00880\ }
+\DoxyCodeLine{00881\ \ \ \textcolor{keywordtype}{float}\ width\ =\ getWidth();}
+\DoxyCodeLine{00882\ \ \ \textcolor{keywordtype}{float}\ height\ =\ getHeight();}
+\DoxyCodeLine{00883\ \ \ \textcolor{keywordtype}{float}\ x\ =\ \mbox{\hyperlink{class_line_editor_ad72805eab92ebb9aae9f6ccac2852e46}{padX}}(width\ *\ edit\_position.x)\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00884\ \ \ \textcolor{keywordtype}{float}\ y\ =\ 1.0f\ -\/\ \mbox{\hyperlink{class_line_editor_a7031acc53ec7a9c0145ae08ddb01d120}{padY}}(height\ *\ edit\_position.y)\ *\ 2.0f\ /\ height;}
+\DoxyCodeLine{00885\ \ \ \textcolor{keywordtype}{float}\ hover\_width\ =\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_afbb5e4e2c0b9e1d1dbfd9d9c4e40f979}{kGrabRadius}}\ *\ 4.0f\ /\ width;}
+\DoxyCodeLine{00886\ \ \ \textcolor{keywordtype}{float}\ hover\_height\ =\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_afbb5e4e2c0b9e1d1dbfd9d9c4e40f979}{kGrabRadius}}\ *\ 4.0f\ /\ height;}
+\DoxyCodeLine{00887\ \ \ \textcolor{keywordtype}{float}\ drag\_width\ =\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_a8596608c0af36df6c7970215cba10089}{kDragRadius}}\ *\ 4.0f\ /\ width;}
+\DoxyCodeLine{00888\ \ \ \textcolor{keywordtype}{float}\ drag\_height\ =\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_a8596608c0af36df6c7970215cba10089}{kDragRadius}}\ *\ 4.0f\ /\ height;}
+\DoxyCodeLine{00889\ }
+\DoxyCodeLine{00890\ \ \ hover\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a11c7d32833ea8910f9301d6c98e4daff}{setActive}}(!\mbox{\hyperlink{class_line_editor_a01efc6001d74678c53d58a9be404fe59}{isPainting}}());}
+\DoxyCodeLine{00891\ \ \ hover\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ x\ -\/\ hover\_width\ *\ 0.5f,\ y\ -\/\ hover\_height\ *\ 0.5f,\ hover\_width,\ hover\_height);}
+\DoxyCodeLine{00892\ }
+\DoxyCodeLine{00893\ \ \ drag\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a11c7d32833ea8910f9301d6c98e4daff}{setActive}}(dragging\_);}
+\DoxyCodeLine{00894\ \ \ \textcolor{keywordflow}{if}\ (dragging\_)}
+\DoxyCodeLine{00895\ \ \ \ \ drag\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ x\ -\/\ drag\_width\ *\ 0.5f,\ y\ -\/\ drag\_height\ *\ 0.5f,\ drag\_width,\ drag\_height);}
+\DoxyCodeLine{00896\ \}}
+\DoxyCodeLine{00897\ }
+\DoxyCodeLine{00898\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_abaad09c19fa32424e60e1dfcde1d0caf}{LineEditor::setGridPositions}}()\ \{}
+\DoxyCodeLine{00899\ \ \ \textcolor{keywordtype}{int}\ grid\_size\_x\ =\ grid\_size\_x\_;}
+\DoxyCodeLine{00900\ \ \ \textcolor{keywordtype}{int}\ grid\_size\_y\ =\ grid\_size\_y\_;}
+\DoxyCodeLine{00901\ }
+\DoxyCodeLine{00902\ \ \ \textcolor{keywordtype}{float}\ width\ =\ 2.0f\ /\ getWidth();}
+\DoxyCodeLine{00903\ \ \ \textcolor{keywordtype}{int}\ index\ =\ 0;}
+\DoxyCodeLine{00904\ \ \ \textcolor{keywordtype}{float}\ x\_scale\ =\ 1.0f\ -\/\ size\_ratio\_\ *\ 2.0f\ *\ \mbox{\hyperlink{class_line_editor_a0847f3b26a0284ba6d852c566289005d}{kPaddingX}}\ /\ getWidth();}
+\DoxyCodeLine{00905\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <\ grid\_size\_x;\ ++i)\ \{}
+\DoxyCodeLine{00906\ \ \ \ \ \textcolor{keywordtype}{float}\ x\ =\ i\ *\ 2.0f\ /\ grid\_size\_x\ -\/\ 1.0f;}
+\DoxyCodeLine{00907\ \ \ \ \ x\ *=\ x\_scale;}
+\DoxyCodeLine{00908\ \ \ \ \ grid\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(index,\ x\ -\/\ width\ *\ 0.5f,\ -\/1.0f,\ width,\ 2.0f);}
+\DoxyCodeLine{00909\ \ \ \ \ index++;}
+\DoxyCodeLine{00910\ \ \ \}}
+\DoxyCodeLine{00911\ }
+\DoxyCodeLine{00912\ \ \ \textcolor{keywordtype}{float}\ height\ =\ 2.0f\ /\ getHeight();}
+\DoxyCodeLine{00913\ \ \ \textcolor{keywordtype}{float}\ y\_scale\ =\ 1.0f\ -\/\ size\_ratio\_\ *\ 2.0f\ *\ \mbox{\hyperlink{class_line_editor_a7a03ac220218721857a7c09f736e9e43}{kPaddingY}}\ /\ getHeight();}
+\DoxyCodeLine{00914\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <\ grid\_size\_y;\ ++i)\ \{}
+\DoxyCodeLine{00915\ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ i\ *\ 2.0f\ /\ grid\_size\_y\ -\/\ 1.0f;}
+\DoxyCodeLine{00916\ \ \ \ \ y\ *=\ y\_scale;}
+\DoxyCodeLine{00917\ \ \ \ \ grid\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(index,\ -\/1.0f,\ y\ -\/\ height\ *\ 0.5f,\ 2.0f,\ height);}
+\DoxyCodeLine{00918\ \ \ \ \ index++;}
+\DoxyCodeLine{00919\ \ \ \}}
+\DoxyCodeLine{00920\ }
+\DoxyCodeLine{00921\ \ \ \textcolor{keywordflow}{if}\ (grid\_size\_x\ \&\&\ \mbox{\hyperlink{class_line_editor_a01efc6001d74678c53d58a9be404fe59}{isPainting}}()\ \&\&\ active\_grid\_section\_\ >=\ 0)\ \{}
+\DoxyCodeLine{00922\ \ \ \ \ \textcolor{keywordtype}{int}\ start\_x\ =\ (active\_grid\_section\_\ *\ getWidth())\ /\ grid\_size\_x\ +\ 1;}
+\DoxyCodeLine{00923\ \ \ \ \ \textcolor{keywordtype}{int}\ end\_x\ =\ ((active\_grid\_section\_\ +\ 1)\ *\ getWidth())\ /\ grid\_size\_x;}
+\DoxyCodeLine{00924\ \ \ \ \ grid\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(index,\ start\_x\ *\ width\ -\/\ 1.0f,\ -\/1.0f,\ (end\_x\ -\/\ start\_x)\ *\ width,\ 2.0f);}
+\DoxyCodeLine{00925\ \ \ \}}
+\DoxyCodeLine{00926\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00927\ \ \ \ \ grid\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(index,\ -\/2.0f,\ -\/2.0f,\ 0.0f,\ 0.0f);}
+\DoxyCodeLine{00928\ \ \ grid\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4107db47ccf0c13befdb137e7e98cdfd}{setNumQuads}}(grid\_size\_x\ +\ grid\_size\_y\ -\/\ 1);}
+\DoxyCodeLine{00929\ \}}
+\DoxyCodeLine{00930\ }
+\DoxyCodeLine{00931\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a1ca31685edfab1a303f1ef5f6b11342e}{LineEditor::setPointPositions}}()\ \{}
+\DoxyCodeLine{00932\ \ \ \textcolor{keywordtype}{float}\ width\ =\ getWidth();}
+\DoxyCodeLine{00933\ \ \ \textcolor{keywordtype}{float}\ height\ =\ getHeight();}
+\DoxyCodeLine{00934\ }
+\DoxyCodeLine{00935\ \ \ \textcolor{keywordtype}{float}\ position\_width\ =\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_a943d0d95649b721abc1b3353ea87481d}{kPositionWidth}}\ *\ 2.0f\ /\ width;}
+\DoxyCodeLine{00936\ \ \ \textcolor{keywordtype}{float}\ position\_height\ =\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_a943d0d95649b721abc1b3353ea87481d}{kPositionWidth}}\ *\ 2.0f\ /\ height;}
+\DoxyCodeLine{00937\ \ \ \textcolor{keywordtype}{float}\ power\_width\ =\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_ac13bce4a65c43305d2d80830f9f8d9ae}{kPowerWidth}}\ *\ 2.0f\ /\ width;}
+\DoxyCodeLine{00938\ \ \ \textcolor{keywordtype}{float}\ power\_height\ =\ size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_ac13bce4a65c43305d2d80830f9f8d9ae}{kPowerWidth}}\ *\ 2.0f\ /\ height;}
+\DoxyCodeLine{00939\ }
+\DoxyCodeLine{00940\ \ \ point\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a0e0f55028083ff593df1457f746a173a}{setThickness}}(size\_ratio\_\ *\ \mbox{\hyperlink{class_line_editor_a943d0d95649b721abc1b3353ea87481d}{kPositionWidth}}\ *\ \mbox{\hyperlink{class_line_editor_a7218ee2bca91b3e2cb6e7e7b325fe17f}{kRingThickness}}\ *\ 0.5f);}
+\DoxyCodeLine{00941\ }
+\DoxyCodeLine{00942\ \ \ \textcolor{keywordtype}{int}\ num\_points\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}();}
+\DoxyCodeLine{00943\ \ \ point\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4107db47ccf0c13befdb137e7e98cdfd}{setNumQuads}}(num\_points);}
+\DoxyCodeLine{00944\ \ \ power\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4107db47ccf0c13befdb137e7e98cdfd}{setNumQuads}}(num\_points);}
+\DoxyCodeLine{00945\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_points;\ ++i)\ \{}
+\DoxyCodeLine{00946\ \ \ \ \ Point<float>\ point\ =\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(i));}
+\DoxyCodeLine{00947\ \ \ \ \ \textcolor{keywordtype}{float}\ x\ =\ \mbox{\hyperlink{class_line_editor_ad72805eab92ebb9aae9f6ccac2852e46}{padX}}(width\ *\ point.x)\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00948\ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ 1.0f\ -\/\ \mbox{\hyperlink{class_line_editor_a7031acc53ec7a9c0145ae08ddb01d120}{padY}}(height\ *\ point.y)\ *\ 2.0f\ /\ height;}
+\DoxyCodeLine{00949\ }
+\DoxyCodeLine{00950\ \ \ \ \ point\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(i,\ x\ -\/\ position\_width\ *\ 0.5f,\ y\ -\/\ position\_height\ *\ 0.5f,\ position\_width,\ position\_height);}
+\DoxyCodeLine{00951\ }
+\DoxyCodeLine{00952\ \ \ \ \ \textcolor{keywordflow}{if}\ (powerActive(i))\ \{}
+\DoxyCodeLine{00953\ \ \ \ \ \ \ Point<float>\ power\_position\ =\ getPowerPosition(i);}
+\DoxyCodeLine{00954\ \ \ \ \ \ \ x\ =\ \mbox{\hyperlink{class_line_editor_ad72805eab92ebb9aae9f6ccac2852e46}{padX}}(getWidth()\ *\ power\_position.x)\ *\ 2.0f\ /\ width\ -\/\ 1.0f;}
+\DoxyCodeLine{00955\ \ \ \ \ \ \ y\ =\ 1.0f\ -\/\ \mbox{\hyperlink{class_line_editor_a7031acc53ec7a9c0145ae08ddb01d120}{padY}}(getHeight()\ *\ power\_position.y)\ *\ 2.0f\ /\ height;}
+\DoxyCodeLine{00956\ \ \ \ \ \ \ power\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(i,\ x\ -\/\ power\_width\ *\ 0.5f,\ y\ -\/\ power\_height\ *\ 0.5f,\ power\_width,\ power\_height);}
+\DoxyCodeLine{00957\ \ \ \ \ \}}
+\DoxyCodeLine{00958\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00959\ \ \ \ \ \ \ power\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(i,\ -\/2.0f,\ -\/2.0f,\ power\_width,\ power\_width);}
+\DoxyCodeLine{00960\ \ \ \}}
+\DoxyCodeLine{00961\ \}}
+\DoxyCodeLine{00962\ }
+\DoxyCodeLine{00963\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_aab19ed03fb2a6051de6ca202feaac605}{LineEditor::setGlPositions}}()\ \{}
+\DoxyCodeLine{00964\ \ \ \textcolor{keywordflow}{if}\ (!reset\_positions\_)}
+\DoxyCodeLine{00965\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00966\ }
+\DoxyCodeLine{00967\ \ \ \mbox{\hyperlink{class_line_editor_a3a2241b4c39b07d320db8da0ebd0a8fe}{resetWavePath}}();}
+\DoxyCodeLine{00968\ \ \ reset\_positions\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00969\ }
+\DoxyCodeLine{00970\ \ \ \mbox{\hyperlink{class_line_editor_a49eef32a3aa146e42ebf7649a04429b2}{setEditingCircleBounds}}();}
+\DoxyCodeLine{00971\ \ \ \mbox{\hyperlink{class_line_editor_abaad09c19fa32424e60e1dfcde1d0caf}{setGridPositions}}();}
+\DoxyCodeLine{00972\ \ \ \mbox{\hyperlink{class_line_editor_a1ca31685edfab1a303f1ef5f6b11342e}{setPointPositions}}();}
+\DoxyCodeLine{00973\ \}}
+\DoxyCodeLine{00974\ }
+\DoxyCodeLine{00975\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a61c6c12f8ccd1fca64665f3df7098b1a}{LineEditor::destroy}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00976\ \ \ drag\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00977\ \ \ hover\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00978\ \ \ grid\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00979\ \ \ point\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00980\ \ \ power\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00981\ \ \ position\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00982\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1207ac3c34fc00f5b39996a92eb030ae}{OpenGlLineRenderer::destroy}}(open\_gl);}
+\DoxyCodeLine{00983\ \}}
+\DoxyCodeLine{00984\ }
+\DoxyCodeLine{00985\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_ac75dd4915950016135fc94ae7b7b2e73}{LineEditor::setPaint}}(\textcolor{keywordtype}{bool}\ paint)\ \{}
+\DoxyCodeLine{00986\ \ \ paint\_\ =\ paint;}
+\DoxyCodeLine{00987\ \ \ active\_point\_\ =\ -\/1;}
+\DoxyCodeLine{00988\ \ \ active\_power\_\ =\ -\/1;}
+\DoxyCodeLine{00989\ \}}
+\DoxyCodeLine{00990\ }
+\DoxyCodeLine{00991\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_ad44e605dcc893e79e633d6f787de7154}{LineEditor::hideTextEntry}}()\ \{}
+\DoxyCodeLine{00992\ \ \ value\_entry\_-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00993\ \}}
+\DoxyCodeLine{00994\ }
+\DoxyCodeLine{00995\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a1ba00e442719099e1b736b11e57626a4}{LineEditor::showTextEntry}}()\ \{}
+\DoxyCodeLine{00996\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kTextEntryHeight\ =\ 30.0f;}
+\DoxyCodeLine{00997\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kTextEntryWidth\ =\ 50.0f;}
+\DoxyCodeLine{00998\ }
+\DoxyCodeLine{00999\ \textcolor{preprocessor}{\#if\ !defined(NO\_TEXT\_ENTRY)}}
+\DoxyCodeLine{01000\ \ \ Point<float>\ point\ =\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(entering\_index\_));}
+\DoxyCodeLine{01001\ \ \ \textcolor{keywordtype}{int}\ entry\_height\ =\ kTextEntryHeight\ *\ size\_ratio\_;}
+\DoxyCodeLine{01002\ \ \ \textcolor{keywordtype}{int}\ entry\_width\ =\ kTextEntryWidth\ *\ size\_ratio\_;}
+\DoxyCodeLine{01003\ \ \ \textcolor{keywordtype}{int}\ x\ =\ std::min<int>(point.x\ *\ getWidth(),\ getWidth()\ -\/\ entry\_width);}
+\DoxyCodeLine{01004\ \ \ \textcolor{keywordtype}{int}\ y\ =\ std::min<int>(point.y\ *\ getHeight(),\ getHeight()\ -\/\ entry\_height);}
+\DoxyCodeLine{01005\ \ \ value\_entry\_-\/>setBounds(x,\ y,\ entry\_width,\ entry\_height);}
+\DoxyCodeLine{01006\ \ \ \textcolor{keywordflow}{if}\ (entering\_phase\_)}
+\DoxyCodeLine{01007\ \ \ \ \ value\_entry\_-\/>setText(String(point.x));}
+\DoxyCodeLine{01008\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{01009\ \ \ \ \ value\_entry\_-\/>setText(String(1.0\ -\/\ point.y));}
+\DoxyCodeLine{01010\ \ \ value\_entry\_-\/>setVisible(\textcolor{keyword}{true});}
+\DoxyCodeLine{01011\ \ \ value\_entry\_-\/>grabKeyboardFocus();}
+\DoxyCodeLine{01012\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01013\ \}}
+\DoxyCodeLine{01014\ }
+\DoxyCodeLine{01015\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_af61426af5a44b252b9f1b76f1a51d286}{LineEditor::textEditorReturnKeyPressed}}(TextEditor\&\ editor)\ \{}
+\DoxyCodeLine{01016\ \ \ \mbox{\hyperlink{class_line_editor_a0fb2d945fba15ff9e1a4ea0b706ebae3}{setSliderPositionFromText}}();}
+\DoxyCodeLine{01017\ \}}
+\DoxyCodeLine{01018\ }
+\DoxyCodeLine{01019\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_ae9d744e7a5e0c435fc33a19bd5e9285b}{LineEditor::textEditorFocusLost}}(TextEditor\&\ editor)\ \{}
+\DoxyCodeLine{01020\ \ \ \mbox{\hyperlink{class_line_editor_a0fb2d945fba15ff9e1a4ea0b706ebae3}{setSliderPositionFromText}}();}
+\DoxyCodeLine{01021\ \}}
+\DoxyCodeLine{01022\ }
+\DoxyCodeLine{01023\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_add447281f2322fa936e758ce9c8f36c0}{LineEditor::textEditorEscapeKeyPressed}}(TextEditor\&\ editor)\ \{}
+\DoxyCodeLine{01024\ \ \ \mbox{\hyperlink{class_line_editor_ad44e605dcc893e79e633d6f787de7154}{hideTextEntry}}();}
+\DoxyCodeLine{01025\ \}}
+\DoxyCodeLine{01026\ }
+\DoxyCodeLine{01027\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a0fb2d945fba15ff9e1a4ea0b706ebae3}{LineEditor::setSliderPositionFromText}}()\ \{}
+\DoxyCodeLine{01028\ \ \ \textcolor{keywordflow}{if}\ (value\_entry\_-\/>getText().isEmpty()\ ||\ entering\_index\_\ <\ 0)\ \{}
+\DoxyCodeLine{01029\ \ \ \ \ \mbox{\hyperlink{class_line_editor_ad44e605dcc893e79e633d6f787de7154}{hideTextEntry}}();}
+\DoxyCodeLine{01030\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{01031\ \ \ \}}
+\DoxyCodeLine{01032\ }
+\DoxyCodeLine{01033\ \ \ \textcolor{keywordtype}{float}\ value\ =\ value\_entry\_-\/>getText().getFloatValue();}
+\DoxyCodeLine{01034\ \ \ \textcolor{keywordflow}{if}\ (entering\_phase\_)\ \{}
+\DoxyCodeLine{01035\ \ \ \ \ value\ =\ std::max(std::min(value,\ getMaxX(entering\_index\_)),\ getMinX(entering\_index\_));}
+\DoxyCodeLine{01036\ \ \ \ \ Point<float>\ point\ =\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(entering\_index\_));}
+\DoxyCodeLine{01037\ \ \ \ \ point.x\ =\ value;}
+\DoxyCodeLine{01038\ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a7b5ca1308544d3b4efd41f3dcf993f93}{setPoint}}(entering\_index\_,\ pointToPair(point));}
+\DoxyCodeLine{01039\ \ \ \}}
+\DoxyCodeLine{01040\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{01041\ \ \ \ \ value\ =\ std::max(std::min(value,\ 1.0f),\ 0.0f);}
+\DoxyCodeLine{01042\ \ \ \ \ Point<float>\ point\ =\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(entering\_index\_));}
+\DoxyCodeLine{01043\ \ \ \ \ \textcolor{keywordtype}{float}\ start\_y\ =\ point.y;}
+\DoxyCodeLine{01044\ \ \ \ \ point.y\ =\ 1.0f\ -\/\ value;}
+\DoxyCodeLine{01045\ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a7b5ca1308544d3b4efd41f3dcf993f93}{setPoint}}(entering\_index\_,\ pointToPair(point));}
+\DoxyCodeLine{01046\ \ \ \ \ \textcolor{keywordflow}{if}\ (entering\_index\_\ ==\ 0\ \&\&\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}()\ -\/\ 1)).y\ ==\ start\_y)\ \{}
+\DoxyCodeLine{01047\ \ \ \ \ \ \ point.x\ =\ 1.0f;}
+\DoxyCodeLine{01048\ \ \ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a7b5ca1308544d3b4efd41f3dcf993f93}{setPoint}}(model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}()\ -\/\ 1,\ pointToPair(point));}
+\DoxyCodeLine{01049\ \ \ \ \ \}}
+\DoxyCodeLine{01050\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (entering\_index\_\ ==\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}()\ -\/\ 1\ \&\&\ pairToPoint(model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(0)).y\ ==\ start\_y)\ \{}
+\DoxyCodeLine{01051\ \ \ \ \ \ \ point.x\ =\ 0.0f;}
+\DoxyCodeLine{01052\ \ \ \ \ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a7b5ca1308544d3b4efd41f3dcf993f93}{setPoint}}(0,\ pointToPair(point));}
+\DoxyCodeLine{01053\ \ \ \ \ \}}
+\DoxyCodeLine{01054\ \ \ \}}
+\DoxyCodeLine{01055\ }
+\DoxyCodeLine{01056\ \ \ model\_-\/>\mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{01057\ \ \ \mbox{\hyperlink{class_line_editor_ad44e605dcc893e79e633d6f787de7154}{hideTextEntry}}();}
+\DoxyCodeLine{01058\ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{01059\ \}}
+\DoxyCodeLine{01060\ }
+\DoxyCodeLine{01061\ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ \mbox{\hyperlink{class_line_editor_a0d0ec4a62b8830f7afd1bb998b2b4531}{LineEditor::adjustBoostPhase}}(\mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ phase)\ \{}
+\DoxyCodeLine{01062\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ result;}
+\DoxyCodeLine{01063\ \ \ result.\mbox{\hyperlink{structvital_1_1poly__float_ae81ddd53c0cc124931d1a82d6ecf90c6}{set}}(0,\ \mbox{\hyperlink{class_line_editor_a0d0ec4a62b8830f7afd1bb998b2b4531}{adjustBoostPhase}}(phase[0]));}
+\DoxyCodeLine{01064\ \ \ result.\mbox{\hyperlink{structvital_1_1poly__float_ae81ddd53c0cc124931d1a82d6ecf90c6}{set}}(1,\ \mbox{\hyperlink{class_line_editor_a0d0ec4a62b8830f7afd1bb998b2b4531}{adjustBoostPhase}}(phase[1]));}
+\DoxyCodeLine{01065\ \ \ \textcolor{keywordflow}{return}\ result;}
+\DoxyCodeLine{01066\ \}}
+\DoxyCodeLine{01067\ }
+\DoxyCodeLine{01068\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_line_editor_a0d0ec4a62b8830f7afd1bb998b2b4531}{LineEditor::adjustBoostPhase}}(\textcolor{keywordtype}{float}\ phase)\ \{}
+\DoxyCodeLine{01069\ \ \ \textcolor{keywordtype}{int}\ num\_points\ =\ model\_-\/>\mbox{\hyperlink{class_line_generator_a6985403281acfe554d5fbb2f9193f2ae}{getNumPoints}}();}
+\DoxyCodeLine{01070\ \ \ \textcolor{keywordtype}{int}\ points\_to\_left\ =\ 0;}
+\DoxyCodeLine{01071\ }
+\DoxyCodeLine{01072\ \ \ \textcolor{keywordflow}{for}\ (;\ points\_to\_left\ <\ num\_points;\ ++points\_to\_left)\ \{}
+\DoxyCodeLine{01073\ \ \ \ \ \textcolor{keywordflow}{if}\ (model\_-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(points\_to\_left).first\ >=\ phase)}
+\DoxyCodeLine{01074\ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{01075\ \ \ \}}
+\DoxyCodeLine{01076\ }
+\DoxyCodeLine{01077\ \ \ \textcolor{keywordflow}{return}\ (phase\ *\ \mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ +\ points\_to\_left)\ /\ (\mbox{\hyperlink{class_line_editor_a0a4226a8eb0193c9229f7450b84ebc24}{kDrawPoints}}\ +\ num\_points);}
+\DoxyCodeLine{01078\ \}}
+\DoxyCodeLine{01079\ }
+\DoxyCodeLine{01080\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_editor_a755f48c5a59a637f13d5107c9201187d}{LineEditor::enableTemporaryPaintToggle}}(\textcolor{keywordtype}{bool}\ toggle)\ \{}
+\DoxyCodeLine{01081\ \ \ \textcolor{keywordflow}{if}\ (temporary\_paint\_toggle\_\ ==\ toggle)}
+\DoxyCodeLine{01082\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{01083\ }
+\DoxyCodeLine{01084\ \ \ temporary\_paint\_toggle\_\ =\ toggle;}
+\DoxyCodeLine{01085\ }
+\DoxyCodeLine{01086\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_line_editor_1_1_listener}{Listener}}*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{01087\ \ \ \ \ listener-\/>togglePaintMode(\mbox{\hyperlink{class_line_editor_a32a6e576726ff2ff8156278873566202}{isPaintEnabled}}(),\ toggle);}
+\DoxyCodeLine{01088\ }
+\DoxyCodeLine{01089\ \ \ \mbox{\hyperlink{class_line_editor_aadd7a4d5fe3207ae45d460e918f2796f}{resetPositions}}();}
+\DoxyCodeLine{01090\ \}}
+
+\end{DoxyCode}

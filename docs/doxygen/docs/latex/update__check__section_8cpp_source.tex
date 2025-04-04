@@ -1,0 +1,155 @@
+\doxysection{update\+\_\+check\+\_\+section.\+cpp}
+\hypertarget{update__check__section_8cpp_source}{}\label{update__check__section_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/update\_check\_section.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/update\_check\_section.cpp}}
+\mbox{\hyperlink{update__check__section_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{update__check__section_8h}{update\_check\_section.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{load__save_8h}{load\_save.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \mbox{\hyperlink{class_update_memory_ace0be0306da8b64a3c3bb3985dcc9adf}{UpdateMemory::UpdateMemory}}()\ \{}
+\DoxyCodeLine{00007\ \ \ checkers\_\ =\ 0;}
+\DoxyCodeLine{00008\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{class_load_save_ab133bfad6b6232ad039684b59acefce7}{LoadSave::shouldCheckForUpdates}}())}
+\DoxyCodeLine{00009\ \ \ \ \ checkers\_\ =\ 1;}
+\DoxyCodeLine{00010\ \}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \mbox{\hyperlink{class_update_memory_adb0d1bbf2203a919fdbc599ba6154cc5}{UpdateMemory::\string~UpdateMemory}}()\ \{}
+\DoxyCodeLine{00013\ \ \ clearSingletonInstance();}
+\DoxyCodeLine{00014\ \}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ JUCE\_IMPLEMENT\_SINGLETON(\mbox{\hyperlink{class_update_memory}{UpdateMemory}})}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \mbox{\hyperlink{class_update_check_section}{UpdateCheckSection}}::\mbox{\hyperlink{class_update_check_section}{UpdateCheckSection}}(String\ name)\ :\ \mbox{\hyperlink{class_overlay}{Overlay}}(name),\ version\_request\_(this),}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ body\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kRoundedRectangleFragment)\ \{}
+\DoxyCodeLine{00020\ \ \ addOpenGlComponent(\&body\_);}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ notify\_text\_\ =\ std::make\_unique<PlainTextComponent>(\textcolor{stringliteral}{"{}notify"{}},\ \textcolor{stringliteral}{"{}There\ is\ a\ new\ version\ of\ Vital!"{}});}
+\DoxyCodeLine{00023\ \ \ notify\_text\_-\/>setTextSize(20.0f);}
+\DoxyCodeLine{00024\ \ \ notify\_text\_-\/>setFontType(\mbox{\hyperlink{class_plain_text_component_a136e53c8d27fe3d8ed1d79b42e473900a07d3b0e9e4f27f7598bd398991b882e0}{PlainTextComponent::kLight}});}
+\DoxyCodeLine{00025\ \ \ addOpenGlComponent(notify\_text\_.get());}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ version\_text\_\ =\ std::make\_unique<PlainTextComponent>(\textcolor{stringliteral}{"{}version"{}},\ \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00028\ \ \ version\_text\_-\/>setTextSize(14.0f);}
+\DoxyCodeLine{00029\ \ \ version\_text\_-\/>setFontType(\mbox{\hyperlink{class_plain_text_component_a136e53c8d27fe3d8ed1d79b42e473900a07d3b0e9e4f27f7598bd398991b882e0}{PlainTextComponent::kLight}});}
+\DoxyCodeLine{00030\ \ \ addOpenGlComponent(version\_text\_.get());}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ download\_button\_\ =\ std::make\_unique<OpenGlToggleButton>(TRANS(\textcolor{stringliteral}{"{}Download"{}}));}
+\DoxyCodeLine{00033\ \ \ download\_button\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00034\ \ \ download\_button\_-\/>setUiButton(\textcolor{keyword}{true});}
+\DoxyCodeLine{00035\ \ \ addAndMakeVisible(download\_button\_.get());}
+\DoxyCodeLine{00036\ \ \ addOpenGlComponent(download\_button\_-\/>getGlComponent());}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ nope\_button\_\ =\ std::make\_unique<OpenGlToggleButton>(TRANS(\textcolor{stringliteral}{"{}Ignore"{}}));}
+\DoxyCodeLine{00039\ \ \ nope\_button\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00040\ \ \ nope\_button\_-\/>setUiButton(\textcolor{keyword}{false});}
+\DoxyCodeLine{00041\ \ \ addAndMakeVisible(nope\_button\_.get());}
+\DoxyCodeLine{00042\ \ \ addOpenGlComponent(nope\_button\_-\/>getGlComponent());}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ content\_update\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00045\ \}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_update_check_section_a1411aa507d71e24d49b4107d3427d767}{UpdateCheckSection::resized}}()\ \{}
+\DoxyCodeLine{00048\ \ \ body\_.\mbox{\hyperlink{class_open_gl_multi_quad_aba2d4bbfa5b4c1e4b510bc5746a221b6}{setRounding}}(\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}}));}
+\DoxyCodeLine{00049\ \ \ body\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caffad88f44cd2bcaaf60dbe0032955def}{Skin::kBody}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ Colour\ text\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00052\ \ \ notify\_text\_-\/>setColor(text\_color);}
+\DoxyCodeLine{00053\ \ \ version\_text\_-\/>setColor(text\_color);}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ Rectangle<int>\ update\_rect\ =\ \mbox{\hyperlink{class_update_check_section_a421e4c65d67d87c2c40028a38ed7493c}{getUpdateCheckRect}}();}
+\DoxyCodeLine{00056\ \ \ body\_.setBounds(update\_rect);}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \textcolor{keywordtype}{int}\ text\_width\ =\ update\_rect.getWidth()\ -\/\ 2\ *\ \mbox{\hyperlink{class_update_check_section_acbf168961cf0b012afafb53c8b133a0c}{kPaddingX}};}
+\DoxyCodeLine{00059\ \ \ \textcolor{keywordtype}{int}\ height\ =\ 32;}
+\DoxyCodeLine{00060\ \ \ notify\_text\_-\/>setBounds(update\_rect.getX()\ +\ \mbox{\hyperlink{class_update_check_section_acbf168961cf0b012afafb53c8b133a0c}{kPaddingX}},\ update\_rect.getY()\ +\ \mbox{\hyperlink{class_update_check_section_a24c0a25af0494789eab93efc9b201f1c}{kPaddingY}},\ text\_width,\ height);}
+\DoxyCodeLine{00061\ \ \ version\_text\_-\/>setBounds(update\_rect.getX()\ +\ \mbox{\hyperlink{class_update_check_section_acbf168961cf0b012afafb53c8b133a0c}{kPaddingX}},\ update\_rect.getY()\ +\ \mbox{\hyperlink{class_update_check_section_a24c0a25af0494789eab93efc9b201f1c}{kPaddingY}}\ +\ height,\ text\_width,\ height);}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \textcolor{keywordtype}{float}\ button\_width\ =\ (update\_rect.getWidth()\ -\/\ 3\ *\ \mbox{\hyperlink{class_update_check_section_acbf168961cf0b012afafb53c8b133a0c}{kPaddingX}})\ /\ 2.0f;}
+\DoxyCodeLine{00064\ \ \ download\_button\_-\/>setBounds(update\_rect.getX()\ +\ \mbox{\hyperlink{class_update_check_section_acbf168961cf0b012afafb53c8b133a0c}{kPaddingX}},}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ update\_rect.getBottom()\ -\/\ \mbox{\hyperlink{class_update_check_section_a24c0a25af0494789eab93efc9b201f1c}{kPaddingY}}\ -\/\ \mbox{\hyperlink{class_update_check_section_acf02dd86d0d999664ba440426a4c52e1}{kButtonHeight}},}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ button\_width,\ \mbox{\hyperlink{class_update_check_section_acf02dd86d0d999664ba440426a4c52e1}{kButtonHeight}});}
+\DoxyCodeLine{00067\ \ \ nope\_button\_-\/>setBounds(update\_rect.getX()\ +\ button\_width\ +\ 2\ *\ \mbox{\hyperlink{class_update_check_section_acbf168961cf0b012afafb53c8b133a0c}{kPaddingX}},}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ update\_rect.getBottom()\ -\/\ \mbox{\hyperlink{class_update_check_section_a24c0a25af0494789eab93efc9b201f1c}{kPaddingY}}\ -\/\ \mbox{\hyperlink{class_update_check_section_acf02dd86d0d999664ba440426a4c52e1}{kButtonHeight}},}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ button\_width,\ \mbox{\hyperlink{class_update_check_section_acf02dd86d0d999664ba440426a4c52e1}{kButtonHeight}});}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \mbox{\hyperlink{class_overlay_a80c5061faf1bd9b0db9a7ad14201bdcd}{Overlay::resized}}();}
+\DoxyCodeLine{00072\ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_update_check_section_afe0e924191e5e58f32006a4c688f4845}{UpdateCheckSection::setVisible}}(\textcolor{keywordtype}{bool}\ should\_be\_visible)\ \{}
+\DoxyCodeLine{00075\ \ \ \mbox{\hyperlink{class_overlay_acad40f51ef9439b9e724b34b21a4c21d}{Overlay::setVisible}}(should\_be\_visible);}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \textcolor{keywordflow}{if}\ (should\_be\_visible)\ \{}
+\DoxyCodeLine{00078\ \ \ \ \ Image\ image(Image::ARGB,\ 1,\ 1,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00079\ \ \ \ \ Graphics\ g(image);}
+\DoxyCodeLine{00080\ \ \ \ \ \mbox{\hyperlink{class_synth_section_a2744ac0e3ccb692bfe657238cdcafe30}{paintOpenGlChildrenBackgrounds}}(g);}
+\DoxyCodeLine{00081\ \ \ \}}
+\DoxyCodeLine{00082\ \}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \textcolor{keywordtype}{void}\ UpdateCheckSection::updateContent(String\ version)\ \{}
+\DoxyCodeLine{00085\ \}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_update_check_section_aeb58a74a137da198ba75b7e63d1653bb}{UpdateCheckSection::needsUpdate}}()\ \{}
+\DoxyCodeLine{00088\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_update_check_section_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00089\ \ \ \ \ listener-\/>needsUpdate();}
+\DoxyCodeLine{00090\ \}}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_update_check_section_a7c61b2922d96b51b5854b90fdd81060f}{UpdateCheckSection::buttonClicked}}(Button*\ clicked\_button)\ \{}
+\DoxyCodeLine{00093\ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ download\_button\_.get())\ \{}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordflow}{if}\ (content\_update\_)}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ updateContent(content\_version\_);}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ URL(\textcolor{stringliteral}{"{}"{}}).launchInDefaultBrowser();}
+\DoxyCodeLine{00098\ \ \ \}}
+\DoxyCodeLine{00099\ \ \ \mbox{\hyperlink{class_update_check_section_afe0e924191e5e58f32006a4c688f4845}{setVisible}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00100\ \}}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_update_check_section_a4b5639095000af8a8ee2f5863adfbfd5}{UpdateCheckSection::mouseUp}}(\textcolor{keyword}{const}\ MouseEvent\ \&e)\ \{}
+\DoxyCodeLine{00103\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{class_update_check_section_a421e4c65d67d87c2c40028a38ed7493c}{getUpdateCheckRect}}().contains(e.getPosition()))}
+\DoxyCodeLine{00104\ \ \ \ \ \mbox{\hyperlink{class_update_check_section_afe0e924191e5e58f32006a4c688f4845}{setVisible}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00105\ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_update_check_section_acdd5bccb0656f9fc3697c40205f5ddcb}{UpdateCheckSection::finished}}(URL::DownloadTask*\ task,\ \textcolor{keywordtype}{bool}\ success)\ \{}
+\DoxyCodeLine{00108\ \ \ \textcolor{keywordflow}{if}\ (!success)}
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ StringArray\ versions;}
+\DoxyCodeLine{00112\ \ \ version\_file\_.readLines(versions);}
+\DoxyCodeLine{00113\ \ \ \textcolor{keywordflow}{if}\ (versions.size()\ <\ 2)}
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ MessageManagerLock\ lock(\&version\_request\_);}
+\DoxyCodeLine{00117\ \ \ \textcolor{keywordflow}{if}\ (!lock.lockWasGained())}
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ app\_version\_\ =\ versions[0];}
+\DoxyCodeLine{00121\ \ \ content\_version\_\ =\ versions[1];}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \ \ \textcolor{keywordflow}{if}\ (!app\_version\_.isEmpty()\ \&\&\ \mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{LoadSave::compareVersionStrings}}(ProjectInfo::versionString,\ app\_version\_)\ <\ 0)\ \{}
+\DoxyCodeLine{00124\ \ \ \ \ version\_text\_-\/>setText(String(\textcolor{stringliteral}{"{}Version:\ "{}})\ +\ app\_version\_);}
+\DoxyCodeLine{00125\ \ \ \ \ \mbox{\hyperlink{class_update_check_section_aeb58a74a137da198ba75b7e63d1653bb}{needsUpdate}}();}
+\DoxyCodeLine{00126\ \ \ \}}
+\DoxyCodeLine{00127\ \}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_update_check_section_a23bf9a7fe4b6886c47cbff5fb17464a8}{UpdateCheckSection::checkUpdate}}()\ \{}
+\DoxyCodeLine{00130\ \ \ URL\ version\_url(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00131\ \ \ version\_file\_\ =\ File::getSpecialLocation(File::tempDirectory).getChildFile(\textcolor{stringliteral}{"{}vital\_versions.txt"{}});}
+\DoxyCodeLine{00132\ \ \ download\_task\_\ =\ version\_url.downloadToFile(version\_file\_,\ \textcolor{stringliteral}{"{}"{}},\ \textcolor{keyword}{this});}
+\DoxyCodeLine{00133\ \}}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_update_check_section_aaba5133473245aba3cb6707f4a73d4df}{UpdateCheckSection::checkContentUpdate}}()\ \{}
+\DoxyCodeLine{00136\ \ \ String\ content\_version\ =\ \mbox{\hyperlink{class_load_save_a335063440b0348f8f4d589024239f792}{LoadSave::loadContentVersion}}();}
+\DoxyCodeLine{00137\ \ \ \textcolor{keywordflow}{if}\ (!content\_version\_.isEmpty()\ \&\&\ \mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{LoadSave::compareVersionStrings}}(content\_version,\ content\_version\_)\ <\ 0)\ \{}
+\DoxyCodeLine{00138\ \ \ \ \ notify\_text\_-\/>setText(\textcolor{stringliteral}{"{}There\ is\ new\ preset\ content\ available"{}});}
+\DoxyCodeLine{00139\ \ \ \ \ version\_text\_-\/>setText(String(\textcolor{stringliteral}{"{}Version:\ "{}})\ +\ content\_version\_);}
+\DoxyCodeLine{00140\ \ \ \ \ content\_update\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00141\ \ \ \ \ \mbox{\hyperlink{class_update_check_section_aeb58a74a137da198ba75b7e63d1653bb}{needsUpdate}}();}
+\DoxyCodeLine{00142\ \ \ \}}
+\DoxyCodeLine{00143\ \}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ Rectangle<int>\ \mbox{\hyperlink{class_update_check_section_a421e4c65d67d87c2c40028a38ed7493c}{UpdateCheckSection::getUpdateCheckRect}}()\ \{}
+\DoxyCodeLine{00146\ \ \ \textcolor{keywordtype}{int}\ x\ =\ (getWidth()\ -\/\ \mbox{\hyperlink{class_update_check_section_acda5013fd08fd1f803621f8c2fba8caa}{kUpdateCheckWidth}})\ /\ 2;}
+\DoxyCodeLine{00147\ \ \ \textcolor{keywordtype}{int}\ y\ =\ (getHeight()\ -\/\ \mbox{\hyperlink{class_update_check_section_a16b5be86e171bf0452ffff41ebd91639}{kUpdateCheckHeight}})\ /\ 2;}
+\DoxyCodeLine{00148\ \ \ \textcolor{keywordflow}{return}\ Rectangle<int>(x,\ y,\ \mbox{\hyperlink{class_update_check_section_acda5013fd08fd1f803621f8c2fba8caa}{kUpdateCheckWidth}},\ \mbox{\hyperlink{class_update_check_section_a16b5be86e171bf0452ffff41ebd91639}{kUpdateCheckHeight}});}
+\DoxyCodeLine{00149\ \}}
+
+\end{DoxyCode}

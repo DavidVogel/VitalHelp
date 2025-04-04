@@ -1,0 +1,27 @@
+var dir_fdedb0aba14d44ce9d99bc100e026e6a =
+[
+    [ "wavetable", "dir_8a26e35b66d30874a2a12dd30526c662.html", "dir_8a26e35b66d30874a2a12dd30526c662" ],
+    [ "authentication.h", "authentication_8h.html", "authentication_8h" ],
+    [ "border_bounds_constrainer.cpp", "border__bounds__constrainer_8cpp.html", null ],
+    [ "border_bounds_constrainer.h", "border__bounds__constrainer_8h.html", "border__bounds__constrainer_8h" ],
+    [ "fourier_transform.h", "fourier__transform_8h.html", "fourier__transform_8h" ],
+    [ "line_generator.cpp", "line__generator_8cpp.html", null ],
+    [ "line_generator.h", "line__generator_8h.html", "line__generator_8h" ],
+    [ "load_save.cpp", "load__save_8cpp.html", "load__save_8cpp" ],
+    [ "load_save.h", "load__save_8h.html", "load__save_8h" ],
+    [ "midi_manager.cpp", "midi__manager_8cpp.html", null ],
+    [ "midi_manager.h", "midi__manager_8h.html", "midi__manager_8h" ],
+    [ "startup.cpp", "startup_8cpp.html", null ],
+    [ "startup.h", "startup_8h.html", "startup_8h" ],
+    [ "synth_base.cpp", "synth__base_8cpp.html", null ],
+    [ "synth_base.h", "synth__base_8h.html", "synth__base_8h" ],
+    [ "synth_constants.h", "synth__constants_8h.html", "synth__constants_8h" ],
+    [ "synth_gui_interface.cpp", "synth__gui__interface_8cpp.html", null ],
+    [ "synth_gui_interface.h", "synth__gui__interface_8h.html", "synth__gui__interface_8h" ],
+    [ "synth_parameters.cpp", "synth__parameters_8cpp.html", "synth__parameters_8cpp" ],
+    [ "synth_parameters.h", "synth__parameters_8h.html", "synth__parameters_8h" ],
+    [ "synth_types.cpp", "synth__types_8cpp.html", null ],
+    [ "synth_types.h", "synth__types_8h.html", "synth__types_8h" ],
+    [ "tuning.cpp", "tuning_8cpp.html", null ],
+    [ "tuning.h", "tuning_8h.html", "tuning_8h" ]
+];

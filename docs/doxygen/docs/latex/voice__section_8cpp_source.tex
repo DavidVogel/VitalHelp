@@ -1,0 +1,131 @@
+\doxysection{voice\+\_\+section.\+cpp}
+\hypertarget{voice__section_8cpp_source}{}\label{voice__section_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/voice\_section.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/voice\_section.cpp}}
+\mbox{\hyperlink{voice__section_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{voice__section_8h}{voice\_section.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{operators_8h}{operators.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{paths_8h}{paths.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__strings_8h}{synth\_strings.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__button_8h}{synth\_button.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__gui__interface_8h}{synth\_gui\_interface.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__slider_8h}{synth\_slider.h}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__look__and__feel_8h}{text\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \mbox{\hyperlink{class_voice_section_a199e8f026012f6db4b22925421ae4e50}{VoiceSection::VoiceSection}}(String\ name)\ :\ \mbox{\hyperlink{class_synth_section}{SynthSection}}(name)\ \{}
+\DoxyCodeLine{00013\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{double}\ kKnobSensitivity\ =\ 0.2;}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \ \ \textcolor{comment}{//\ Polyphony\ slider\ setup}}
+\DoxyCodeLine{00016\ \ \ polyphony\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}polyphony"{}});}
+\DoxyCodeLine{00017\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(polyphony\_.get());}
+\DoxyCodeLine{00018\ \ \ polyphony\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00019\ \ \ polyphony\_-\/>setSensitivity(kKnobSensitivity);}
+\DoxyCodeLine{00020\ \ \ polyphony\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00021\ \ \ polyphony\_-\/>useSuffix(\textcolor{keyword}{false});}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \textcolor{comment}{//\ Velocity\ tracking\ slider}}
+\DoxyCodeLine{00024\ \ \ velocity\_track\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}velocity\_track"{}});}
+\DoxyCodeLine{00025\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(velocity\_track\_.get());}
+\DoxyCodeLine{00026\ \ \ velocity\_track\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00027\ \ \ velocity\_track\_-\/>setBipolar(\textcolor{keyword}{true});}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ \textcolor{comment}{//\ Pitch\ bend\ range\ slider}}
+\DoxyCodeLine{00030\ \ \ pitch\_bend\_range\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}pitch\_bend\_range"{}});}
+\DoxyCodeLine{00031\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(pitch\_bend\_range\_.get());}
+\DoxyCodeLine{00032\ \ \ pitch\_bend\_range\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00033\ \ \ pitch\_bend\_range\_-\/>setSensitivity(kKnobSensitivity);}
+\DoxyCodeLine{00034\ \ \ pitch\_bend\_range\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00035\ \ \ pitch\_bend\_range\_-\/>useSuffix(\textcolor{keyword}{false});}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \textcolor{comment}{//\ Stereo\ routing\ slider}}
+\DoxyCodeLine{00038\ \ \ stereo\_routing\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}stereo\_routing"{}});}
+\DoxyCodeLine{00039\ \ \ stereo\_routing\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00040\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(stereo\_routing\_.get());}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ Stereo\ mode\ text\ and\ selector}}
+\DoxyCodeLine{00043\ \ \ stereo\_mode\_text\_\ =\ std::make\_unique<PlainTextComponent>(\textcolor{stringliteral}{"{}Stereo\ Mode\ Text"{}},\ \textcolor{stringliteral}{"{}-\/-\/-\/"{}});}
+\DoxyCodeLine{00044\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(stereo\_mode\_text\_.get());}
+\DoxyCodeLine{00045\ \ \ stereo\_mode\_text\_-\/>setText(\mbox{\hyperlink{namespacestrings_afb0bdfea41d581ac4c6c1465791e77d2}{strings::kStereoModeNames}}[0]);}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ stereo\_mode\_type\_selector\_\ =\ std::make\_unique<ShapeButton>(\textcolor{stringliteral}{"{}Stereo\ Mode"{}},\ Colours::black,}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Colours::black,\ Colours::black);}
+\DoxyCodeLine{00049\ \ \ addAndMakeVisible(stereo\_mode\_type\_selector\_.get());}
+\DoxyCodeLine{00050\ \ \ stereo\_mode\_type\_selector\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00051\ \ \ stereo\_mode\_type\_selector\_-\/>setTriggeredOnMouseDown(\textcolor{keyword}{true});}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \mbox{\hyperlink{class_synth_section_ae4b092420f64f8d195dd2fdb406bfccf}{setSkinOverride}}(\mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96a3f9475f215a010100493fcc9e848c3bf}{Skin::kKeyboard}});}
+\DoxyCodeLine{00054\ \}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \mbox{\hyperlink{class_voice_section_a12d1bfe74782c9f1b320f453a3b1c2d3}{VoiceSection::\string~VoiceSection}}()\ \{\ \}}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_voice_section_a8a7b40e161d88e80529797ee58f88856}{VoiceSection::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00059\ \ \ \mbox{\hyperlink{class_synth_section_a5966e97ed0f688f9910f24a4f3bfa9ec}{paintBody}}(g);}
+\DoxyCodeLine{00060\ \ \ \mbox{\hyperlink{class_synth_section_aa0e18b52d386e2575c51e6e4f540b392}{paintBorder}}(g);}
+\DoxyCodeLine{00061\ \ \ \mbox{\hyperlink{class_synth_section_a6f8f31ab8b431df4757cbd3026d236d7}{paintKnobShadows}}(g);}
+\DoxyCodeLine{00062\ \ \ \mbox{\hyperlink{class_synth_section_a2744ac0e3ccb692bfe657238cdcafe30}{paintOpenGlChildrenBackgrounds}}(g);}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \ \mbox{\hyperlink{class_synth_section_a03c774195fa401025d90987b176e4614}{drawTextComponentBackground}}(g,\ polyphony\_-\/>getBounds(),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00065\ \ \ \mbox{\hyperlink{class_synth_section_a87c021454e2c5d2207afa28af959a1fe}{setLabelFont}}(g);}
+\DoxyCodeLine{00066\ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}VOICES"{}}),\ polyphony\_.get(),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00067\ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}VEL\ TRK"{}}),\ velocity\_track\_.get());}
+\DoxyCodeLine{00068\ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}"{}}),\ stereo\_routing\_.get());}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \mbox{\hyperlink{class_synth_section_a03c774195fa401025d90987b176e4614}{drawTextComponentBackground}}(g,\ pitch\_bend\_range\_-\/>getBounds(),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00071\ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}BEND"{}}),\ pitch\_bend\_range\_.get(),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00072\ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_voice_section_afee75756c88f3b1968fed2896ea3b3ad}{VoiceSection::resized}}()\ \{}
+\DoxyCodeLine{00075\ \ \ stereo\_mode\_text\_-\/>setColor(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00076\ \ \ \textcolor{keywordtype}{int}\ widget\_margin\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a045e9e21484c2d32d7835f44c7c161f9}{Skin::kWidgetMargin}});}
+\DoxyCodeLine{00077\ \ \ \textcolor{keywordtype}{int}\ text\_width\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a5957b4323766e8a371118b24c6c8e156}{Skin::kModulationButtonWidth}})\ -\/\ widget\_margin;}
+\DoxyCodeLine{00078\ \ \ \textcolor{keywordtype}{int}\ text\_height\ =\ getHeight()\ -\/\ 2\ *\ widget\_margin;}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \textcolor{comment}{//\ Layout\ for\ polyphony\ and\ pitch\ bend\ sliders}}
+\DoxyCodeLine{00081\ \ \ polyphony\_-\/>setBounds(widget\_margin,\ widget\_margin,\ text\_width,\ text\_height);}
+\DoxyCodeLine{00082\ \ \ pitch\_bend\_range\_-\/>setBounds(polyphony\_-\/>getRight()\ +\ widget\_margin,\ widget\_margin,\ text\_width,\ text\_height);}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \textcolor{comment}{//\ Layout\ for\ velocity\ track\ and\ stereo\ routing}}
+\DoxyCodeLine{00085\ \ \ \textcolor{keywordtype}{int}\ knobs\_x\ =\ pitch\_bend\_range\_-\/>getRight();}
+\DoxyCodeLine{00086\ \ \ Rectangle<int>\ knob\_bounds(knobs\_x,\ 0,\ getWidth()\ -\/\ knobs\_x,\ getHeight());}
+\DoxyCodeLine{00087\ \ \ \mbox{\hyperlink{class_synth_section_a16e740094fb526018b139749cb6543c0}{placeKnobsInArea}}(knob\_bounds,\ \{\ velocity\_track\_.get(),\ stereo\_routing\_.get()\ \});}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \ \ \textcolor{comment}{//\ Layout\ for\ stereo\ mode\ text\ and\ selector}}
+\DoxyCodeLine{00090\ \ \ Rectangle<int>\ stereo\_label\_bounds\ =\ \mbox{\hyperlink{class_synth_section_a988ae340fb5be83419a90fb6ab3e2c07}{getLabelBackgroundBounds}}(stereo\_routing\_-\/>getBounds());}
+\DoxyCodeLine{00091\ \ \ stereo\_mode\_text\_-\/>setBounds(stereo\_label\_bounds);}
+\DoxyCodeLine{00092\ \ \ stereo\_mode\_text\_-\/>setTextSize(\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3660ff3084b0d870a0b2f040e18e7857}{Skin::kLabelHeight}}));}
+\DoxyCodeLine{00093\ \ \ stereo\_mode\_type\_selector\_-\/>setBounds(stereo\_label\_bounds);}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \mbox{\hyperlink{class_synth_section_a549f91a2b81b419368a578990cb2e6c2}{SynthSection::resized}}();}
+\DoxyCodeLine{00096\ \}}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_voice_section_a44bcdeb2a594080c43d85a68db43cdd2}{VoiceSection::setAllValues}}(\mbox{\hyperlink{namespacevital_aa714e9b3957a28c9eaf0105959aea482}{vital::control\_map}}\&\ controls)\ \{}
+\DoxyCodeLine{00099\ \ \ \mbox{\hyperlink{class_synth_section_acb4d78d85add51ee11fe4ca8bdb2cdb5}{SynthSection::setAllValues}}(controls);}
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordtype}{int}\ stereo\_mode\ =\ controls[\textcolor{stringliteral}{"{}stereo\_mode"{}}]-\/>value();}
+\DoxyCodeLine{00101\ \ \ stereo\_mode\_text\_-\/>setText(\mbox{\hyperlink{namespacestrings_afb0bdfea41d581ac4c6c1465791e77d2}{strings::kStereoModeNames}}[stereo\_mode]);}
+\DoxyCodeLine{00102\ \}}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_voice_section_ae8ccdee3f4cbba34617282c34db19a1e}{VoiceSection::buttonClicked}}(Button*\ clicked\_button)\ \{}
+\DoxyCodeLine{00105\ \ \ \textcolor{keywordtype}{int}\ num\_modes\ =\ \mbox{\hyperlink{classvital_1_1_stereo_encoder_ad4a7598773fa79672205a74ee1e8a3c4a01ea2ba23422b2249c7265bc1c2d88a0}{vital::StereoEncoder::kNumStereoModes}};}
+\DoxyCodeLine{00106\ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ stereo\_mode\_type\_selector\_.get())\ \{}
+\DoxyCodeLine{00107\ \ \ \ \ \mbox{\hyperlink{struct_popup_items}{PopupItems}}\ options;}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_modes;\ ++i)}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(i,\ \mbox{\hyperlink{namespacestrings_afb0bdfea41d581ac4c6c1465791e77d2}{strings::kStereoModeNames}}[i]);}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \ \ \ \ \mbox{\hyperlink{class_synth_section_a9424df12646a0b756b1b58904b9be6ff}{showPopupSelector}}(\textcolor{keyword}{this},\ Point<int>(clicked\_button-\/>getX(),\ clicked\_button-\/>getBottom()),\ options,}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ [=](\textcolor{keywordtype}{int}\ selection)\ \{\ setStereoModeSelected(selection);\ \});}
+\DoxyCodeLine{00114\ \ \ \}}
+\DoxyCodeLine{00115\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00116\ \ \ \ \ \mbox{\hyperlink{class_synth_section_a0854a98f7e73eeffccfbd1e210787bbf}{SynthSection::buttonClicked}}(clicked\_button);}
+\DoxyCodeLine{00117\ \}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_voice_section_aff79d43160ec7e1891ffcaba9f64727c}{VoiceSection::setStereoModeSelected}}(\textcolor{keywordtype}{int}\ selection)\ \{}
+\DoxyCodeLine{00120\ \ \ stereo\_mode\_text\_-\/>setText(\mbox{\hyperlink{namespacestrings_afb0bdfea41d581ac4c6c1465791e77d2}{strings::kStereoModeNames}}[selection]);}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ parent\ =\ findParentComponentOfClass<SynthGuiInterface>();}
+\DoxyCodeLine{00123\ \ \ \textcolor{keywordflow}{if}\ (parent)}
+\DoxyCodeLine{00124\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(\textcolor{stringliteral}{"{}stereo\_mode"{}},\ selection);}
+\DoxyCodeLine{00125\ \}}
+
+\end{DoxyCode}

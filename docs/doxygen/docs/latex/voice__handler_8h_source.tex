@@ -1,0 +1,544 @@
+\doxysection{voice\+\_\+handler.\+h}
+\hypertarget{voice__handler_8h_source}{}\label{voice__handler_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/framework/voice\_handler.h@{/Users/davidvogel/repos/VitalHelp/src/synthesis/framework/voice\_handler.h}}
+\mbox{\hyperlink{voice__handler_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{circular__queue_8h}{circular\_queue.h}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{note__handler_8h}{note\_handler.h}}"{}}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{processor__router_8h}{processor\_router.h}}"{}}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__module_8h}{synth\_module.h}}"{}}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{tuning_8h}{tuning.h}}"{}}}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#include\ <map>}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ <list>}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00024\ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structvital_1_1_voice_state}{VoiceState}}\ \{}
+\DoxyCodeLine{00028\ \ \ \ \ \mbox{\hyperlink{structvital_1_1_voice_state_a276297829befdde27e5b6ed65c4d5a22}{VoiceState}}()\ :\ \mbox{\hyperlink{structvital_1_1_voice_state_a456b4ccee212c3cfe1859424063efcd7}{event}}(\mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa2ad16efd5d1678ffae5c89d2d401d8a9}{kInvalid}}),\ \mbox{\hyperlink{structvital_1_1_voice_state_a2a1e50697e0029ce9c23fdb130632573}{midi\_note}}(0),\ \mbox{\hyperlink{structvital_1_1_voice_state_ac2599cbdf87e724a7c2c4cac9edb67bb}{tuned\_note}}(0.0f),\ \mbox{\hyperlink{structvital_1_1_voice_state_afcab84fa951278078b14b73ad585bb4b}{last\_note}}(0.0f),\ \mbox{\hyperlink{structvital_1_1_voice_state_aad05be7c6fa219a2a87f04e55ca16268}{velocity}}(0.0f),}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1_voice_state_abc395725f07a35aa1998ac80e8f2b452}{lift}}(0.0f),\ \mbox{\hyperlink{structvital_1_1_voice_state_a602057f71fd8d4320b21b124d8ca8d50}{local\_pitch\_bend}}(0.0f),\ \mbox{\hyperlink{structvital_1_1_voice_state_a5fbdbbc1ecea25ea4b97fb7dd03a572c}{note\_pressed}}(0),\ \mbox{\hyperlink{structvital_1_1_voice_state_a26fe21e76e8e9b0af563de993f0e16b3}{note\_count}}(0),}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1_voice_state_a1dc87b271735aa6f44505fc4807f870e}{channel}}(0),\ \mbox{\hyperlink{structvital_1_1_voice_state_acb7f4ce9267d604bad20b5ea5c5ebaad}{sostenuto\_pressed}}(false)\ \{\ \}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ \ \ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836f}{VoiceEvent}}\ \mbox{\hyperlink{structvital_1_1_voice_state_a456b4ccee212c3cfe1859424063efcd7}{event}};\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structvital_1_1_voice_state_a2a1e50697e0029ce9c23fdb130632573}{midi\_note}};\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00034\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{structvital_1_1_voice_state_ac2599cbdf87e724a7c2c4cac9edb67bb}{tuned\_note}};\ \ \ \ }
+\DoxyCodeLine{00035\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{structvital_1_1_voice_state_afcab84fa951278078b14b73ad585bb4b}{last\_note}};\ \ \ \ \ }
+\DoxyCodeLine{00036\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{structvital_1_1_voice_state_aad05be7c6fa219a2a87f04e55ca16268}{velocity}};\ \ \ \ \ \ }
+\DoxyCodeLine{00037\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{structvital_1_1_voice_state_abc395725f07a35aa1998ac80e8f2b452}{lift}};\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00038\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{structvital_1_1_voice_state_a602057f71fd8d4320b21b124d8ca8d50}{local\_pitch\_bend}};\ \ }
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structvital_1_1_voice_state_a5fbdbbc1ecea25ea4b97fb7dd03a572c}{note\_pressed}};\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structvital_1_1_voice_state_a26fe21e76e8e9b0af563de993f0e16b3}{note\_count}};\ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structvital_1_1_voice_state_a1dc87b271735aa6f44505fc4807f870e}{channel}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structvital_1_1_voice_state_acb7f4ce9267d604bad20b5ea5c5ebaad}{sostenuto\_pressed}};\ \ \ }
+\DoxyCodeLine{00043\ \ \ \};}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structvital_1_1_aggregate_voice}{AggregateVoice}};\ \textcolor{comment}{//\ Documented\ below.}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00054\ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{classvital_1_1_voice}{Voice}}\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_a328c07d63a47ad17daa316d1b4bb8f14}{kDefaultLiftVelocity}}\ =\ 0.5f;}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \textcolor{keyword}{enum}\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293}{KeyState}}\ \{}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293ac7a4564b3760a1f70ba7f3b32cf28e19}{kTriggering}},\ \ }
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293ad472959f595451e07952956d87e7aef4}{kHeld}},\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a84403d9085f1e50cd876da382567839c}{kSustained}},\ \ \ }
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a51465e3ecc4821b033391e7d513c4370}{kReleased}},\ \ \ \ }
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a0c1b5b9b658126a9ccbb6d6101b9cc48}{kDead}},\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293aaa739857ee8e7a9162a1c6092672df75}{kNumStates}}}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_ab19ca59a44f09bc0de6982b2c7b715a5}{Voice}}(\mbox{\hyperlink{structvital_1_1_aggregate_voice}{AggregateVoice}}*\ \mbox{\hyperlink{classvital_1_1_voice_ab9ab32d4fbb63ffa340a7b2c969e6b83}{parent}});}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_ab19ca59a44f09bc0de6982b2c7b715a5}{Voice}}()\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classvital_1_1_voice_a4d1ac3bd8de050593b58c3db75826c5b}{\string~Voice}}()\ \{\ \}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_aggregate_voice}{AggregateVoice}}*\ \mbox{\hyperlink{classvital_1_1_voice_ab9ab32d4fbb63ffa340a7b2c969e6b83}{parent}}()\ \{\ \textcolor{keywordflow}{return}\ parent\_;\ \}}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1_voice_state}{VoiceState}}\&\ \mbox{\hyperlink{classvital_1_1_voice_ab4aba7c9dba249ad77f9e6b9bc918fe6}{state}}()\ \{\ \textcolor{keywordflow}{return}\ state\_;\ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293}{KeyState}}\ \mbox{\hyperlink{classvital_1_1_voice_a999a8be3a2b135445e5b00d570c6a8dd}{last\_key\_state}}()\ \{\ \textcolor{keywordflow}{return}\ last\_key\_state\_;\ \}}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293}{KeyState}}\ \mbox{\hyperlink{classvital_1_1_voice_aba9a98080d9e3f3dc08e092e385e1aa3}{key\_state}}()\ \{\ \textcolor{keywordflow}{return}\ key\_state\_;\ \}}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_a757e9bebb379f8b626b30215ff0a9cd1}{event\_sample}}()\ \{\ \textcolor{keywordflow}{return}\ event\_sample\_;\ \}}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_aa85c0a188f868c9bb6aea1f5b45396bb}{voice\_index}}()\ \{\ \textcolor{keywordflow}{return}\ voice\_index\_;\ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ \mbox{\hyperlink{classvital_1_1_voice_a7957e955a61a898340e73fdbe82be6b2}{voice\_mask}}()\ \{\ \textcolor{keywordflow}{return}\ voice\_mask\_;\ \}}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_a66bdbe609a6eb8e21ac1ccc23156cd9f}{aftertouch}}()\ \{\ \textcolor{keywordflow}{return}\ aftertouch\_;\ \}}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_a869578b494b2f25393e032cc056ebb46}{aftertouch\_sample}}()\ \{\ \textcolor{keywordflow}{return}\ aftertouch\_sample\_;\ \}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_a51881004dfac54134e7e27af7367ea7b}{slide}}()\ \{\ \textcolor{keywordflow}{return}\ slide\_;\ \}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_afb17a0e5a1396421281dc40c66003417}{slide\_sample}}()\ \{\ \textcolor{keywordflow}{return}\ slide\_sample\_;\ \}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_af64002f4176f505d519e3806d4fc4940}{activate}}(\textcolor{keywordtype}{int}\ midi\_note,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ tuned\_note,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ velocity,}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ last\_note,\ \textcolor{keywordtype}{int}\ note\_pressed,\ \textcolor{keywordtype}{int}\ note\_count,}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ channel)\ \{}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ event\_sample\_\ =\ sample;}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_a456b4ccee212c3cfe1859424063efcd7}{event}}\ =\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa2ce85055a27054faf723c514c8a74dea}{kVoiceOn}};}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_a2a1e50697e0029ce9c23fdb130632573}{midi\_note}}\ =\ midi\_note;}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_ac2599cbdf87e724a7c2c4cac9edb67bb}{tuned\_note}}\ =\ tuned\_note;}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_aad05be7c6fa219a2a87f04e55ca16268}{velocity}}\ =\ velocity;}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_abc395725f07a35aa1998ac80e8f2b452}{lift}}\ =\ \mbox{\hyperlink{classvital_1_1_voice_a328c07d63a47ad17daa316d1b4bb8f14}{kDefaultLiftVelocity}};}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_a602057f71fd8d4320b21b124d8ca8d50}{local\_pitch\_bend}}\ =\ 0.0f;}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_afcab84fa951278078b14b73ad585bb4b}{last\_note}}\ =\ last\_note;}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_a5fbdbbc1ecea25ea4b97fb7dd03a572c}{note\_pressed}}\ =\ note\_pressed;}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_a26fe21e76e8e9b0af563de993f0e16b3}{note\_count}}\ =\ note\_count;}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_a1dc87b271735aa6f44505fc4807f870e}{channel}}\ =\ channel;}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_acb7f4ce9267d604bad20b5ea5c5ebaad}{sostenuto\_pressed}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ aftertouch\_\ =\ 0.0f;}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ aftertouch\_sample\_\ =\ 0;}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ slide\_\ =\ 0.0f;}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ slide\_sample\_\ =\ 0;}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_ab367f1d718c8d1f5bf0a57fc8b0e2a4f}{setKeyState}}(\mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293ac7a4564b3760a1f70ba7f3b32cf28e19}{kTriggering}});}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_ab367f1d718c8d1f5bf0a57fc8b0e2a4f}{setKeyState}}(\mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293}{KeyState}}\ \mbox{\hyperlink{classvital_1_1_voice_aba9a98080d9e3f3dc08e092e385e1aa3}{key\_state}})\ \{}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ last\_key\_state\_\ =\ key\_state\_;}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ key\_state\_\ =\ \mbox{\hyperlink{classvital_1_1_voice_aba9a98080d9e3f3dc08e092e385e1aa3}{key\_state}};}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_a5ddfd0cb6b6c84820526488b66f47d20}{sustain}}()\ \{}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ last\_key\_state\_\ =\ key\_state\_;}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ key\_state\_\ =\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a84403d9085f1e50cd876da382567839c}{kSustained}};}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_a000c72d442b7e995de89bfd4903452fb}{sustained}}()\ \{}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ key\_state\_\ ==\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a84403d9085f1e50cd876da382567839c}{kSustained}};}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00176\ }
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_a140ce4970e93921a2ea91034d2beb37f}{held}}()\ \{}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ key\_state\_\ ==\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293ad472959f595451e07952956d87e7aef4}{kHeld}};}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_a0103ee8fb4d28c6345f35118cbd4e325}{released}}()\ \{}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ key\_state\_\ ==\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a51465e3ecc4821b033391e7d513c4370}{kReleased}};}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00186\ }
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_a47e93856822b70388655be6feafd110d}{sostenuto}}()\ \{}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_acb7f4ce9267d604bad20b5ea5c5ebaad}{sostenuto\_pressed}};}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_a14de43678fb79087df24023dba93d73e}{setSostenuto}}(\textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_a47e93856822b70388655be6feafd110d}{sostenuto}})\ \{}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_acb7f4ce9267d604bad20b5ea5c5ebaad}{sostenuto\_pressed}}\ =\ \mbox{\hyperlink{classvital_1_1_voice_a47e93856822b70388655be6feafd110d}{sostenuto}};}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_a6d55857129c96e528178c8cd5d9ce774}{setLocalPitchBend}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ bend)\ \{}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_a602057f71fd8d4320b21b124d8ca8d50}{local\_pitch\_bend}}\ =\ bend;}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_af39a1d5a2ae79eeafcc7b7c40878f412}{setLiftVelocity}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ lift)\ \{}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_abc395725f07a35aa1998ac80e8f2b452}{lift}}\ =\ lift;}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00206\ }
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_aae04da7d6ec02c322aebb5e7baad45ad}{deactivate}}(\textcolor{keywordtype}{int}\ sample\ =\ 0)\ \{}
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \ \ event\_sample\_\ =\ sample;}
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_a456b4ccee212c3cfe1859424063efcd7}{event}}\ =\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836faa8561c95d99b0fd70d107807f0fd88ca}{kVoiceOff}};}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_ab367f1d718c8d1f5bf0a57fc8b0e2a4f}{setKeyState}}(\mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a51465e3ecc4821b033391e7d513c4370}{kReleased}});}
+\DoxyCodeLine{00215\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_a57161f41a8bd58322a916885bd726ab7}{kill}}(\textcolor{keywordtype}{int}\ sample\ =\ 0)\ \{}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \ \ event\_sample\_\ =\ sample;}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_a456b4ccee212c3cfe1859424063efcd7}{event}}\ =\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa34372440894bc740541b0d8b97e54e6c}{kVoiceKill}};}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_aa1517bc30d466f02d229f5422d36c335}{markDead}}()\ \{}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_ab367f1d718c8d1f5bf0a57fc8b0e2a4f}{setKeyState}}(\mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a0c1b5b9b658126a9ccbb6d6101b9cc48}{kDead}});}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00230\ }
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_ab808e07e0caa9d0b4924b788a7fb8968}{hasNewEvent}}()\ \{}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ event\_sample\_\ >=\ 0;}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00235\ }
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_a8bef635542e9f689b69c37c238eda03f}{setAftertouch}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_a66bdbe609a6eb8e21ac1ccc23156cd9f}{aftertouch}},\ \textcolor{keywordtype}{int}\ sample\ =\ 0)\ \{}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \ \ aftertouch\_\ =\ \mbox{\hyperlink{classvital_1_1_voice_a66bdbe609a6eb8e21ac1ccc23156cd9f}{aftertouch}};}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ aftertouch\_sample\_\ =\ sample;}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00245\ }
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_acefff861fc10380cd645029289e9b619}{setSlide}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_a51881004dfac54134e7e27af7367ea7b}{slide}},\ \textcolor{keywordtype}{int}\ sample\ =\ 0)\ \{}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ slide\_\ =\ \mbox{\hyperlink{classvital_1_1_voice_a51881004dfac54134e7e27af7367ea7b}{slide}};}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ \ \ slide\_sample\_\ =\ sample;}
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00255\ }
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_af238861683c8e0a686655368d43eb515}{hasNewAftertouch}}()\ \{}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ aftertouch\_sample\_\ >=\ 0;}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00260\ }
+\DoxyCodeLine{00262\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_ac7d11decd60823180ae3e09c435fc3b2}{hasNewSlide}}()\ \{}
+\DoxyCodeLine{00263\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ slide\_sample\_\ >=\ 0;}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00265\ }
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_ad74af3b052edf711ca3d29af155a3f6b}{completeVoiceEvent}}()\ \{}
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \ \ event\_sample\_\ =\ -\/1;}
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (key\_state\_\ ==\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293ac7a4564b3760a1f70ba7f3b32cf28e19}{kTriggering}})}
+\DoxyCodeLine{00273\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_ab367f1d718c8d1f5bf0a57fc8b0e2a4f}{setKeyState}}(\mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293ad472959f595451e07952956d87e7aef4}{kHeld}});}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_ab2ac0cbfac28edf2a1f87ec4b8934dc2}{shiftVoiceEvent}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \ \ event\_sample\_\ -\/=\ num\_samples;}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(event\_sample\_\ >=\ 0);}
+\DoxyCodeLine{00283\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00288\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_a10e21293b0026968e92bd76031eaa44a}{shiftAftertouchEvent}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \ \ aftertouch\_sample\_\ -\/=\ num\_samples;}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(aftertouch\_sample\_\ >=\ 0);}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_ac6eadbe105023c957aed77f8ddeb4f08}{shiftSlideEvent}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00297\ \ \ \ \ \ \ \ \ slide\_sample\_\ -\/=\ num\_samples;}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(slide\_sample\_\ >=\ 0);}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00300\ }
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_ae60767ecbd4836b596c9688165068495}{clearAftertouchEvent}}()\ \{}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \ \ aftertouch\_sample\_\ =\ -\/1;}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00305\ }
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_a42d2bb92e59dc5fb04981d117ace4b31}{clearSlideEvent}}()\ \{}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \ \ aftertouch\_sample\_\ =\ -\/1;}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00310\ }
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_a72068008b8f9e2e7cb4e3069e47fa6c0}{clearEvents}}()\ \{}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ event\_sample\_\ =\ -\/1;}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ aftertouch\_sample\_\ =\ -\/1;}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00318\ }
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_a8b59e641335c54e80064ac02f970769a}{setSharedVoices}}(std::vector<Voice*>\ shared\_voices)\ \{}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ shared\_voices)\ \{}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice\ !=\ \textcolor{keyword}{this})}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ \ \ \ \ shared\_voices\_.push\_back(voice);}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00335\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_a45ee09a8085474ef91ddcd4cdc8189a0}{setVoiceInfo}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_aa85c0a188f868c9bb6aea1f5b45396bb}{voice\_index}},\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ \mbox{\hyperlink{classvital_1_1_voice_a7957e955a61a898340e73fdbe82be6b2}{voice\_mask}})\ \{}
+\DoxyCodeLine{00336\ \ \ \ \ \ \ \ \ voice\_index\_\ =\ \mbox{\hyperlink{classvital_1_1_voice_aa85c0a188f868c9bb6aea1f5b45396bb}{voice\_index}};}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \ \ voice\_mask\_\ =\ \mbox{\hyperlink{classvital_1_1_voice_a7957e955a61a898340e73fdbe82be6b2}{voice\_mask}};}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00339\ }
+\DoxyCodeLine{00340\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ voice\_index\_;\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00342\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ voice\_mask\_;\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00343\ \ \ \ \ \ \ std::vector<Voice*>\ shared\_voices\_;\ }
+\DoxyCodeLine{00344\ }
+\DoxyCodeLine{00345\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ event\_sample\_;\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00346\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1_voice_state}{VoiceState}}\ state\_;\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00347\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293}{KeyState}}\ last\_key\_state\_;\ \ \ \ \ }
+\DoxyCodeLine{00348\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293}{KeyState}}\ key\_state\_;\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00349\ }
+\DoxyCodeLine{00350\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aftertouch\_sample\_;\ \ \ \ \ \ \ }
+\DoxyCodeLine{00351\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ aftertouch\_;\ \ \ \ \ \ \ }
+\DoxyCodeLine{00352\ }
+\DoxyCodeLine{00353\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ slide\_sample\_;\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00354\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ slide\_;\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00355\ }
+\DoxyCodeLine{00356\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1_aggregate_voice}{AggregateVoice}}*\ parent\_;\ \ \ \ \ \ }
+\DoxyCodeLine{00357\ \ \ \};}
+\DoxyCodeLine{00358\ }
+\DoxyCodeLine{00365\ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structvital_1_1_aggregate_voice}{AggregateVoice}}\ \{}
+\DoxyCodeLine{00366\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_circular_queue}{CircularQueue<Voice*>}}\ \mbox{\hyperlink{structvital_1_1_aggregate_voice_a3479b9e6d20d0afb09b9fd123890c050}{voices}};\ \ \ \ \ }
+\DoxyCodeLine{00367\ \ \ \ \ std::unique\_ptr<Processor>\ \mbox{\hyperlink{structvital_1_1_aggregate_voice_a786ec5affdd867b2d6dbf736c916d8e5}{processor}};\ }
+\DoxyCodeLine{00368\ \ \ \};}
+\DoxyCodeLine{00369\ }
+\DoxyCodeLine{00380\ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{classvital_1_1_voice_handler}{VoiceHandler}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classvital_1_1_synth_module}{SynthModule}},\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classvital_1_1_note_handler}{NoteHandler}}\ \{}
+\DoxyCodeLine{00381\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00383\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa5164a224d49c5f13852661d1cdd1de0}{kLocalPitchBendRange}}\ =\ 48.0f;}
+\DoxyCodeLine{00384\ }
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49ad4c79773dcc7cfe4bb9c09be7b4cd6b8}{kPolyphony}},\ \ \ \ \ \ \ }
+\DoxyCodeLine{00391\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49a7684082869598db6fba58e3d5421371c}{kVoicePriority}},\ \ \ }
+\DoxyCodeLine{00392\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49aac12e1188289a6c76d73a32aa8eda374}{kVoiceOverride}},\ \ \ }
+\DoxyCodeLine{00393\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49accd67974cef726a93d35cd61564cbe18}{kNumInputs}}}
+\DoxyCodeLine{00394\ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00395\ }
+\DoxyCodeLine{00400\ \ \ \ \ \ \ \textcolor{keyword}{enum}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5}{VoiceOverride}}\ \{}
+\DoxyCodeLine{00401\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5a61e720f06cc7acaa9e67dcccb4f63f80}{kKill}},\ \ }
+\DoxyCodeLine{00402\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5aec2d8374207a7daf9681cc835f52934a}{kSteal}},\ }
+\DoxyCodeLine{00403\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5a5c31547657d16a8b1f763fae2802dad4}{kNumVoiceOverrides}}}
+\DoxyCodeLine{00404\ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00405\ }
+\DoxyCodeLine{00410\ \ \ \ \ \ \ \textcolor{keyword}{enum}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5b}{VoicePriority}}\ \{}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5bad88815db67e1315b0ff62a765ba50fd9}{kNewest}},}
+\DoxyCodeLine{00412\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5ba3f399bffb12929d40eb078bb8802614a}{kOldest}},}
+\DoxyCodeLine{00413\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5ba25f8f497c6f4e71933241b0cc5054ffb}{kHighest}},}
+\DoxyCodeLine{00414\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5baf103c35e836a0c20290c220a7b945ab8}{kLowest}},}
+\DoxyCodeLine{00415\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5ba21491e6bc8b080e87ac7368e988f3f03}{kRoundRobin}},}
+\DoxyCodeLine{00416\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5ba9799d3a5b1585f5e5a352030c4c59f93}{kNumVoicePriorities}}}
+\DoxyCodeLine{00417\ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00418\ }
+\DoxyCodeLine{00425\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_ab3915346519ca3ee2eac4a742d47b8cc}{VoiceHandler}}(\textcolor{keywordtype}{int}\ num\_outputs,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}},\ \textcolor{keywordtype}{bool}\ control\_rate\ =\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00426\ }
+\DoxyCodeLine{00428\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_ab3915346519ca3ee2eac4a742d47b8cc}{VoiceHandler}}()\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00429\ }
+\DoxyCodeLine{00433\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a4fdca04b0083d2745de0378ab64385cf}{\string~VoiceHandler}}();}
+\DoxyCodeLine{00434\ }
+\DoxyCodeLine{00439\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a1bd2ab027225c7288cea4cf9c124f23e}{clone}}()\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00440\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00441\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00442\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00443\ }
+\DoxyCodeLine{00449\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a6c379397d5efcd674dcf5e5f3511444a}{process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00450\ }
+\DoxyCodeLine{00454\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a4356352dc3f7b72cdd071d8a7d813651}{init}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00455\ }
+\DoxyCodeLine{00460\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_acda85debb852419a5388c994684906bc}{setSampleRate}}(\textcolor{keywordtype}{int}\ sample\_rate)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00461\ }
+\DoxyCodeLine{00466\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aae8ef13ab1a30f7512ea0dff5703a8e6}{setTuning}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_tuning}{Tuning}}*\ tuning)\ \{\ tuning\_\ =\ tuning;\ \}}
+\DoxyCodeLine{00467\ }
+\DoxyCodeLine{00471\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a4b764cef0010cc39069eda5a21217a0a}{getNumActiveVoices}}();}
+\DoxyCodeLine{00472\ }
+\DoxyCodeLine{00476\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a2479ebc5f317538af4b0b22f79593a9d}{getNumPressedNotes}}()\ \{\ \textcolor{keywordflow}{return}\ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_a371d92803753cd8a2fc2d557c49704f1}{size}}();\ \}}
+\DoxyCodeLine{00477\ }
+\DoxyCodeLine{00483\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a53e3a45424bf758ea60616bc381b1b0e}{isNotePlaying}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}});}
+\DoxyCodeLine{00484\ }
+\DoxyCodeLine{00491\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a53e3a45424bf758ea60616bc381b1b0e}{isNotePlaying}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}});}
+\DoxyCodeLine{00492\ }
+\DoxyCodeLine{00493\ \ \ \ \ \ \ \textcolor{comment}{//\ NoteHandler\ overrides:}}
+\DoxyCodeLine{00494\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_ab5cd9adc8d64167bf02b0bc0d2048c24}{allSoundsOff}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00495\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a9c2e023d7557a286b9b1aae83a04ecb3}{allNotesOff}}(\textcolor{keywordtype}{int}\ sample)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00496\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a9c2e023d7557a286b9b1aae83a04ecb3}{allNotesOff}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00497\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a13a31a0656c6bf3cb177e6464eea323e}{allNotesOffRange}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel);}
+\DoxyCodeLine{00498\ }
+\DoxyCodeLine{00499\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a2b1d804067ab284731a3ed878fd09657}{noteOn}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}},\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a0864b01c35b14dd08f928d9a860c88a0}{velocity}},\ \textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00500\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a797a35d52f58f52d08e2e74fd109e033}{noteOff}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}},\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a0864b01c35b14dd08f928d9a860c88a0}{velocity}},\ \textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00501\ }
+\DoxyCodeLine{00509\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a43abdff6282eb0c0c6e70dccde54e76b}{setAftertouch}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}},\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}},\ \textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}});}
+\DoxyCodeLine{00510\ }
+\DoxyCodeLine{00517\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a3a6ab79f983b43d55107f229c73dbbd6}{setChannelAftertouch}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}},\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}},\ \textcolor{keywordtype}{int}\ sample);}
+\DoxyCodeLine{00518\ }
+\DoxyCodeLine{00522\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_af8ae26a950af9e576f966df306b006b0}{setChannelRangeAftertouch}}(\textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}},\ \textcolor{keywordtype}{int}\ sample);}
+\DoxyCodeLine{00523\ }
+\DoxyCodeLine{00527\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_afc55e52e9be6665f43c82ba25cfb4c57}{setChannelSlide}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}},\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}},\ \textcolor{keywordtype}{int}\ sample);}
+\DoxyCodeLine{00528\ }
+\DoxyCodeLine{00532\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_afe3f0c1b675b5e681772f7d2cde81763}{setChannelRangeSlide}}(\textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}},\ \textcolor{keywordtype}{int}\ sample);}
+\DoxyCodeLine{00533\ }
+\DoxyCodeLine{00535\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_ae5b4747368b09bb35c6a61e16bdd0157}{sustainOn}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}});}
+\DoxyCodeLine{00537\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa42f3e7cfaccdd1df40de257c056098a}{sustainOff}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}});}
+\DoxyCodeLine{00538\ }
+\DoxyCodeLine{00540\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a462a32d5c280a54d442b1af301974d00}{sostenutoOn}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}});}
+\DoxyCodeLine{00542\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_ac199432b792697353449ae763eb52c99}{sostenutoOff}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}});}
+\DoxyCodeLine{00543\ }
+\DoxyCodeLine{00545\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_ae385ce4f96cced338815457fa8a5b2ad}{sustainOnRange}}(\textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel);}
+\DoxyCodeLine{00547\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_ac28a59d52cd4a3dfa4790d4bd8fb6c2f}{sustainOffRange}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel);}
+\DoxyCodeLine{00548\ }
+\DoxyCodeLine{00550\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_affbb755df859e914c647911453e7cb5c}{sostenutoOnRange}}(\textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel);}
+\DoxyCodeLine{00552\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a7c3e19cd0303954bbc991ef5bc7d349f}{sostenutoOffRange}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel);}
+\DoxyCodeLine{00553\ }
+\DoxyCodeLine{00557\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ \mbox{\hyperlink{classvital_1_1_voice_handler_af9dad893ef3471a4f17d5abbf00d39df}{getCurrentVoiceMask}}();}
+\DoxyCodeLine{00558\ }
+\DoxyCodeLine{00564\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a1641e8c060958f4971e74a9be5dc04a9}{setModWheel}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ =\ 0)\ \{}
+\DoxyCodeLine{00565\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel\ <\ kNumMidiChannels\ \&\&\ channel\ >}}=\ 0);}
+\DoxyCodeLine{00566\ \ \ \ \ \ \ \ \ mod\_wheel\_values\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}]\ =\ value;}
+\DoxyCodeLine{00567\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00568\ }
+\DoxyCodeLine{00573\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa3bcb5eede86b1589db1a6cc6473c806}{setModWheelAllChannels}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value)\ \{}
+\DoxyCodeLine{00574\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{kNumMidiChannels}};\ ++i)}
+\DoxyCodeLine{00575\ \ \ \ \ \ \ \ \ \ \ mod\_wheel\_values\_[i]\ =\ value;}
+\DoxyCodeLine{00576\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00577\ }
+\DoxyCodeLine{00583\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a7d0b8202d82ccdbdea3d7d874591d55a}{setPitchWheel}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ =\ 0)\ \{}
+\DoxyCodeLine{00584\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel\ <\ kNumMidiChannels\ \&\&\ channel\ >}}=\ 0);}
+\DoxyCodeLine{00585\ \ \ \ \ \ \ \ \ pitch\_wheel\_values\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}]\ =\ value;}
+\DoxyCodeLine{00586\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00587\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>state().channel\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ \&\&\ voice-\/>held())}
+\DoxyCodeLine{00588\ \ \ \ \ \ \ \ \ \ \ \ \ voice-\/>setLocalPitchBend(value);}
+\DoxyCodeLine{00589\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00590\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00591\ }
+\DoxyCodeLine{00598\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aadae39a2b7b747f3620ac6b4e24275e8}{setZonedPitchWheel}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value,\ \textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel)\ \{}
+\DoxyCodeLine{00599\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(from\_channel\ <\ kNumMidiChannels\ \&\&\ from\_channel\ >=\ 0);}
+\DoxyCodeLine{00600\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(to\_channel\ <\ kNumMidiChannels\ \&\&\ to\_channel\ >=\ 0);}
+\DoxyCodeLine{00601\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(to\_channel\ >=\ from\_channel);}
+\DoxyCodeLine{00602\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ from\_channel;\ i\ <=\ to\_channel;\ ++i)}
+\DoxyCodeLine{00603\ \ \ \ \ \ \ \ \ \ \ zoned\_pitch\_wheel\_values\_[i]\ =\ value;}
+\DoxyCodeLine{00604\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00605\ }
+\DoxyCodeLine{00607\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a5bab229a723b7e9320270adbdafe5470}{voice\_event}}()\ \{\ \textcolor{keywordflow}{return}\ \&voice\_event\_;\ \}}
+\DoxyCodeLine{00608\ }
+\DoxyCodeLine{00610\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a0b383ada4224e84985c24a6d933dc727}{retrigger}}()\ \{\ \textcolor{keywordflow}{return}\ \&retrigger\_;\ \}}
+\DoxyCodeLine{00611\ }
+\DoxyCodeLine{00613\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a976723d6f281467f174826548bacfad0}{reset}}()\ \{\ \textcolor{keywordflow}{return}\ \&reset\_;\ \}}
+\DoxyCodeLine{00614\ }
+\DoxyCodeLine{00616\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}}()\ \{\ \textcolor{keywordflow}{return}\ \&note\_;\ \}}
+\DoxyCodeLine{00617\ }
+\DoxyCodeLine{00619\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_ad6359772bd2bc8452c3a2c22b654751e}{last\_note}}()\ \{\ \textcolor{keywordflow}{return}\ \&last\_note\_;\ \}}
+\DoxyCodeLine{00620\ }
+\DoxyCodeLine{00622\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a3c664ee950ff76142332c898ab8149dc}{note\_pressed}}()\ \{\ \textcolor{keywordflow}{return}\ \&note\_pressed\_;\ \}}
+\DoxyCodeLine{00623\ }
+\DoxyCodeLine{00625\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a846e5c9914a34e31aad4d802fbd1b03e}{note\_count}}()\ \{\ \textcolor{keywordflow}{return}\ \&note\_count\_;\ \}}
+\DoxyCodeLine{00626\ }
+\DoxyCodeLine{00628\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_af3fd762c49f8027e66573046529622c8}{note\_in\_octave}}()\ \{\ \textcolor{keywordflow}{return}\ \&note\_in\_octave\_;\ \}}
+\DoxyCodeLine{00629\ }
+\DoxyCodeLine{00631\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}()\ \{\ \textcolor{keywordflow}{return}\ \&channel\_;\ \}}
+\DoxyCodeLine{00632\ }
+\DoxyCodeLine{00634\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a0864b01c35b14dd08f928d9a860c88a0}{velocity}}()\ \{\ \textcolor{keywordflow}{return}\ \&velocity\_;\ \}}
+\DoxyCodeLine{00635\ }
+\DoxyCodeLine{00637\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_ad144feadb03921b4e7e1efef2c7fa0e9}{lift}}()\ \{\ \textcolor{keywordflow}{return}\ \&lift\_;\ \}}
+\DoxyCodeLine{00638\ }
+\DoxyCodeLine{00640\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}}()\ \{\ \textcolor{keywordflow}{return}\ \&aftertouch\_;\ \}}
+\DoxyCodeLine{00641\ }
+\DoxyCodeLine{00643\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a462430bd8e71f5fe0a3930c5172052b5}{slide}}()\ \{\ \textcolor{keywordflow}{return}\ \&slide\_;\ \}}
+\DoxyCodeLine{00644\ }
+\DoxyCodeLine{00646\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_adbc3fd9c0b7be93f56c82ee8cd645f5b}{active\_mask}}()\ \{\ \textcolor{keywordflow}{return}\ \&active\_mask\_;\ \}}
+\DoxyCodeLine{00647\ }
+\DoxyCodeLine{00649\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a226348dca73703b71c33951215eda2a8}{pitch\_wheel}}()\ \{\ \textcolor{keywordflow}{return}\ \&pitch\_wheel\_;\ \}}
+\DoxyCodeLine{00650\ }
+\DoxyCodeLine{00652\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a92a74775e0aa6b32f59b9476617d6deb}{pitch\_wheel\_percent}}()\ \{\ \textcolor{keywordflow}{return}\ \&pitch\_wheel\_percent\_;\ \}}
+\DoxyCodeLine{00653\ }
+\DoxyCodeLine{00655\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a265a67b52cf6b80a0a14dd20b18f61a6}{local\_pitch\_bend}}()\ \{\ \textcolor{keywordflow}{return}\ \&local\_pitch\_bend\_;\ \}}
+\DoxyCodeLine{00656\ }
+\DoxyCodeLine{00658\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a70bc08150629cec99717dc0a46c777e6}{mod\_wheel}}()\ \{\ \textcolor{keywordflow}{return}\ \&mod\_wheel\_;\ \}}
+\DoxyCodeLine{00659\ }
+\DoxyCodeLine{00665\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a92047d76691ceeb37f21ce427ea807f3}{getAccumulatedOutput}}(\mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}})\ \{\ \textcolor{keywordflow}{return}\ accumulated\_outputs\_[\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}].get();\ \}}
+\DoxyCodeLine{00666\ }
+\DoxyCodeLine{00670\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}}()\ \{\ \textcolor{keywordflow}{return}\ polyphony\_;\ \}}
+\DoxyCodeLine{00671\ }
+\DoxyCodeLine{00675\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_handler_abfd3ceae67afccbf3eac02d9b12483e0}{getLastActiveNote}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00676\ }
+\DoxyCodeLine{00680\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classvital_1_1_processor_router}{ProcessorRouter}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_a5c5a9ebd941b20b2aa6269aaa88bee25}{getMonoRouter}}()\textcolor{keyword}{\ override\ }\{\ \textcolor{keywordflow}{return}\ \&global\_router\_;\ \}}
+\DoxyCodeLine{00681\ }
+\DoxyCodeLine{00685\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classvital_1_1_processor_router}{ProcessorRouter}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa694f92412944e785061e9bdc0a5b111}{getPolyRouter}}()\textcolor{keyword}{\ override\ }\{\ \textcolor{keywordflow}{return}\ \&voice\_router\_;\ \}}
+\DoxyCodeLine{00686\ }
+\DoxyCodeLine{00687\ \ \ \ \ \ \ \textcolor{comment}{//\ Overriding\ processor\ management\ from\ SynthModule:}}
+\DoxyCodeLine{00688\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}{addProcessor}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00689\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa8cb1c88d309cc966904ef3af4f6cd51}{addIdleProcessor}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00690\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a609a240662e8d02977b3d78398489b91}{removeProcessor}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00691\ }
+\DoxyCodeLine{00695\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a7d8139798f84bc48f799ffcc0b975c61}{addGlobalProcessor}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor);}
+\DoxyCodeLine{00696\ }
+\DoxyCodeLine{00700\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a0e61973632129c6a2e9fa1f91e3cf5e2}{removeGlobalProcessor}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor);}
+\DoxyCodeLine{00701\ }
+\DoxyCodeLine{00706\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a2b6195a578e16b6ad1490a8a1d20b1cc}{resetFeedbacks}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00707\ }
+\DoxyCodeLine{00713\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_ac6d558d9f34643e9b79cec8cf8fd4299}{registerOutput}}(\mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}})\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00714\ }
+\DoxyCodeLine{00721\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_ade40a08b9e01e1520ae1d5c18a37036f}{registerControlRateOutput}}(\mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}},\ \textcolor{keywordtype}{bool}\ active);}
+\DoxyCodeLine{00722\ }
+\DoxyCodeLine{00726\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_ac6d558d9f34643e9b79cec8cf8fd4299}{registerOutput}}(\mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}},\ \textcolor{keywordtype}{int}\ index)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00727\ }
+\DoxyCodeLine{00732\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a281bb6ca17fb3142dbf6c86460bf137b}{setPolyphony}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}});}
+\DoxyCodeLine{00733\ }
+\DoxyCodeLine{00738\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa5b94e7e9b6c92fd4d0f5999e7a311a6}{setVoiceKiller}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ killer)\ \{}
+\DoxyCodeLine{00739\ \ \ \ \ \ \ \ \ voice\_killer\_\ =\ killer;}
+\DoxyCodeLine{00740\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00741\ }
+\DoxyCodeLine{00743\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_ad5fea6c423d16c89ffd25ab5dc62d8f1}{setVoiceKiller}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ killer)\ \{}
+\DoxyCodeLine{00744\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa5b94e7e9b6c92fd4d0f5999e7a311a6}{setVoiceKiller}}(killer-\/>\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}());}
+\DoxyCodeLine{00745\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00746\ }
+\DoxyCodeLine{00751\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aeefea73f352fe89dba038f4b7436dbac}{setVoiceMidi}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ midi)\ \{}
+\DoxyCodeLine{00752\ \ \ \ \ \ \ \ \ voice\_midi\_\ =\ midi;}
+\DoxyCodeLine{00753\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00754\ }
+\DoxyCodeLine{00759\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aeb8d75e8ee4624fdcfa85aeaa897a75f}{setLegato}}(\textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a8aacdc084da8809bd2becc881902da5c}{legato}})\ \{}
+\DoxyCodeLine{00760\ \ \ \ \ \ \ \ \ legato\_\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_a8aacdc084da8809bd2becc881902da5c}{legato}};}
+\DoxyCodeLine{00761\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00762\ }
+\DoxyCodeLine{00764\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a8aacdc084da8809bd2becc881902da5c}{legato}}()\ \{}
+\DoxyCodeLine{00765\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ legato\_;}
+\DoxyCodeLine{00766\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00767\ }
+\DoxyCodeLine{00773\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_processor_a6109203f5da8f0c3a7413db829e13381}{isPolyphonic}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00774\ }
+\DoxyCodeLine{00779\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a888b1914b8574338a37ec0e96bd14c72}{setOversampleAmount}}(\textcolor{keywordtype}{int}\ oversample)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00780\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a2684da3687deca092882748cf170eac7}{SynthModule::setOversampleAmount}}(oversample);}
+\DoxyCodeLine{00781\ \ \ \ \ \ \ \ \ voice\_router\_.\mbox{\hyperlink{classvital_1_1_processor_router_a4c88954b0d0baec70f87485772d0c228}{setOversampleAmount}}(oversample);}
+\DoxyCodeLine{00782\ \ \ \ \ \ \ \ \ global\_router\_.\mbox{\hyperlink{classvital_1_1_processor_router_a4c88954b0d0baec70f87485772d0c228}{setOversampleAmount}}(oversample);}
+\DoxyCodeLine{00783\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00784\ }
+\DoxyCodeLine{00789\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a593542da24c24578fd81da57d585f498}{setActiveNonaccumulatedOutput}}(\mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}});}
+\DoxyCodeLine{00790\ }
+\DoxyCodeLine{00795\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aba6c7e7efbd63d12efc9f7b46fc212c7}{setInactiveNonaccumulatedOutput}}(\mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}});}
+\DoxyCodeLine{00796\ }
+\DoxyCodeLine{00797\ \ \ \ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00803\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_handler_adf7416833ec7abc5d8b34c604720b969}{shouldAccumulate}}(\mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}});}
+\DoxyCodeLine{00804\ }
+\DoxyCodeLine{00805\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00806\ \ \ \ \ \ \ \textcolor{comment}{//\ Internal\ utility\ methods\ for\ grabbing,\ assigning,\ and\ processing\ voices.}}
+\DoxyCodeLine{00807\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ grabVoice();}
+\DoxyCodeLine{00808\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ grabFreeVoice();}
+\DoxyCodeLine{00809\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ grabFreeParallelVoice();}
+\DoxyCodeLine{00810\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ grabVoiceOfType(\mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293}{Voice::KeyState}}\ key\_state);}
+\DoxyCodeLine{00811\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ getVoiceToKill(\textcolor{keywordtype}{int}\ max\_voices);}
+\DoxyCodeLine{00812\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ grabNextUnplayedPressedNote();}
+\DoxyCodeLine{00813\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ sortVoicePriority();}
+\DoxyCodeLine{00814\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ addParallelVoices();}
+\DoxyCodeLine{00815\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ prepareVoiceTriggers(\mbox{\hyperlink{structvital_1_1_aggregate_voice}{AggregateVoice}}*\ aggregate\_voice,\ \textcolor{keywordtype}{int}\ num\_samples);}
+\DoxyCodeLine{00816\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ prepareVoiceValues(\mbox{\hyperlink{structvital_1_1_aggregate_voice}{AggregateVoice}}*\ aggregate\_voice);}
+\DoxyCodeLine{00817\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ processVoice(\mbox{\hyperlink{structvital_1_1_aggregate_voice}{AggregateVoice}}*\ aggregate\_voice,\ \textcolor{keywordtype}{int}\ num\_samples);}
+\DoxyCodeLine{00818\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ clearAccumulatedOutputs();}
+\DoxyCodeLine{00819\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ clearNonaccumulatedOutputs();}
+\DoxyCodeLine{00820\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ accumulateOutputs(\textcolor{keywordtype}{int}\ num\_samples);}
+\DoxyCodeLine{00821\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ combineAccumulatedOutputs(\textcolor{keywordtype}{int}\ num\_samples);}
+\DoxyCodeLine{00822\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeNonaccumulatedOutputs(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ voice\_mask,\ \textcolor{keywordtype}{int}\ num\_samples);}
+\DoxyCodeLine{00823\ }
+\DoxyCodeLine{00824\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ polyphony\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00825\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ legato\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00826\ }
+\DoxyCodeLine{00827\ \ \ \ \ \ \ std::map<Output*,\ std::unique\_ptr<Output>>\ last\_voice\_outputs\_;\ }
+\DoxyCodeLine{00828\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_circular_queue}{CircularQueue<std::pair<Output*,\ Output*>}}>\ nonaccumulated\_outputs\_;\ }
+\DoxyCodeLine{00829\ \ \ \ \ \ \ std::map<Output*,\ std::unique\_ptr<Output>>\ accumulated\_outputs\_;\ \ \ }
+\DoxyCodeLine{00830\ }
+\DoxyCodeLine{00831\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ voice\_killer\_;\ }
+\DoxyCodeLine{00832\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ voice\_midi\_;\ \ \ }
+\DoxyCodeLine{00833\ }
+\DoxyCodeLine{00834\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ last\_num\_voices\_;\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00835\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ last\_played\_note\_;}
+\DoxyCodeLine{00836\ }
+\DoxyCodeLine{00837\ \ \ \ \ \ \ \textcolor{comment}{//\ Outputs\ published\ by\ VoiceHandler\ for\ other\ processors:}}
+\DoxyCodeLine{00838\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ voice\_event\_;}
+\DoxyCodeLine{00839\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ retrigger\_;}
+\DoxyCodeLine{00840\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ reset\_;}
+\DoxyCodeLine{00841\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ note\_;}
+\DoxyCodeLine{00842\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ last\_note\_;}
+\DoxyCodeLine{00843\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ note\_pressed\_;}
+\DoxyCodeLine{00844\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ note\_count\_;}
+\DoxyCodeLine{00845\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ note\_in\_octave\_;}
+\DoxyCodeLine{00846\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ channel\_;}
+\DoxyCodeLine{00847\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ velocity\_;}
+\DoxyCodeLine{00848\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ lift\_;}
+\DoxyCodeLine{00849\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ aftertouch\_;}
+\DoxyCodeLine{00850\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ slide\_;}
+\DoxyCodeLine{00851\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ active\_mask\_;}
+\DoxyCodeLine{00852\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ mod\_wheel\_;}
+\DoxyCodeLine{00853\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ pitch\_wheel\_;}
+\DoxyCodeLine{00854\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ pitch\_wheel\_percent\_;}
+\DoxyCodeLine{00855\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}\ local\_pitch\_bend\_;}
+\DoxyCodeLine{00856\ }
+\DoxyCodeLine{00857\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ sustain\_[\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{kNumMidiChannels}}];\ \ \ \ \ \ }
+\DoxyCodeLine{00858\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ sostenuto\_[\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{kNumMidiChannels}}];\ \ \ \ }
+\DoxyCodeLine{00859\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ mod\_wheel\_values\_[\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{kNumMidiChannels}}];\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00860\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ pitch\_wheel\_values\_[\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{kNumMidiChannels}}];\ \ \ \ \ \ }
+\DoxyCodeLine{00861\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ zoned\_pitch\_wheel\_values\_[\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{kNumMidiChannels}}];}
+\DoxyCodeLine{00862\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ pressure\_values\_[\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{kNumMidiChannels}}];\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00863\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ slide\_values\_[\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{kNumMidiChannels}}];\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00864\ }
+\DoxyCodeLine{00865\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_tuning}{Tuning}}*\ tuning\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00866\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5b}{VoicePriority}}\ voice\_priority\_;\ \ \ \ \ \ \ }
+\DoxyCodeLine{00867\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5}{VoiceOverride}}\ voice\_override\_;\ \ \ \ \ \ \ }
+\DoxyCodeLine{00868\ }
+\DoxyCodeLine{00869\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ total\_notes\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00870\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_circular_queue}{CircularQueue<int>}}\ pressed\_notes\_;\ \ \ }
+\DoxyCodeLine{00871\ }
+\DoxyCodeLine{00872\ \ \ \ \ \ \ \textcolor{comment}{//\ Pools\ of\ Voice\ and\ AggregateVoice\ objects:}}
+\DoxyCodeLine{00873\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_circular_queue}{CircularQueue<std::unique\_ptr<Voice>}}>\ all\_voices\_;}
+\DoxyCodeLine{00874\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_circular_queue}{CircularQueue<Voice*>}}\ free\_voices\_;}
+\DoxyCodeLine{00875\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_circular_queue}{CircularQueue<Voice*>}}\ active\_voices\_;}
+\DoxyCodeLine{00876\ }
+\DoxyCodeLine{00877\ }
+\DoxyCodeLine{00878\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_circular_queue}{CircularQueue<std::unique\_ptr<AggregateVoice>}}>\ all\_aggregate\_voices\_;}
+\DoxyCodeLine{00879\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_circular_queue}{CircularQueue<AggregateVoice*>}}\ active\_aggregate\_voices\_;}
+\DoxyCodeLine{00880\ }
+\DoxyCodeLine{00881\ \ \ \ \ \ \ \textcolor{comment}{//\ Two\ routers:\ one\ for\ each\ voice\ (poly),\ one\ for\ global\ (mono).}}
+\DoxyCodeLine{00882\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router}{ProcessorRouter}}\ voice\_router\_;}
+\DoxyCodeLine{00883\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router}{ProcessorRouter}}\ global\_router\_;}
+\DoxyCodeLine{00884\ }
+\DoxyCodeLine{00885\ \ \ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(\mbox{\hyperlink{classvital_1_1_voice_handler}{VoiceHandler}})}
+\DoxyCodeLine{00886\ \ \ \};}
+\DoxyCodeLine{00887\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+\DoxyCodeLine{00888\ }
+
+\end{DoxyCode}

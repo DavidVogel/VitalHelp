@@ -1,0 +1,65 @@
+\doxysection{border\+\_\+bounds\+\_\+constrainer.\+cpp}
+\hypertarget{border__bounds__constrainer_8cpp_source}{}\label{border__bounds__constrainer_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/border\_bounds\_constrainer.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/border\_bounds\_constrainer.cpp}}
+\mbox{\hyperlink{border__bounds__constrainer_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{border__bounds__constrainer_8h}{border\_bounds\_constrainer.h}}"{}}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{full__interface_8h}{full\_interface.h}}"{}}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{load__save_8h}{load\_save.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__gui__interface_8h}{synth\_gui\_interface.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_border_bounds_constrainer_aa5f39f66a6f015e0283e281beebf0af0}{BorderBoundsConstrainer::checkBounds}}(Rectangle<int>\&\ bounds,\ \textcolor{keyword}{const}\ Rectangle<int>\&\ previous,}
+\DoxyCodeLine{00007\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ Rectangle<int>\&\ limits,}
+\DoxyCodeLine{00008\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ stretching\_top,\ \textcolor{keywordtype}{bool}\ stretching\_left,}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ stretching\_bottom,\ \textcolor{keywordtype}{bool}\ stretching\_right)\ \{}
+\DoxyCodeLine{00010\ \ \ \textcolor{comment}{//\ Apply\ the\ defined\ border\ before\ checking\ the\ standard\ constraints.}}
+\DoxyCodeLine{00011\ \ \ \mbox{\hyperlink{class_border_bounds_constrainer_abea5907e439955b9cdaf986bcccc766b}{border\_}}.subtractFrom(bounds);}
+\DoxyCodeLine{00012\ \ \ \textcolor{keywordtype}{double}\ aspect\_ratio\ =\ getFixedAspectRatio();}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \ \ \textcolor{comment}{//\ Let\ the\ base\ class\ handle\ initial\ constraint\ checks.}}
+\DoxyCodeLine{00015\ \ \ ComponentBoundsConstrainer::checkBounds(bounds,\ previous,\ limits,}
+\DoxyCodeLine{00016\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ stretching\_top,\ stretching\_left,}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ stretching\_bottom,\ stretching\_right);}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \ \ \textcolor{comment}{//\ Get\ the\ total\ display\ area\ and\ adjust\ for\ window\ frame\ size\ if\ a\ GUI\ is\ available.}}
+\DoxyCodeLine{00020\ \ \ Rectangle<int>\ display\_area\ =\ Desktop::getInstance().getDisplays().getTotalBounds(\textcolor{keyword}{true});}
+\DoxyCodeLine{00021\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_border_bounds_constrainer_a725ed1d2d5d9915b857e18963f86eb60}{gui\_}})\ \{}
+\DoxyCodeLine{00022\ \ \ \ \ ComponentPeer*\ peer\ =\ \mbox{\hyperlink{class_border_bounds_constrainer_a725ed1d2d5d9915b857e18963f86eb60}{gui\_}}-\/>getPeer();}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keywordflow}{if}\ (peer)}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ peer-\/>getFrameSize().subtractFrom(display\_area);}
+\DoxyCodeLine{00025\ \ \ \}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \textcolor{comment}{//\ Ensure\ the\ window\ doesn't\ exceed\ the\ display\ area\ width.}}
+\DoxyCodeLine{00028\ \ \ \textcolor{keywordflow}{if}\ (display\_area.getWidth()\ <\ bounds.getWidth())\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keywordtype}{int}\ new\_width\ =\ display\_area.getWidth();}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keywordtype}{int}\ new\_height\ =\ std::round(new\_width\ /\ aspect\_ratio);}
+\DoxyCodeLine{00031\ \ \ \ \ bounds.setWidth(new\_width);}
+\DoxyCodeLine{00032\ \ \ \ \ bounds.setHeight(new\_height);}
+\DoxyCodeLine{00033\ \ \ \}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \textcolor{comment}{//\ Ensure\ the\ window\ doesn't\ exceed\ the\ display\ area\ height.}}
+\DoxyCodeLine{00036\ \ \ \textcolor{keywordflow}{if}\ (display\_area.getHeight()\ <\ bounds.getHeight())\ \{}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{keywordtype}{int}\ new\_height\ =\ display\_area.getHeight();}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keywordtype}{int}\ new\_width\ =\ std::round(new\_height\ *\ aspect\_ratio);}
+\DoxyCodeLine{00039\ \ \ \ \ bounds.setWidth(new\_width);}
+\DoxyCodeLine{00040\ \ \ \ \ bounds.setHeight(new\_height);}
+\DoxyCodeLine{00041\ \ \ \}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \textcolor{comment}{//\ Reapply\ the\ border\ to\ the\ adjusted\ bounds.}}
+\DoxyCodeLine{00044\ \ \ \mbox{\hyperlink{class_border_bounds_constrainer_abea5907e439955b9cdaf986bcccc766b}{border\_}}.addTo(bounds);}
+\DoxyCodeLine{00045\ \}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_border_bounds_constrainer_a95f1b64b1e93fd7ade254ebddc358166}{BorderBoundsConstrainer::resizeStart}}()\ \{}
+\DoxyCodeLine{00048\ \ \ \textcolor{comment}{//\ Temporarily\ disable\ background\ redraw\ for\ smoother\ resizing\ if\ GUI\ is\ present.}}
+\DoxyCodeLine{00049\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_border_bounds_constrainer_a725ed1d2d5d9915b857e18963f86eb60}{gui\_}})}
+\DoxyCodeLine{00050\ \ \ \ \ \mbox{\hyperlink{class_border_bounds_constrainer_a725ed1d2d5d9915b857e18963f86eb60}{gui\_}}-\/>\mbox{\hyperlink{class_full_interface_a2a5f2f020d9a8a52911548cc870d9d5c}{enableRedoBackground}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00051\ \}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_border_bounds_constrainer_a442ac0acffe49b3f3d1371d29d43bc49}{BorderBoundsConstrainer::resizeEnd}}()\ \{}
+\DoxyCodeLine{00054\ \ \ \textcolor{comment}{//\ Once\ resizing\ is\ complete,\ save\ the\ new\ window\ size\ and\ re-\/enable\ redraw\ if\ GUI\ is\ present.}}
+\DoxyCodeLine{00055\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_border_bounds_constrainer_a725ed1d2d5d9915b857e18963f86eb60}{gui\_}})\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ \mbox{\hyperlink{class_load_save_a00147a85fddd9bd48babec10565957c1}{LoadSave::saveWindowSize}}(\mbox{\hyperlink{class_border_bounds_constrainer_a725ed1d2d5d9915b857e18963f86eb60}{gui\_}}-\/>getWidth()\ /\ (1.0f\ *\ \mbox{\hyperlink{namespacevital_a3c613ddce78d8961a63a58a10004495c}{vital::kDefaultWindowWidth}}));}
+\DoxyCodeLine{00057\ \ \ \ \ \mbox{\hyperlink{class_border_bounds_constrainer_a725ed1d2d5d9915b857e18963f86eb60}{gui\_}}-\/>\mbox{\hyperlink{class_full_interface_a2a5f2f020d9a8a52911548cc870d9d5c}{enableRedoBackground}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00058\ \ \ \}}
+\DoxyCodeLine{00059\ \}}
+
+\end{DoxyCode}

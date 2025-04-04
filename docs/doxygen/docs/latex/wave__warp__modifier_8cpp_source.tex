@@ -1,0 +1,141 @@
+\doxysection{wave\+\_\+warp\+\_\+modifier.\+cpp}
+\hypertarget{wave__warp__modifier_8cpp_source}{}\label{wave__warp__modifier_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/wave\_warp\_modifier.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/wave\_warp\_modifier.cpp}}
+\mbox{\hyperlink{wave__warp__modifier_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{WaveWarpModifier\ allows\ nonlinear\ reshaping\ of\ a\ waveform\ by\ warping\ it\ horizontally\ (time-\/axis)\ and\ vertically\ (amplitude-\/axis).\ Users\ can\ set\ warp\ powers\ and\ choose\ asymmetric\ transformations,\ creating\ a\ wide\ range\ of\ waveform\ distortions.\ Interpolation\ between\ keyframes\ and\ these\ nonlinear\ transformations\ can\ produce\ evolving,\ dynamic\ waves\ that\ move\ beyond\ simple\ linear\ scaling.}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__warp__modifier_8h}{wave\_warp\_modifier.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{futils_8h}{futils.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__frame_8h}{wave\_frame.h}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00020\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ highResPowerScale(\textcolor{keywordtype}{float}\ value,\ \textcolor{keywordtype}{float}\ power)\ \{}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMinPower\ =\ 0.01f;}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keywordflow}{if}\ (fabsf(power)\ <\ kMinPower)}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value;}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keywordtype}{double}\ abs\_value\ =\ fabsf(value);}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keywordtype}{double}\ numerator\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ad0ad3cd83f0a4d5a41505d7f1df8adbf}{exp}}(power\ *\ abs\_value)\ -\/\ 1.0f;}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keywordtype}{double}\ denominator\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ad0ad3cd83f0a4d5a41505d7f1df8adbf}{exp}}(power)\ -\/\ 1.0f;}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keywordflow}{if}\ (value\ >=\ 0.0f)}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ numerator\ /\ denominator;}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keywordflow}{return}\ -\/numerator\ /\ denominator;}
+\DoxyCodeLine{00032\ \ \ \}}
+\DoxyCodeLine{00033\ \}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a4058d51bc590253517f80f03105d75e8}{WaveWarpModifier::WaveWarpModifierKeyframe::WaveWarpModifierKeyframe}}()\ \{}
+\DoxyCodeLine{00036\ \ \ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a2d0a72637ca66ccbf4fa03353ac7466d}{horizontal\_power\_}}\ =\ 0.0f;}
+\DoxyCodeLine{00037\ \ \ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a0354a55ebf53527955a6ecb31f2c2b8d}{vertical\_power\_}}\ =\ 0.0f;}
+\DoxyCodeLine{00038\ \ \ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_ad13ac02dfb2ae9d6af18f95af6628a7e}{horizontal\_asymmetric\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00039\ \ \ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a0cc2a2a9daf26fbb7f57b11871526ffa}{vertical\_asymmetric\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00040\ \}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a6b78be6637e7873c4268e805e80217cc}{WaveWarpModifier::WaveWarpModifierKeyframe::copy}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00043\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe}{WaveWarpModifierKeyframe}}*\ source\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe}{WaveWarpModifierKeyframe}}*\textcolor{keyword}{>}(keyframe);}
+\DoxyCodeLine{00044\ \ \ horizontal\_power\_\ =\ source-\/>\mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a2d0a72637ca66ccbf4fa03353ac7466d}{horizontal\_power\_}};}
+\DoxyCodeLine{00045\ \ \ vertical\_power\_\ =\ source-\/>\mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a0354a55ebf53527955a6ecb31f2c2b8d}{vertical\_power\_}};}
+\DoxyCodeLine{00046\ \}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a538c05c5b92472e6a79d4e18368156a6}{WaveWarpModifier::WaveWarpModifierKeyframe::interpolate}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ from\_keyframe,}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ to\_keyframe,}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t)\ \{}
+\DoxyCodeLine{00051\ \ \ \textcolor{comment}{//\ Linearly\ interpolate\ horizontal\ and\ vertical\ warp\ powers.}}
+\DoxyCodeLine{00052\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe}{WaveWarpModifierKeyframe}}*\ from\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe}{WaveWarpModifierKeyframe}}*\textcolor{keyword}{>}(from\_keyframe);}
+\DoxyCodeLine{00053\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe}{WaveWarpModifierKeyframe}}*\ to\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe}{WaveWarpModifierKeyframe}}*\textcolor{keyword}{>}(to\_keyframe);}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ horizontal\_power\_\ =\ linearTween(from-\/>\mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a2d0a72637ca66ccbf4fa03353ac7466d}{horizontal\_power\_}},\ to-\/>\mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a2d0a72637ca66ccbf4fa03353ac7466d}{horizontal\_power\_}},\ t);}
+\DoxyCodeLine{00056\ \ \ vertical\_power\_\ =\ linearTween(from-\/>\mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a0354a55ebf53527955a6ecb31f2c2b8d}{vertical\_power\_}},\ to-\/>\mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a0354a55ebf53527955a6ecb31f2c2b8d}{vertical\_power\_}},\ t);}
+\DoxyCodeLine{00057\ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a5adda59f7b10b829995f2cb1398cd51e}{WaveWarpModifier::WaveWarpModifierKeyframe::render}}(\mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ wave\_frame)\ \{}
+\DoxyCodeLine{00060\ \ \ \textcolor{comment}{//\ Initially\ copy\ time\_domain\ into\ frequency\_domain\ as\ a\ buffer.}}
+\DoxyCodeLine{00061\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};\ ++i)}
+\DoxyCodeLine{00062\ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]\ =\ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i];}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \ \textcolor{comment}{//\ Warp\ horizontally:\ map\ each\ sample\ index\ through\ a\ nonlinear\ curve\ controlled\ by\ horizontal\_power\_.}}
+\DoxyCodeLine{00065\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};\ ++i)\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{keywordtype}{float}\ horizontal\ =\ i\ /\ (\mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}}\ -\/\ 1.0f);}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keywordtype}{float}\ warped\_horizontal\ =\ 0.0f;}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wave_warp_modifier_a1031b84f16c9959ae387c33e8f3f440a}{horizontal\_asymmetric\_}})\ \{}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ warped\_horizontal\ =\ highResPowerScale(horizontal,\ horizontal\_power\_);}
+\DoxyCodeLine{00070\ \ \ \ \ \}}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \textcolor{comment}{//\ Symmetric\ mapping:\ map\ [-\/1,1]\ and\ then\ re-\/map\ back\ to\ [0,1].}}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ warped\_horizontal\ =\ 0.5f\ *\ highResPowerScale(2.0f\ *\ horizontal\ -\/\ 1.0f,\ horizontal\_power\_)\ +\ 0.5f;}
+\DoxyCodeLine{00074\ \ \ \ \ \}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{comment}{//\ Compute\ new\ sample\ by\ interpolating\ the\ original\ wave\ at\ this\ warped\ horizontal\ position.}}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{keywordtype}{float}\ float\_index\ =\ (\mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}}\ -\/\ 1)\ *\ warped\_horizontal;}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ float\_index;}
+\DoxyCodeLine{00079\ \ \ \ \ index\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a0096680ab20a53e9eade83f4f2ee1895}{vital::utils::iclamp}}(index,\ 0,\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}}\ -\/\ 2);}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keywordtype}{float}\ vertical\_from\ =\ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[index].real();}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keywordtype}{float}\ vertical\_to\ =\ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[index\ +\ 1].real();}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{keywordtype}{float}\ vertical\ =\ linearTween(vertical\_from,\ vertical\_to,\ float\_index\ -\/\ index);}
+\DoxyCodeLine{00084\ \ \ \ \ vertical\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(vertical,\ -\/1.0f,\ 1.0f);}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{comment}{//\ Warp\ vertically:\ apply\ vertical\_power\_\ using\ highResPowerScale.}}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wave_warp_modifier_a7f0514786c32d63f8d14ee05cf38ee98}{vertical\_asymmetric\_}})}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i]\ =\ 2.0f\ *\ highResPowerScale(0.5f\ *\ vertical\ +\ 0.5f,\ vertical\_power\_)\ -\/\ 1.0f;}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i]\ =\ highResPowerScale(vertical,\ vertical\_power\_);}
+\DoxyCodeLine{00091\ \ \ \}}
+\DoxyCodeLine{00092\ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a55389465c6dd32414e034d10834ff0ee}{toFrequencyDomain}}();}
+\DoxyCodeLine{00093\ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a72518f6a2ee9e8cbc8df2d00ae77a198}{WaveWarpModifier::WaveWarpModifierKeyframe::stateToJson}}()\ \{}
+\DoxyCodeLine{00096\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_wavetable_keyframe_ab12d53e98f7188d011cd3c69e86d2bda}{WavetableKeyframe::stateToJson}}();}
+\DoxyCodeLine{00097\ \ \ data[\textcolor{stringliteral}{"{}horizontal\_power"{}}]\ =\ horizontal\_power\_;}
+\DoxyCodeLine{00098\ \ \ data[\textcolor{stringliteral}{"{}vertical\_power"{}}]\ =\ vertical\_power\_;}
+\DoxyCodeLine{00099\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00100\ \}}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a5fd15422e3d668308b51f67852fadad8}{WaveWarpModifier::WaveWarpModifierKeyframe::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00103\ \ \ \mbox{\hyperlink{class_wavetable_keyframe_ad0e81b3bdc5fe9a3d901dec69d9b7b5b}{WavetableKeyframe::jsonToState}}(data);}
+\DoxyCodeLine{00104\ \ \ horizontal\_power\_\ =\ data[\textcolor{stringliteral}{"{}horizontal\_power"{}}];}
+\DoxyCodeLine{00105\ \ \ vertical\_power\_\ =\ data[\textcolor{stringliteral}{"{}vertical\_power"{}}];}
+\DoxyCodeLine{00106\ \}}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ \mbox{\hyperlink{class_wave_warp_modifier_a0d51954ac49d31139a0788e9e65cc4eb}{WaveWarpModifier::createKeyframe}}(\textcolor{keywordtype}{int}\ position)\ \{}
+\DoxyCodeLine{00109\ \ \ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe}{WaveWarpModifierKeyframe}}*\ keyframe\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe}{WaveWarpModifierKeyframe}}();}
+\DoxyCodeLine{00110\ \ \ \mbox{\hyperlink{class_wavetable_component_a59b735ee67cc2281379418304de76b6d}{interpolate}}(keyframe,\ position);}
+\DoxyCodeLine{00111\ \ \ \textcolor{keywordflow}{return}\ keyframe;}
+\DoxyCodeLine{00112\ \}}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_warp_modifier_a315cbb13483d2862fc8fcc299f20a323}{WaveWarpModifier::render}}(\mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ wave\_frame,\ \textcolor{keywordtype}{float}\ position)\ \{}
+\DoxyCodeLine{00115\ \ \ \textcolor{comment}{//\ Interpolate\ and\ apply\ current\ asymmetric\ flags\ to\ the\ compute\_frame\_\ before\ rendering.}}
+\DoxyCodeLine{00116\ \ \ \mbox{\hyperlink{class_wavetable_component_a59b735ee67cc2281379418304de76b6d}{interpolate}}(\&\mbox{\hyperlink{class_wave_warp_modifier_a0706748607db09b95100bba560ae31ec}{compute\_frame\_}},\ position);}
+\DoxyCodeLine{00117\ \ \ \mbox{\hyperlink{class_wave_warp_modifier_a0706748607db09b95100bba560ae31ec}{compute\_frame\_}}.\mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a6c28808880ed750cea9aba9986513d11}{setHorizontalAsymmetric}}(\mbox{\hyperlink{class_wave_warp_modifier_a1031b84f16c9959ae387c33e8f3f440a}{horizontal\_asymmetric\_}});}
+\DoxyCodeLine{00118\ \ \ \mbox{\hyperlink{class_wave_warp_modifier_a0706748607db09b95100bba560ae31ec}{compute\_frame\_}}.\mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a6b1c7f29beee16d6aa9cb7504952817a}{setVerticalAsymmetric}}(\mbox{\hyperlink{class_wave_warp_modifier_a7f0514786c32d63f8d14ee05cf38ee98}{vertical\_asymmetric\_}});}
+\DoxyCodeLine{00119\ \ \ \mbox{\hyperlink{class_wave_warp_modifier_a0706748607db09b95100bba560ae31ec}{compute\_frame\_}}.\mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe_a5adda59f7b10b829995f2cb1398cd51e}{render}}(wave\_frame);}
+\DoxyCodeLine{00120\ \}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bd}{WavetableComponentFactory::ComponentType}}\ \mbox{\hyperlink{class_wave_warp_modifier_a98da1d8a976fd93f703f547abe09cd05}{WaveWarpModifier::getType}}()\ \{}
+\DoxyCodeLine{00123\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bdaa62a5000677ce7e5689d0a7c38541cb6}{WavetableComponentFactory::kWaveWarp}};}
+\DoxyCodeLine{00124\ \}}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_wave_warp_modifier_a542eec51b0678cbedb32041b0bf6c34a}{WaveWarpModifier::stateToJson}}()\ \{}
+\DoxyCodeLine{00127\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_wavetable_component_a1c7bd3ba09cf3093d5aea225ee876b02}{WavetableComponent::stateToJson}}();}
+\DoxyCodeLine{00128\ \ \ data[\textcolor{stringliteral}{"{}horizontal\_asymmetric"{}}]\ =\ \mbox{\hyperlink{class_wave_warp_modifier_a1031b84f16c9959ae387c33e8f3f440a}{horizontal\_asymmetric\_}};}
+\DoxyCodeLine{00129\ \ \ data[\textcolor{stringliteral}{"{}vertical\_asymmetric"{}}]\ =\ \mbox{\hyperlink{class_wave_warp_modifier_a7f0514786c32d63f8d14ee05cf38ee98}{vertical\_asymmetric\_}};}
+\DoxyCodeLine{00130\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00131\ \}}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_warp_modifier_a54ccd75efaaea989e5c0cfe09e01650e}{WaveWarpModifier::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00134\ \ \ \mbox{\hyperlink{class_wavetable_component_a656616fbc4a9d37b7e76c4179f496196}{WavetableComponent::jsonToState}}(data);}
+\DoxyCodeLine{00135\ \ \ \mbox{\hyperlink{class_wave_warp_modifier_a1031b84f16c9959ae387c33e8f3f440a}{horizontal\_asymmetric\_}}\ =\ data[\textcolor{stringliteral}{"{}horizontal\_asymmetric"{}}];}
+\DoxyCodeLine{00136\ \ \ \mbox{\hyperlink{class_wave_warp_modifier_a7f0514786c32d63f8d14ee05cf38ee98}{vertical\_asymmetric\_}}\ =\ data[\textcolor{stringliteral}{"{}vertical\_asymmetric"{}}];}
+\DoxyCodeLine{00137\ \}}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe}{WaveWarpModifier::WaveWarpModifierKeyframe}}*\ \mbox{\hyperlink{class_wave_warp_modifier_acf61c704691860ad319046f65751c0af}{WaveWarpModifier::getKeyframe}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00140\ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ wavetable\_keyframe\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[index].get();}
+\DoxyCodeLine{00141\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_wave_warp_modifier_1_1_wave_warp_modifier_keyframe}{WaveWarpModifier::WaveWarpModifierKeyframe}}*\textcolor{keyword}{>}(wavetable\_keyframe);}
+\DoxyCodeLine{00142\ \}}
+
+\end{DoxyCode}

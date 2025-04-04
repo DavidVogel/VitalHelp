@@ -1,0 +1,104 @@
+\doxysection{pitch\+\_\+detector.\+cpp}
+\hypertarget{pitch__detector_8cpp_source}{}\label{pitch__detector_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/pitch\_detector.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/pitch\_detector.cpp}}
+\mbox{\hyperlink{pitch__detector_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{The\ PitchDetector\ class\ attempts\ to\ find\ the\ fundamental\ period\ of\ a\ loaded\ signal\ using\ a\ method\ inspired\ by\ the\ YIN\ algorithm.\ By\ computing\ an\ error\ metric\ that\ measures\ how\ well\ the\ waveform\ repeats\ at\ different\ periods,\ it\ identifies\ a\ period\ length\ that\ best\ represents\ the\ fundamental\ frequency.\ This\ helps\ ensure\ that\ wavetables\ and\ other\ audio\ processing\ steps\ align\ wave\ cycles\ with\ their\ fundamental\ pitch.}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{pitch__detector_8h}{pitch\_detector.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__frame_8h}{wave\_frame.h}}"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <climits>}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \mbox{\hyperlink{class_pitch_detector_afb748209fe74beb8876e3ff52ff00e49}{PitchDetector::PitchDetector}}()\ \{}
+\DoxyCodeLine{00013\ \ \ \mbox{\hyperlink{class_pitch_detector_a3a8269f8aa76f3a8dcaf9b9f87b0c4a0}{size\_}}\ =\ 0;}
+\DoxyCodeLine{00014\ \ \ \mbox{\hyperlink{class_pitch_detector_a814a69c800b25436cf9cb51b7f98cf44}{signal\_data\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00015\ \}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pitch_detector_a6fbfbc0c1855219929f3f7c7e9345606}{PitchDetector::loadSignal}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{float}*\ signal,\ \textcolor{keywordtype}{int}\ size)\ \{}
+\DoxyCodeLine{00018\ \ \ \mbox{\hyperlink{class_pitch_detector_a3a8269f8aa76f3a8dcaf9b9f87b0c4a0}{size\_}}\ =\ size;}
+\DoxyCodeLine{00019\ \ \ \mbox{\hyperlink{class_pitch_detector_a814a69c800b25436cf9cb51b7f98cf44}{signal\_data\_}}\ =\ std::make\_unique<float[]>(size);}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ memcpy(\mbox{\hyperlink{class_pitch_detector_a814a69c800b25436cf9cb51b7f98cf44}{signal\_data\_}}.get(),\ signal,\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float})\ *\ size);}
+\DoxyCodeLine{00022\ \}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_pitch_detector_a8d67c7c33620c8a7de618a41a19a9a96}{PitchDetector::getPeriodError}}(\textcolor{keywordtype}{float}\ period)\ \{}
+\DoxyCodeLine{00025\ \ \ \textcolor{comment}{//\ This\ function\ measures\ how\ repeating\ a\ given\ period\ is\ within\ the\ signal.}}
+\DoxyCodeLine{00026\ \ \ \textcolor{comment}{//\ It\ segments\ the\ signal\ into\ 'waves'\ (integral\ multiples\ of\ the\ period)\ and\ compares\ them.}}
+\DoxyCodeLine{00027\ \ \ \textcolor{comment}{//\ It\ also\ penalizes\ DC\ differences\ by\ considering\ the\ mean\ offsets.}}
+\DoxyCodeLine{00028\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kDcDeltaErrorMultiplier\ =\ 0.015f;}
+\DoxyCodeLine{00029\ \ \ \textcolor{keywordtype}{float}\ error\ =\ 0.0f;}
+\DoxyCodeLine{00030\ \ \ \textcolor{keywordtype}{int}\ waves\ =\ \mbox{\hyperlink{class_pitch_detector_a3a8269f8aa76f3a8dcaf9b9f87b0c4a0}{size\_}}\ /\ period\ -\/\ 1;}
+\DoxyCodeLine{00031\ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(waves\ >\ 0);}
+\DoxyCodeLine{00032\ \ \ \textcolor{keywordtype}{int}\ points\ =\ \mbox{\hyperlink{class_pitch_detector_a79eb40dee0838d22a82d5db8a48669c7}{kNumPoints}}\ /\ waves;}
+\DoxyCodeLine{00033\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ w\ =\ 0;\ w\ <\ waves;\ ++w)\ \{}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{keywordtype}{float}\ total\_from\ =\ 0.0f;}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keywordtype}{float}\ total\_to\ =\ 0.0f;}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ points;\ ++i)\ \{}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ first\_position\ =\ w\ *\ period\ +\ i\ *\ period\ /\ points;}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ second\_position\ =\ (w\ +\ 1)\ *\ period\ +\ i\ *\ period\ /\ points;}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ first\_index\ =\ first\_position;}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ first\_t\ =\ first\_position\ -\/\ first\_index;}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ first\_from\ =\ \mbox{\hyperlink{class_pitch_detector_a814a69c800b25436cf9cb51b7f98cf44}{signal\_data\_}}[first\_index];}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ first\_to\ =\ \mbox{\hyperlink{class_pitch_detector_a814a69c800b25436cf9cb51b7f98cf44}{signal\_data\_}}[first\_index\ +\ 1];}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ first\_value\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(first\_from,\ first\_to,\ first\_t);}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ total\_from\ +=\ first\_value;}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ second\_index\ =\ second\_position;}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ second\_t\ =\ second\_position\ -\/\ second\_index;}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ second\_from\ =\ \mbox{\hyperlink{class_pitch_detector_a814a69c800b25436cf9cb51b7f98cf44}{signal\_data\_}}[second\_index];}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ second\_to\ =\ \mbox{\hyperlink{class_pitch_detector_a814a69c800b25436cf9cb51b7f98cf44}{signal\_data\_}}[second\_index\ +\ 1];}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ second\_value\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(second\_from,\ second\_to,\ second\_t);}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ total\_to\ +=\ second\_value;}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ delta\ =\ first\_value\ -\/\ second\_value;}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ error\ +=\ delta\ *\ delta;}
+\DoxyCodeLine{00056\ \ \ \ \ \}}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keywordtype}{float}\ total\_diff\ =\ total\_from\ -\/\ total\_to;}
+\DoxyCodeLine{00059\ \ \ \ \ error\ +=\ total\_diff\ *\ total\_diff\ *\ kDcDeltaErrorMultiplier;}
+\DoxyCodeLine{00060\ \ \ \}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \textcolor{keywordflow}{return}\ error;}
+\DoxyCodeLine{00063\ \}}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_pitch_detector_a0254cf5388c626fa9d9dc3ce6009d660}{PitchDetector::findYinPeriod}}(\textcolor{keywordtype}{int}\ max\_period)\ \{}
+\DoxyCodeLine{00066\ \ \ \textcolor{comment}{//\ The\ method\ tries\ a\ range\ of\ candidate\ periods\ and\ selects\ the\ one\ with\ the\ smallest\ error.}}
+\DoxyCodeLine{00067\ \ \ \textcolor{comment}{//\ It\ first\ does\ a\ coarse\ search,\ then\ refines\ around\ the\ best\ candidate\ to\ find\ a\ more\ exact\ period.}}
+\DoxyCodeLine{00068\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMinLength\ =\ 300.0f;}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \textcolor{keywordtype}{float}\ max\_length\ =\ std::min<float>(\mbox{\hyperlink{class_pitch_detector_a3a8269f8aa76f3a8dcaf9b9f87b0c4a0}{size\_}}\ /\ 2.0f,\ max\_period);}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \textcolor{keywordtype}{float}\ best\_error\ =\ INT\_MAX;}
+\DoxyCodeLine{00073\ \ \ \textcolor{keywordtype}{float}\ match\ =\ kMinLength;}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{float}\ length\ =\ kMinLength;\ length\ <\ max\_length;\ length\ +=\ 1.0f)\ \{}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keywordtype}{float}\ error\ =\ \mbox{\hyperlink{class_pitch_detector_a8d67c7c33620c8a7de618a41a19a9a96}{getPeriodError}}(length);}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{keywordflow}{if}\ (error\ <\ best\_error)\ \{}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ best\_error\ =\ error;}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ match\ =\ length;}
+\DoxyCodeLine{00080\ \ \ \ \ \}}
+\DoxyCodeLine{00081\ \ \ \}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \textcolor{keywordtype}{float}\ best\_match\ =\ match;}
+\DoxyCodeLine{00084\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{float}\ length\ =\ match\ -\/\ 1.0f;\ length\ <=\ match\ +\ 1.0f;\ length\ +=\ 0.1f)\ \{}
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{keywordtype}{float}\ error\ =\ \mbox{\hyperlink{class_pitch_detector_a8d67c7c33620c8a7de618a41a19a9a96}{getPeriodError}}(length);}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordflow}{if}\ (error\ <\ best\_error)\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ best\_error\ =\ error;}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ best\_match\ =\ length;}
+\DoxyCodeLine{00089\ \ \ \ \ \}}
+\DoxyCodeLine{00090\ \ \ \}}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \textcolor{keywordflow}{return}\ best\_match;}
+\DoxyCodeLine{00093\ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_pitch_detector_a35a1b29ff8620bc7e3c38c17ef1208ea}{PitchDetector::matchPeriod}}(\textcolor{keywordtype}{int}\ max\_period)\ \{}
+\DoxyCodeLine{00096\ \ \ \textcolor{comment}{//\ A\ simple\ wrapper\ calling\ findYinPeriod\ to\ find\ the\ period.}}
+\DoxyCodeLine{00097\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_pitch_detector_a0254cf5388c626fa9d9dc3ce6009d660}{findYinPeriod}}(max\_period);}
+\DoxyCodeLine{00098\ \}}
+
+\end{DoxyCode}

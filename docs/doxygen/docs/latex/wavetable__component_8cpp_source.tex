@@ -1,0 +1,139 @@
+\doxysection{wavetable\+\_\+component.\+cpp}
+\hypertarget{wavetable__component_8cpp_source}{}\label{wavetable__component_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/wavetable\_component.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/wavetable\_component.cpp}}
+\mbox{\hyperlink{wavetable__component_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{WavetableComponent\ is\ the\ base\ class\ for\ elements\ that\ produce\ or\ modify\ wavetables.\ It\ manages\ keyframes\ representing\ waveform\ states\ at\ certain\ positions,\ and\ supports\ interpolation\ between\ these\ states\ using\ none,\ linear,\ or\ cubic\ methods.\ By\ serializing\ and\ deserializing\ keyframes,\ it\ integrates\ smoothly\ with\ preset\ systems.\ Interpolation\ ensures\ smooth\ transitions\ across\ the\ wavetable\ dimension,\ enabling\ dynamic\ and\ evolving\ sounds.}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable__component_8h}{wavetable\_component.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ \mbox{\hyperlink{class_wavetable_component_a6311d3537ca55c3399a8dce144600bf0}{WavetableComponent::insertNewKeyframe}}(\textcolor{keywordtype}{int}\ position)\ \{}
+\DoxyCodeLine{00009\ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(position\ >=\ 0\ \&\&\ position\ <\ \mbox{\hyperlink{namespacevital_aa72aa67cd199ba84e12ec933d74ba400}{vital::kNumOscillatorWaveFrames}});}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \ \ \textcolor{comment}{//\ Create\ a\ new\ keyframe\ for\ the\ given\ position\ and\ insert\ it\ at\ the\ correct\ sorted\ position.}}
+\DoxyCodeLine{00012\ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe\ =\ \mbox{\hyperlink{class_wavetable_component_a124545669558c26f4abf1ac15a83137e}{createKeyframe}}(position);}
+\DoxyCodeLine{00013\ \ \ keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_ac8c372f4c4fd789e650d7b262321721e}{setOwner}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00014\ \ \ keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a66ba4445e56c387f4c8e48192e0039fb}{setPosition}}(position);}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ \textcolor{keywordtype}{int}\ index\ =\ \mbox{\hyperlink{class_wavetable_component_ac2af3dd97667e8f2d17205aee1258393}{getIndexFromPosition}}(position);}
+\DoxyCodeLine{00017\ \ \ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}.insert(\mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}.begin()\ +\ index,\ std::unique\_ptr<WavetableKeyframe>(keyframe));}
+\DoxyCodeLine{00018\ \ \ \textcolor{keywordflow}{return}\ keyframe;}
+\DoxyCodeLine{00019\ \}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_ada888cf15019ad788c5939e58e055157}{WavetableComponent::reposition}}(\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00022\ \ \ \textcolor{comment}{//\ Remove\ and\ re-\/insert\ a\ keyframe\ after\ its\ position\ changed\ to\ maintain\ sorted\ order.}}
+\DoxyCodeLine{00023\ \ \ \textcolor{keywordtype}{int}\ start\_index\ =\ \mbox{\hyperlink{class_wavetable_component_a750d9e68099e67e549fc93a2099048c0}{indexOf}}(keyframe);}
+\DoxyCodeLine{00024\ \ \ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[start\_index].release();}
+\DoxyCodeLine{00025\ \ \ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}.erase(\mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}.begin()\ +\ start\_index);}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \textcolor{keywordtype}{int}\ new\_index\ =\ \mbox{\hyperlink{class_wavetable_component_ac2af3dd97667e8f2d17205aee1258393}{getIndexFromPosition}}(keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}());}
+\DoxyCodeLine{00028\ \ \ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}.insert(\mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}.begin()\ +\ new\_index,\ std::unique\_ptr<WavetableKeyframe>(keyframe));}
+\DoxyCodeLine{00029\ \}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_ac48217f5669d6896915f896f8ebd7656}{WavetableComponent::remove}}(\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00032\ \ \ \textcolor{comment}{//\ Erase\ a\ keyframe\ from\ the\ vector.}}
+\DoxyCodeLine{00033\ \ \ \textcolor{keywordtype}{int}\ start\_index\ =\ \mbox{\hyperlink{class_wavetable_component_a750d9e68099e67e549fc93a2099048c0}{indexOf}}(keyframe);}
+\DoxyCodeLine{00034\ \ \ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}.erase(\mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}.begin()\ +\ start\_index);}
+\DoxyCodeLine{00035\ \}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_a656616fbc4a9d37b7e76c4179f496196}{WavetableComponent::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00038\ \ \ \textcolor{comment}{//\ Clears\ current\ keyframes\ and\ load\ them\ from\ the\ JSON\ structure.}}
+\DoxyCodeLine{00039\ \ \ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}.clear();}
+\DoxyCodeLine{00040\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_keyframe\ :\ data[\textcolor{stringliteral}{"{}keyframes"{}}])\ \{}
+\DoxyCodeLine{00041\ \ \ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe\ =\ \mbox{\hyperlink{class_wavetable_component_a6311d3537ca55c3399a8dce144600bf0}{insertNewKeyframe}}(json\_keyframe[\textcolor{stringliteral}{"{}position"{}}]);}
+\DoxyCodeLine{00042\ \ \ \ \ keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_ad0e81b3bdc5fe9a3d901dec69d9b7b5b}{jsonToState}}(json\_keyframe);}
+\DoxyCodeLine{00043\ \ \ \}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}interpolation\_style"{}}))}
+\DoxyCodeLine{00046\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_af0aa617e14c153860a521bd5b1581431}{interpolation\_style\_}}\ =\ data[\textcolor{stringliteral}{"{}interpolation\_style"{}}];}
+\DoxyCodeLine{00047\ \}}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_wavetable_component_a1c7bd3ba09cf3093d5aea225ee876b02}{WavetableComponent::stateToJson}}()\ \{}
+\DoxyCodeLine{00050\ \ \ \textcolor{comment}{//\ Serialize\ all\ keyframes\ and\ the\ component's\ interpolation\ style.}}
+\DoxyCodeLine{00051\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ keyframes\_data;}
+\DoxyCodeLine{00052\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}.size();\ ++i)}
+\DoxyCodeLine{00053\ \ \ \ \ keyframes\_data.emplace\_back(\mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[i]-\/>stateToJson());}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \textcolor{keywordflow}{return}\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ \{\ \textcolor{stringliteral}{"{}keyframes"{}},\ keyframes\_data\ \},}
+\DoxyCodeLine{00057\ \ \ \ \ \{\ \textcolor{stringliteral}{"{}type"{}},\ \mbox{\hyperlink{class_wavetable_component_factory_a84f596863859e345044cdef92025b1c6}{WavetableComponentFactory::getComponentName}}(\mbox{\hyperlink{class_wavetable_component_abdc0037a943396e1fe4e743147fca5fc}{getType}}())\ \},}
+\DoxyCodeLine{00058\ \ \ \ \ \{\ \textcolor{stringliteral}{"{}interpolation\_style"{}},\ \mbox{\hyperlink{class_wavetable_component_af0aa617e14c153860a521bd5b1581431}{interpolation\_style\_}}\ \}}
+\DoxyCodeLine{00059\ \ \ \};}
+\DoxyCodeLine{00060\ \}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_a5c028ea829ca0bc17ca42f3b10a26d30}{WavetableComponent::reset}}()\ \{}
+\DoxyCodeLine{00063\ \ \ \textcolor{comment}{//\ Clear\ all\ keyframes\ and\ add\ a\ default\ one\ at\ position\ 0.}}
+\DoxyCodeLine{00064\ \ \ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}.clear();}
+\DoxyCodeLine{00065\ \ \ \mbox{\hyperlink{class_wavetable_component_a6311d3537ca55c3399a8dce144600bf0}{insertNewKeyframe}}(0);}
+\DoxyCodeLine{00066\ \}}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_component_a59b735ee67cc2281379418304de76b6d}{WavetableComponent::interpolate}}(\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ dest,\ \textcolor{keywordtype}{float}\ position)\ \{}
+\DoxyCodeLine{00069\ \ \ \textcolor{comment}{//\ Given\ a\ position,\ find\ the\ appropriate\ keyframes\ to\ interpolate\ between.}}
+\DoxyCodeLine{00070\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wavetable_component_a05ca43822b7adf62273544e4b1708c3c}{numFrames}}()\ ==\ 0)}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \textcolor{keywordtype}{int}\ index\ =\ \mbox{\hyperlink{class_wavetable_component_ac2af3dd97667e8f2d17205aee1258393}{getIndexFromPosition}}(position)\ -\/\ 1;}
+\DoxyCodeLine{00074\ \ \ \textcolor{keywordtype}{int}\ clamped\_index\ =\ std::min(std::max(index,\ 0),\ \mbox{\hyperlink{class_wavetable_component_a05ca43822b7adf62273544e4b1708c3c}{numFrames}}()\ -\/\ 1);}
+\DoxyCodeLine{00075\ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ from\_frame\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[clamped\_index].get();}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \textcolor{comment}{//\ Depending\ on\ the\ interpolation\ style,\ copy,\ linear\ interpolate,\ or\ cubic\ interpolate.}}
+\DoxyCodeLine{00078\ \ \ \textcolor{keywordflow}{if}\ (index\ <\ 0\ ||\ index\ >=\ \mbox{\hyperlink{class_wavetable_component_a05ca43822b7adf62273544e4b1708c3c}{numFrames}}()\ -\/\ 1\ ||\ \mbox{\hyperlink{class_wavetable_component_af0aa617e14c153860a521bd5b1581431}{interpolation\_style\_}}\ ==\ \mbox{\hyperlink{class_wavetable_component_a188637e36deb4834ab05056b054f2e0fa4f56ea195909304581c33e172d87aa11}{kNone}})}
+\DoxyCodeLine{00079\ \ \ \ \ dest-\/>\mbox{\hyperlink{class_wavetable_keyframe_ab63e2509190d772cb85d200081b71932}{copy}}(from\_frame);}
+\DoxyCodeLine{00080\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wavetable_component_af0aa617e14c153860a521bd5b1581431}{interpolation\_style\_}}\ ==\ \mbox{\hyperlink{class_wavetable_component_a188637e36deb4834ab05056b054f2e0fa2a92f23c1ad1d25c24888ac3ff404fae}{kLinear}})\ \{}
+\DoxyCodeLine{00081\ \ \ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ to\_frame\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[index\ +\ 1].get();}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keywordtype}{int}\ from\_position\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[index]-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}();}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{keywordtype}{int}\ to\_position\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[index\ +\ 1]-\/>position();}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ (1.0f\ *\ position\ -\/\ from\_position)\ /\ (to\_position\ -\/\ from\_position);}
+\DoxyCodeLine{00085\ \ \ \ \ dest-\/>\mbox{\hyperlink{class_wavetable_keyframe_a9b8843c7e0e08fd4521353b3056287b7}{interpolate}}(from\_frame,\ to\_frame,\ t);}
+\DoxyCodeLine{00086\ \ \ \}}
+\DoxyCodeLine{00087\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wavetable_component_af0aa617e14c153860a521bd5b1581431}{interpolation\_style\_}}\ ==\ \mbox{\hyperlink{class_wavetable_component_a188637e36deb4834ab05056b054f2e0faf0292dd632d35859011d3a5ef73c1d1a}{kCubic}})\ \{}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{comment}{//\ Cubic\ interpolation\ uses\ prev\ and\ next\ frames\ as\ well.}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordtype}{int}\ next\_index\ =\ index\ +\ 2;}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keywordtype}{int}\ prev\_index\ =\ index\ -\/\ 1;}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keywordflow}{if}\ (next\_index\ >=\ \mbox{\hyperlink{class_wavetable_component_a05ca43822b7adf62273544e4b1708c3c}{numFrames}}())}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ next\_index\ =\ index;}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordflow}{if}\ (prev\_index\ <\ 0)}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ prev\_index\ =\ index\ +\ 1;}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \ \ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ to\_frame\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[index\ +\ 1].get();}
+\DoxyCodeLine{00097\ \ \ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ next\_frame\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[next\_index].get();}
+\DoxyCodeLine{00098\ \ \ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ prev\_frame\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[prev\_index].get();}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordtype}{int}\ from\_position\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[index]-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}();}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keywordtype}{int}\ to\_position\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[index\ +\ 1]-\/>position();}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ (1.0f\ *\ position\ -\/\ from\_position)\ /\ (to\_position\ -\/\ from\_position);}
+\DoxyCodeLine{00103\ \ \ \ \ dest-\/>\mbox{\hyperlink{class_wavetable_keyframe_a6b81a0f285fb9810903a06340d8d4517}{smoothInterpolate}}(prev\_frame,\ from\_frame,\ to\_frame,\ next\_frame,\ t);}
+\DoxyCodeLine{00104\ \ \ \}}
+\DoxyCodeLine{00105\ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_wavetable_component_ac2af3dd97667e8f2d17205aee1258393}{WavetableComponent::getIndexFromPosition}}(\textcolor{keywordtype}{int}\ position)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00108\ \ \ \textcolor{comment}{//\ Returns\ the\ insertion\ index\ to\ keep\ keyframes\ sorted\ by\ their\ position.}}
+\DoxyCodeLine{00109\ \ \ \textcolor{keywordtype}{int}\ index\ =\ 0;}
+\DoxyCodeLine{00110\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ keyframe\ :\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}})\ \{}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{keywordflow}{if}\ (position\ <\ keyframe-\/>position())}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00113\ \ \ \ \ index++;}
+\DoxyCodeLine{00114\ \ \ \}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \textcolor{keywordflow}{return}\ index;}
+\DoxyCodeLine{00117\ \}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ \mbox{\hyperlink{class_wavetable_component_a944323ea0630ec59d7805a348228dc8e}{WavetableComponent::getFrameAtPosition}}(\textcolor{keywordtype}{int}\ position)\ \{}
+\DoxyCodeLine{00120\ \ \ \textcolor{keywordtype}{int}\ index\ =\ \mbox{\hyperlink{class_wavetable_component_ac2af3dd97667e8f2d17205aee1258393}{getIndexFromPosition}}(position);}
+\DoxyCodeLine{00121\ \ \ \textcolor{keywordflow}{if}\ (index\ <\ 0\ ||\ index\ >=\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}.size())}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[index].get();}
+\DoxyCodeLine{00125\ \}}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_wavetable_component_a68f4e727094819ad5787db30b1322ce2}{WavetableComponent::getLastKeyframePosition}}()\ \{}
+\DoxyCodeLine{00128\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}.size()\ ==\ 0)}
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00130\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{class_wavetable_component_ac95929ba0a375893ac0e701fece6d8ac}{hasKeyframes}}())}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_aa72aa67cd199ba84e12ec933d74ba400}{vital::kNumOscillatorWaveFrames}}\ -\/\ 1;}
+\DoxyCodeLine{00132\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[\mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}.size()\ -\/\ 1]-\/>position();}
+\DoxyCodeLine{00133\ \}}
+
+\end{DoxyCode}

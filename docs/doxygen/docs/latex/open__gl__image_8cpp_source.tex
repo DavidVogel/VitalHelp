@@ -1,0 +1,144 @@
+\doxysection{open\+\_\+gl\+\_\+image.\+cpp}
+\hypertarget{open__gl__image_8cpp_source}{}\label{open__gl__image_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/open\_gl\_image.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/open\_gl\_image.cpp}}
+\mbox{\hyperlink{open__gl__image_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{open__gl__image_8h}{open\_gl\_image.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{open__gl__component_8h}{open\_gl\_component.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{shaders_8h}{shaders.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00008\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kNumPositions\ =\ 16;\ \ \ \ \ \ \ \ \textcolor{comment}{//\ Number\ of\ floats\ in\ the\ vertex\ data\ (4\ vertices\ *\ 4\ floats).}}
+\DoxyCodeLine{00009\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kNumTriangleIndices\ =\ 6;\ \ \ \textcolor{comment}{//\ Number\ of\ indices\ for\ drawing\ two\ triangles\ forming\ a\ quad.}}
+\DoxyCodeLine{00010\ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \mbox{\hyperlink{class_open_gl_image_a72fd489664c0145e4fcf1c97164d56c7}{OpenGlImage::OpenGlImage}}()\ :\ dirty\_(true),\ image\_(nullptr),\ image\_width\_(0),\ image\_height\_(0),}
+\DoxyCodeLine{00013\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ additive\_(false),\ use\_alpha\_(false),\ scissor\_(false)\ \{}
+\DoxyCodeLine{00014\ \ \ position\_vertices\_\ =\ std::make\_unique<float[]>(kNumPositions);}
+\DoxyCodeLine{00015\ \ \ \textcolor{keywordtype}{float}\ position\_vertices[kNumPositions]\ =\ \{}
+\DoxyCodeLine{00016\ \ \ \ \ 0.0f,\ 1.0f,\ 0.0f,\ 1.0f,}
+\DoxyCodeLine{00017\ \ \ \ \ 0.0f,\ -\/1.0f,\ 0.0f,\ 0.0f,}
+\DoxyCodeLine{00018\ \ \ \ \ 0.1f,\ -\/1.0f,\ 1.0f,\ 0.0f,}
+\DoxyCodeLine{00019\ \ \ \ \ 0.1f,\ 1.0f,\ 1.0f,\ 1.0f}
+\DoxyCodeLine{00020\ \ \ \};}
+\DoxyCodeLine{00021\ \ \ memcpy(position\_vertices\_.get(),\ position\_vertices,\ kNumPositions\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}));}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ position\_triangles\_\ =\ std::make\_unique<int[]>(kNumTriangleIndices);}
+\DoxyCodeLine{00024\ \ \ \textcolor{keywordtype}{int}\ position\_triangles[kNumTriangleIndices]\ =\ \{}
+\DoxyCodeLine{00025\ \ \ \ \ 0,\ 1,\ 2,}
+\DoxyCodeLine{00026\ \ \ \ \ 2,\ 3,\ 0}
+\DoxyCodeLine{00027\ \ \ \};}
+\DoxyCodeLine{00028\ \ \ memcpy(position\_triangles\_.get(),\ position\_triangles,\ kNumTriangleIndices\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int}));}
+\DoxyCodeLine{00029\ \}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \mbox{\hyperlink{class_open_gl_image_a1857d5dbb520d7520c6d4511ed1d464d}{OpenGlImage::\string~OpenGlImage}}()\ \{\ \}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_image_a6b06f9ec05cca98730b58bdc5044390c}{OpenGlImage::init}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00034\ \ \ \textcolor{comment}{//\ Create\ and\ bind\ vertex\ buffer\ for\ position\ data}}
+\DoxyCodeLine{00035\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenBuffers(1,\ \&vertex\_buffer\_);}
+\DoxyCodeLine{00036\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ vertex\_buffer\_);}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ GLsizeiptr\ vert\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(kNumPositions\ *\ \textcolor{keyword}{sizeof}(float)));}
+\DoxyCodeLine{00039\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ARRAY\_BUFFER,\ vert\_size,}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ position\_vertices\_.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ Create\ and\ bind\ element\ buffer\ for\ triangle\ indices}}
+\DoxyCodeLine{00043\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenBuffers(1,\ \&triangle\_buffer\_);}
+\DoxyCodeLine{00044\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ triangle\_buffer\_);}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ GLsizeiptr\ tri\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(kNumTriangleIndices\ *\ \textcolor{keyword}{sizeof}(float)));}
+\DoxyCodeLine{00047\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ELEMENT\_ARRAY\_BUFFER,\ tri\_size,}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ position\_triangles\_.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \textcolor{comment}{//\ Use\ a\ tinted\ image\ shader}}
+\DoxyCodeLine{00051\ \ \ image\_shader\_\ =\ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_af70c9f649bbea5dfd68c376d1e2918ea}{shaders}}-\/>\mbox{\hyperlink{class_shaders_ae4644dfe46dda65994ede40a18e2747a}{getShaderProgram}}(\mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a24e969bbc6e5c85d9bf5b284322dfc3f}{Shaders::kImageVertex}},\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45abf7082d1cf1634d9a35be5c1aeb53705}{Shaders::kTintedImageFragment}});}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ image\_shader\_-\/>use();}
+\DoxyCodeLine{00054\ \ \ image\_color\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{OpenGlComponent::getUniform}}(open\_gl,\ *image\_shader\_,\ \textcolor{stringliteral}{"{}color"{}});}
+\DoxyCodeLine{00055\ \ \ image\_position\_\ =\ \mbox{\hyperlink{class_open_gl_component_a59361984d78ce0542bfa722179d57f93}{OpenGlComponent::getAttribute}}(open\_gl,\ *image\_shader\_,\ \textcolor{stringliteral}{"{}position"{}});}
+\DoxyCodeLine{00056\ \ \ texture\_coordinates\_\ =\ \mbox{\hyperlink{class_open_gl_component_a59361984d78ce0542bfa722179d57f93}{OpenGlComponent::getAttribute}}(open\_gl,\ *image\_shader\_,\ \textcolor{stringliteral}{"{}tex\_coord\_in"{}});}
+\DoxyCodeLine{00057\ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_image_a7ce00e695b64c30cc996cffc3b28a6ae}{OpenGlImage::drawImage}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00060\ \ \ \textcolor{comment}{//\ Load\ image\ into\ texture\ if\ a\ new\ image\ was\ set}}
+\DoxyCodeLine{00061\ \ \ mutex\_.lock();}
+\DoxyCodeLine{00062\ \ \ \textcolor{keywordflow}{if}\ (image\_)\ \{}
+\DoxyCodeLine{00063\ \ \ \ \ texture\_.loadImage(*image\_);}
+\DoxyCodeLine{00064\ \ \ \ \ image\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00065\ \ \ \}}
+\DoxyCodeLine{00066\ \ \ mutex\_.unlock();}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ glEnable(GL\_BLEND);}
+\DoxyCodeLine{00069\ \ \ \textcolor{keywordflow}{if}\ (scissor\_)}
+\DoxyCodeLine{00070\ \ \ \ \ glEnable(GL\_SCISSOR\_TEST);}
+\DoxyCodeLine{00071\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00072\ \ \ \ \ glDisable(GL\_SCISSOR\_TEST);}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \textcolor{comment}{//\ Set\ blending\ mode}}
+\DoxyCodeLine{00075\ \ \ \textcolor{keywordflow}{if}\ (additive\_)}
+\DoxyCodeLine{00076\ \ \ \ \ glBlendFunc(GL\_ONE,\ GL\_ONE);}
+\DoxyCodeLine{00077\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (use\_alpha\_)}
+\DoxyCodeLine{00078\ \ \ \ \ glBlendFunc(GL\_SRC\_ALPHA,\ GL\_ONE\_MINUS\_SRC\_ALPHA);}
+\DoxyCodeLine{00079\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00080\ \ \ \ \ glBlendFunc(GL\_ONE,\ GL\_ONE\_MINUS\_SRC\_ALPHA);}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \ \ glTexParameteri(GL\_TEXTURE\_2D,\ GL\_TEXTURE\_WRAP\_S,\ GL\_CLAMP\_TO\_EDGE);}
+\DoxyCodeLine{00083\ \ \ glTexParameteri(GL\_TEXTURE\_2D,\ GL\_TEXTURE\_WRAP\_T,\ GL\_CLAMP\_TO\_EDGE);}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \textcolor{comment}{//\ Update\ vertex\ data\ if\ needed}}
+\DoxyCodeLine{00086\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ vertex\_buffer\_);}
+\DoxyCodeLine{00087\ \ \ GLsizeiptr\ vert\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(kNumPositions\ *\ \textcolor{keyword}{sizeof}(float)));}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \ \ mutex\_.lock();}
+\DoxyCodeLine{00090\ \ \ \textcolor{keywordflow}{if}\ (dirty\_)}
+\DoxyCodeLine{00091\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ARRAY\_BUFFER,\ vert\_size,\ position\_vertices\_.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00092\ \ \ dirty\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ triangle\_buffer\_);}
+\DoxyCodeLine{00095\ \ \ texture\_.bind();}
+\DoxyCodeLine{00096\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glActiveTexture(GL\_TEXTURE0);}
+\DoxyCodeLine{00097\ \ \ mutex\_.unlock();}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ image\_shader\_-\/>use();}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \ \textcolor{comment}{//\ Set\ uniform\ color}}
+\DoxyCodeLine{00102\ \ \ image\_color\_-\/>set(color\_.getFloatRed(),\ color\_.getFloatGreen(),\ color\_.getFloatBlue(),\ color\_.getFloatAlpha());}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \textcolor{comment}{//\ Enable\ vertex\ attributes}}
+\DoxyCodeLine{00105\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glVertexAttribPointer(image\_position\_-\/>attributeID,\ 2,\ GL\_FLOAT,}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GL\_FALSE,\ 4\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00107\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glEnableVertexAttribArray(image\_position\_-\/>attributeID);}
+\DoxyCodeLine{00108\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glVertexAttribPointer(texture\_coordinates\_-\/>attributeID,\ 2,\ GL\_FLOAT,}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GL\_FALSE,\ 4\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (GLvoid*)(2\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float})));}
+\DoxyCodeLine{00111\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glEnableVertexAttribArray(texture\_coordinates\_-\/>attributeID);}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \textcolor{comment}{//\ Draw\ the\ image\ quad}}
+\DoxyCodeLine{00114\ \ \ glDrawElements(GL\_TRIANGLES,\ 6,\ GL\_UNSIGNED\_INT,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \textcolor{comment}{//\ Disable\ vertex\ attributes}}
+\DoxyCodeLine{00117\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDisableVertexAttribArray(image\_position\_-\/>attributeID);}
+\DoxyCodeLine{00118\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDisableVertexAttribArray(texture\_coordinates\_-\/>attributeID);}
+\DoxyCodeLine{00119\ \ \ texture\_.unbind();}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ 0);}
+\DoxyCodeLine{00122\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ 0);}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ glDisable(GL\_BLEND);}
+\DoxyCodeLine{00125\ \ \ glDisable(GL\_SCISSOR\_TEST);}
+\DoxyCodeLine{00126\ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_image_add1e28fc5fd2d88d843eb49eae62f8e9}{OpenGlImage::destroy}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00129\ \ \ texture\_.release();}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ image\_shader\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00132\ \ \ image\_color\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00133\ \ \ image\_position\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00134\ \ \ texture\_coordinates\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDeleteBuffers(1,\ \&vertex\_buffer\_);}
+\DoxyCodeLine{00137\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDeleteBuffers(1,\ \&triangle\_buffer\_);}
+\DoxyCodeLine{00138\ \}}
+
+\end{DoxyCode}

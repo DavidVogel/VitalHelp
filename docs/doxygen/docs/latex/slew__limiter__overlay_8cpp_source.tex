@@ -1,0 +1,98 @@
+\doxysection{slew\+\_\+limiter\+\_\+overlay.\+cpp}
+\hypertarget{slew__limiter__overlay_8cpp_source}{}\label{slew__limiter__overlay_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/overlays/slew\_limiter\_overlay.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/overlays/slew\_limiter\_overlay.cpp}}
+\mbox{\hyperlink{slew__limiter__overlay_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{slew__limiter__overlay_8h}{slew\_limiter\_overlay.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__frame_8h}{wave\_frame.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__slider_8h}{synth\_slider.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__look__and__feel_8h}{text\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \mbox{\hyperlink{class_slew_limiter_overlay_af99b3ee3ddf1e3b52ad4ddd6318f8b79}{SlewLimiterOverlay::SlewLimiterOverlay}}()\ :\ \mbox{\hyperlink{class_wavetable_component_overlay}{WavetableComponentOverlay}}(\textcolor{stringliteral}{"{}SLEW\ LIMITER"{}}),\ slew\_modifier\_(nullptr)\ \{}
+\DoxyCodeLine{00009\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a167d8c2a0602c83d5123ff2e880d33a4}{current\_frame\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \ \ \textcolor{comment}{//\ Create\ and\ configure\ up\ slew\ limit\ slider}}
+\DoxyCodeLine{00012\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}up\_slew\_limit"{}});}
+\DoxyCodeLine{00013\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}.get());}
+\DoxyCodeLine{00014\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00015\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00016\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00017\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}-\/>setRange(0.0f,\ 1.0f);}
+\DoxyCodeLine{00018\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}-\/>setDoubleClickReturnValue(\textcolor{keyword}{true},\ 0.0f);}
+\DoxyCodeLine{00019\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00020\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \textcolor{comment}{//\ Create\ and\ configure\ down\ slew\ limit\ slider}}
+\DoxyCodeLine{00023\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a44824b73a9e84d8fd7aa16b635f597d2}{down\_slew\_limit\_}}\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}down\_slew\_limit"{}});}
+\DoxyCodeLine{00024\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_slew_limiter_overlay_a44824b73a9e84d8fd7aa16b635f597d2}{down\_slew\_limit\_}}.get());}
+\DoxyCodeLine{00025\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a44824b73a9e84d8fd7aa16b635f597d2}{down\_slew\_limit\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00026\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a44824b73a9e84d8fd7aa16b635f597d2}{down\_slew\_limit\_}}-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00027\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a44824b73a9e84d8fd7aa16b635f597d2}{down\_slew\_limit\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00028\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a44824b73a9e84d8fd7aa16b635f597d2}{down\_slew\_limit\_}}-\/>setRange(0.0f,\ 1.0f);}
+\DoxyCodeLine{00029\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a44824b73a9e84d8fd7aa16b635f597d2}{down\_slew\_limit\_}}-\/>setDoubleClickReturnValue(\textcolor{keyword}{true},\ 0.0f);}
+\DoxyCodeLine{00030\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a44824b73a9e84d8fd7aa16b635f597d2}{down\_slew\_limit\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00031\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a44824b73a9e84d8fd7aa16b635f597d2}{down\_slew\_limit\_}}-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \textcolor{comment}{//\ Add\ titles\ for\ controls}}
+\DoxyCodeLine{00034\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_aa2fc0516ff532630f3bfcf5910e453b1}{clearTitles}}();}
+\DoxyCodeLine{00035\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}DOWN\ LIMIT"{}});}
+\DoxyCodeLine{00036\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}UP\ LIMIT"{}});}
+\DoxyCodeLine{00037\ \}}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_slew_limiter_overlay_a8c6efb32a226479bb7daffdd117ed1a5}{SlewLimiterOverlay::frameSelected}}(\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00040\ \ \ \textcolor{keywordflow}{if}\ (keyframe\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00041\ \ \ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a167d8c2a0602c83d5123ff2e880d33a4}{current\_frame\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00042\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a568088f16dde91e6f8ae8d0f3fa5b755}{owner}}()\ ==\ \mbox{\hyperlink{class_slew_limiter_overlay_a5107fde432444ff24de428dc22fddf15}{slew\_modifier\_}})\ \{}
+\DoxyCodeLine{00043\ \ \ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a167d8c2a0602c83d5123ff2e880d33a4}{current\_frame\_}}\ =\ \mbox{\hyperlink{class_slew_limiter_overlay_a5107fde432444ff24de428dc22fddf15}{slew\_modifier\_}}-\/>\mbox{\hyperlink{class_slew_limit_modifier_a5390056670bda9c707a606841fc4e77b}{getKeyframe}}(keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a1faf74be7dd4b7f3f4ea0e83fa75ce8d}{index}}());}
+\DoxyCodeLine{00044\ \ \ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}-\/>setValue(\mbox{\hyperlink{class_slew_limiter_overlay_a167d8c2a0602c83d5123ff2e880d33a4}{current\_frame\_}}-\/>\mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a275c04da7bb38daa7cb1778c51e649a4}{getSlewUpLimit}}(),\ dontSendNotification);}
+\DoxyCodeLine{00045\ \ \ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a44824b73a9e84d8fd7aa16b635f597d2}{down\_slew\_limit\_}}-\/>setValue(\mbox{\hyperlink{class_slew_limiter_overlay_a167d8c2a0602c83d5123ff2e880d33a4}{current\_frame\_}}-\/>\mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_a6d46e7f85b9d05f508b392f9d207b561}{getSlewDownLimit}}(),\ dontSendNotification);}
+\DoxyCodeLine{00046\ \ \ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}-\/>redoImage();}
+\DoxyCodeLine{00047\ \ \ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a44824b73a9e84d8fd7aa16b635f597d2}{down\_slew\_limit\_}}-\/>redoImage();}
+\DoxyCodeLine{00048\ \ \ \}}
+\DoxyCodeLine{00049\ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_slew_limiter_overlay_ace614b0165a41f070da04fdc3e158e3e}{SlewLimiterOverlay::setEditBounds}}(Rectangle<int>\ bounds)\ \{}
+\DoxyCodeLine{00052\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kLimitWidthHeightRatio\ =\ 4.0f;}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \textcolor{keywordtype}{int}\ padding\ =\ \mbox{\hyperlink{class_wavetable_component_overlay_a6247819afe1ddce8d34ad500917e3460}{getPadding}}();}
+\DoxyCodeLine{00055\ \ \ \textcolor{keywordtype}{int}\ limit\_width\ =\ bounds.getHeight()\ *\ kLimitWidthHeightRatio;}
+\DoxyCodeLine{00056\ \ \ \textcolor{keywordtype}{int}\ total\_width\ =\ 2\ *\ limit\_width\ +\ padding;}
+\DoxyCodeLine{00057\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a16ea421b63ea56ec8a453dde9b45c7a7}{setControlsWidth}}(total\_width);}
+\DoxyCodeLine{00058\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2b9025728b8627dae45261e3d72814db}{WavetableComponentOverlay::setEditBounds}}(bounds);}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \textcolor{keywordtype}{int}\ x\ =\ bounds.getX()\ +\ (bounds.getWidth()\ -\/\ total\_width)\ /\ 2;}
+\DoxyCodeLine{00061\ \ \ \textcolor{keywordtype}{int}\ title\_height\ =\ \mbox{\hyperlink{class_wavetable_component_overlay_a54c6e22bd9b774c88c6246d849ce8c56}{WavetableComponentOverlay::kTitleHeightRatio}}\ *\ bounds.getHeight();}
+\DoxyCodeLine{00062\ \ \ \textcolor{keywordtype}{int}\ y\ =\ bounds.getY()\ +\ title\_height;}
+\DoxyCodeLine{00063\ \ \ \textcolor{keywordtype}{int}\ height\ =\ bounds.getHeight()\ -\/\ title\_height;}
+\DoxyCodeLine{00064\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}-\/>setBounds(x,\ y,\ limit\_width,\ height);}
+\DoxyCodeLine{00065\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a44824b73a9e84d8fd7aa16b635f597d2}{down\_slew\_limit\_}}-\/>setBounds(\mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}-\/>getRight()\ +\ padding,\ y,\ limit\_width,\ height);}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_af5926c7c594c424bc5f4e62574e85c39}{clearLines}}();}
+\DoxyCodeLine{00068\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(limit\_width);}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}-\/>redoImage();}
+\DoxyCodeLine{00071\ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a44824b73a9e84d8fd7aa16b635f597d2}{down\_slew\_limit\_}}-\/>redoImage();}
+\DoxyCodeLine{00072\ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_slew_limiter_overlay_ac3d4d870bab77c90316e7d85a806c47b}{SlewLimiterOverlay::sliderValueChanged}}(Slider*\ moved\_slider)\ \{}
+\DoxyCodeLine{00075\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_slew_limiter_overlay_a167d8c2a0602c83d5123ff2e880d33a4}{current\_frame\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \textcolor{keywordflow}{if}\ (moved\_slider\ ==\ \mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}.get())\ \{}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{keywordtype}{float}\ value\ =\ \mbox{\hyperlink{class_slew_limiter_overlay_ad4577b90645888acd87c648d575cd717}{up\_slew\_limit\_}}-\/>getValue();}
+\DoxyCodeLine{00080\ \ \ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a167d8c2a0602c83d5123ff2e880d33a4}{current\_frame\_}}-\/>\mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_ac44a5fc85ff7436ebb7467b5d9194d1d}{setSlewUpLimit}}(value);}
+\DoxyCodeLine{00081\ \ \ \}}
+\DoxyCodeLine{00082\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (moved\_slider\ ==\ \mbox{\hyperlink{class_slew_limiter_overlay_a44824b73a9e84d8fd7aa16b635f597d2}{down\_slew\_limit\_}}.get())\ \{}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{keywordtype}{float}\ value\ =\ \mbox{\hyperlink{class_slew_limiter_overlay_a44824b73a9e84d8fd7aa16b635f597d2}{down\_slew\_limit\_}}-\/>getValue();}
+\DoxyCodeLine{00084\ \ \ \ \ \mbox{\hyperlink{class_slew_limiter_overlay_a167d8c2a0602c83d5123ff2e880d33a4}{current\_frame\_}}-\/>\mbox{\hyperlink{class_slew_limit_modifier_1_1_slew_limit_modifier_keyframe_aac9ecfad72fc84bb5a895ccb0bc45110}{setSlewDownLimit}}(value);}
+\DoxyCodeLine{00085\ \ \ \}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00088\ \}}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_slew_limiter_overlay_ae24d3e32486f93a64437996496c828ee}{SlewLimiterOverlay::sliderDragEnded}}(Slider*\ moved\_slider)\ \{}
+\DoxyCodeLine{00091\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00092\ \}}
+
+\end{DoxyCode}

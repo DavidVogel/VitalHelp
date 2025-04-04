@@ -1,0 +1,185 @@
+\doxysection{open\+\_\+gl\+\_\+component.\+cpp}
+\hypertarget{open__gl__component_8cpp_source}{}\label{open__gl__component_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/open\_gl\_component.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/open\_gl\_component.cpp}}
+\mbox{\hyperlink{open__gl__component_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{open__gl__component_8h}{open\_gl\_component.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{open__gl__multi__quad_8h}{open\_gl\_multi\_quad.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{full__interface_8h}{full\_interface.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00008\ \ \ Rectangle<int>\ getGlobalBounds(Component*\ component,\ Rectangle<int>\ bounds)\ \{}
+\DoxyCodeLine{00009\ \ \ \ \ Component*\ parent\ =\ component-\/>getParentComponent();}
+\DoxyCodeLine{00010\ \ \ \ \ \textcolor{comment}{//\ Traverse\ up\ the\ hierarchy\ until\ we\ reach\ a\ FullInterface\ or\ the\ top-\/level}}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{keywordflow}{while}\ (parent\ \&\&\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_full_interface}{FullInterface}}*\textcolor{keyword}{>}(component)\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ bounds\ =\ bounds\ +\ component-\/>getPosition();}
+\DoxyCodeLine{00013\ \ \ \ \ \ \ component\ =\ parent;}
+\DoxyCodeLine{00014\ \ \ \ \ \ \ parent\ =\ component-\/>getParentComponent();}
+\DoxyCodeLine{00015\ \ \ \ \ \}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keywordflow}{return}\ bounds;}
+\DoxyCodeLine{00018\ \ \ \}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ Rectangle<int>\ getGlobalVisibleBounds(Component*\ component,\ Rectangle<int>\ visible\_bounds)\ \{}
+\DoxyCodeLine{00021\ \ \ \ \ Component*\ parent\ =\ component-\/>getParentComponent();}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{comment}{//\ Intersect\ visible\ bounds\ with\ each\ parent's\ local\ bounds\ up\ to\ a\ FullInterface}}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keywordflow}{while}\ (parent\ \&\&\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_full_interface}{FullInterface}}*\textcolor{keyword}{>}(parent)\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ visible\_bounds\ =\ visible\_bounds\ +\ component-\/>getPosition();}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ parent-\/>getLocalBounds().intersectRectangle(visible\_bounds);}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ component\ =\ parent;}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ parent\ =\ component-\/>getParentComponent();}
+\DoxyCodeLine{00028\ \ \ \ \ \}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keywordflow}{return}\ visible\_bounds\ +\ component-\/>getPosition();}
+\DoxyCodeLine{00031\ \ \ \}}
+\DoxyCodeLine{00032\ \}}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \mbox{\hyperlink{class_open_gl_component_abd92e8e7538c070e3a2c6f6bd405aae0}{OpenGlComponent::OpenGlComponent}}(String\ name)\ :\ Component(name),\ only\_bottom\_corners\_(false),}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ parent\_(nullptr),\ skin\_override\_(\mbox{\hyperlink{class_skin}{Skin}}::kNone),}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_voices\_readout\_(nullptr)\ \{}
+\DoxyCodeLine{00037\ \ \ \mbox{\hyperlink{class_open_gl_component_ae64b7a57b19c007664f3c2fd125a99db}{background\_color\_}}\ =\ Colours::transparentBlack;}
+\DoxyCodeLine{00038\ \}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \mbox{\hyperlink{class_open_gl_component_ac3ec5f0ea0b229fc18046d489711b780}{OpenGlComponent::\string~OpenGlComponent}}()\ \{\ \}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_open_gl_component_a0641317fa0d502284c603188bb7da9a7}{OpenGlComponent::setViewPort}}(Component*\ component,\ Rectangle<int>\ bounds,\ \mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00043\ \ \ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ top\_level\ =\ component-\/>findParentComponentOfClass<\mbox{\hyperlink{class_full_interface}{FullInterface}}>();}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordtype}{float}\ scale\ =\ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_ac32fa93317a58d48cf552f5c5b5f9721}{display\_scale}};}
+\DoxyCodeLine{00045\ \ \ \textcolor{keywordtype}{float}\ resize\_scale\ =\ top\_level-\/>\mbox{\hyperlink{class_full_interface_a9d7b80b786b131c4597e72179ba49650}{getResizingScale}}();}
+\DoxyCodeLine{00046\ \ \ \textcolor{keywordtype}{float}\ render\_scale\ =\ 1.0f;}
+\DoxyCodeLine{00047\ \ \ \textcolor{keywordflow}{if}\ (scale\ ==\ 1.0f)}
+\DoxyCodeLine{00048\ \ \ \ \ render\_scale\ *=\ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.getRenderingScale();}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \textcolor{keywordtype}{float}\ gl\_scale\ =\ render\_scale\ *\ resize\_scale;}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ Rectangle<int>\ top\_level\_bounds\ =\ top\_level-\/>getBounds();}
+\DoxyCodeLine{00053\ \ \ Rectangle<int>\ global\_bounds\ =\ getGlobalBounds(component,\ bounds);}
+\DoxyCodeLine{00054\ \ \ Rectangle<int>\ visible\_bounds\ =\ getGlobalVisibleBounds(component,\ bounds);}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ glViewport(gl\_scale\ *\ global\_bounds.getX(),}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \ \ \ \ \ std::ceil(scale\ *\ render\_scale\ *\ top\_level\_bounds.getHeight())\ -\/\ gl\_scale\ *\ global\_bounds.getBottom(),}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \ \ \ \ \ gl\_scale\ *\ global\_bounds.getWidth(),\ gl\_scale\ *\ global\_bounds.getHeight());}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \textcolor{keywordflow}{if}\ (visible\_bounds.getWidth()\ <=\ 0\ ||\ visible\_bounds.getHeight()\ <=\ 0)}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ glScissor(gl\_scale\ *\ visible\_bounds.getX(),}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \ \ \ \ std::ceil(scale\ *\ render\_scale\ *\ top\_level\_bounds.getHeight())\ -\/\ gl\_scale\ *\ visible\_bounds.getBottom(),}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \ \ \ \ gl\_scale\ *\ visible\_bounds.getWidth(),\ gl\_scale\ *\ visible\_bounds.getHeight());}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00068\ \}}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_open_gl_component_a0641317fa0d502284c603188bb7da9a7}{OpenGlComponent::setViewPort}}(Component*\ component,\ \mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00071\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_open_gl_component_a0641317fa0d502284c603188bb7da9a7}{setViewPort}}(component,\ component-\/>getLocalBounds(),\ open\_gl);}
+\DoxyCodeLine{00072\ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_open_gl_component_a0641317fa0d502284c603188bb7da9a7}{OpenGlComponent::setViewPort}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00075\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_open_gl_component_a0641317fa0d502284c603188bb7da9a7}{setViewPort}}(\textcolor{keyword}{this},\ open\_gl);}
+\DoxyCodeLine{00076\ \}}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_component_a952d9b34dc573da02105986f794a7718}{OpenGlComponent::setScissor}}(Component*\ component,\ \mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00079\ \ \ \mbox{\hyperlink{class_open_gl_component_a64a2b9bbcd277580ca27aa3a4b1ff9df}{setScissorBounds}}(component,\ component-\/>getLocalBounds(),\ open\_gl);}
+\DoxyCodeLine{00080\ \}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_component_a64a2b9bbcd277580ca27aa3a4b1ff9df}{OpenGlComponent::setScissorBounds}}(Component*\ component,\ Rectangle<int>\ bounds,\ \mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00083\ \ \ \textcolor{keywordflow}{if}\ (component\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \ \ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ top\_level\ =\ component-\/>findParentComponentOfClass<\mbox{\hyperlink{class_full_interface}{FullInterface}}>();}
+\DoxyCodeLine{00087\ \ \ \textcolor{keywordtype}{float}\ scale\ =\ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_ac32fa93317a58d48cf552f5c5b5f9721}{display\_scale}};}
+\DoxyCodeLine{00088\ \ \ \textcolor{keywordtype}{float}\ resize\_scale\ =\ top\_level-\/>\mbox{\hyperlink{class_full_interface_a9d7b80b786b131c4597e72179ba49650}{getResizingScale}}();}
+\DoxyCodeLine{00089\ \ \ \textcolor{keywordtype}{float}\ render\_scale\ =\ 1.0f;}
+\DoxyCodeLine{00090\ \ \ \textcolor{keywordflow}{if}\ (scale\ ==\ 1.0f)}
+\DoxyCodeLine{00091\ \ \ \ \ render\_scale\ *=\ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.getRenderingScale();}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \ \textcolor{keywordtype}{float}\ gl\_scale\ =\ render\_scale\ *\ resize\_scale;}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ Rectangle<int>\ top\_level\_bounds\ =\ top\_level-\/>getBounds();}
+\DoxyCodeLine{00096\ \ \ Rectangle<int>\ visible\_bounds\ =\ getGlobalVisibleBounds(component,\ bounds);}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \ \ \textcolor{keywordflow}{if}\ (visible\_bounds.getHeight()\ >\ 0\ \&\&\ visible\_bounds.getWidth()\ >\ 0)\ \{}
+\DoxyCodeLine{00099\ \ \ \ \ glScissor(gl\_scale\ *\ visible\_bounds.getX(),}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::ceil(scale\ *\ render\_scale\ *\ top\_level\_bounds.getHeight())\ -\/\ gl\_scale\ *\ visible\_bounds.getBottom(),}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ gl\_scale\ *\ visible\_bounds.getWidth(),\ gl\_scale\ *\ visible\_bounds.getHeight());}
+\DoxyCodeLine{00102\ \ \ \}}
+\DoxyCodeLine{00103\ \}}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_component_ad2e8378b36d72fa4d728a611a6aa956f}{OpenGlComponent::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00106\ \ \ \textcolor{keywordflow}{if}\ (!isVisible())}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ g.fillAll(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5a30a22b4659bc04528e89d1759558a7}{Skin::kWidgetBackground}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00110\ \}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_component_ae8945b466048d1b22eca55123a37b38e}{OpenGlComponent::repaintBackground}}()\ \{}
+\DoxyCodeLine{00113\ \ \ \textcolor{keywordflow}{if}\ (!isShowing())}
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ parent\ =\ findParentComponentOfClass<FullInterface>();}
+\DoxyCodeLine{00117\ \ \ \textcolor{keywordflow}{if}\ (parent)}
+\DoxyCodeLine{00118\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_full_interface_a08ee3eec942b08c6c875f88287bba428}{repaintOpenGlBackground}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00119\ \}}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_component_a2bd142dbb0cb7690829cb0a99f84e993}{OpenGlComponent::resized}}()\ \{}
+\DoxyCodeLine{00122\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_component_af90b5c38eedd287bc8700a99042f002e}{corners\_}})}
+\DoxyCodeLine{00123\ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_af90b5c38eedd287bc8700a99042f002e}{corners\_}}-\/>setBounds(getLocalBounds());}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \mbox{\hyperlink{class_open_gl_component_ad50f70f0a39a32dc24ac5f60a80317ee}{body\_color\_}}\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caffad88f44cd2bcaaf60dbe0032955def}{Skin::kBody}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00126\ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_component_af9fb26cee075fba78305a7e79b53008d}{OpenGlComponent::parentHierarchyChanged}}()\ \{}
+\DoxyCodeLine{00129\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_component_a44a5cd3900ef8c8205c986d0040e457f}{num\_voices\_readout\_}}\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00130\ \ \ \ \ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ parent\ =\ findParentComponentOfClass<SynthGuiInterface>();}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keywordflow}{if}\ (parent)}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_a44a5cd3900ef8c8205c986d0040e457f}{num\_voices\_readout\_}}\ =\ parent-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_add97643be1ba341314ac1b158206dc4b}{getStatusOutput}}(\textcolor{stringliteral}{"{}num\_voices"{}});}
+\DoxyCodeLine{00133\ \ \ \}}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \ \ Component::parentHierarchyChanged();}
+\DoxyCodeLine{00136\ \}}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_component_a2139561c2dc95b0a7389e65f4cea60f9}{OpenGlComponent::addRoundedCorners}}()\ \{}
+\DoxyCodeLine{00139\ \ \ \mbox{\hyperlink{class_open_gl_component_af90b5c38eedd287bc8700a99042f002e}{corners\_}}\ =\ std::make\_unique<OpenGlCorners>();}
+\DoxyCodeLine{00140\ \ \ addAndMakeVisible(\mbox{\hyperlink{class_open_gl_component_af90b5c38eedd287bc8700a99042f002e}{corners\_}}.get());}
+\DoxyCodeLine{00141\ \}}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_component_a3567b675d5f3213b85c753f9561f6ea7}{OpenGlComponent::addBottomRoundedCorners}}()\ \{}
+\DoxyCodeLine{00144\ \ \ \mbox{\hyperlink{class_open_gl_component_a015f46d229eb5c0fa29b0cc734ca4ae6}{only\_bottom\_corners\_}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00145\ \ \ \mbox{\hyperlink{class_open_gl_component_a2139561c2dc95b0a7389e65f4cea60f9}{addRoundedCorners}}();}
+\DoxyCodeLine{00146\ \}}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_component_ad78b342a43cf1e61d4875b6137ed8127}{OpenGlComponent::init}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00149\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_component_af90b5c38eedd287bc8700a99042f002e}{corners\_}})}
+\DoxyCodeLine{00150\ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_af90b5c38eedd287bc8700a99042f002e}{corners\_}}-\/>init(open\_gl);}
+\DoxyCodeLine{00151\ \}}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_component_a5c6aa6d7c8a20882ce3b621efbf7e18b}{OpenGlComponent::renderCorners}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate,\ Colour\ color,\ \textcolor{keywordtype}{float}\ rounding)\ \{}
+\DoxyCodeLine{00154\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_component_af90b5c38eedd287bc8700a99042f002e}{corners\_}})\ \{}
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_component_a015f46d229eb5c0fa29b0cc734ca4ae6}{only\_bottom\_corners\_}})}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_af90b5c38eedd287bc8700a99042f002e}{corners\_}}-\/>setBottomCorners(getLocalBounds(),\ rounding);}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_af90b5c38eedd287bc8700a99042f002e}{corners\_}}-\/>setCorners(getLocalBounds(),\ rounding);}
+\DoxyCodeLine{00159\ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_af90b5c38eedd287bc8700a99042f002e}{corners\_}}-\/>setColor(color);}
+\DoxyCodeLine{00160\ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_af90b5c38eedd287bc8700a99042f002e}{corners\_}}-\/>render(open\_gl,\ animate);}
+\DoxyCodeLine{00161\ \ \ \}}
+\DoxyCodeLine{00162\ \}}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_component_a5c6aa6d7c8a20882ce3b621efbf7e18b}{OpenGlComponent::renderCorners}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00165\ \ \ \mbox{\hyperlink{class_open_gl_component_a5c6aa6d7c8a20882ce3b621efbf7e18b}{renderCorners}}(open\_gl,\ animate,\ \mbox{\hyperlink{class_open_gl_component_ad50f70f0a39a32dc24ac5f60a80317ee}{body\_color\_}},\ \mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab3cb761113ca34ffe06c8ed64a7df2f1}{Skin::kWidgetRoundedCorner}}));}
+\DoxyCodeLine{00166\ \}}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_component_aba2309cf4b3c040f6d25418d1fa2dbd3}{OpenGlComponent::destroy}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00169\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_component_af90b5c38eedd287bc8700a99042f002e}{corners\_}})}
+\DoxyCodeLine{00170\ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_af90b5c38eedd287bc8700a99042f002e}{corners\_}}-\/>destroy(open\_gl);}
+\DoxyCodeLine{00171\ \}}
+\DoxyCodeLine{00172\ }
+\DoxyCodeLine{00173\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{OpenGlComponent::findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180}{Skin::ValueId}}\ value\_id)\ \{}
+\DoxyCodeLine{00174\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_component_afe64ec8044c5495a69c5beab004803c3}{parent\_}})}
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_open_gl_component_afe64ec8044c5495a69c5beab004803c3}{parent\_}}-\/>\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(value\_id);}
+\DoxyCodeLine{00176\ }
+\DoxyCodeLine{00177\ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00178\ \ \ \textcolor{keywordflow}{return}\ 0.0f;}
+\DoxyCodeLine{00179\ \}}
+
+\end{DoxyCode}

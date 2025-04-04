@@ -1,0 +1,152 @@
+\doxysection{sound\+\_\+engine.\+h}
+\hypertarget{effects__engine_2sound__engine_8h_source}{}\label{effects__engine_2sound__engine_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/effects\_engine/sound\_engine.h@{/Users/davidvogel/repos/VitalHelp/src/synthesis/effects\_engine/sound\_engine.h}}
+\mbox{\hyperlink{effects__engine_2sound__engine_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{circular__queue_8h}{circular\_queue.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__module_8h}{synth\_module.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{note__handler_8h}{note\_handler.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{tuning_8h}{tuning.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_line_generator}{LineGenerator}};}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00011\ \ \ \textcolor{comment}{//\ Forward\ declarations}}
+\DoxyCodeLine{00012\ \ \ \textcolor{keyword}{class\ }PeakMeter;}
+\DoxyCodeLine{00013\ \ \ \textcolor{keyword}{class\ }ReorderableEffectChain;}
+\DoxyCodeLine{00014\ \ \ \textcolor{keyword}{class\ }EffectsModulationHandler;}
+\DoxyCodeLine{00015\ \ \ \textcolor{keyword}{class\ }Sample;}
+\DoxyCodeLine{00016\ \ \ \textcolor{keyword}{class\ }StereoMemory;}
+\DoxyCodeLine{00017\ \ \ \textcolor{keyword}{class\ }SynthLfo;}
+\DoxyCodeLine{00018\ \ \ \textcolor{keyword}{class\ }Upsampler;}
+\DoxyCodeLine{00019\ \ \ \textcolor{keyword}{class\ }Value;}
+\DoxyCodeLine{00020\ \ \ \textcolor{keyword}{class\ }ValueSwitch;}
+\DoxyCodeLine{00021\ \ \ \textcolor{keyword}{class\ }Wavetable;}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00032\ \ \ \textcolor{keyword}{class\ }SoundEngine\ :\ \textcolor{keyword}{public}\ SynthModule,\ \textcolor{keyword}{public}\ NoteHandler\ \{}
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a3f475c1c5bc6edda3556048dc721c865}{kDefaultOversamplingAmount}}\ =\ 2;}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a751a1c1148fa27d8f4d140de19027b58}{kDefaultSampleRate}}\ =\ 44100;}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_sound_engine_a457c96dfedcdb2b4d8d909902c98f980}{SoundEngine}}();}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classvital_1_1_sound_engine_ac6a3eaab7d4bf4569faa36e35950f2eb}{\string~SoundEngine}}();}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_acc4cc98ba3eaea560889536badab681d}{init}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_ac6ce0ff516edc95cbbecd4538fa678a7}{processWithInput}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in,\ \textcolor{keywordtype}{int}\ num\_samples)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a1e25c896f5434fb040178cfc76757602}{correctToTime}}(\textcolor{keywordtype}{double}\ seconds)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_sound_engine_aedce07dddb41fad4231ddc056026a957}{getNumPressedNotes}}();}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_aaece4b393fc9282238a4dba73b0b209f}{connectModulation}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1modulation__change}{modulation\_change}}\&\ change);}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a55b798965c9697aa08fc81a50a292241}{disconnectModulation}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1modulation__change}{modulation\_change}}\&\ change);}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a6b4b627f47659f6d41962d33c6bd135d}{getNumActiveVoices}}();}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_modulation_connection_bank}{ModulationConnectionBank}}\&\ \mbox{\hyperlink{classvital_1_1_sound_engine_a6867873d1089f4650d25a52eb9cf2cf0}{getModulationBank}}();}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_sound_engine_ad0aa771a6e79046bf15ce689d4ad5717}{getLastActiveNote}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a7e3d218bc3bab62133b3b0f50f3c6abd}{setTuning}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_tuning}{Tuning}}*\ tuning);}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a58ef0b3dd762d48d37e67372138fa0c8}{setOversamplingAmount}}(\textcolor{keywordtype}{int}\ oversampling\_amount,\ \textcolor{keywordtype}{int}\ sample\_rate);}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a3505b01ee9a222371595c1852bb44345}{allSoundsOff}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a39932e8bc12c34b7e4ee2d34086be5b7}{allNotesOff}}(\textcolor{keywordtype}{int}\ sample)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a39932e8bc12c34b7e4ee2d34086be5b7}{allNotesOff}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ channel)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_ad602c167e6b3b0941d5557e951ca63a8}{allNotesOffRange}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel);}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a8604b7876ca3fc20b47c12c5cf4f95a0}{noteOn}}(\textcolor{keywordtype}{int}\ note,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ velocity,\ \textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ channel)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_af28a83be1e253e331677a295338a15b7}{noteOff}}(\textcolor{keywordtype}{int}\ note,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ lift,\ \textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ channel)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_ae617e5a8b6dd8f8eb8b447fc750c4b19}{setModWheel}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value,\ \textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a037317a9be6d54545e679353feedb4e2}{setModWheelAllChannels}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value);}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a06cb96fcc21f696c335bb26e4a422210}{setPitchWheel}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value,\ \textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a51f7181d351b233257701bc60b9d87f3}{setZonedPitchWheel}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value,\ \textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel);}
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a9cb1905a996f16ce5ad22b99c507e9b2}{disableUnnecessaryModSources}}();}
+\DoxyCodeLine{00218\ }
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a89295508c59f6422007f684b2ff59599}{enableModSource}}(\textcolor{keyword}{const}\ std::string\&\ source);}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_ae70adf56629f9909c74764df50658244}{disableModSource}}(\textcolor{keyword}{const}\ std::string\&\ source);}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a42cf9117a885c397233c6069f5345f38}{isModSourceEnabled}}(\textcolor{keyword}{const}\ std::string\&\ source);}
+\DoxyCodeLine{00240\ }
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_stereo_memory}{StereoMemory}}*\ \mbox{\hyperlink{classvital_1_1_sound_engine_aa33dfe38b16550f39aea97283f0a52b9}{getEqualizerMemory}}();}
+\DoxyCodeLine{00247\ }
+\DoxyCodeLine{00253\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_af1e3904a920c5225168d8bddfb8b9b8e}{setBpm}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ bpm);}
+\DoxyCodeLine{00254\ }
+\DoxyCodeLine{00263\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_aff316cbc8de6e232e0fcf8dd7afad8fe}{setAftertouch}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ note,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value,\ \textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00264\ }
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a3676587330088abec4b30d51def7e54b}{setChannelAftertouch}}(\textcolor{keywordtype}{int}\ channel,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value,\ \textcolor{keywordtype}{int}\ sample);}
+\DoxyCodeLine{00273\ }
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a884d99cd6fa73efc57514e7051c321a9}{setChannelRangeAftertouch}}(\textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value,\ \textcolor{keywordtype}{int}\ sample);}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a68187cbcde17794e657d1f7e86d628bb}{setChannelSlide}}(\textcolor{keywordtype}{int}\ channel,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value,\ \textcolor{keywordtype}{int}\ sample);}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a7e85ad24e6cd2d1605a1649e9c147a46}{setChannelRangeSlide}}(\textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value,\ \textcolor{keywordtype}{int}\ sample);}
+\DoxyCodeLine{00302\ }
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable}{Wavetable}}*\ \mbox{\hyperlink{classvital_1_1_sound_engine_a15e484e7e8ff2d6af1c520a1732fb799}{getWavetable}}(\textcolor{keywordtype}{int}\ index);}
+\DoxyCodeLine{00310\ }
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_sample}{Sample}}*\ \mbox{\hyperlink{classvital_1_1_sound_engine_aba7fb49b78f3c9d2c43a8946eee1dfcd}{getSample}}();}
+\DoxyCodeLine{00317\ }
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \mbox{\hyperlink{class_line_generator}{LineGenerator}}*\ \mbox{\hyperlink{classvital_1_1_sound_engine_a089e3494040516250081b72c97bd5a2d}{getLfoSource}}(\textcolor{keywordtype}{int}\ index);}
+\DoxyCodeLine{00325\ }
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a1af019695ed02b9b22ad15f07af3d81b}{sustainOn}}(\textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00332\ }
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_ab3c5f5bf484e3aa4d3b7c012405ddb84}{sustainOff}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00340\ }
+\DoxyCodeLine{00346\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a59192b38d4d9265ff5349ae53f04e797}{sostenutoOn}}(\textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00347\ }
+\DoxyCodeLine{00354\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a21cb361ffa6bd0639aec121df38f416e}{sostenutoOff}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00355\ }
+\DoxyCodeLine{00362\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a0b83314413f6885094b497646633a9d6}{sustainOnRange}}(\textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel);}
+\DoxyCodeLine{00363\ }
+\DoxyCodeLine{00371\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a7870c346b5ba4ea3e34e3751979fe0e0}{sustainOffRange}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel);}
+\DoxyCodeLine{00372\ }
+\DoxyCodeLine{00379\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a36a37881441dc4605191200a66e875f2}{sostenutoOnRange}}(\textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel);}
+\DoxyCodeLine{00380\ }
+\DoxyCodeLine{00388\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_aead2f7b98dbd8ef0f02745eb8934ddb2}{sostenutoOffRange}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel);}
+\DoxyCodeLine{00389\ }
+\DoxyCodeLine{00395\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_sound_engine_ab403eaabdc2815b9df5f475e0ccd5109}{getOversamplingAmount}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ last\_oversampling\_amount\_;\ \}}
+\DoxyCodeLine{00396\ }
+\DoxyCodeLine{00400\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_sound_engine_a57d883803e090401bf1818df94397116}{checkOversampling}}();}
+\DoxyCodeLine{00401\ }
+\DoxyCodeLine{00402\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00406\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_effects_modulation_handler}{EffectsModulationHandler}}*\ modulation\_handler\_;}
+\DoxyCodeLine{00407\ }
+\DoxyCodeLine{00411\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_upsampler}{Upsampler}}*\ upsampler\_;}
+\DoxyCodeLine{00412\ }
+\DoxyCodeLine{00416\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reorderable_effect_chain}{ReorderableEffectChain}}*\ effect\_chain\_;}
+\DoxyCodeLine{00417\ }
+\DoxyCodeLine{00421\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ last\_oversampling\_amount\_;}
+\DoxyCodeLine{00422\ }
+\DoxyCodeLine{00426\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ last\_sample\_rate\_;}
+\DoxyCodeLine{00427\ }
+\DoxyCodeLine{00431\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_value}{Value}}*\ oversampling\_;}
+\DoxyCodeLine{00432\ }
+\DoxyCodeLine{00436\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_value}{Value}}*\ bps\_;}
+\DoxyCodeLine{00437\ }
+\DoxyCodeLine{00441\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_value}{Value}}*\ legato\_;}
+\DoxyCodeLine{00442\ }
+\DoxyCodeLine{00446\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_peak_meter}{PeakMeter}}*\ peak\_meter\_;}
+\DoxyCodeLine{00447\ }
+\DoxyCodeLine{00451\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_circular_queue}{CircularQueue<Processor*>}}\ modulation\_processors\_;}
+\DoxyCodeLine{00452\ }
+\DoxyCodeLine{00453\ \ \ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(\mbox{\hyperlink{classvital_1_1_sound_engine}{SoundEngine}})}
+\DoxyCodeLine{00454\ \ \ \};}
+\DoxyCodeLine{00455\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

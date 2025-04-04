@@ -1,0 +1,72 @@
+\doxysection{one\+\_\+pole\+\_\+filter.\+h}
+\hypertarget{one__pole__filter_8h_source}{}\label{one__pole__filter_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/filters/one\_pole\_filter.h@{/Users/davidvogel/repos/VitalHelp/src/synthesis/filters/one\_pole\_filter.h}}
+\mbox{\hyperlink{one__pole__filter_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{common_8h}{common.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keyword}{template}\ <poly\_\textcolor{keywordtype}{float}\ (*saturate)(poly\_\textcolor{keywordtype}{float})\ =\ utils::pass<poly\_\textcolor{keywordtype}{float}>>}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{classvital_1_1_one_pole_filter}{OnePoleFilter}}\ \{}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_one_pole_filter_a697e689ae70659c2c98d7d587691f739}{OnePoleFilter}}()\ \{}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_one_pole_filter_a443d75713b1c8ffbaf044c0af6478be9}{reset}}(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}});}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_one_pole_filter_a443d75713b1c8ffbaf044c0af6478be9}{reset}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask)\ \{}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \ \ \ \ current\_state\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(current\_state\_,\ 0.0f,\ reset\_mask);}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \ \ \ \ filter\_state\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(filter\_state\_,\ 0.0f,\ reset\_mask);}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \ \ \ \ sat\_filter\_state\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(sat\_filter\_state\_,\ 0.0f,\ reset\_mask);}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classvital_1_1_one_pole_filter_a31fa9b0b6cf4e33c914dd01da89541e2}{\string~OnePoleFilter}}()\ \{\ \}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{classvital_1_1_one_pole_filter_ad14c30acf8f8cb5122e352652d852b5e}{tickBasic}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ audio\_in,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ coefficient)\ \{}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\ =\ coefficient\ *\ (audio\_in\ -\/\ filter\_state\_);}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \ \ \ \ filter\_state\_\ +=\ delta;}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \ \ \ \ current\_state\_\ =\ filter\_state\_;}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \ \ \ \ filter\_state\_\ +=\ delta;}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ current\_state\_;}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{classvital_1_1_one_pole_filter_ac3e679deebc434a6581f08364d9474c5}{tick}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ audio\_in,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ coefficient)\ \{}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\ =\ coefficient\ *\ (audio\_in\ -\/\ sat\_filter\_state\_);}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \ \ \ \ filter\_state\_\ +=\ delta;}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \ \ \ \ current\_state\_\ =\ saturate(filter\_state\_);}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \ \ \ \ filter\_state\_\ +=\ delta;}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ sat\_filter\_state\_\ =\ saturate(filter\_state\_);}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ current\_state\_;}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{classvital_1_1_one_pole_filter_a42deaf0e592a896b7d3a5b1d8d8a77d0}{tickDerivative}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ audio\_in,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ coefficient)\ \{}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\ =\ coefficient\ *\ (audio\_in\ -\/\ filter\_state\_);}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \ \ \ \ filter\_state\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a35863713535365219778ac997a789cf3}{utils::mulAdd}}(filter\_state\_,\ saturate(filter\_state\_\ +\ delta),\ delta);}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \ \ \ \ current\_state\_\ =\ filter\_state\_;}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ \ \ filter\_state\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a35863713535365219778ac997a789cf3}{utils::mulAdd}}(filter\_state\_,\ saturate(filter\_state\_\ +\ delta),\ delta);}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \ \ \ \ sat\_filter\_state\_\ =\ filter\_state\_;}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ current\_state\_;}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{classvital_1_1_one_pole_filter_a58a70f48a88ffd6e5249ed3b91a1ef14}{getCurrentState}}()\ \{\ \textcolor{keywordflow}{return}\ current\_state\_;\ \}}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{classvital_1_1_one_pole_filter_ab7ff84b50e171eb424d9d7fee9b6c42a}{getNextSatState}}()\ \{\ \textcolor{keywordflow}{return}\ sat\_filter\_state\_;\ \}}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{classvital_1_1_one_pole_filter_a244af8644ca1ed79717e4ec8d2401e22}{getNextState}}()\ \{\ \textcolor{keywordflow}{return}\ filter\_state\_;\ \}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{classvital_1_1_one_pole_filter_ad115bf14e588efe1b9d65a0f7b209313}{computeCoefficient}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ cutoff\_frequency,\ \textcolor{keywordtype}{int}\ sample\_rate)\ \{}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_phase\ =\ cutoff\_frequency\ *\ (\mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{vital::kPi}}\ /\ sample\_rate);}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_a59dceb6f3adc1281c8d41f59834cc4a7}{utils::tan}}(delta\_phase\ /\ (delta\_phase\ +\ 1.0f));}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_state\_;\ \ \ \ \ }
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ filter\_state\_;\ \ \ \ \ \ }
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ sat\_filter\_state\_;\ \ }
+\DoxyCodeLine{00140\ \ \ \ \ \};}
+\DoxyCodeLine{00141\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

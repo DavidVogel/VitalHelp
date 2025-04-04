@@ -1,0 +1,349 @@
+\doxysection{futils.\+h}
+\hypertarget{futils_8h_source}{}\label{futils_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/framework/futils.h@{/Users/davidvogel/repos/VitalHelp/src/synthesis/framework/futils.h}}
+\mbox{\hyperlink{futils_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{common_8h}{common.h}}"{}}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{poly__utils_8h}{poly\_utils.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <cmath>}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{comment}{//\ These\ are\ faster\ but\ less\ accurate\ versions\ of\ utility\ functions.}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00018\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//\ Conversion\ multipliers\ for\ various\ operations:}}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1utils_a099eb7a22338666ab204d6db371c6ca4}{kDbGainConversionMult}}\ =\ 6.02059991329f;\ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kDbMagnitudeConversionMult\ =\ 1.0f\ /\ \mbox{\hyperlink{namespacevital_1_1utils_a099eb7a22338666ab204d6db371c6ca4}{kDbGainConversionMult}};\ }
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kExpConversionMult\ =\ 1.44269504089f;\ }
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kLogConversionMult\ =\ 0.69314718056f;\ }
+\DoxyCodeLine{00026\ \ \ \}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00035\ \ \ \textcolor{keyword}{namespace\ }futils\ \{}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00045\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a4723d7c95b3cd4097755659bf317bb98}{exp2}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ exponent)\ \{}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient0\ =\ 1.0f;}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient1\ =\ 16970.0\ /\ 24483.0;}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient2\ =\ 1960.0\ /\ 8161.0;}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient3\ =\ 1360.0\ /\ 24483.0;}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient4\ =\ 80.0\ /\ 8161.0;}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient5\ =\ 32.0\ /\ 24483.0;}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ integer\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a4d84d37be8f005668f7d305e6391714a}{utils::roundToInt}}(exponent);}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ t\ =\ exponent\ -\/\ \mbox{\hyperlink{namespacevital_1_1utils_a29ec8af38789c39515d4b43ee42e9de6}{utils::toFloat}}(integer);}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ int\_pow\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a085b28f5532124e173d5516fadc2c956}{utils::pow2ToFloat}}(integer);}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ cubic\ =\ t\ *\ (t\ *\ (t\ *\ kCoefficient5\ +\ kCoefficient4)\ +\ kCoefficient3)\ +\ kCoefficient2;}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ interpolate\ =\ t\ *\ (t\ *\ cubic\ +\ kCoefficient1)\ +\ kCoefficient0;}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ int\_pow\ *\ interpolate;}
+\DoxyCodeLine{00060\ \ \ \ \ \}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00068\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a7a327ceafdcf035f71f3959db159e24c}{log2}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value)\ \{}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient0\ =\ -\/1819.0\ /\ 651.0;}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient1\ =\ 5.0;}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient2\ =\ -\/10.0\ /\ 3.0;}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient3\ =\ 10.0\ /\ 7.0;}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient4\ =\ -\/1.0\ /\ 3.0;}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient5\ =\ 1.0\ /\ 31.0;}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ floored\_log2\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a8beb30dbb9faf5ed1359c9e447c3a11b}{utils::shiftRight<23>}}(\mbox{\hyperlink{namespacevital_1_1utils_a106449b782d5738e4943188574092bab}{utils::reinterpretToInt}}(value))\ -\/\ 0x7f;}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ t\ =\ (value\ \&\ 0x7fffff)\ |\ (0x7f\ <<\ 23);}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ cubic\ =\ t\ *\ (t\ *\ (t\ *\ kCoefficient5\ +\ kCoefficient4)\ +\ kCoefficient3)\ +\ kCoefficient2;}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ interpolate\ =\ t\ *\ (t\ *\ cubic\ +\ kCoefficient1)\ +\ kCoefficient0;}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_a29ec8af38789c39515d4b43ee42e9de6}{utils::toFloat}}(floored\_log2)\ +\ interpolate;}
+\DoxyCodeLine{00082\ \ \ \ \ \}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00090\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a4de05bd9495ddb514097ba0bbd8c18f8}{cheapExp2}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ exponent)\ \{}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient0\ =\ 1.0f;}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient1\ =\ 12.0\ /\ 17.0;}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient2\ =\ 4.0\ /\ 17.0;}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ integer\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a4d84d37be8f005668f7d305e6391714a}{utils::roundToInt}}(exponent);}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ t\ =\ exponent\ -\/\ \mbox{\hyperlink{namespacevital_1_1utils_a29ec8af38789c39515d4b43ee42e9de6}{utils::toFloat}}(integer);}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ int\_pow\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a085b28f5532124e173d5516fadc2c956}{utils::pow2ToFloat}}(integer);}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ interpolate\ =\ t\ *\ (t\ *\ kCoefficient2\ +\ kCoefficient1)\ +\ kCoefficient0;}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ int\_pow\ *\ interpolate;}
+\DoxyCodeLine{00101\ \ \ \ \ \}}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00109\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a9925002908b5f6aa456004032572493f}{cheapLog2}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value)\ \{}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient0\ =\ -\/5.0\ /\ 3.0;}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient1\ =\ 2.0;}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kCoefficient2\ =\ -\/1.0\ /\ 3.0;}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ floored\_log2\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a8beb30dbb9faf5ed1359c9e447c3a11b}{utils::shiftRight<23>}}(\mbox{\hyperlink{namespacevital_1_1utils_a106449b782d5738e4943188574092bab}{utils::reinterpretToInt}}(value))\ -\/\ 0x7f;}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ t\ =\ (value\ \&\ 0x7fffff)\ |\ (0x7f\ <<\ 23);}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ interpolate\ =\ t\ *\ (t\ *\ kCoefficient2\ +\ kCoefficient1)\ +\ kCoefficient0;}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_a29ec8af38789c39515d4b43ee42e9de6}{utils::toFloat}}(floored\_log2)\ +\ interpolate;}
+\DoxyCodeLine{00119\ \ \ \ \ \}}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{comment}{//\ Overloads\ for\ mono\_float\ versions\ of\ the\ above\ functions:}}
+\DoxyCodeLine{00122\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a4723d7c95b3cd4097755659bf317bb98}{exp2}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value)\ \{}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ input\ =\ value;}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ result\ =\ \mbox{\hyperlink{namespacevital_1_1futils_a4723d7c95b3cd4097755659bf317bb98}{exp2}}(input);}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ result[0];}
+\DoxyCodeLine{00126\ \ \ \ \ \}}
+\DoxyCodeLine{00127\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a7a327ceafdcf035f71f3959db159e24c}{log2}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value)\ \{}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ input\ =\ value;}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ result\ =\ \mbox{\hyperlink{namespacevital_1_1futils_a7a327ceafdcf035f71f3959db159e24c}{log2}}(input);}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ result[0];}
+\DoxyCodeLine{00131\ \ \ \ \ \}}
+\DoxyCodeLine{00132\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_ad0ad3cd83f0a4d5a41505d7f1df8adbf}{exp}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ exponent)\ \{}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_a4723d7c95b3cd4097755659bf317bb98}{exp2}}(exponent\ *\ kExpConversionMult);}
+\DoxyCodeLine{00134\ \ \ \ \ \}}
+\DoxyCodeLine{00135\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_adbfba8d13812cbaebae4eaa786e41351}{log}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value)\ \{}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_a7a327ceafdcf035f71f3959db159e24c}{log2}}(value)\ *\ kLogConversionMult;}
+\DoxyCodeLine{00137\ \ \ \ \ \}}
+\DoxyCodeLine{00138\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a94e14ce9ff7adbee3f2e47840b32c211}{exp\_half}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ exponent)\ \{}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_a4723d7c95b3cd4097755659bf317bb98}{exp2}}(-\/exponent);}
+\DoxyCodeLine{00140\ \ \ \ \ \}}
+\DoxyCodeLine{00141\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_ae7439e66951da54e8d732fd62619bc5b}{pow}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ base,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ exponent)\ \{}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_a4723d7c95b3cd4097755659bf317bb98}{exp2}}(\mbox{\hyperlink{namespacevital_1_1futils_a7a327ceafdcf035f71f3959db159e24c}{log2}}(base)\ *\ exponent);}
+\DoxyCodeLine{00143\ \ \ \ \ \}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00152\ \ \ \ \ \textcolor{keyword}{template}<mono\_\textcolor{keywordtype}{float}(*func)(mono\_\textcolor{keywordtype}{float})>}
+\DoxyCodeLine{00153\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a910e21775ed110b3f41031ac6f5c9489}{map}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value)\ \{}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ result;}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ size\ =\ poly\_float::kSize;}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ size;\ ++i)}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ result.\mbox{\hyperlink{structvital_1_1poly__float_ae81ddd53c0cc124931d1a82d6ecf90c6}{set}}(i,\ func(value[i]));}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ result;}
+\DoxyCodeLine{00159\ \ \ \ \ \}}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{comment}{//\ Poly\_float\ versions\ of\ exponential\ and\ power\ functions:}}
+\DoxyCodeLine{00162\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_ad0ad3cd83f0a4d5a41505d7f1df8adbf}{exp}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ exponent)\ \{}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_a4723d7c95b3cd4097755659bf317bb98}{exp2}}(exponent\ *\ kExpConversionMult);}
+\DoxyCodeLine{00164\ \ \ \ \ \}}
+\DoxyCodeLine{00165\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_adbfba8d13812cbaebae4eaa786e41351}{log}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value)\ \{}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_a7a327ceafdcf035f71f3959db159e24c}{log2}}(value)\ *\ kLogConversionMult;}
+\DoxyCodeLine{00167\ \ \ \ \ \}}
+\DoxyCodeLine{00168\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a94e14ce9ff7adbee3f2e47840b32c211}{exp\_half}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ exponent)\ \{}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_a4723d7c95b3cd4097755659bf317bb98}{exp2}}(-\/exponent);}
+\DoxyCodeLine{00170\ \ \ \ \ \}}
+\DoxyCodeLine{00171\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_ae7439e66951da54e8d732fd62619bc5b}{pow}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ base,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ exponent)\ \{}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_a4723d7c95b3cd4097755659bf317bb98}{exp2}}(\mbox{\hyperlink{namespacevital_1_1futils_a7a327ceafdcf035f71f3959db159e24c}{log2}}(base)\ *\ exponent);}
+\DoxyCodeLine{00173\ \ \ \ \ \}}
+\DoxyCodeLine{00174\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_aa26014b88118f7af70cc7303212bc167}{cheapPow}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ base,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ exponent)\ \{}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_a4de05bd9495ddb514097ba0bbd8c18f8}{cheapExp2}}(\mbox{\hyperlink{namespacevital_1_1futils_a9925002908b5f6aa456004032572493f}{cheapLog2}}(base)\ *\ exponent);}
+\DoxyCodeLine{00176\ \ \ \ \ \}}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00184\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_aa35d2367143c749fae5760f3663d2e96}{midiOffsetToRatio}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ note\_offset)\ \{}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_a4723d7c95b3cd4097755659bf317bb98}{exp2}}(note\_offset\ *\ (1.0f\ /\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{kNotesPerOctave}}));}
+\DoxyCodeLine{00186\ \ \ \ \ \}}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00194\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_af19ed11df79c05d6bf3aaa9fa9d5af2e}{midiNoteToFrequency}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ note)\ \{}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_aa35d2367143c749fae5760f3663d2e96}{midiOffsetToRatio}}(note)\ *\ \mbox{\hyperlink{namespacevital_a2afffc5a403d14d42fdd0b15ebdb0db3}{kMidi0Frequency}};}
+\DoxyCodeLine{00196\ \ \ \ \ \}}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00204\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_ab990681e9bc9fdc53f006427322fdd41}{magnitudeToDb}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ magnitude)\ \{}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_a7a327ceafdcf035f71f3959db159e24c}{log2}}(magnitude)\ *\ kDbGainConversionMult;}
+\DoxyCodeLine{00206\ \ \ \ \ \}}
+\DoxyCodeLine{00207\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_ab990681e9bc9fdc53f006427322fdd41}{magnitudeToDb}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ magnitude)\ \{}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_a7a327ceafdcf035f71f3959db159e24c}{log2}}(magnitude)\ *\ kDbGainConversionMult;}
+\DoxyCodeLine{00209\ \ \ \ \ \}}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00217\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_aeb7b7646b5c704ad5c1e23d4cb1a75f4}{dbToMagnitude}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ decibels)\ \{}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_ad0ad3cd83f0a4d5a41505d7f1df8adbf}{exp}}(decibels\ *\ kDbMagnitudeConversionMult);}
+\DoxyCodeLine{00219\ \ \ \ \ \}}
+\DoxyCodeLine{00220\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_aeb7b7646b5c704ad5c1e23d4cb1a75f4}{dbToMagnitude}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ decibels)\ \{}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_a4723d7c95b3cd4097755659bf317bb98}{exp2}}(decibels\ *\ kDbMagnitudeConversionMult);}
+\DoxyCodeLine{00222\ \ \ \ \ \}}
+\DoxyCodeLine{00223\ }
+\DoxyCodeLine{00230\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_ace4f620ad3f30358761c220b30011a95}{mulAdd}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ a,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ b,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ c)\ \{}
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_ad7abd2a606f9fb3e67162447f2f97057}{poly\_float::mulAdd}}(a,\ b,\ c);}
+\DoxyCodeLine{00232\ \ \ \ \ \}}
+\DoxyCodeLine{00233\ }
+\DoxyCodeLine{00240\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a2dceda18ada5253a0d6182f2d7185888}{quickTanh}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value)\ \{}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ square\ =\ value\ *\ value;}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value\ /\ (square\ /\ (3.0f\ +\ square\ *\ 0.2f)\ +\ 1.0f);}
+\DoxyCodeLine{00243\ \ \ \ \ \}}
+\DoxyCodeLine{00244\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a2dceda18ada5253a0d6182f2d7185888}{quickTanh}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value)\ \{}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ square\ =\ value\ *\ value;}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value\ /\ (square\ /\ \mbox{\hyperlink{namespacevital_1_1futils_ace4f620ad3f30358761c220b30011a95}{mulAdd}}(3.0f,\ square,\ 0.2f)\ +\ 1.0f);}
+\DoxyCodeLine{00247\ \ \ \ \ \}}
+\DoxyCodeLine{00248\ }
+\DoxyCodeLine{00255\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a7a73b1999af00228cc8812062011b144}{quickTanhDerivative}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value)\ \{}
+\DoxyCodeLine{00256\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ square\ =\ value\ *\ value;}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ fourth\ =\ square\ *\ square;}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ part\_den\ =\ square\ +\ 2.5f;}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ num\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ace4f620ad3f30358761c220b30011a95}{mulAdd}}(\mbox{\hyperlink{namespacevital_1_1futils_ace4f620ad3f30358761c220b30011a95}{mulAdd}}(6.25f,\ fourth,\ 0.166667f),\ square,\ -\/1.25f);}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ den\ =\ part\_den\ *\ part\_den;}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ num\ /\ den;}
+\DoxyCodeLine{00262\ \ \ \ \ \}}
+\DoxyCodeLine{00263\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a7a73b1999af00228cc8812062011b144}{quickTanhDerivative}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value)\ \{}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ square\ =\ value\ *\ value;}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ fourth\ =\ square\ *\ square;}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ part\_den\ =\ square\ +\ 2.5f;}
+\DoxyCodeLine{00267\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ num\ =\ square\ *\ -\/1.25f\ +\ fourth\ *\ 0.166667f\ +\ 6.25f;}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ den\ =\ part\_den\ *\ part\_den;}
+\DoxyCodeLine{00269\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ num\ /\ den;}
+\DoxyCodeLine{00270\ \ \ \ \ \}}
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00278\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a61c9aef71ae838f8b315a99c17690512}{reciprocalSat}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value)\ \{}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \textcolor{comment}{//\ Using\ 1/x\ function\ to\ approximate\ tanh\ saturation.}}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \textcolor{comment}{//\ Not\ smooth\ second\ derivative.}}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ sign\ =\ copysignf(1.0f,\ value);}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1.42f\ *\ (1.0f\ /\ (value\ +\ sign)\ -\/\ sign);}
+\DoxyCodeLine{00283\ \ \ \ \ \}}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00291\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a1dd6291ac344905fbc1ed5f56421fac9}{algebraicSat}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value)\ \{}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \textcolor{comment}{//\ Using\ basic\ algebra\ to\ approximate\ tanh\ saturation.}}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \textcolor{comment}{//\ Doesn't\ clamp\ at\ infinity\ but\ grows\ slowly.}}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ square\ =\ value\ *\ value;}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value\ -\/\ value\ *\ square\ *\ 0.9f\ /\ (square\ +\ 3.0f);}
+\DoxyCodeLine{00296\ \ \ \ \ \}}
+\DoxyCodeLine{00297\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a1dd6291ac344905fbc1ed5f56421fac9}{algebraicSat}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value)\ \{}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ square\ =\ value\ *\ value;}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value\ *\ square\ *\ -\/0.9f\ /\ (square\ +\ 3.0f)\ +\ value;}
+\DoxyCodeLine{00300\ \ \ \ \ \}}
+\DoxyCodeLine{00301\ }
+\DoxyCodeLine{00305\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_ac4733022984ccea06c7b3ee4ae4ef305}{quadraticInvSat}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value)\ \{}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value\ /\ (value\ *\ value\ *\ 0.25f\ +\ 1.0f);}
+\DoxyCodeLine{00307\ \ \ \ \ \}}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00312\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_abd92220e3865703ee663a61f599fba38}{bumpSat}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value)\ \{}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ square\ =\ value\ *\ value;}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ pow\_four\ =\ square\ *\ square;}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value\ /\ (pow\_four\ *\ 0.1f\ +\ 1.0f);}
+\DoxyCodeLine{00316\ \ \ \ \ \}}
+\DoxyCodeLine{00317\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a1460c1a359312c91b02dc3e843e72d89}{bumpSat2}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value)\ \{}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ square\ =\ value\ *\ value;}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ pow\_four\ =\ square\ *\ square;}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (value\ +\ square\ *\ value\ *\ 3.0f)\ /\ (pow\_four\ *\ 20.0f\ +\ 1.0f);}
+\DoxyCodeLine{00321\ \ \ \ \ \}}
+\DoxyCodeLine{00322\ }
+\DoxyCodeLine{00326\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a40d400a067625aa64657ad040ea64ff0}{algebraicSatDerivative}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value)\ \{}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ square\ =\ value\ *\ value;}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ fourth\ =\ square\ *\ square;}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ num\ =\ fourth\ *\ 0.1f\ +\ square\ *\ -\/2.1f\ +\ 9.0f;}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ part\_den\ =\ square\ +\ 3.0f;}
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ den\ =\ part\_den\ *\ part\_den;}
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ num\ /\ den;}
+\DoxyCodeLine{00333\ \ \ \ \ \}}
+\DoxyCodeLine{00334\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a40d400a067625aa64657ad040ea64ff0}{algebraicSatDerivative}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value)\ \{}
+\DoxyCodeLine{00335\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ square\ =\ value\ *\ value;}
+\DoxyCodeLine{00336\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ fourth\ =\ square\ *\ square;}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ part\_num\ =\ square\ *\ -\/2.1f\ +\ 9.0f;}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ num\ =\ fourth\ *\ 0.1f\ +\ part\_num;}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ part\_den\ =\ square\ +\ 3.0f;}
+\DoxyCodeLine{00340\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ den\ =\ part\_den\ *\ part\_den;}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ num\ /\ den;}
+\DoxyCodeLine{00342\ \ \ \ \ \}}
+\DoxyCodeLine{00343\ }
+\DoxyCodeLine{00347\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_aaa18c3550a61c113926ceb8b62ac7b46}{tanh}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value)\ \{}
+\DoxyCodeLine{00348\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ abs\_value\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ac682406ecd547c6e897f3d09ac549105}{poly\_float::abs}}(value);}
+\DoxyCodeLine{00349\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ square\ =\ value\ *\ value;}
+\DoxyCodeLine{00350\ }
+\DoxyCodeLine{00351\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ part\_num1\ =\ abs\_value\ *\ 0.821226666969744f\ +\ 0.893229853513558f;}
+\DoxyCodeLine{00352\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ part\_num2\ =\ square\ *\ part\_num1\ +\ 2.45550750702956f;}
+\DoxyCodeLine{00353\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ num\ =\ value\ *\ (abs\_value\ *\ \ 2.45550750702956f\ +\ part\_num2);}
+\DoxyCodeLine{00354\ }
+\DoxyCodeLine{00355\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ part\_den\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ac682406ecd547c6e897f3d09ac549105}{poly\_float::abs}}(abs\_value\ *\ 0.814642734961073f\ *\ value\ +\ value);}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ den\ =\ part\_den\ *\ (square\ +\ 2.44506634652299f)\ +\ 2.44506634652299f;}
+\DoxyCodeLine{00357\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ num\ /\ den;}
+\DoxyCodeLine{00358\ \ \ \ \ \}}
+\DoxyCodeLine{00359\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_aaa18c3550a61c113926ceb8b62ac7b46}{tanh}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value)\ \{}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ abs\_value\ =\ fabsf(value);}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ square\ =\ value\ *\ value;}
+\DoxyCodeLine{00362\ }
+\DoxyCodeLine{00363\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ num\ =\ value\ *\ (2.45550750702956f\ +\ 2.45550750702956f\ *\ abs\_value\ +}
+\DoxyCodeLine{00364\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ square\ *\ (0.893229853513558f\ +\ 0.821226666969744f\ *\ abs\_value));}
+\DoxyCodeLine{00365\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ den\ =\ 2.44506634652299f\ +\ (2.44506634652299f\ +\ square)\ *}
+\DoxyCodeLine{00366\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ fabsf(value\ +\ 0.814642734961073f\ *\ value\ *\ abs\_value);}
+\DoxyCodeLine{00367\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ num\ /\ den;}
+\DoxyCodeLine{00368\ \ \ \ \ \}}
+\DoxyCodeLine{00369\ }
+\DoxyCodeLine{00373\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a267fb21e39059a36facd51ad10fe165f}{hardTanh}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value)\ \{}
+\DoxyCodeLine{00374\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kHardnessConstant\ =\ 0.66f;}
+\DoxyCodeLine{00375\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kHardnessConstantInv\ =\ 1.0f\ -\/\ kHardnessConstant;}
+\DoxyCodeLine{00376\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kHardnessConstantInvRec\ =\ 1.0f\ /\ kHardnessConstantInv;}
+\DoxyCodeLine{00377\ }
+\DoxyCodeLine{00378\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ clamped\ =\ \mbox{\hyperlink{structvital_1_1poly__float_abf9c15f1a8da916c8a2103d8cfd51c14}{poly\_float::max}}(\mbox{\hyperlink{structvital_1_1poly__float_a85b413f04cc079c3041454acaff61a15}{poly\_float::min}}(value,\ kHardnessConstant),\ -\/kHardnessConstant);}
+\DoxyCodeLine{00379\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ clamped\ +\ \mbox{\hyperlink{namespacevital_1_1futils_aaa18c3550a61c113926ceb8b62ac7b46}{tanh}}((value\ -\/\ clamped)\ *\ kHardnessConstantInvRec)\ *\ (1.0f\ -\/\ kHardnessConstant);}
+\DoxyCodeLine{00380\ \ \ \ \ \}}
+\DoxyCodeLine{00381\ }
+\DoxyCodeLine{00382\ }
+\DoxyCodeLine{00386\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_ab945f71d47c1dd305ca5fd04359901dc}{tanhDerivativeFast}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value)\ \{}
+\DoxyCodeLine{00387\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ square\ =\ value\ *\ value;}
+\DoxyCodeLine{00388\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ /\ \mbox{\hyperlink{namespacevital_1_1futils_ace4f620ad3f30358761c220b30011a95}{mulAdd}}(2.0f,\ square,\ 1.8f);}
+\DoxyCodeLine{00389\ \ \ \ \ \}}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00394\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a1b78c2d2a7ba7315a1f768d4958b0e93}{quickSin}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ phase)\ \{}
+\DoxyCodeLine{00395\ \ \ \ \ \ \ \textcolor{comment}{//\ Version\ of\ fast\ sin\ where\ phase\ is\ is\ [-\/0.5,\ 0.5]}}
+\DoxyCodeLine{00396\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ phase\ *\ (8.0f\ -\/\ 16.0f\ *\ fabsf(phase));}
+\DoxyCodeLine{00397\ \ \ \ \ \}}
+\DoxyCodeLine{00398\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a1b78c2d2a7ba7315a1f768d4958b0e93}{quickSin}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ phase)\ \{}
+\DoxyCodeLine{00399\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ phase\ *\ \mbox{\hyperlink{namespacevital_1_1futils_ace4f620ad3f30358761c220b30011a95}{mulAdd}}(8.0f,\ \mbox{\hyperlink{structvital_1_1poly__float_ac682406ecd547c6e897f3d09ac549105}{poly\_float::abs}}(phase),\ -\/16.0f);}
+\DoxyCodeLine{00400\ \ \ \ \ \}}
+\DoxyCodeLine{00401\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a67053c866c0d6deeff2b0b2a38d55d3e}{sin}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ phase)\ \{}
+\DoxyCodeLine{00402\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ approx\ =\ \mbox{\hyperlink{namespacevital_1_1futils_a1b78c2d2a7ba7315a1f768d4958b0e93}{quickSin}}(phase);}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ approx\ *\ (0.776f\ +\ 0.224f\ *\ fabsf(approx));}
+\DoxyCodeLine{00404\ \ \ \ \ \}}
+\DoxyCodeLine{00405\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a67053c866c0d6deeff2b0b2a38d55d3e}{sin}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ phase)\ \{}
+\DoxyCodeLine{00406\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ approx\ =\ \mbox{\hyperlink{namespacevital_1_1futils_a1b78c2d2a7ba7315a1f768d4958b0e93}{quickSin}}(phase);}
+\DoxyCodeLine{00407\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ approx\ *\ \mbox{\hyperlink{namespacevital_1_1futils_ace4f620ad3f30358761c220b30011a95}{mulAdd}}(0.776f,\ \mbox{\hyperlink{structvital_1_1poly__float_ac682406ecd547c6e897f3d09ac549105}{poly\_float::abs}}(approx),\ 0.224f);}
+\DoxyCodeLine{00408\ \ \ \ \ \}}
+\DoxyCodeLine{00409\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_ab3bd9a7412945b9827536935b3f01c4c}{sinInterpolate}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ from,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ to,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ t)\ \{}
+\DoxyCodeLine{00410\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ sin\_value\ =\ \mbox{\hyperlink{namespacevital_1_1futils_a67053c866c0d6deeff2b0b2a38d55d3e}{sin}}(t\ *\ 0.5f\ -\/\ 0.25f);}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ sin\_t\ =\ sin\_value\ *\ 0.5f\ +\ 0.5f;}
+\DoxyCodeLine{00412\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ from\ +\ (to\ -\/\ from)\ *\ sin\_t;}
+\DoxyCodeLine{00413\ \ \ \ \ \}}
+\DoxyCodeLine{00414\ }
+\DoxyCodeLine{00415\ \ \ \ \ \textcolor{comment}{//\ Version\ of\ fast\ sin\ where\ phase\ is\ is\ [0,\ 1]}}
+\DoxyCodeLine{00416\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a208736df8ff2f54fcef1f8f5aaac2447}{quickSin1}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ phase)\ \{}
+\DoxyCodeLine{00417\ \ \ \ \ \ \ phase\ =\ 0.5f\ -\/\ phase;}
+\DoxyCodeLine{00418\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ phase\ *\ (8.0f\ -\/\ 16.0f\ *\ fabsf(phase));}
+\DoxyCodeLine{00419\ \ \ \ \ \}}
+\DoxyCodeLine{00420\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a208736df8ff2f54fcef1f8f5aaac2447}{quickSin1}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ phase)\ \{}
+\DoxyCodeLine{00421\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ adjusted\_phase\ =\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(0.5f)\ -\/\ phase;}
+\DoxyCodeLine{00422\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ adjusted\_phase\ *\ \mbox{\hyperlink{namespacevital_1_1futils_ace4f620ad3f30358761c220b30011a95}{mulAdd}}(8.0f,\ \mbox{\hyperlink{structvital_1_1poly__float_ac682406ecd547c6e897f3d09ac549105}{poly\_float::abs}}(adjusted\_phase),\ -\/16.0f);}
+\DoxyCodeLine{00423\ \ \ \ \ \}}
+\DoxyCodeLine{00424\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_ac023a188ceb712b21378487be3c90e5c}{sin1}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ phase)\ \{}
+\DoxyCodeLine{00425\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ approx\ =\ \mbox{\hyperlink{namespacevital_1_1futils_a208736df8ff2f54fcef1f8f5aaac2447}{quickSin1}}(phase);}
+\DoxyCodeLine{00426\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ approx\ *\ (0.776f\ +\ 0.224f\ *\ fabsf(approx));}
+\DoxyCodeLine{00427\ \ \ \ \ \}}
+\DoxyCodeLine{00428\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_ac023a188ceb712b21378487be3c90e5c}{sin1}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ phase)\ \{}
+\DoxyCodeLine{00429\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ approx\ =\ \mbox{\hyperlink{namespacevital_1_1futils_a208736df8ff2f54fcef1f8f5aaac2447}{quickSin1}}(phase);}
+\DoxyCodeLine{00430\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ approx\ *\ \mbox{\hyperlink{namespacevital_1_1futils_ace4f620ad3f30358761c220b30011a95}{mulAdd}}(0.776f,\ \mbox{\hyperlink{structvital_1_1poly__float_ac682406ecd547c6e897f3d09ac549105}{poly\_float::abs}}(approx),\ 0.224f);}
+\DoxyCodeLine{00431\ \ \ \ \ \}}
+\DoxyCodeLine{00432\ }
+\DoxyCodeLine{00436\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a618c4dafb4655bd704f479f43558967f}{equalPowerFade}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ t)\ \{}
+\DoxyCodeLine{00437\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_ac023a188ceb712b21378487be3c90e5c}{sin1}}(t\ *\ 0.25f);}
+\DoxyCodeLine{00438\ \ \ \ \ \}}
+\DoxyCodeLine{00439\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_aff2e5ddaa59b2c42c2be6675eae6141c}{panAmplitude}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ pan)\ \{}
+\DoxyCodeLine{00440\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kScale\ =\ 1.41421356237f;}
+\DoxyCodeLine{00441\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ eighth\_phase\ =\ 0.125f;}
+\DoxyCodeLine{00442\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_ac023a188ceb712b21378487be3c90e5c}{sin1}}(eighth\_phase\ -\/\ utils::kStereoSplit\ *\ pan\ *\ eighth\_phase)\ *\ kScale;}
+\DoxyCodeLine{00443\ \ \ \ \ \}}
+\DoxyCodeLine{00444\ }
+\DoxyCodeLine{00448\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_a3cff72e4b970981cf679fd336597fd18}{equalPowerFadeInverse}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ t)\ \{}
+\DoxyCodeLine{00449\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1futils_ac023a188ceb712b21378487be3c90e5c}{sin1}}((t\ +\ 1.0f)\ *\ 0.25f);}
+\DoxyCodeLine{00450\ \ \ \ \ \}}
+\DoxyCodeLine{00451\ }
+\DoxyCodeLine{00455\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{powerScale}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ value,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ power)\ \{}
+\DoxyCodeLine{00456\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kMinPower\ =\ 0.01f;}
+\DoxyCodeLine{00457\ }
+\DoxyCodeLine{00458\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (fabsf(power)\ <\ kMinPower)}
+\DoxyCodeLine{00459\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value;}
+\DoxyCodeLine{00460\ }
+\DoxyCodeLine{00461\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ numerator\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ad0ad3cd83f0a4d5a41505d7f1df8adbf}{exp}}(power\ *\ value)\ -\/\ 1.0f;}
+\DoxyCodeLine{00462\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ denominator\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ad0ad3cd83f0a4d5a41505d7f1df8adbf}{exp}}(power)\ -\/\ 1.0f;}
+\DoxyCodeLine{00463\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ numerator\ /\ denominator;}
+\DoxyCodeLine{00464\ \ \ \ \ \}}
+\DoxyCodeLine{00465\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{powerScale}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ power)\ \{}
+\DoxyCodeLine{00466\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ kMinPowerMag\ =\ 0.005f;}
+\DoxyCodeLine{00467\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ zero\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a6d8428e12c1d3e637bbb4da39e8a5a86}{poly\_float::lessThan}}(power,\ kMinPowerMag)\ \&\ \mbox{\hyperlink{structvital_1_1poly__float_a6d8428e12c1d3e637bbb4da39e8a5a86}{poly\_float::lessThan}}(-\/power,\ kMinPowerMag);}
+\DoxyCodeLine{00468\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ numerator\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ad0ad3cd83f0a4d5a41505d7f1df8adbf}{exp}}(power\ *\ value)\ -\/\ 1.0f;}
+\DoxyCodeLine{00469\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ denominator\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ad0ad3cd83f0a4d5a41505d7f1df8adbf}{exp}}(power)\ -\/\ 1.0f;}
+\DoxyCodeLine{00470\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ result\ =\ numerator\ /\ denominator;}
+\DoxyCodeLine{00471\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(result,\ value,\ zero\_mask);}
+\DoxyCodeLine{00472\ \ \ \ \ \}}
+\DoxyCodeLine{00473\ \ \ \}\ \textcolor{comment}{//\ namespace\ futils}}
+\DoxyCodeLine{00474\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+\DoxyCodeLine{00475\ }
+
+\end{DoxyCode}

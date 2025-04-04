@@ -1,0 +1,183 @@
+\doxysection{sample\+\_\+viewer.\+cpp}
+\hypertarget{sample__viewer_8cpp_source}{}\label{sample__viewer_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/sample\_viewer.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/sample\_viewer.cpp}}
+\mbox{\hyperlink{sample__viewer_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{sample__viewer_8h}{sample\_viewer.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__gui__interface_8h}{synth\_gui\_interface.h}}"{}}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00010\ \mbox{\hyperlink{class_sample_viewer_a7b9cc8c5b0eb168108995ad71a5eb53f}{SampleViewer::SampleViewer}}()\ :\ \mbox{\hyperlink{class_open_gl_line_renderer}{OpenGlLineRenderer}}(kResolution),\ bottom\_(kResolution),}
+\DoxyCodeLine{00011\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dragging\_overlay\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment)\ \{}
+\DoxyCodeLine{00012\ \ \ addAndMakeVisible(bottom\_);}
+\DoxyCodeLine{00013\ \ \ animate\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00014\ \ \ active\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00015\ \ \ sample\_phase\_output\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00016\ \ \ last\_phase\_\ =\ 0.0f;}
+\DoxyCodeLine{00017\ \ \ sample\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00018\ \ \ dragging\_audio\_file\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00019\ \ \ \mbox{\hyperlink{class_open_gl_component_a3567b675d5f3213b85c753f9561f6ea7}{addBottomRoundedCorners}}();}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ dragging\_overlay\_.\mbox{\hyperlink{class_open_gl_multi_quad_a400b44f0d176e32e9a3014be91816808}{setTargetComponent}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a2370751b939ff421b5ad9049ce7e008d}{setFill}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00024\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a2370751b939ff421b5ad9049ce7e008d}{setFill}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00025\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_aa6fb221f264f39c93c973656445b5bea}{setLineWidth}}(2.0f);}
+\DoxyCodeLine{00026\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_aa6fb221f264f39c93c973656445b5bea}{setLineWidth}}(2.0f);}
+\DoxyCodeLine{00027\ \}}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00030\ \mbox{\hyperlink{class_sample_viewer_a07b99da4db24dad2daac06bf6b5c34c2}{SampleViewer::\string~SampleViewer}}()\ \{\ \}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00035\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_sample_viewer_abd8952207fb282bb0860f283b9431f8d}{SampleViewer::audioFileLoaded}}(\textcolor{keyword}{const}\ File\&\ file)\ \{}
+\DoxyCodeLine{00036\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_sample_viewer_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00037\ \ \ \ \ listener-\/>sampleLoaded(file);}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \mbox{\hyperlink{class_sample_viewer_ace0e4345ffa12bdf9514766897e21be0}{setLinePositions}}();}
+\DoxyCodeLine{00040\ \}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00043\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_sample_viewer_aa62e0b1a8123861434c17eff26d78c97}{SampleViewer::repaintAudio}}()\ \{}
+\DoxyCodeLine{00044\ \ \ dragging\_audio\_file\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00045\ \ \ \mbox{\hyperlink{class_sample_viewer_ace0e4345ffa12bdf9514766897e21be0}{setLinePositions}}();}
+\DoxyCodeLine{00046\ \}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00049\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_sample_viewer_ace0e4345ffa12bdf9514766897e21be0}{SampleViewer::setLinePositions}}()\ \{}
+\DoxyCodeLine{00050\ \ \ \textcolor{keywordflow}{if}\ (sample\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \textcolor{keywordtype}{double}\ sample\_length\ =\ sample\_-\/>\mbox{\hyperlink{classvital_1_1_sample_af1a730277115645f0c1ffce37820fbb9}{originalLength}}();}
+\DoxyCodeLine{00054\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}*\ buffer\ =\ sample\_-\/>\mbox{\hyperlink{classvital_1_1_sample_a4886daf3cc105124f52abf8427c8db41}{buffer}}();}
+\DoxyCodeLine{00055\ \ \ \textcolor{keywordtype}{float}\ center\ =\ getHeight()\ /\ 2.0f;}
+\DoxyCodeLine{00056\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_sample_viewer_a9b8a9465ae90e5fadc082b0c9808c5ad}{kResolution}};\ ++i)\ \{}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keywordtype}{int}\ start\_index\ =\ std::min<int>(sample\_length\ *\ i\ /\ \mbox{\hyperlink{class_sample_viewer_a9b8a9465ae90e5fadc082b0c9808c5ad}{kResolution}},\ sample\_length);}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keywordtype}{int}\ end\_index\ =\ std::min<int>((sample\_length\ *\ (i\ +\ 1)\ +\ \mbox{\hyperlink{class_sample_viewer_a9b8a9465ae90e5fadc082b0c9808c5ad}{kResolution}}\ -\/\ 1)\ /\ \mbox{\hyperlink{class_sample_viewer_a9b8a9465ae90e5fadc082b0c9808c5ad}{kResolution}},\ sample\_length);}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keywordtype}{float}\ max\ =\ buffer[start\_index];}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ start\_index\ +\ 1;\ i\ <\ end\_index;\ ++i)}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ max\ =\ std::max(max,\ buffer[i]);}
+\DoxyCodeLine{00062\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(i,\ center\ -\/\ max\ *\ center);}
+\DoxyCodeLine{00063\ \ \ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(i,\ center\ +\ max\ *\ center);}
+\DoxyCodeLine{00064\ \ \ \}}
+\DoxyCodeLine{00065\ \}}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00069\ std::string\ \mbox{\hyperlink{class_sample_viewer_a5a772a186d634d48f50b480e11fcad44}{SampleViewer::getName}}()\ \{}
+\DoxyCodeLine{00070\ \ \ \textcolor{keywordflow}{if}\ (sample\_)}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{keywordflow}{return}\ sample\_-\/>\mbox{\hyperlink{classvital_1_1_sample_a2aa27424150264b7af1e5f049eb6e797}{getName}}();}
+\DoxyCodeLine{00072\ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00073\ \}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00077\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_sample_viewer_ad6e52aae7ee1c2711a267fee631da59c}{SampleViewer::resized}}()\ \{}
+\DoxyCodeLine{00078\ \ \ bottom\_.setBounds(getLocalBounds());}
+\DoxyCodeLine{00079\ \ \ dragging\_overlay\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca96acc35a77e43810baea7c1bbe94a226}{Skin::kOverlayScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_sample_viewer_a9b8a9465ae90e5fadc082b0c9808c5ad}{kResolution}};\ ++i)\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ i\ /\ (\mbox{\hyperlink{class_sample_viewer_a9b8a9465ae90e5fadc082b0c9808c5ad}{kResolution}}\ -\/\ 1.0f);}
+\DoxyCodeLine{00083\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(i,\ getWidth()\ *\ t);}
+\DoxyCodeLine{00084\ \ \ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(i,\ getWidth()\ *\ t);}
+\DoxyCodeLine{00085\ \ \ \}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \textcolor{keywordflow}{if}\ (sample\_phase\_output\_\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00088\ \ \ \ \ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ parent\ =\ findParentComponentOfClass<SynthGuiInterface>();}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordflow}{if}\ (parent)}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ sample\_phase\_output\_\ =\ parent-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_add97643be1ba341314ac1b158206dc4b}{getStatusOutput}}(\textcolor{stringliteral}{"{}sample\_phase"{}});}
+\DoxyCodeLine{00091\ \ \ \}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \ \mbox{\hyperlink{class_open_gl_component_a2bd142dbb0cb7690829cb0a99f84e993}{OpenGlLineRenderer::resized}}();}
+\DoxyCodeLine{00094\ \ \ \mbox{\hyperlink{class_sample_viewer_ace0e4345ffa12bdf9514766897e21be0}{setLinePositions}}();}
+\DoxyCodeLine{00095\ \}}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00101\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_sample_viewer_aa6a8fea21fc3151363aaf684af146d88}{SampleViewer::render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00102\ \ \ animate\_\ =\ animate;}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \textcolor{keywordtype}{float}\ boost\_amount\ =\ \mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a9c9397bfae636bb4478a9f360d91bba0}{Skin::kWidgetLineBoost}});}
+\DoxyCodeLine{00105\ \ \ \textcolor{keywordtype}{float}\ fill\_boost\_amount\ =\ \mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180aa1c1e074ba7cbe057c9a24baa1ad84fa}{Skin::kWidgetFillBoost}});}
+\DoxyCodeLine{00106\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a5009bf6a1b7b6fc2e1d7cb077db2145e}{setBoostAmount}}(boost\_amount);}
+\DoxyCodeLine{00107\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a5009bf6a1b7b6fc2e1d7cb077db2145e}{setBoostAmount}}(boost\_amount);}
+\DoxyCodeLine{00108\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a320bfdf74261a460c79ba0a8eb464297}{setFillBoostAmount}}(fill\_boost\_amount);}
+\DoxyCodeLine{00109\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a320bfdf74261a460c79ba0a8eb464297}{setFillBoostAmount}}(fill\_boost\_amount);}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ \textcolor{keywordflow}{if}\ (sample\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \ \ \textcolor{keywordtype}{int}\ sample\_length\ =\ sample\_-\/>\mbox{\hyperlink{classvital_1_1_sample_af1a730277115645f0c1ffce37820fbb9}{originalLength}}();}
+\DoxyCodeLine{00115\ \ \ \textcolor{keywordflow}{if}\ (sample\_phase\_output\_\ ==\ \textcolor{keyword}{nullptr}\ ||\ sample\_length\ ==\ 0)}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{comment}{//\ Determine\ if\ voice\ changed}}
+\DoxyCodeLine{00119\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ encoded\_phase\ =\ sample\_phase\_output\_-\/>\mbox{\hyperlink{classvital_1_1_status_output_adc2827a952fdcedd4ba84d1e3b793240}{value}}();}
+\DoxyCodeLine{00120\ \ \ std::pair<vital::poly\_float,\ vital::poly\_float>\ decoded\ =\ \mbox{\hyperlink{namespacevital_1_1utils_af9e790a10bedc9b9dd5279b689298de8}{vital::utils::decodePhaseAndVoice}}(encoded\_phase);}
+\DoxyCodeLine{00121\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ phase\ =\ decoded.first;}
+\DoxyCodeLine{00122\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ voice\ =\ decoded.second;}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{vital::poly\_mask}}\ switch\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ad58ea0499df6b4f55868db8213a12c98}{vital::poly\_float::notEqual}}(voice,\ last\_voice\_);}
+\DoxyCodeLine{00125\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ phase\_reset\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{vital::utils::max}}(0.0f,\ phase);}
+\DoxyCodeLine{00126\ \ \ last\_phase\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{vital::utils::maskLoad}}(last\_phase\_,\ phase\_reset,\ switch\_mask);}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \textcolor{keywordflow}{if}\ (!sample\_phase\_output\_-\/>\mbox{\hyperlink{classvital_1_1_status_output_acfb390df9f235c3cd2e694c2b8293af8}{isClearValue}}(phase)\ \&\&\ \mbox{\hyperlink{structvital_1_1poly__float_ad58ea0499df6b4f55868db8213a12c98}{vital::poly\_float::notEqual}}(phase,\ 0.0f).anyMask()\ !=\ 0)\ \{}
+\DoxyCodeLine{00129\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ phase\_delta\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ac682406ecd547c6e897f3d09ac549105}{vital::poly\_float::abs}}(phase\ -\/\ last\_phase\_);}
+\DoxyCodeLine{00130\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ decay\ =\ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}(1.0f)\ -\/\ phase\_delta\ *\ \mbox{\hyperlink{class_sample_viewer_aacc78fce88f52e47c71332ea4fc50824}{kSpeedDecayMult}};}
+\DoxyCodeLine{00131\ \ \ \ \ decay\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(decay,\ \mbox{\hyperlink{class_sample_viewer_aa425069399fa8142d82a8bbec7c3505e}{kBoostDecay}},\ 1.0f);}
+\DoxyCodeLine{00132\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a291a3b43c9a3f692ef2fd7989a2a5148}{decayBoosts}}(decay);}
+\DoxyCodeLine{00133\ \ \ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a291a3b43c9a3f692ef2fd7989a2a5148}{decayBoosts}}(decay);}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{keywordflow}{if}\ (animate\_)\ \{}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ab885c7fae9b135539ab4e1541097800f}{boostRange}}(last\_phase\_,\ phase,\ 0,\ decay);}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_ab885c7fae9b135539ab4e1541097800f}{boostRange}}(last\_phase\_,\ phase,\ 0,\ decay);}
+\DoxyCodeLine{00138\ \ \ \ \ \}}
+\DoxyCodeLine{00139\ \ \ \}}
+\DoxyCodeLine{00140\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00141\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a291a3b43c9a3f692ef2fd7989a2a5148}{decayBoosts}}(\mbox{\hyperlink{class_sample_viewer_aa425069399fa8142d82a8bbec7c3505e}{kBoostDecay}});}
+\DoxyCodeLine{00142\ \ \ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a291a3b43c9a3f692ef2fd7989a2a5148}{decayBoosts}}(\mbox{\hyperlink{class_sample_viewer_aa425069399fa8142d82a8bbec7c3505e}{kBoostDecay}});}
+\DoxyCodeLine{00143\ \ \ \}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ last\_phase\_\ =\ phase;}
+\DoxyCodeLine{00146\ \ \ last\_voice\_\ =\ voice;}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \ \textcolor{keywordtype}{float}\ fill\_fade\ =\ 0.0f;}
+\DoxyCodeLine{00149\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_component_afe64ec8044c5495a69c5beab004803c3}{parent\_}})}
+\DoxyCodeLine{00150\ \ \ \ \ fill\_fade\ =\ \mbox{\hyperlink{class_open_gl_component_afe64ec8044c5495a69c5beab004803c3}{parent\_}}-\/>\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a5268c3e135a7b246af15add8577ea3ac}{Skin::kWidgetFillFade}});}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \textcolor{comment}{//\ First\ pass\ for\ underlying\ lines}}
+\DoxyCodeLine{00153\ \ \ Colour\ line,\ fill;}
+\DoxyCodeLine{00154\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_sample_viewer_a0eb8a986e4f35fb6e420dfd544cdd4d5}{isActive}}())\ \{}
+\DoxyCodeLine{00155\ \ \ \ \ line\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca52527c370464bf967aac85bb7c22a5ab}{Skin::kWidgetPrimary2}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00156\ \ \ \ \ fill\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caf0e70a44ed7ab9d5dbef16a856b50cfb}{Skin::kWidgetSecondary2}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00157\ \ \ \}}
+\DoxyCodeLine{00158\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00159\ \ \ \ \ line\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4f6dbca7fdb5224fc3d7e4beb68970fc}{Skin::kWidgetPrimaryDisabled}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00160\ \ \ \ \ fill\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca8c72cd53e923c259556519e2210b1d6a}{Skin::kWidgetSecondaryDisabled}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00161\ \ \ \}}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(line);}
+\DoxyCodeLine{00164\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(line);}
+\DoxyCodeLine{00165\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a8f1edffc163ebb29305d10f4f91eef33}{setFillColors}}(fill.withMultipliedAlpha(1.0f\ -\/\ fill\_fade),\ fill);}
+\DoxyCodeLine{00166\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a8f1edffc163ebb29305d10f4f91eef33}{setFillColors}}(fill.withMultipliedAlpha(1.0f\ -\/\ fill\_fade),\ fill);}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ace33179a7e0636d04f0226f87b7258aa}{drawLines}}(open\_gl,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00169\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_ace33179a7e0636d04f0226f87b7258aa}{drawLines}}(open\_gl,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \ \ \textcolor{comment}{//\ Second\ pass\ for\ boosted\ lines}}
+\DoxyCodeLine{00172\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_sample_viewer_a0eb8a986e4f35fb6e420dfd544cdd4d5}{isActive}}())\ \{}
+\DoxyCodeLine{00173\ \ \ \ \ line\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00174\ \ \ \ \ fill\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca759c8acbffc8962e9ee2d8cba9677e73}{Skin::kWidgetSecondary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00175\ \ \ \}}
+\DoxyCodeLine{00176\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00177\ \ \ \ \ line\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4f6dbca7fdb5224fc3d7e4beb68970fc}{Skin::kWidgetPrimaryDisabled}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00178\ \ \ \ \ fill\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca8c72cd53e923c259556519e2210b1d6a}{Skin::kWidgetSecondaryDisabled}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00179\ \ \ \}}
+\DoxyCodeLine{00180\ }
+\DoxyCodeLine{00181\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(line);}
+\DoxyCodeLine{00182\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(line);}
+\DoxyCodeLine{00183\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a8f1edffc163ebb29305d10f4f91eef33}{setFillColors}}(fill.withMultipliedAlpha(1.0f\ -\/\ fill\_fade),\ fill);}
+\DoxyCodeLine{00184\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_a8f1edffc163ebb29305d10f4f91eef33}{setFillColors}}(fill.withMultipliedAlpha(1.0f\ -\/\ fill\_fade),\ fill);}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ace33179a7e0636d04f0226f87b7258aa}{drawLines}}(open\_gl,\ \mbox{\hyperlink{class_open_gl_line_renderer_a93f03388eb1c1a55001e5b745ad4595d}{anyBoostValue}}());}
+\DoxyCodeLine{00187\ \ \ bottom\_.\mbox{\hyperlink{class_open_gl_line_renderer_ace33179a7e0636d04f0226f87b7258aa}{drawLines}}(open\_gl,\ \mbox{\hyperlink{class_open_gl_line_renderer_a93f03388eb1c1a55001e5b745ad4595d}{anyBoostValue}}());}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \ \ \textcolor{comment}{//\ Render\ overlay\ if\ dragging\ a\ file}}
+\DoxyCodeLine{00190\ \ \ \textcolor{keywordflow}{if}\ (dragging\_audio\_file\_)}
+\DoxyCodeLine{00191\ \ \ \ \ dragging\_overlay\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ animate);}
+\DoxyCodeLine{00192\ \ \ \mbox{\hyperlink{class_open_gl_component_a5c6aa6d7c8a20882ce3b621efbf7e18b}{renderCorners}}(open\_gl,\ animate);}
+\DoxyCodeLine{00193\ \}}
+
+\end{DoxyCode}

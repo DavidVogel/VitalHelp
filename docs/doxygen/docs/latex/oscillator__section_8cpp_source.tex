@@ -1,0 +1,1227 @@
+\doxysection{oscillator\+\_\+section.\+cpp}
+\hypertarget{oscillator__section_8cpp_source}{}\label{oscillator__section_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/oscillator\_section.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/oscillator\_section.cpp}}
+\mbox{\hyperlink{oscillator__section_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{oscillator__section_8h}{oscillator\_section.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{bar__renderer_8h}{bar\_renderer.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{curve__look__and__feel_8h}{curve\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{paths_8h}{paths.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{full__interface_8h}{full\_interface.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{load__save_8h}{load\_save.h}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{preset__selector_8h}{preset\_selector.h}}"{}}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{producers__module_8h}{producers\_module.h}}"{}}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__strings_8h}{synth\_strings.h}}"{}}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__button_8h}{synth\_button.h}}"{}}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__oscillator_8h}{synth\_oscillator.h}}"{}}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__gui__interface_8h}{synth\_gui\_interface.h}}"{}}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__slider_8h}{synth\_slider.h}}"{}}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__look__and__feel_8h}{text\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__selector_8h}{text\_selector.h}}"{}}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable__3d_8h}{wavetable\_3d.h}}"{}}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{tooltip_text_8h}{tooltipText.h}}"{}}}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00023\ \ \ \textcolor{comment}{//\ Internal\ namespace\ for\ static\ strings,\ lookup\ tables,\ and\ helper\ functions.}}
+\DoxyCodeLine{00024\ \ \ \textcolor{keyword}{const}\ std::string\ kSpectralMorphTypes[\mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98adaea8d8c6bf89d98be67a61cbc3ff8e9a6}{vital::SynthOscillator::kNumSpectralMorphTypes}}]\ =\ \{}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{stringliteral}{"{}-\/-\/-\/"{}},}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{stringliteral}{"{}VOCODE"{}},}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{stringliteral}{"{}FORM\ SCALE"{}},}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{stringliteral}{"{}HARM\ STRETCH"{}},}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{stringliteral}{"{}INHARMONIC"{}},}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{stringliteral}{"{}SMEAR"{}},}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{stringliteral}{"{}RAND\ AMP"{}},}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{stringliteral}{"{}LOW\ PASS"{}},}
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{stringliteral}{"{}HIGH\ PASS"{}},}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{stringliteral}{"{}PHASE\ DISP"{}},}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{stringliteral}{"{}SHEPARD\ TONE"{}},}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{stringliteral}{"{}TIME\ SKEW"{}},}
+\DoxyCodeLine{00037\ \ \ \};}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \textcolor{keyword}{const}\ std::string\ kDistortionTypes[\mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1aeb34586bf1e3a42a9b18a08b95279915}{vital::SynthOscillator::kNumDistortionTypes}}]\ =\ \{}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{stringliteral}{"{}-\/-\/-\/"{}},}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{stringliteral}{"{}SYNC"{}},}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{stringliteral}{"{}FORMANT"{}},}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{stringliteral}{"{}QUANTIZE"{}},}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{stringliteral}{"{}BEND"{}},}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{stringliteral}{"{}SQUEEZE"{}},}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{stringliteral}{"{}PULSE"{}},}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{stringliteral}{"{}FM\ <-\/\ OSC"{}},}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{stringliteral}{"{}FM\ <-\/\ OSC"{}},}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{stringliteral}{"{}FM\ <-\/\ SAMPLE"{}},}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{stringliteral}{"{}RM\ <-\/\ OSC"{}},}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{stringliteral}{"{}RM\ <-\/\ OSC"{}},}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{stringliteral}{"{}RM\ <-\/\ SAMPLE"{}}}
+\DoxyCodeLine{00053\ \ \ \};}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \textcolor{keyword}{const}\ std::string\ kLanguageNames[]\ =\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{stringliteral}{"{}Arabic"{}},}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{stringliteral}{"{}Czech"{}},}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{stringliteral}{"{}Danish"{}},}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{stringliteral}{"{}Dutch"{}},}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{stringliteral}{"{}English\ (Aus)"{}},}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{stringliteral}{"{}English\ (UK)"{}},}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{stringliteral}{"{}English\ (US)"{}},}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{stringliteral}{"{}Filipino"{}},}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{stringliteral}{"{}Finnish"{}},}
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{stringliteral}{"{}French\ (Can)"{}},}
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{stringliteral}{"{}French\ (Fr)"{}},}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{stringliteral}{"{}German"{}},}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{stringliteral}{"{}Greek"{}},}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{stringliteral}{"{}Hindi"{}},}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{stringliteral}{"{}Hungarian"{}},}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{stringliteral}{"{}Indonesian"{}},}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{stringliteral}{"{}Italian"{}},}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{stringliteral}{"{}Japanese"{}},}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{stringliteral}{"{}Korean"{}},}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{stringliteral}{"{}Mandarin\ Chinese"{}},}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{stringliteral}{"{}Norwegian"{}},}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{stringliteral}{"{}Polish"{}},}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{stringliteral}{"{}Portuguese\ (Br)"{}},}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{stringliteral}{"{}Portuguese\ (Po)"{}},}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{stringliteral}{"{}Russian"{}},}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{stringliteral}{"{}Slovak"{}},}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{stringliteral}{"{}Spanish"{}},}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{stringliteral}{"{}Swedish"{}},}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{stringliteral}{"{}Turkish"{}},}
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{stringliteral}{"{}Ukrainian"{}},}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{stringliteral}{"{}Vietnamese"{}}}
+\DoxyCodeLine{00087\ \ \ \};}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \ \ \textcolor{keyword}{const}\ std::string\ kLanguageCodes[]\ =\ \{}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{stringliteral}{"{}ar-\/XA"{}},}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{stringliteral}{"{}cs-\/CZ"{}},}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{stringliteral}{"{}da-\/DK"{}},}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{stringliteral}{"{}nl-\/NL"{}},}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{stringliteral}{"{}en-\/AU"{}},}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{stringliteral}{"{}en-\/GB"{}},}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{stringliteral}{"{}en-\/US"{}},}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{stringliteral}{"{}fil-\/PH"{}},}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{stringliteral}{"{}fi-\/FI"{}},}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{stringliteral}{"{}fr-\/CA"{}},}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{stringliteral}{"{}fr-\/FR"{}},}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{stringliteral}{"{}de-\/DE"{}},}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{stringliteral}{"{}el-\/GR"{}},}
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{stringliteral}{"{}hi-\/IN"{}},}
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{stringliteral}{"{}hu-\/HU"{}},}
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{stringliteral}{"{}id-\/ID"{}},}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{stringliteral}{"{}it-\/IT"{}},}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{stringliteral}{"{}ja-\/JP"{}},}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{stringliteral}{"{}ko-\/KR"{}},}
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{stringliteral}{"{}cmn-\/CN"{}},}
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{stringliteral}{"{}nb-\/NO"{}},}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{stringliteral}{"{}pl-\/PL"{}},}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{stringliteral}{"{}pt-\/BR"{}},}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{stringliteral}{"{}pt-\/PT"{}},}
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{stringliteral}{"{}ru-\/RU"{}},}
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{stringliteral}{"{}sk-\/SK"{}},}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{stringliteral}{"{}es-\/ES"{}},}
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{stringliteral}{"{}sv-\/SE"{}},}
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{stringliteral}{"{}tr-\/TR"{}},}
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{stringliteral}{"{}uk-\/UA"{}},}
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{stringliteral}{"{}vi-\/VN"{}}}
+\DoxyCodeLine{00121\ \ \ \};}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \ \ \textcolor{keyword}{const}\ std::string\ kUrlPrefix\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00124\ \ \ \textcolor{keyword}{const}\ std::string\ kLanguageUrlQuery\ =\ \textcolor{stringliteral}{"{}\&language="{}};}
+\DoxyCodeLine{00125\ \ \ \textcolor{keyword}{const}\ std::string\ kTokenUrlQuery\ =\ \textcolor{stringliteral}{"{}\&idToken="{}};}
+\DoxyCodeLine{00126\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kTtwtId\ =\ INT\_MAX;}
+\DoxyCodeLine{00127\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kAddCustomFolderId\ =\ INT\_MAX\ -\/\ 1;}
+\DoxyCodeLine{00128\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMaxTTWTLength\ =\ 100;}
+\DoxyCodeLine{00129\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kShowErrorMs\ =\ 2000;}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00137\ \ \ String\ getDistortionSuffix(\textcolor{keywordtype}{int}\ type,\ \textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00138\ \ \ \ \ \textcolor{keywordflow}{if}\ (type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1a2038559a836ba1790d030049054b5716}{vital::SynthOscillator::kFmOscillatorA}}\ ||\ type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1ab1d3e355bed930dd63647c30a039430d}{vital::SynthOscillator::kRmOscillatorA}})}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}\ "{}}\ +\ String(1\ +\ \mbox{\hyperlink{classvital_1_1_producers_module_a5f57c9680901ad2b3ea9e94967adf5d4}{vital::ProducersModule::getFirstModulationIndex}}(index));}
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{keywordflow}{if}\ (type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1a30aa03fac63ad4256ea4e88f22af4a9a}{vital::SynthOscillator::kFmOscillatorB}}\ ||\ type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1a1b46168fa99f77795cd2c9a6a17b1d87}{vital::SynthOscillator::kRmOscillatorB}})}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}\ "{}}\ +\ String(1\ +\ \mbox{\hyperlink{classvital_1_1_producers_module_aefff78cf6e2a7549adc21445767ebf1d}{vital::ProducersModule::getSecondModulationIndex}}(index));}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00144\ \ \ \}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00151\ \ \ \textcolor{keywordtype}{bool}\ isSpectralMenuSeparator(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00152\ \ \ \ \ \textcolor{keywordflow}{return}\ index\ ==\ (\mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98adad166d8f8d97a5835b3c73f9b1b823a04}{vital::SynthOscillator::kNoSpectralMorph}}\ +\ 1);}
+\DoxyCodeLine{00153\ \ \ \}}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00160\ \ \ \textcolor{keywordtype}{bool}\ isDistortionMenuSeparator(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keywordflow}{return}\ index\ ==\ (\mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1a373672d2cb099a28ac11c64fd6c92acb}{vital::SynthOscillator::kNone}}\ +\ 1)\ ||\ index\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1a2038559a836ba1790d030049054b5716}{vital::SynthOscillator::kFmOscillatorA}};}
+\DoxyCodeLine{00162\ \ \ \}}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00170\ \ \ String\ getDistortionMenuString(\textcolor{keywordtype}{int}\ type,\ \textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{keywordflow}{return}\ String(\mbox{\hyperlink{namespacestrings_a24568ee2e552aa4b4884d8449cbf8757}{strings::kPhaseDistortionNames}}[type])\ +\ getDistortionSuffix(type,\ index);}
+\DoxyCodeLine{00172\ \ \ \}}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00180\ \ \ String\ getDistortionString(\textcolor{keywordtype}{int}\ type,\ \textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00181\ \ \ \ \ \textcolor{keywordflow}{return}\ String(kDistortionTypes[type])\ +\ getDistortionSuffix(type,\ index);}
+\DoxyCodeLine{00182\ \ \ \}}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00189\ \ \ \textcolor{keywordtype}{int}\ getLanguageIndex(\textcolor{keyword}{const}\ std::string\&\ language)\ \{}
+\DoxyCodeLine{00190\ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kDefaultIndex\ =\ 4;}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \textcolor{keyword}{sizeof}(kLanguageNames)\ /\ \textcolor{keyword}{sizeof}(std::string);\ ++i)\ \{}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (kLanguageCodes[i]\ ==\ language)}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ i;}
+\DoxyCodeLine{00195\ \ \ \ \ \}}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \ \ \ \ \textcolor{keywordflow}{return}\ kDefaultIndex;}
+\DoxyCodeLine{00198\ \ \ \}}
+\DoxyCodeLine{00199\ }
+\DoxyCodeLine{00205\ \ \ \textcolor{keywordtype}{bool}\ isBipolarDistortionType(\textcolor{keywordtype}{int}\ distortion\_type)\ \{}
+\DoxyCodeLine{00206\ \ \ \ \ \textcolor{keywordflow}{return}\ distortion\_type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1a373672d2cb099a28ac11c64fd6c92acb}{vital::SynthOscillator::kNone}}\ ||}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \ \ \ distortion\_type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1a427df7eb620f1fcd3ce7b2a9d447ef6c}{vital::SynthOscillator::kSqueeze}}\ ||}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ \ \ \ distortion\_type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1afa480867439d6c0a0c39443284617c0d}{vital::SynthOscillator::kSync}}\ ||}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ \ \ \ distortion\_type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1a75e48d44161e475cde53b27914ee0ec9}{vital::SynthOscillator::kFormant}}\ ||}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \ \ \ \ \ distortion\_type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1ad7a0359ad3e3e83b292f985a022c3f8a}{vital::SynthOscillator::kBend}};}
+\DoxyCodeLine{00211\ \ \ \}}
+\DoxyCodeLine{00212\ }
+\DoxyCodeLine{00218\ \ \ \textcolor{keywordtype}{bool}\ isBipolarSpectralMorphType(\textcolor{keywordtype}{int}\ morph\_type)\ \{}
+\DoxyCodeLine{00219\ \ \ \ \ \textcolor{keywordflow}{return}\ morph\_type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98adad166d8f8d97a5835b3c73f9b1b823a04}{vital::SynthOscillator::kNoSpectralMorph}}\ ||}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ \ \ \ morph\_type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98adafa0ffcb4fb5b9adc27aae8225384bc97}{vital::SynthOscillator::kVocode}}\ ||}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \ \ \ \ \ morph\_type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98ada562164dba58c5acc9a6079ae5350c7cb}{vital::SynthOscillator::kFormScale}}\ ||}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \ \ \ \ \ morph\_type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98ada9283f79d6957595233c807aa14ff9c1e}{vital::SynthOscillator::kHarmonicScale}}\ ||}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \ \ \ \ \ morph\_type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98adad05ad9edbfc91189545941639431958b}{vital::SynthOscillator::kInharmonicScale}}\ ||}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \ \ \ \ \ morph\_type\ ==\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98adaf3c0dccc7f7ef9c5c6f2aab8748d53a0}{vital::SynthOscillator::kPhaseDisperse}};}
+\DoxyCodeLine{00225\ \ \ \}}
+\DoxyCodeLine{00226\ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00236\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_unison_viewer}{UnisonViewer}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_bar_renderer}{BarRenderer}}\ \{}
+\DoxyCodeLine{00237\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00244\ \ \ \ \ \mbox{\hyperlink{class_unison_viewer_a539344b7462728b916941cc0b2c0cbe1}{UnisonViewer}}(\textcolor{keywordtype}{int}\ index,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ mono\_modulations,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ poly\_modulations)\ :}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer}{BarRenderer}}(\mbox{\hyperlink{namespacevital}{vital}}::SynthOscillator::kMaxUnison)\ \{}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ std::string\ prefix\ =\ std::string(\textcolor{stringliteral}{"{}osc\_"{}})\ +\ std::to\_string(index\ +\ 1);}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ voices\_\ =\ \{\ mono\_modulations.at(prefix\ +\ \textcolor{stringliteral}{"{}\_unison\_voices"{}}),\ poly\_modulations.at(prefix\ +\ \textcolor{stringliteral}{"{}\_unison\_voices"{}})\ \};}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ detune\_\ =\ \{\ mono\_modulations.at(prefix\ +\ \textcolor{stringliteral}{"{}\_unison\_detune"{}}),\ poly\_modulations.at(prefix\ +\ \textcolor{stringliteral}{"{}\_unison\_detune"{}})\ \};}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ detune\_power\_\ =\ \{\ mono\_modulations.at(prefix\ +\ \textcolor{stringliteral}{"{}\_detune\_power"{}}),\ poly\_modulations.at(prefix\ +\ \textcolor{stringliteral}{"{}\_detune\_power"{}})\ \};}
+\DoxyCodeLine{00250\ }
+\DoxyCodeLine{00251\ \ \ \ \ \ \ voices\_slider\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ detune\_slider\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ detune\_power\_slider\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00254\ \ \ \ \ \}}
+\DoxyCodeLine{00255\ }
+\DoxyCodeLine{00263\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ \mbox{\hyperlink{class_unison_viewer_a7d74ba36d12238450be5383cc7872de2}{getOutputsTotal}}(std::pair<vital::Output*,\ vital::Output*>\ outputs,}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ default\_value,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!outputs.first-\/>owner-\/>enabled()\ ||\ !animate)}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ default\_value;}
+\DoxyCodeLine{00267\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ outputs.first-\/>trigger\_value\ +\ outputs.second-\/>trigger\_value;}
+\DoxyCodeLine{00268\ \ \ \ \ \}}
+\DoxyCodeLine{00269\ }
+\DoxyCodeLine{00274\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_unison_viewer_ab15f277f4206e597f8e7f68fc1adbe51}{setVoicesSlider}}(\mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ voices\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00280\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_unison_viewer_a98f47bb450f922817eb0231c8dd69bdc}{setDetuneSlider}}(\mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ detune\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00281\ }
+\DoxyCodeLine{00286\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_unison_viewer_a186058eb2c21808b7fac330e46d7933d}{setDetunePowerSlider}}(\mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ slider)\ \{\ detune\_power\_slider\_\ =\ slider;\ \}}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00293\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_unison_viewer_a5ded91ddfd1d1c7e9cf887a660a1ea2c}{render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kHeightRatio\ =\ 0.7f;}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMaxUnison\ =\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_adb1d1c3c9e78a762a291e41b559ed27c}{vital::SynthOscillator::kMaxUnison}};}
+\DoxyCodeLine{00296\ }
+\DoxyCodeLine{00297\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ voices\ =\ \mbox{\hyperlink{class_unison_viewer_a7d74ba36d12238450be5383cc7872de2}{getOutputsTotal}}(voices\_,\ voices\_slider\_-\/>getValue(),\ animate)[0];}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ voices\ =\ std::min(std::max(voices,\ 1),\ kMaxUnison);}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ detune\ =\ 0.1f\ *\ \mbox{\hyperlink{class_unison_viewer_a7d74ba36d12238450be5383cc7872de2}{getOutputsTotal}}(detune\_,\ detune\_slider\_-\/>getValue(),\ animate)[0];}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ detune\_power\ =\ \mbox{\hyperlink{class_unison_viewer_a7d74ba36d12238450be5383cc7872de2}{getOutputsTotal}}(detune\_power\_,\ detune\_power\_slider\_-\/>getValue(),\ animate)[0];}
+\DoxyCodeLine{00301\ }
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a143e1c039e44e574cf4ca208ce50d6df}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true}).withMultipliedAlpha(0.5f));}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a8d38844e8c85367490b24ab2d05f2793}{setBarWidth}}(1.0f\ /\ getWidth());}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ percent\_active\ =\ 1.0f\ -\/\ getHeight()\ /\ (2.0f\ *\ getWidth());}
+\DoxyCodeLine{00305\ }
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ kMaxUnison;\ ++i)\ \{}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a5f8fb87049a81b7c48502e54990afbaf}{setBottom}}(i,\ -\/kHeightRatio);}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_ae2668c540ae3be73425116b38209b863}{setY}}(i,\ kHeightRatio);}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00310\ }
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ offset\ =\ -\/1.0f\ /\ getWidth();}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voices\ ==\ 1)}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a483ef36533d6e334f37b00765298a095}{setX}}(0,\ offset);}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ voices;\ ++i)\ \{}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ 2.0f\ *\ i\ /\ (voices\ -\/\ 1.0f)\ -\/\ 1.0f;}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ center\_offset\ =\ fabsf(t);}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ power\_scale\ =\ \mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{vital::futils::powerScale}}(center\_offset,\ detune\_power);}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (t\ <\ 0.0f)}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ \ \ \ \ power\_scale\ =\ -\/power\_scale;}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a483ef36533d6e334f37b00765298a095}{setX}}(i,\ power\_scale\ *\ percent\_active\ *\ detune\ +\ offset);}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ voices;\ i\ <\ kMaxUnison;\ ++i)}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a483ef36533d6e334f37b00765298a095}{setX}}(i,\ -\/2.0f);}
+\DoxyCodeLine{00326\ }
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_acc4b3fa29ee13b2594f951b5f3cbb7ef}{BarRenderer::render}}(open\_gl,\ animate);}
+\DoxyCodeLine{00328\ \ \ \ \ \}}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00330\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00331\ \ \ std::pair<vital::Output*,\ vital::Output*>\ voices\_;\ \ \ \ \ \ \ }
+\DoxyCodeLine{00332\ \ \ std::pair<vital::Output*,\ vital::Output*>\ detune\_;\ \ \ \ \ \ \ }
+\DoxyCodeLine{00333\ \ \ std::pair<vital::Output*,\ vital::Output*>\ detune\_power\_;\ }
+\DoxyCodeLine{00334\ }
+\DoxyCodeLine{00335\ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ voices\_slider\_;\ \ \ \ \ \ \ }
+\DoxyCodeLine{00336\ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ detune\_slider\_;\ \ \ \ \ \ \ }
+\DoxyCodeLine{00337\ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ detune\_power\_slider\_;\ }
+\DoxyCodeLine{00338\ \};}
+\DoxyCodeLine{00339\ }
+\DoxyCodeLine{00344\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_invisible_slider}{InvisibleSlider}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}\ \{}
+\DoxyCodeLine{00345\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00350\ \ \ \ \ \mbox{\hyperlink{class_invisible_slider_a964300a0fdee6eb6cb0ade516b993c1b}{InvisibleSlider}}(String\ name)\ :\ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}(std::move(name))\ \{\ \}}
+\DoxyCodeLine{00351\ }
+\DoxyCodeLine{00356\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_invisible_slider_a88b640c0a536bbdc68b15ccbbfd81ee0}{paint}}(Graphics\&\ g)\textcolor{keyword}{\ override\ }\{\ \}}
+\DoxyCodeLine{00357\ }
+\DoxyCodeLine{00362\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_invisible_slider_a2bb429da3494cc2e89ae4ee959b8cac0}{drawShadow}}(Graphics\&\ g)\textcolor{keyword}{\ override\ }\{\ \}}
+\DoxyCodeLine{00363\ \};}
+\DoxyCodeLine{00364\ }
+\DoxyCodeLine{00365\ \textcolor{comment}{//\ Constructor\ implementation\ with\ UI\ component\ creation\ and\ configuration.}}
+\DoxyCodeLine{00366\ \mbox{\hyperlink{class_oscillator_section_ab71fbb154f75a4132cdd968fdffdfbcc}{OscillatorSection::OscillatorSection}}(\mbox{\hyperlink{class_authentication}{Authentication}}*\ auth,}
+\DoxyCodeLine{00367\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index,}
+\DoxyCodeLine{00368\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ mono\_modulations,}
+\DoxyCodeLine{00369\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ poly\_modulations)\ :}
+\DoxyCodeLine{00370\ \ \ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}(String(\textcolor{stringliteral}{"{}OSC\ "{}})\ +\ String(index\ +\ 1)),\ auth\_(auth),\ index\_(index),}
+\DoxyCodeLine{00371\ \ \ \ \ show\_ttwt\_error\_(false),\ ttwt\_overlay\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kRoundedRectangleFragment)\ \{}
+\DoxyCodeLine{00372\ \ \ std::string\ number\ =\ std::to\_string(\mbox{\hyperlink{class_oscillator_section_afe30ff8b7b33e3950cf506df6b4ef762}{index}}\ +\ 1);}
+\DoxyCodeLine{00373\ \ \ wavetable\_\ =\ std::make\_unique<Wavetable3d>(\mbox{\hyperlink{class_oscillator_section_afe30ff8b7b33e3950cf506df6b4ef762}{index}},\ mono\_modulations,\ poly\_modulations);}
+\DoxyCodeLine{00374\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(wavetable\_.get());}
+\DoxyCodeLine{00375\ \ \ wavetable\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00376\ }
+\DoxyCodeLine{00377\ \ \ transpose\_quantize\_button\_\ =\ std::make\_unique<TransposeQuantizeButton>();}
+\DoxyCodeLine{00378\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(transpose\_quantize\_button\_.get());}
+\DoxyCodeLine{00379\ \ \ transpose\_quantize\_button\_-\/>addQuantizeListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00380\ }
+\DoxyCodeLine{00381\ \ \ transpose\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_transpose"{}});}
+\DoxyCodeLine{00382\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(transpose\_.get());}
+\DoxyCodeLine{00383\ \ \ transpose\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00384\ \ \ transpose\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00385\ \ \ transpose\_-\/>setSensitivity(\mbox{\hyperlink{class_synth_section_a5fe6998d8920258735b282eb3bf1b412}{kTransposeMouseSensitivity}});}
+\DoxyCodeLine{00386\ \ \ transpose\_-\/>setTextEntrySizePercent(1.0f,\ 0.7f);}
+\DoxyCodeLine{00387\ \ \ transpose\_-\/>setShiftIndexAmount(\mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{vital::kNotesPerOctave}});}
+\DoxyCodeLine{00388\ \ \ transpose\_-\/>overrideValue(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a4deb269c17a1601618e3f360c243ee1e}{Skin::kTextComponentOffset}},\ 0.0f);}
+\DoxyCodeLine{00389\ \ \ transpose\_-\/>setModulationBarRight(\textcolor{keyword}{false});}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00391\ \ \ tune\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_tune"{}});}
+\DoxyCodeLine{00392\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(tune\_.get());}
+\DoxyCodeLine{00393\ \ \ tune\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00394\ \ \ tune\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00395\ \ \ tune\_-\/>setBipolar();}
+\DoxyCodeLine{00396\ \ \ tune\_-\/>setMaxDisplayCharacters(3);}
+\DoxyCodeLine{00397\ \ \ tune\_-\/>setMaxDecimalPlaces(0);}
+\DoxyCodeLine{00398\ \ \ tune\_-\/>setTextEntrySizePercent(1.0f,\ 0.7f);}
+\DoxyCodeLine{00399\ \ \ tune\_-\/>overrideValue(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a4deb269c17a1601618e3f360c243ee1e}{Skin::kTextComponentOffset}},\ 0.0f);}
+\DoxyCodeLine{00400\ }
+\DoxyCodeLine{00401\ \ \ unison\_detune\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_unison\_detune"{}});}
+\DoxyCodeLine{00402\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(unison\_detune\_.get());}
+\DoxyCodeLine{00403\ \ \ unison\_detune\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00404\ \ \ unison\_detune\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00405\ \ \ unison\_detune\_-\/>setMaxDisplayCharacters(3);}
+\DoxyCodeLine{00406\ \ \ unison\_detune\_-\/>setMaxDecimalPlaces(0);}
+\DoxyCodeLine{00407\ \ \ unison\_detune\_-\/>setTextEntrySizePercent(1.0f,\ 0.7f);}
+\DoxyCodeLine{00408\ \ \ unison\_detune\_-\/>overrideValue(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a4deb269c17a1601618e3f360c243ee1e}{Skin::kTextComponentOffset}},\ 0.0f);}
+\DoxyCodeLine{00409\ }
+\DoxyCodeLine{00410\ \ \ unison\_detune\_power\_\ =\ std::make\_unique<InvisibleSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_detune\_power"{}});}
+\DoxyCodeLine{00411\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(unison\_detune\_power\_.get());}
+\DoxyCodeLine{00412\ \ \ unison\_detune\_power\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00413\ \ \ unison\_detune\_power\_-\/>setLookAndFeel(\mbox{\hyperlink{class_curve_look_and_feel_af6028cf5c3b146cd26458bcb53ec01a6}{CurveLookAndFeel::instance}}());}
+\DoxyCodeLine{00414\ \ \ unison\_detune\_power\_-\/>setPopupPrefix(\textcolor{stringliteral}{"{}Unison\ Detune\ Power:\ "{}});}
+\DoxyCodeLine{00415\ \ \ unison\_detune\_power\_-\/>setTextEntrySizePercent(1.0f,\ 0.7f);}
+\DoxyCodeLine{00416\ }
+\DoxyCodeLine{00417\ \ \ unison\_voices\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_unison\_voices"{}});}
+\DoxyCodeLine{00418\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(unison\_voices\_.get());}
+\DoxyCodeLine{00419\ \ \ unison\_voices\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00420\ \ \ unison\_voices\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00421\ \ \ unison\_voices\_-\/>setTextEntrySizePercent(1.0f,\ 0.7f);}
+\DoxyCodeLine{00422\ \ \ unison\_voices\_-\/>overrideValue(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a4deb269c17a1601618e3f360c243ee1e}{Skin::kTextComponentOffset}},\ 0.0f);}
+\DoxyCodeLine{00423\ \ \ unison\_voices\_-\/>setModulationBarRight(\textcolor{keyword}{false});}
+\DoxyCodeLine{00424\ }
+\DoxyCodeLine{00425\ \ \ phase\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_phase"{}});}
+\DoxyCodeLine{00426\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(phase\_.get());}
+\DoxyCodeLine{00427\ \ \ phase\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00428\ \ \ phase\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00429\ \ \ phase\_-\/>setTextEntrySizePercent(1.0f,\ 0.7f);}
+\DoxyCodeLine{00430\ \ \ phase\_-\/>overrideValue(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a4deb269c17a1601618e3f360c243ee1e}{Skin::kTextComponentOffset}},\ 0.0f);}
+\DoxyCodeLine{00431\ \ \ phase\_-\/>setMaxDisplayCharacters(3);}
+\DoxyCodeLine{00432\ \ \ phase\_-\/>setMaxDecimalPlaces(0);}
+\DoxyCodeLine{00433\ }
+\DoxyCodeLine{00434\ \ \ random\_phase\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_random\_phase"{}});}
+\DoxyCodeLine{00435\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(random\_phase\_.get());}
+\DoxyCodeLine{00436\ \ \ random\_phase\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00437\ \ \ random\_phase\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00438\ \ \ random\_phase\_-\/>setTextEntrySizePercent(1.0f,\ 0.7f);}
+\DoxyCodeLine{00439\ \ \ random\_phase\_-\/>overrideValue(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a4deb269c17a1601618e3f360c243ee1e}{Skin::kTextComponentOffset}},\ 0.0f);}
+\DoxyCodeLine{00440\ \ \ random\_phase\_-\/>setMaxDisplayCharacters(3);}
+\DoxyCodeLine{00441\ \ \ random\_phase\_-\/>setMaxDecimalPlaces(0);}
+\DoxyCodeLine{00442\ }
+\DoxyCodeLine{00443\ \ \ distortion\_phase\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_distortion\_phase"{}});}
+\DoxyCodeLine{00444\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(distortion\_phase\_.get());}
+\DoxyCodeLine{00445\ \ \ distortion\_phase\_-\/>setSliderStyle(Slider::LinearBar);}
+\DoxyCodeLine{00446\ \ \ distortion\_phase\_-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00447\ \ \ distortion\_phase\_-\/>setBipolar(\textcolor{keyword}{true});}
+\DoxyCodeLine{00448\ \ \ distortion\_phase\_-\/>setModulationPlacement(BubbleComponent::above);}
+\DoxyCodeLine{00449\ }
+\DoxyCodeLine{00450\ \ \ level\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_level"{}});}
+\DoxyCodeLine{00451\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(level\_.get());}
+\DoxyCodeLine{00452\ \ \ level\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00453\ }
+\DoxyCodeLine{00454\ \ \ pan\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_pan"{}});}
+\DoxyCodeLine{00455\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(pan\_.get());}
+\DoxyCodeLine{00456\ \ \ pan\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00457\ \ \ pan\_-\/>setBipolar();}
+\DoxyCodeLine{00458\ }
+\DoxyCodeLine{00459\ \ \ distortion\_control\_name\_\ =\ \textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_distortion\_type"{}};}
+\DoxyCodeLine{00460\ \ \ current\_distortion\_type\_\ =\ 0;}
+\DoxyCodeLine{00461\ \ \ distortion\_type\_text\_\ =\ std::make\_unique<PlainTextComponent>(\textcolor{stringliteral}{"{}Distortion\ Text"{}},\ \textcolor{stringliteral}{"{}-\/-\/-\/"{}});}
+\DoxyCodeLine{00462\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(distortion\_type\_text\_.get());}
+\DoxyCodeLine{00463\ }
+\DoxyCodeLine{00464\ \ \ spectral\_morph\_control\_name\_\ =\ \textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_spectral\_morph\_type"{}};}
+\DoxyCodeLine{00465\ \ \ current\_spectral\_morph\_type\_\ =\ 0;}
+\DoxyCodeLine{00466\ \ \ spectral\_morph\_type\_text\_\ =\ std::make\_unique<PlainTextComponent>(\textcolor{stringliteral}{"{}Frequency\ Morph\ Text"{}},\ \textcolor{stringliteral}{"{}-\/-\/-\/"{}});}
+\DoxyCodeLine{00467\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(spectral\_morph\_type\_text\_.get());}
+\DoxyCodeLine{00468\ }
+\DoxyCodeLine{00469\ \ \ quantize\_control\_name\_\ =\ \textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_transpose\_quantize"{}};}
+\DoxyCodeLine{00470\ }
+\DoxyCodeLine{00471\ \ \ distortion\_amount\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_distortion\_amount"{}});}
+\DoxyCodeLine{00472\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(distortion\_amount\_.get());}
+\DoxyCodeLine{00473\ \ \ distortion\_amount\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00474\ \ \ distortion\_amount\_-\/>setKnobSizeScale(1.5f);}
+\DoxyCodeLine{00475\ \ \ distortion\_amount\_-\/>setPopupPrefix(\textcolor{stringliteral}{"{}Wave\ Morph:\ "{}});}
+\DoxyCodeLine{00476\ \textcolor{comment}{//\ Grab\ the\ suffix\ text\ from\ your\ map:}}
+\DoxyCodeLine{00477\ \ \ \textcolor{keyword}{auto}\&\ tooltips\ =\ \mbox{\hyperlink{tooltip_text_8cpp_ac7e2df5e2ed1bc5db585fa450c101850}{getTooltips}}();}
+\DoxyCodeLine{00478\ \ \ \textcolor{keyword}{auto}\ it\ =\ tooltips.find(\textcolor{stringliteral}{"{}distortion\_amount"{}});}
+\DoxyCodeLine{00479\ \ \ \textcolor{keywordflow}{if}\ (it\ !=\ tooltips.end())\ \{}
+\DoxyCodeLine{00480\ \ \ \ \ distortion\_amount\_-\/>setPopupSuffix(\textcolor{stringliteral}{"{}\(\backslash\)n"{}}\ +\ it-\/>second);\ \ \textcolor{comment}{//\ prefix\ +\ value\ +\ suffix}}
+\DoxyCodeLine{00481\ \ \ \}}
+\DoxyCodeLine{00482\ }
+\DoxyCodeLine{00483\ \ \ spectral\_morph\_amount\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_spectral\_morph\_amount"{}});}
+\DoxyCodeLine{00484\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(spectral\_morph\_amount\_.get());}
+\DoxyCodeLine{00485\ \ \ spectral\_morph\_amount\_-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00486\ \ \ spectral\_morph\_amount\_-\/>setKnobSizeScale(1.5f);}
+\DoxyCodeLine{00487\ \ \ spectral\_morph\_amount\_-\/>setPopupPrefix(\textcolor{stringliteral}{"{}Spectral\ Morph:\ "{}});}
+\DoxyCodeLine{00488\ }
+\DoxyCodeLine{00489\ \ \ spectral\_morph\_type\_selector\_\ =\ std::make\_unique<ShapeButton>(\textcolor{stringliteral}{"{}Spectral\ Morph"{}},\ Colour(0xff666666),}
+\DoxyCodeLine{00490\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Colour(0xffaaaaaa),\ Colour(0xff888888));}
+\DoxyCodeLine{00491\ \ \ addAndMakeVisible(spectral\_morph\_type\_selector\_.get());}
+\DoxyCodeLine{00492\ \ \ spectral\_morph\_type\_selector\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00493\ \ \ spectral\_morph\_type\_selector\_-\/>setTriggeredOnMouseDown(\textcolor{keyword}{true});}
+\DoxyCodeLine{00494\ \ \ spectral\_morph\_type\_selector\_-\/>setShape(Path(),\ \textcolor{keyword}{true},\ \textcolor{keyword}{true},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00495\ }
+\DoxyCodeLine{00496\ \ \ distortion\_type\_selector\_\ =\ std::make\_unique<ShapeButton>(\textcolor{stringliteral}{"{}Distortion"{}},\ Colour(0xff666666),}
+\DoxyCodeLine{00497\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Colour(0xffaaaaaa),\ Colour(0xff888888));}
+\DoxyCodeLine{00498\ \ \ addAndMakeVisible(distortion\_type\_selector\_.get());}
+\DoxyCodeLine{00499\ \ \ distortion\_type\_selector\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00500\ \ \ distortion\_type\_selector\_-\/>setTriggeredOnMouseDown(\textcolor{keyword}{true});}
+\DoxyCodeLine{00501\ \ \ distortion\_type\_selector\_-\/>setShape(Path(),\ \textcolor{keyword}{true},\ \textcolor{keyword}{true},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00502\ }
+\DoxyCodeLine{00503\ \ \ wave\_frame\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_wave\_frame"{}});}
+\DoxyCodeLine{00504\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(wave\_frame\_.get());}
+\DoxyCodeLine{00505\ \ \ wave\_frame\_-\/>setSliderStyle(Slider::LinearBarVertical);}
+\DoxyCodeLine{00506\ \ \ wave\_frame\_-\/>setPopupPlacement(BubbleComponent::right);}
+\DoxyCodeLine{00507\ \ \ wave\_frame\_-\/>setMouseWheelMovement(8.0);}
+\DoxyCodeLine{00508\ \ \ wave\_frame\_-\/>setModulationPlacement(BubbleComponent::left);}
+\DoxyCodeLine{00509\ \ \ wave\_frame\_-\/>setExtraModulationTarget(wavetable\_.get());}
+\DoxyCodeLine{00510\ \ \ wave\_frame\_-\/>setPopupPrefix(\textcolor{stringliteral}{"{}Frame:\ "{}});}
+\DoxyCodeLine{00511\ }
+\DoxyCodeLine{00512\ \ \ destination\_selector\_\ =\ std::make\_unique<ShapeButton>(\textcolor{stringliteral}{"{}Destination"{}},\ Colour(0xff666666),}
+\DoxyCodeLine{00513\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Colour(0xffaaaaaa),\ Colour(0xff888888));}
+\DoxyCodeLine{00514\ }
+\DoxyCodeLine{00515\ \ \ destination\_control\_name\_\ =\ \textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_destination"{}};}
+\DoxyCodeLine{00516\ \ \ current\_destination\_\ =\ 0;}
+\DoxyCodeLine{00517\ \ \ destination\_text\_\ =\ std::make\_unique<PlainTextComponent>(\textcolor{stringliteral}{"{}Destination\ Text"{}},\ \textcolor{stringliteral}{"{}-\/-\/-\/"{}});}
+\DoxyCodeLine{00518\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(destination\_text\_.get());}
+\DoxyCodeLine{00519\ }
+\DoxyCodeLine{00520\ \ \ addAndMakeVisible(destination\_selector\_.get());}
+\DoxyCodeLine{00521\ \ \ destination\_selector\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00522\ \ \ destination\_selector\_-\/>setTriggeredOnMouseDown(\textcolor{keyword}{true});}
+\DoxyCodeLine{00523\ \ \ destination\_selector\_-\/>setShape(Path(),\ \textcolor{keyword}{true},\ \textcolor{keyword}{true},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00524\ }
+\DoxyCodeLine{00525\ \ \ prev\_destination\_\ =\ std::make\_unique<OpenGlShapeButton>(\textcolor{stringliteral}{"{}Prev\ Destination"{}});}
+\DoxyCodeLine{00526\ \ \ addAndMakeVisible(prev\_destination\_.get());}
+\DoxyCodeLine{00527\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(prev\_destination\_-\/>getGlComponent());}
+\DoxyCodeLine{00528\ \ \ prev\_destination\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00529\ \ \ prev\_destination\_-\/>setShape(\mbox{\hyperlink{class_paths_aebcf6c56404bc7c87a27ccb4160d54de}{Paths::prev}}());}
+\DoxyCodeLine{00530\ }
+\DoxyCodeLine{00531\ \ \ next\_destination\_\ =\ std::make\_unique<OpenGlShapeButton>(\textcolor{stringliteral}{"{}Next\ Destination"{}});}
+\DoxyCodeLine{00532\ \ \ addAndMakeVisible(next\_destination\_.get());}
+\DoxyCodeLine{00533\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(next\_destination\_-\/>getGlComponent());}
+\DoxyCodeLine{00534\ \ \ next\_destination\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00535\ \ \ next\_destination\_-\/>setShape(\mbox{\hyperlink{class_paths_a9c9db33c79941c5ce3f82aa02888cdbf}{Paths::next}}());}
+\DoxyCodeLine{00536\ }
+\DoxyCodeLine{00537\ \ \ preset\_selector\_\ =\ std::make\_unique<PresetSelector>();}
+\DoxyCodeLine{00538\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(preset\_selector\_.get());}
+\DoxyCodeLine{00539\ \ \ preset\_selector\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00540\ \ \ \mbox{\hyperlink{class_synth_section_ae0110cce4e420853e42c960f8e28f9bb}{setPresetSelector}}(preset\_selector\_.get(),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00541\ }
+\DoxyCodeLine{00542\ \ \ edit\_button\_\ =\ std::make\_unique<OpenGlShapeButton>(\textcolor{stringliteral}{"{}edit"{}});}
+\DoxyCodeLine{00543\ \ \ addAndMakeVisible(edit\_button\_.get());}
+\DoxyCodeLine{00544\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(edit\_button\_-\/>getGlComponent());}
+\DoxyCodeLine{00545\ \ \ edit\_button\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00546\ \ \ edit\_button\_-\/>setShape(\mbox{\hyperlink{class_paths_a0560f23f7dd7641a3bc948ebc40c3e18}{Paths::pencil}}());}
+\DoxyCodeLine{00547\ }
+\DoxyCodeLine{00548\ \ \ dimension\_button\_\ =\ std::make\_unique<SynthButton>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_dimension"{}});}
+\DoxyCodeLine{00549\ \ \ \mbox{\hyperlink{class_synth_section_a98013478e89ec21a3e488d2d81594f24}{addButton}}(dimension\_button\_.get());}
+\DoxyCodeLine{00550\ \ \ dimension\_button\_-\/>setNoBackground();}
+\DoxyCodeLine{00551\ \ \ dimension\_button\_-\/>setShowOnColors(\textcolor{keyword}{false});}
+\DoxyCodeLine{00552\ \ \ dimension\_button\_-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00553\ }
+\DoxyCodeLine{00554\ \ \ dimension\_value\_\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_view\_2d"{}});}
+\DoxyCodeLine{00555\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(dimension\_value\_.get());}
+\DoxyCodeLine{00556\ \ \ dimension\_value\_-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00557\ }
+\DoxyCodeLine{00558\ \ \ ttwt\_overlay\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ -\/1.0f,\ -\/1.0f,\ 2.0f,\ 2.0f);}
+\DoxyCodeLine{00559\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&ttwt\_overlay\_);}
+\DoxyCodeLine{00560\ \ \ ttwt\_overlay\_.setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00561\ }
+\DoxyCodeLine{00562\ \textcolor{preprocessor}{\#if\ !defined(NO\_TEXT\_ENTRY)}}
+\DoxyCodeLine{00563\ \ \ ttwt\_\ =\ std::make\_unique<OpenGlTextEditor>(\textcolor{stringliteral}{"{}ttwt"{}});}
+\DoxyCodeLine{00564\ \ \ ttwt\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00565\ \ \ ttwt\_-\/>setFont(\mbox{\hyperlink{class_fonts_ae7669a3eeb9db437c7d34feff9e99707}{Fonts::instance}}()-\/>proportional\_light().withPointHeight(16.0f));}
+\DoxyCodeLine{00566\ \ \ ttwt\_-\/>setMultiLine(\textcolor{keyword}{false},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00567\ \ \ ttwt\_-\/>setJustification(Justification::centred);}
+\DoxyCodeLine{00568\ \ \ addChildComponent(ttwt\_.get());}
+\DoxyCodeLine{00569\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(ttwt\_-\/>getImageComponent());}
+\DoxyCodeLine{00570\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00571\ }
+\DoxyCodeLine{00572\ \ \ showing\_language\_menu\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00573\ \ \ ttwt\_language\_\ =\ getLanguageIndex(\mbox{\hyperlink{class_load_save_a8b51054e97768ed745a5aa609fa64347}{LoadSave::getPreferredTTWTLanguage}}());}
+\DoxyCodeLine{00574\ \ \ ttwt\_settings\_\ =\ std::make\_unique<SynthButton>(\textcolor{stringliteral}{"{}Menu"{}});}
+\DoxyCodeLine{00575\ \ \ ttwt\_settings\_-\/>setNoBackground();}
+\DoxyCodeLine{00576\ \ \ addChildComponent(ttwt\_settings\_.get());}
+\DoxyCodeLine{00577\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(ttwt\_settings\_-\/>getGlComponent());}
+\DoxyCodeLine{00578\ \ \ ttwt\_settings\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00579\ \ \ ttwt\_settings\_-\/>setTriggeredOnMouseDown(\textcolor{keyword}{true});}
+\DoxyCodeLine{00580\ \ \ ttwt\_settings\_-\/>setText(kLanguageCodes[ttwt\_language\_]);}
+\DoxyCodeLine{00581\ }
+\DoxyCodeLine{00582\ \ \ std::string\ ttwt\_error\ =\ \textcolor{stringliteral}{"{}Error\ rendering\ speech.\ Check\ internet\ connection"{}};}
+\DoxyCodeLine{00583\ \ \ ttwt\_error\_text\_\ =\ std::make\_unique<PlainTextComponent>(\textcolor{stringliteral}{"{}ttwt\ error"{}},\ ttwt\_error);}
+\DoxyCodeLine{00584\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(ttwt\_error\_text\_.get());}
+\DoxyCodeLine{00585\ \ \ ttwt\_error\_text\_-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00586\ }
+\DoxyCodeLine{00587\ \ \ oscillator\_on\_\ =\ std::make\_unique<SynthButton>(\textcolor{stringliteral}{"{}osc\_"{}}\ +\ number\ +\ \textcolor{stringliteral}{"{}\_on"{}});}
+\DoxyCodeLine{00588\ \ \ \mbox{\hyperlink{class_synth_section_a98013478e89ec21a3e488d2d81594f24}{addButton}}(oscillator\_on\_.get());}
+\DoxyCodeLine{00589\ \ \ \mbox{\hyperlink{class_synth_section_aabf4f96c8241d9fb729c782e144dbee1}{setActivator}}(oscillator\_on\_.get());}
+\DoxyCodeLine{00590\ }
+\DoxyCodeLine{00591\ \ \ wavetable\_-\/>setFrameSlider(wave\_frame\_.get());}
+\DoxyCodeLine{00592\ \ \ wavetable\_-\/>setSpectralMorphSlider(spectral\_morph\_amount\_.get());}
+\DoxyCodeLine{00593\ \ \ wavetable\_-\/>setDistortionSlider(distortion\_amount\_.get());}
+\DoxyCodeLine{00594\ \ \ wavetable\_-\/>setDistortionPhaseSlider(distortion\_phase\_.get());}
+\DoxyCodeLine{00595\ }
+\DoxyCodeLine{00596\ \ \ \mbox{\hyperlink{class_synth_section_ae4b092420f64f8d195dd2fdb406bfccf}{setSkinOverride}}(\mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96ad669be98bcfc51e4490ef453801ff641}{Skin::kOscillator}});}
+\DoxyCodeLine{00597\ }
+\DoxyCodeLine{00598\ \ \ unison\_viewer\_\ =\ std::make\_unique<UnisonViewer>(\mbox{\hyperlink{class_oscillator_section_afe30ff8b7b33e3950cf506df6b4ef762}{index}},\ mono\_modulations,\ poly\_modulations);}
+\DoxyCodeLine{00599\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(unison\_viewer\_.get());}
+\DoxyCodeLine{00600\ \ \ unison\_viewer\_-\/>setVoicesSlider(unison\_voices\_.get());}
+\DoxyCodeLine{00601\ \ \ unison\_viewer\_-\/>setDetuneSlider(unison\_detune\_.get());}
+\DoxyCodeLine{00602\ \ \ unison\_viewer\_-\/>setDetunePowerSlider(unison\_detune\_power\_.get());}
+\DoxyCodeLine{00603\ \ \ unison\_viewer\_-\/>setInterceptsMouseClicks(\textcolor{keyword}{false},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00604\ }
+\DoxyCodeLine{00605\ \ \ prev\_spectral\_\ =\ std::make\_unique<OpenGlShapeButton>(\textcolor{stringliteral}{"{}Prev\ Spectral"{}});}
+\DoxyCodeLine{00606\ \ \ addAndMakeVisible(prev\_spectral\_.get());}
+\DoxyCodeLine{00607\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(prev\_spectral\_-\/>getGlComponent());}
+\DoxyCodeLine{00608\ \ \ prev\_spectral\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00609\ \ \ prev\_spectral\_-\/>setShape(\mbox{\hyperlink{class_paths_aebcf6c56404bc7c87a27ccb4160d54de}{Paths::prev}}());}
+\DoxyCodeLine{00610\ }
+\DoxyCodeLine{00611\ \ \ next\_spectral\_\ =\ std::make\_unique<OpenGlShapeButton>(\textcolor{stringliteral}{"{}Next\ Spectral"{}});}
+\DoxyCodeLine{00612\ \ \ addAndMakeVisible(next\_spectral\_.get());}
+\DoxyCodeLine{00613\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(next\_spectral\_-\/>getGlComponent());}
+\DoxyCodeLine{00614\ \ \ next\_spectral\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00615\ \ \ next\_spectral\_-\/>setShape(\mbox{\hyperlink{class_paths_a9c9db33c79941c5ce3f82aa02888cdbf}{Paths::next}}());}
+\DoxyCodeLine{00616\ }
+\DoxyCodeLine{00617\ \ \ prev\_distortion\_\ =\ std::make\_unique<OpenGlShapeButton>(\textcolor{stringliteral}{"{}Prev\ Distortion"{}});}
+\DoxyCodeLine{00618\ \ \ addAndMakeVisible(prev\_distortion\_.get());}
+\DoxyCodeLine{00619\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(prev\_distortion\_-\/>getGlComponent());}
+\DoxyCodeLine{00620\ \ \ prev\_distortion\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00621\ \ \ prev\_distortion\_-\/>setShape(\mbox{\hyperlink{class_paths_aebcf6c56404bc7c87a27ccb4160d54de}{Paths::prev}}());}
+\DoxyCodeLine{00622\ }
+\DoxyCodeLine{00623\ \ \ next\_distortion\_\ =\ std::make\_unique<OpenGlShapeButton>(\textcolor{stringliteral}{"{}Next\ Distortion"{}});}
+\DoxyCodeLine{00624\ \ \ addAndMakeVisible(next\_distortion\_.get());}
+\DoxyCodeLine{00625\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(next\_distortion\_-\/>getGlComponent());}
+\DoxyCodeLine{00626\ \ \ next\_distortion\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00627\ \ \ next\_distortion\_-\/>setShape(\mbox{\hyperlink{class_paths_a9c9db33c79941c5ce3f82aa02888cdbf}{Paths::next}}());}
+\DoxyCodeLine{00628\ \}}
+\DoxyCodeLine{00629\ }
+\DoxyCodeLine{00630\ \mbox{\hyperlink{class_oscillator_section_a27c47dacbebb18647e9f634b1543918a}{OscillatorSection::\string~OscillatorSection}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00631\ }
+\DoxyCodeLine{00632\ \textcolor{comment}{//\ Applies\ skin\ values\ to\ the\ wavetable\ display.}}
+\DoxyCodeLine{00633\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a6cf10e6bdbc047a038761f6e80a455f2}{OscillatorSection::setSkinValues}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_skin}{Skin}}\&\ skin,\ \textcolor{keywordtype}{bool}\ top\_level)\ \{}
+\DoxyCodeLine{00634\ \ \ \mbox{\hyperlink{class_synth_section_a321e84f19d1ed459f007027254ad8e16}{SynthSection::setSkinValues}}(skin,\ top\_level);}
+\DoxyCodeLine{00635\ \ \ \textcolor{keywordtype}{float}\ horizontal\_angle\ =\ skin.\mbox{\hyperlink{class_skin_a5013aba72d29c7a744f62c925e26f3e1}{getValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a8f4040321af5c25d38b96cc5e1e298a6}{Skin::kWavetableHorizontalAngle}});}
+\DoxyCodeLine{00636\ \ \ \textcolor{keywordtype}{float}\ vertical\_angle\ =\ skin.\mbox{\hyperlink{class_skin_a5013aba72d29c7a744f62c925e26f3e1}{getValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3e0521c0233d656a8f6c6e7865484769}{Skin::kWavetableVerticalAngle}});}
+\DoxyCodeLine{00637\ \ \ \textcolor{keywordtype}{float}\ draw\_width\ =\ skin.\mbox{\hyperlink{class_skin_a5013aba72d29c7a744f62c925e26f3e1}{getValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180acbf5aa066e6f2bc738fa0ff6d3c35e69}{Skin::kWavetableDrawWidth}});}
+\DoxyCodeLine{00638\ \ \ \textcolor{keywordtype}{float}\ wave\_height\ =\ skin.\mbox{\hyperlink{class_skin_a5013aba72d29c7a744f62c925e26f3e1}{getValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a99b5953f6ca8eaa5d2aa2b11b571919c}{Skin::kWavetableWaveHeight}});}
+\DoxyCodeLine{00639\ \ \ \textcolor{keywordtype}{float}\ y\_offset\ =\ skin.\mbox{\hyperlink{class_skin_a5013aba72d29c7a744f62c925e26f3e1}{getValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a6092f3fa1f862c4983399967b1c1a139}{Skin::kWavetableYOffset}});}
+\DoxyCodeLine{00640\ \ \ wavetable\_-\/>setViewSettings(horizontal\_angle,\ vertical\_angle,\ draw\_width,\ wave\_height,\ y\_offset);}
+\DoxyCodeLine{00641\ \}}
+\DoxyCodeLine{00642\ }
+\DoxyCodeLine{00643\ \textcolor{comment}{//\ Paints\ section\ background,\ including\ text\ editors\ and\ labels.}}
+\DoxyCodeLine{00644\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_aa5b9b4c8e715630114f28fb2d27b977a}{OscillatorSection::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00645\ \ \ \textcolor{keywordflow}{if}\ (getWidth()\ ==\ 0)}
+\DoxyCodeLine{00646\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00647\ }
+\DoxyCodeLine{00648\ \ \ \textcolor{keywordflow}{if}\ (ttwt\_)\ \{}
+\DoxyCodeLine{00649\ \ \ \ \ ttwt\_-\/>setColour(CaretComponent::caretColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caf4bb4fdf63337ceb6bb167959fb9f919}{Skin::kTextEditorCaret}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00650\ \ \ \ \ ttwt\_-\/>setColour(TextEditor::textColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00651\ \ \ \ \ ttwt\_-\/>setColour(TextEditor::highlightedTextColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00652\ \ \ \ \ ttwt\_-\/>setColour(TextEditor::highlightColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cac5ef4508573fe6dae078edd51c88b04e}{Skin::kTextEditorSelection}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00653\ \ \ \ \ Colour\ empty\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00654\ \ \ \ \ empty\_color\ =\ empty\_color.withAlpha(0.5f\ *\ empty\_color.getFloatAlpha());}
+\DoxyCodeLine{00655\ \ \ \ \ ttwt\_-\/>setTextToShowWhenEmpty(TRANS(\textcolor{stringliteral}{"{}Text\ to\ wavetable"{}}),\ empty\_color);}
+\DoxyCodeLine{00656\ \ \ \}}
+\DoxyCodeLine{00657\ }
+\DoxyCodeLine{00658\ \ \ \mbox{\hyperlink{class_synth_section_af6ee63d32a9a5e24e81c674b9cab9468}{paintContainer}}(g);}
+\DoxyCodeLine{00659\ \ \ \mbox{\hyperlink{class_synth_section_a916fc16d56d6663d843be97081c7cb82}{paintHeadingText}}(g);}
+\DoxyCodeLine{00660\ }
+\DoxyCodeLine{00661\ \ \ \mbox{\hyperlink{class_synth_section_a623774aef917521bc02344077422832e}{paintChildrenBackgrounds}}(g);}
+\DoxyCodeLine{00662\ \ \ \mbox{\hyperlink{class_synth_section_aa0e18b52d386e2575c51e6e4f540b392}{paintBorder}}(g);}
+\DoxyCodeLine{00663\ }
+\DoxyCodeLine{00664\ \ \ \textcolor{keywordtype}{int}\ title\_width\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a48ffbf2ee5bfc006f1d740136faaa854}{Skin::kTitleWidth}});}
+\DoxyCodeLine{00665\ \ \ \mbox{\hyperlink{class_synth_section_a87c021454e2c5d2207afa28af959a1fe}{setLabelFont}}(g);}
+\DoxyCodeLine{00666\ \ \ \mbox{\hyperlink{class_synth_section_a10a7598963e0dd7c01f1187b3a685e80}{drawLabelConnectionForComponents}}(g,\ level\_.get(),\ pan\_.get());}
+\DoxyCodeLine{00667\ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}PAN"{}}),\ pan\_.get());}
+\DoxyCodeLine{00668\ \ \ \mbox{\hyperlink{class_synth_section_a7f14dd38873d3b3a43d490201ff44eaf}{drawLabelForComponent}}(g,\ TRANS(\textcolor{stringliteral}{"{}LEVEL"{}}),\ level\_.get());}
+\DoxyCodeLine{00669\ }
+\DoxyCodeLine{00670\ \ \ \textcolor{keywordtype}{int}\ widget\_margin\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a045e9e21484c2d32d7835f44c7c161f9}{Skin::kWidgetMargin}});}
+\DoxyCodeLine{00671\ \ \ \textcolor{keywordtype}{int}\ level\_pan\_x\ =\ title\_width;}
+\DoxyCodeLine{00672\ \ \ \textcolor{keywordtype}{int}\ level\_pan\_width\ =\ getWidth()\ *\ \mbox{\hyperlink{class_oscillator_section_a9afee68ef5e4e0df3f51b7dd1455fa3a}{kSectionWidthRatio}};}
+\DoxyCodeLine{00673\ \ \ \textcolor{keywordtype}{int}\ knob\_section\_height\ =\ \mbox{\hyperlink{class_synth_section_aab9bab4cc6657d3836887da39dc57e63}{getKnobSectionHeight}}();}
+\DoxyCodeLine{00674\ \ \ \textcolor{keywordtype}{int}\ top\_row\_width\ =\ level\_pan\_width\ -\/\ 2\ *\ widget\_margin;}
+\DoxyCodeLine{00675\ \ \ \textcolor{keywordtype}{int}\ section2\_x\ =\ getWidth()\ -\/\ 2\ *\ top\_row\_width\ -\/\ 2\ *\ widget\_margin;}
+\DoxyCodeLine{00676\ \ \ \textcolor{keywordtype}{int}\ top\_row\_y\ =\ widget\_margin;}
+\DoxyCodeLine{00677\ \ \ \textcolor{keywordtype}{int}\ top\_row\_height\ =\ level\_-\/>getY()\ -\/\ top\_row\_y;}
+\DoxyCodeLine{00678\ \ \ \textcolor{keywordtype}{int}\ phase\_x\ =\ section2\_x\ +\ top\_row\_width\ +\ widget\_margin;}
+\DoxyCodeLine{00679\ \ \ \textcolor{keywordtype}{int}\ unison\_x\ =\ section2\_x;}
+\DoxyCodeLine{00680\ }
+\DoxyCodeLine{00681\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cabd65945ec11172a49e96665d40361f05}{Skin::kTextComponentBackground}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00682\ \ \ \textcolor{keywordtype}{int}\ label\_rounding\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180aa1b3bea00a02a7c9ce9f4e8f4afc4a7e}{Skin::kLabelBackgroundRounding}});}
+\DoxyCodeLine{00683\ \ \ \textcolor{keywordtype}{int}\ morph\_y\ =\ getHeight()\ -\/\ knob\_section\_height\ +\ widget\_margin;}
+\DoxyCodeLine{00684\ \ \ Rectangle<int>\ spectral\_normal\_bounds(spectral\_morph\_amount\_-\/>getX(),\ morph\_y,}
+\DoxyCodeLine{00685\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ spectral\_morph\_amount\_-\/>getWidth(),\ knob\_section\_height\ -\/\ 2\ *\ widget\_margin);}
+\DoxyCodeLine{00686\ \ \ g.fillRoundedRectangle(\mbox{\hyperlink{class_synth_section_a988ae340fb5be83419a90fb6ab3e2c07}{getLabelBackgroundBounds}}(spectral\_normal\_bounds,\ \textcolor{keyword}{false}).toFloat(),\ label\_rounding);}
+\DoxyCodeLine{00687\ \ \ Rectangle<int>\ distortion\_normal\_bounds(distortion\_amount\_-\/>getX(),\ morph\_y,}
+\DoxyCodeLine{00688\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ distortion\_amount\_-\/>getWidth(),\ knob\_section\_height\ -\/\ 2\ *\ widget\_margin);}
+\DoxyCodeLine{00689\ \ \ g.fillRoundedRectangle(\mbox{\hyperlink{class_synth_section_a988ae340fb5be83419a90fb6ab3e2c07}{getLabelBackgroundBounds}}(distortion\_normal\_bounds,\ \textcolor{keyword}{false}).toFloat(),\ label\_rounding);}
+\DoxyCodeLine{00690\ \ \ g.fillRoundedRectangle(destination\_selector\_-\/>getBounds().toFloat(),\ label\_rounding);}
+\DoxyCodeLine{00691\ }
+\DoxyCodeLine{00692\ \ \ \mbox{\hyperlink{class_synth_section_a6f8f31ab8b431df4757cbd3026d236d7}{paintKnobShadows}}(g);}
+\DoxyCodeLine{00693\ }
+\DoxyCodeLine{00694\ \ \ \mbox{\hyperlink{class_synth_section_a1aecc1c0e97e551ce612f987ff444861}{paintJointControl}}(g,\ level\_pan\_x\ +\ widget\_margin,\ top\_row\_y,\ top\_row\_width,\ top\_row\_height,\ \textcolor{stringliteral}{"{}PITCH"{}});}
+\DoxyCodeLine{00695\ \ \ \mbox{\hyperlink{class_synth_section_a1aecc1c0e97e551ce612f987ff444861}{paintJointControl}}(g,\ unison\_x,\ top\_row\_y,\ top\_row\_width,\ top\_row\_height,\ \textcolor{stringliteral}{"{}UNISON"{}});}
+\DoxyCodeLine{00696\ \ \ \mbox{\hyperlink{class_synth_section_a1aecc1c0e97e551ce612f987ff444861}{paintJointControl}}(g,\ phase\_x,\ top\_row\_y,\ top\_row\_width,\ top\_row\_height,\ \textcolor{stringliteral}{"{}PHASE"{}});}
+\DoxyCodeLine{00697\ \ \ wavetable\_-\/>setDirty();}
+\DoxyCodeLine{00698\ \}}
+\DoxyCodeLine{00699\ }
+\DoxyCodeLine{00700\ \textcolor{comment}{//\ Handles\ layout\ and\ positions\ all\ child\ components.}}
+\DoxyCodeLine{00701\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_aa531d3576f36f5375ed921f0e12fb614}{OscillatorSection::resized}}()\ \{}
+\DoxyCodeLine{00702\ \ \ \textcolor{keywordflow}{if}\ (getWidth()\ <=\ 0\ ||\ getHeight()\ <=\ 0)}
+\DoxyCodeLine{00703\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00704\ }
+\DoxyCodeLine{00705\ \ \ \mbox{\hyperlink{class_synth_section_a549f91a2b81b419368a578990cb2e6c2}{SynthSection::resized}}();}
+\DoxyCodeLine{00706\ }
+\DoxyCodeLine{00707\ \ \ preset\_selector\_-\/>setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca0dad7b1ec93aeffd7b9098f05a065b99}{Skin::kIconButtonOff}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca95a4c01d5cce129cdc237f8ed714c57e}{Skin::kUiButton}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00708\ \ \ preset\_selector\_-\/>setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca58c296ac4e742eb41f3f13d439f2c816}{Skin::kIconButtonOffHover}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca36aa23e9899c2d26ad61d4c9f503e89f}{Skin::kUiButtonHover}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00709\ \ \ preset\_selector\_-\/>setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca97e032e6be4f09423edb65e8de9402ff}{Skin::kIconButtonOffPressed}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca06291d550534b1fd08f71070d64ec57b}{Skin::kUiButtonPressed}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00710\ \ \ dimension\_button\_-\/>setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca0dad7b1ec93aeffd7b9098f05a065b99}{Skin::kIconButtonOff}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca95a4c01d5cce129cdc237f8ed714c57e}{Skin::kUiButton}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00711\ \ \ dimension\_button\_-\/>setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca58c296ac4e742eb41f3f13d439f2c816}{Skin::kIconButtonOffHover}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca36aa23e9899c2d26ad61d4c9f503e89f}{Skin::kUiButtonHover}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00712\ \ \ dimension\_button\_-\/>setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca97e032e6be4f09423edb65e8de9402ff}{Skin::kIconButtonOffPressed}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca06291d550534b1fd08f71070d64ec57b}{Skin::kUiButtonPressed}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00713\ \ \ edit\_button\_-\/>setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca0dad7b1ec93aeffd7b9098f05a065b99}{Skin::kIconButtonOff}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca95a4c01d5cce129cdc237f8ed714c57e}{Skin::kUiButton}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00714\ \ \ edit\_button\_-\/>setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca58c296ac4e742eb41f3f13d439f2c816}{Skin::kIconButtonOffHover}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca36aa23e9899c2d26ad61d4c9f503e89f}{Skin::kUiButtonHover}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00715\ \ \ edit\_button\_-\/>setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca97e032e6be4f09423edb65e8de9402ff}{Skin::kIconButtonOffPressed}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca06291d550534b1fd08f71070d64ec57b}{Skin::kUiButtonPressed}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00716\ }
+\DoxyCodeLine{00717\ \ \ \textcolor{keywordtype}{int}\ label\_height\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a18bb5678eb9499d5ea3e540f6906286c}{Skin::kLabelBackgroundHeight}});}
+\DoxyCodeLine{00718\ \ \ \textcolor{keywordtype}{float}\ label\_text\_height\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3660ff3084b0d870a0b2f040e18e7857}{Skin::kLabelHeight}});}
+\DoxyCodeLine{00719\ \ \ Colour\ body\_text\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00720\ \ \ destination\_text\_-\/>setColor(body\_text);}
+\DoxyCodeLine{00721\ \ \ spectral\_morph\_type\_text\_-\/>setColor(body\_text);}
+\DoxyCodeLine{00722\ \ \ distortion\_type\_text\_-\/>setColor(body\_text);}
+\DoxyCodeLine{00723\ }
+\DoxyCodeLine{00724\ \ \ \textcolor{keywordtype}{int}\ title\_width\ =\ \mbox{\hyperlink{class_synth_section_ae0397399d283628b325650e0b7b60c6f}{getTitleWidth}}();}
+\DoxyCodeLine{00725\ \ \ \textcolor{keywordtype}{int}\ widget\_margin\ =\ \mbox{\hyperlink{class_synth_section_afe5de4142a66eb31ff00c178fc4188e0}{getWidgetMargin}}();}
+\DoxyCodeLine{00726\ \ \ \textcolor{keywordtype}{int}\ text\_height\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a90d266451912f79b91e6388b3d10c719}{Skin::kTextButtonHeight}});}
+\DoxyCodeLine{00727\ \ \ \textcolor{keywordtype}{int}\ slider\_width\ =\ \mbox{\hyperlink{class_synth_section_a15b7ed5236e42e49642769d9908a07a7}{getSliderWidth}}();}
+\DoxyCodeLine{00728\ }
+\DoxyCodeLine{00729\ \ \ \textcolor{keywordtype}{int}\ knob\_section\_height\ =\ \mbox{\hyperlink{class_synth_section_aab9bab4cc6657d3836887da39dc57e63}{getKnobSectionHeight}}();}
+\DoxyCodeLine{00730\ \ \ \textcolor{keywordtype}{int}\ slider\_overlap\ =\ \mbox{\hyperlink{class_synth_section_a8eb5b09f1a4a768469f128eac1aa85d8}{getSliderOverlap}}();}
+\DoxyCodeLine{00731\ \ \ \textcolor{keywordtype}{int}\ overlap\_with\_space\ =\ \mbox{\hyperlink{class_synth_section_ada8b333ac74fabf1f546b7bf7ca5acc7}{getSliderOverlapWithSpace}}();}
+\DoxyCodeLine{00732\ \ \ \textcolor{keywordtype}{int}\ wave\_section\_height\ =\ getHeight()\ -\/\ 2\ *\ widget\_margin;}
+\DoxyCodeLine{00733\ \ \ \textcolor{keywordflow}{if}\ (distortion\_phase\_-\/>isVisible())}
+\DoxyCodeLine{00734\ \ \ \ \ wave\_section\_height\ -\/=\ slider\_width\ -\/\ slider\_overlap\ -\/\ overlap\_with\_space;}
+\DoxyCodeLine{00735\ }
+\DoxyCodeLine{00736\ \ \ \textcolor{keywordtype}{int}\ level\_pan\_x\ =\ title\_width;}
+\DoxyCodeLine{00737\ \ \ \textcolor{keywordtype}{int}\ level\_pan\_width\ =\ getWidth()\ *\ \mbox{\hyperlink{class_oscillator_section_a9afee68ef5e4e0df3f51b7dd1455fa3a}{kSectionWidthRatio}};}
+\DoxyCodeLine{00738\ \ \ \textcolor{keywordtype}{int}\ top\_row\_width\ =\ level\_pan\_width\ -\/\ 2\ *\ widget\_margin;}
+\DoxyCodeLine{00739\ \ \ \textcolor{keywordtype}{int}\ knob\_y\ =\ getHeight()\ -\/\ label\_height\ -\/\ widget\_margin\ -\/\ knob\_section\_height;}
+\DoxyCodeLine{00740\ \ \ \textcolor{keywordtype}{int}\ big\_knob\_height\ =\ getHeight()\ -\/\ knob\_y;}
+\DoxyCodeLine{00741\ \ \ \mbox{\hyperlink{class_synth_section_a16e740094fb526018b139749cb6543c0}{placeKnobsInArea}}(Rectangle<int>(level\_pan\_x,\ knob\_y,\ level\_pan\_width,\ knob\_section\_height),}
+\DoxyCodeLine{00742\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{\ level\_.get(),\ pan\_.get()\ \});}
+\DoxyCodeLine{00743\ }
+\DoxyCodeLine{00744\ \ \ \textcolor{keywordtype}{int}\ section2\_x\ =\ getWidth()\ -\/\ 2\ *\ top\_row\_width\ -\/\ 2\ *\ widget\_margin;}
+\DoxyCodeLine{00745\ \ \ \textcolor{keywordtype}{int}\ wave\_frame\_x\ =\ section2\_x\ -\/\ slider\_width\ +\ overlap\_with\_space;}
+\DoxyCodeLine{00746\ \ \ \textcolor{keywordtype}{int}\ wavetable\_x\ =\ level\_pan\_width\ +\ level\_pan\_x;}
+\DoxyCodeLine{00747\ \ \ \textcolor{keywordtype}{int}\ wavetable\_width\ =\ wave\_frame\_x\ -\/\ wavetable\_x\ +\ overlap\_with\_space;}
+\DoxyCodeLine{00748\ }
+\DoxyCodeLine{00749\ \ \ wavetable\_-\/>setBounds(wavetable\_x,\ widget\_margin,\ wavetable\_width,\ wave\_section\_height);}
+\DoxyCodeLine{00750\ \ \ preset\_selector\_-\/>setBounds(wavetable\_x,\ widget\_margin,\ wavetable\_width,\ title\_width\ -\/\ 2\ *\ widget\_margin);}
+\DoxyCodeLine{00751\ \ \ dimension\_button\_-\/>setBounds(wavetable\_x,\ widget\_margin\ +\ wave\_section\_height\ -\/\ text\_height,}
+\DoxyCodeLine{00752\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ text\_height,\ text\_height);}
+\DoxyCodeLine{00753\ }
+\DoxyCodeLine{00754\ \ \ \textcolor{keywordtype}{int}\ wave\_frame\_height\ =\ wave\_section\_height\ +\ 2\ *\ widget\_margin;}
+\DoxyCodeLine{00755\ \ \ wave\_frame\_-\/>setBounds(wave\_frame\_x,\ 0,\ slider\_width,\ wave\_frame\_height);}
+\DoxyCodeLine{00756\ \ \ \textcolor{keywordtype}{int}\ edit\_x\ =\ wavetable\_-\/>getRight()\ -\/\ text\_height;}
+\DoxyCodeLine{00757\ \ \ edit\_button\_-\/>setBounds(edit\_x,\ widget\_margin\ +\ wave\_section\_height\ -\/\ text\_height,\ text\_height,\ text\_height);}
+\DoxyCodeLine{00758\ }
+\DoxyCodeLine{00759\ \ \ \textcolor{keywordtype}{int}\ top\_row\_y\ =\ widget\_margin;}
+\DoxyCodeLine{00760\ \ \ \textcolor{keywordtype}{int}\ text\_section\_height\ =\ knob\_y\ -\/\ widget\_margin;}
+\DoxyCodeLine{00761\ \ \ \mbox{\hyperlink{class_synth_section_af6761dd64c86188bf785f3c8537f60a5}{placeJointControls}}(title\_width\ +\ widget\_margin,\ top\_row\_y,\ level\_pan\_width\ -\/\ 2\ *\ widget\_margin,\ text\_section\_height,}
+\DoxyCodeLine{00762\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ transpose\_.get(),\ tune\_.get(),\ transpose\_quantize\_button\_.get());}
+\DoxyCodeLine{00763\ }
+\DoxyCodeLine{00764\ \ \ \textcolor{keywordtype}{int}\ section2\_width\ =\ getWidth()\ -\/\ section2\_x;}
+\DoxyCodeLine{00765\ \ \ \textcolor{keywordtype}{int}\ unison\_x\ =\ section2\_x;}
+\DoxyCodeLine{00766\ \ \ \mbox{\hyperlink{class_synth_section_af6761dd64c86188bf785f3c8537f60a5}{placeJointControls}}(unison\_x,\ top\_row\_y,\ top\_row\_width,\ text\_section\_height,}
+\DoxyCodeLine{00767\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ unison\_voices\_.get(),\ unison\_detune\_.get(),\ unison\_detune\_power\_.get());}
+\DoxyCodeLine{00768\ \ \ unison\_viewer\_-\/>setBounds(unison\_detune\_power\_-\/>getBounds());}
+\DoxyCodeLine{00769\ }
+\DoxyCodeLine{00770\ \ \ \textcolor{keywordtype}{int}\ phase\_x\ =\ unison\_x\ +\ top\_row\_width\ +\ widget\_margin;}
+\DoxyCodeLine{00771\ \ \ \mbox{\hyperlink{class_synth_section_af6761dd64c86188bf785f3c8537f60a5}{placeJointControls}}(phase\_x,\ top\_row\_y,\ top\_row\_width,\ text\_section\_height,}
+\DoxyCodeLine{00772\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ phase\_.get(),\ random\_phase\_.get(),\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00773\ }
+\DoxyCodeLine{00774\ \ \ \mbox{\hyperlink{class_synth_section_a16e740094fb526018b139749cb6543c0}{placeKnobsInArea}}(Rectangle<int>(section2\_x\ -\/\ widget\_margin,\ knob\_y,\ section2\_width\ +\ widget\_margin,\ big\_knob\_height),}
+\DoxyCodeLine{00775\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{\ spectral\_morph\_amount\_.get(),\ distortion\_amount\_.get()\ \});}
+\DoxyCodeLine{00776\ }
+\DoxyCodeLine{00777\ \ \ \textcolor{keywordtype}{int}\ morph\_y\ =\ getHeight()\ -\/\ knob\_section\_height\ +\ widget\_margin;}
+\DoxyCodeLine{00778\ \ \ Rectangle<int>\ spectral\_normal\_bounds(spectral\_morph\_amount\_-\/>getX(),\ morph\_y,}
+\DoxyCodeLine{00779\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ spectral\_morph\_amount\_-\/>getWidth(),\ knob\_section\_height\ -\/\ 2\ *\ widget\_margin);}
+\DoxyCodeLine{00780\ \ \ Rectangle<int>\ spectral\_label\_bounds\ =\ \mbox{\hyperlink{class_synth_section_a988ae340fb5be83419a90fb6ab3e2c07}{getLabelBackgroundBounds}}(spectral\_normal\_bounds);}
+\DoxyCodeLine{00781\ \ \ \textcolor{keywordtype}{int}\ browse\_width\ =\ spectral\_label\_bounds.getHeight();}
+\DoxyCodeLine{00782\ \ \ \textcolor{keywordtype}{int}\ browse\_y\ =\ spectral\_label\_bounds.getY();}
+\DoxyCodeLine{00783\ \ \ prev\_spectral\_-\/>setBounds(spectral\_morph\_amount\_-\/>getX(),\ browse\_y,\ browse\_width,\ browse\_width);}
+\DoxyCodeLine{00784\ \ \ next\_spectral\_-\/>setBounds(spectral\_morph\_amount\_-\/>getRight()\ -\/\ browse\_width,\ browse\_y,}
+\DoxyCodeLine{00785\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ browse\_width,\ browse\_width);}
+\DoxyCodeLine{00786\ }
+\DoxyCodeLine{00787\ \ \ prev\_distortion\_-\/>setBounds(distortion\_amount\_-\/>getX(),\ browse\_y,\ browse\_width,\ browse\_width);}
+\DoxyCodeLine{00788\ \ \ next\_distortion\_-\/>setBounds(distortion\_amount\_-\/>getRight()\ -\/\ browse\_width,\ browse\_y,}
+\DoxyCodeLine{00789\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ browse\_width,\ browse\_width);}
+\DoxyCodeLine{00790\ }
+\DoxyCodeLine{00791\ \ \ spectral\_morph\_type\_text\_-\/>setBounds(spectral\_label\_bounds);}
+\DoxyCodeLine{00792\ \ \ spectral\_morph\_type\_text\_-\/>setTextSize(label\_text\_height);}
+\DoxyCodeLine{00793\ \ \ \textcolor{keywordtype}{int}\ spectral\_menu\_x\ =\ prev\_spectral\_-\/>getRight();}
+\DoxyCodeLine{00794\ \ \ spectral\_morph\_type\_selector\_-\/>setBounds(spectral\_menu\_x,\ prev\_spectral\_-\/>getY(),}
+\DoxyCodeLine{00795\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ next\_spectral\_-\/>getX()\ -\/\ spectral\_menu\_x,\ prev\_spectral\_-\/>getHeight());}
+\DoxyCodeLine{00796\ }
+\DoxyCodeLine{00797\ \ \ Rectangle<int>\ distortion\_normal\_bounds(distortion\_amount\_-\/>getX(),\ morph\_y,}
+\DoxyCodeLine{00798\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ distortion\_amount\_-\/>getWidth(),\ knob\_section\_height\ -\/\ 2\ *\ widget\_margin);}
+\DoxyCodeLine{00799\ \ \ distortion\_type\_text\_-\/>setBounds(\mbox{\hyperlink{class_synth_section_a988ae340fb5be83419a90fb6ab3e2c07}{getLabelBackgroundBounds}}(distortion\_normal\_bounds));}
+\DoxyCodeLine{00800\ \ \ distortion\_type\_text\_-\/>setTextSize(label\_text\_height);}
+\DoxyCodeLine{00801\ \ \ \textcolor{keywordtype}{int}\ distortion\_menu\_x\ =\ prev\_distortion\_-\/>getRight();}
+\DoxyCodeLine{00802\ \ \ distortion\_type\_selector\_-\/>setBounds(distortion\_menu\_x,\ prev\_distortion\_-\/>getY(),}
+\DoxyCodeLine{00803\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ next\_distortion\_-\/>getX()\ -\/\ distortion\_menu\_x,\ prev\_distortion\_-\/>getHeight());}
+\DoxyCodeLine{00804\ }
+\DoxyCodeLine{00805\ \ \ distortion\_phase\_-\/>setBounds(wavetable\_-\/>getX()\ -\/\ widget\_margin,}
+\DoxyCodeLine{00806\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ wavetable\_-\/>getBottom()\ -\/\ slider\_overlap\ +\ widget\_margin,}
+\DoxyCodeLine{00807\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ wavetable\_-\/>getWidth()\ +\ 2\ *\ widget\_margin,\ slider\_width);}
+\DoxyCodeLine{00808\ }
+\DoxyCodeLine{00809\ \ \ \textcolor{keywordtype}{int}\ destination\_x\ =\ level\_pan\_x\ +\ widget\_margin;}
+\DoxyCodeLine{00810\ \ \ \textcolor{keywordtype}{int}\ destination\_y\ =\ getHeight()\ -\/\ label\_height\ -\/\ widget\_margin;}
+\DoxyCodeLine{00811\ \ \ destination\_selector\_-\/>setBounds(destination\_x,\ destination\_y,\ top\_row\_width,\ label\_height);}
+\DoxyCodeLine{00812\ \ \ destination\_text\_-\/>setBounds(destination\_selector\_-\/>getBounds());}
+\DoxyCodeLine{00813\ \ \ destination\_text\_-\/>setTextSize(label\_text\_height);}
+\DoxyCodeLine{00814\ }
+\DoxyCodeLine{00815\ \ \ prev\_destination\_-\/>setBounds(destination\_x,\ destination\_y,\ browse\_width,\ browse\_width);}
+\DoxyCodeLine{00816\ \ \ next\_destination\_-\/>setBounds(destination\_x\ +\ top\_row\_width\ -\/\ browse\_width,\ destination\_y,}
+\DoxyCodeLine{00817\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ browse\_width,\ browse\_width);}
+\DoxyCodeLine{00818\ }
+\DoxyCodeLine{00819\ \ \ ttwt\_overlay\_.\mbox{\hyperlink{class_open_gl_multi_quad_aba2d4bbfa5b4c1e4b510bc5746a221b6}{setRounding}}(\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab3cb761113ca34ffe06c8ed64a7df2f1}{Skin::kWidgetRoundedCorner}}));}
+\DoxyCodeLine{00820\ \ \ ttwt\_overlay\_.setBounds(wavetable\_-\/>getBounds());}
+\DoxyCodeLine{00821\ \ \ ttwt\_overlay\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca96acc35a77e43810baea7c1bbe94a226}{Skin::kOverlayScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00822\ }
+\DoxyCodeLine{00823\ \ \ \textcolor{keywordflow}{if}\ (ttwt\_)\ \{}
+\DoxyCodeLine{00824\ \ \ \ \ \textcolor{keywordtype}{float}\ ttwt\_height\ =\ title\_width;}
+\DoxyCodeLine{00825\ \ \ \ \ \textcolor{keywordtype}{int}\ settings\_width\ =\ ttwt\_height\ *\ 2.0f;}
+\DoxyCodeLine{00826\ \ \ \ \ \textcolor{keywordtype}{int}\ ttwt\_y\ =\ (wavetable\_-\/>getHeight()\ -\/\ ttwt\_height)\ /\ 2;}
+\DoxyCodeLine{00827\ \ \ \ \ \textcolor{keywordtype}{int}\ ttwt\_x\ =\ wavetable\_-\/>getX()\ +\ widget\_margin;}
+\DoxyCodeLine{00828\ \ \ \ \ \textcolor{keywordtype}{int}\ ttwt\_width\ =\ wavetable\_-\/>getWidth()\ -\/\ 2\ *\ widget\_margin;}
+\DoxyCodeLine{00829\ \ \ \ \ ttwt\_-\/>setBounds(ttwt\_x,\ ttwt\_y,\ ttwt\_width,\ ttwt\_height);}
+\DoxyCodeLine{00830\ \ \ \ \ ttwt\_-\/>setFont(\mbox{\hyperlink{class_fonts_ae7669a3eeb9db437c7d34feff9e99707}{Fonts::instance}}()-\/>proportional\_light().withPointHeight(ttwt\_height\ *\ 0.6f));}
+\DoxyCodeLine{00831\ \ \ \ \ ttwt\_settings\_-\/>setBounds(ttwt\_-\/>getRight()\ -\/\ settings\_width,\ ttwt\_-\/>getBottom(),\ settings\_width,\ ttwt\_height\ /\ 2);}
+\DoxyCodeLine{00832\ }
+\DoxyCodeLine{00833\ \ \ \ \ ttwt\_error\_text\_-\/>setTextSize(label\_text\_height);}
+\DoxyCodeLine{00834\ \ \ \ \ ttwt\_error\_text\_-\/>setBounds(ttwt\_-\/>getBounds());}
+\DoxyCodeLine{00835\ \ \ \ \ ttwt\_error\_text\_-\/>setColor(body\_text);}
+\DoxyCodeLine{00836\ \ \ \}}
+\DoxyCodeLine{00837\ \}}
+\DoxyCodeLine{00838\ }
+\DoxyCodeLine{00839\ \textcolor{comment}{//\ Handles\ user\ interaction\ with\ buttons\ such\ as\ type\ selectors,\ navigation,\ etc.}}
+\DoxyCodeLine{00840\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a7aeb7dab53b890fb5fdcbb5384bc35e9}{OscillatorSection::buttonClicked}}(Button*\ clicked\_button)\ \{}
+\DoxyCodeLine{00841\ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ edit\_button\_.get())\ \{}
+\DoxyCodeLine{00842\ \ \ \ \ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ parent\ =\ findParentComponentOfClass<FullInterface>();}
+\DoxyCodeLine{00843\ \ \ \ \ \textcolor{keywordflow}{if}\ (parent)}
+\DoxyCodeLine{00844\ \ \ \ \ \ \ parent-\/>\mbox{\hyperlink{class_full_interface_a85e2eed0e67fea7c4b71e02070b6951c}{showWavetableEditSection}}(index\_);}
+\DoxyCodeLine{00845\ \ \ \}}
+\DoxyCodeLine{00846\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ spectral\_morph\_type\_selector\_.get())\ \{}
+\DoxyCodeLine{00847\ \ \ \ \ \mbox{\hyperlink{struct_popup_items}{PopupItems}}\ options;}
+\DoxyCodeLine{00848\ }
+\DoxyCodeLine{00849\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98adaea8d8c6bf89d98be67a61cbc3ff8e9a6}{vital::SynthOscillator::kNumSpectralMorphTypes}};\ ++i)\ \{}
+\DoxyCodeLine{00850\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (isSpectralMenuSeparator(i))}
+\DoxyCodeLine{00851\ \ \ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(-\/1,\ \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00852\ }
+\DoxyCodeLine{00853\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(i,\ \mbox{\hyperlink{namespacestrings_afe74ac7fa8d6e282bdca3adbe13d0142}{strings::kSpectralMorphNames}}[i]);}
+\DoxyCodeLine{00854\ \ \ \ \ \}}
+\DoxyCodeLine{00855\ }
+\DoxyCodeLine{00856\ \ \ \ \ Point<int>\ position(spectral\_morph\_type\_selector\_-\/>getX(),\ spectral\_morph\_type\_selector\_-\/>getBottom());}
+\DoxyCodeLine{00857\ \ \ \ \ \mbox{\hyperlink{class_synth_section_a9424df12646a0b756b1b58904b9be6ff}{showPopupSelector}}(\textcolor{keyword}{this},\ position,\ options,\ [=](\textcolor{keywordtype}{int}\ selection)\ \{\ \mbox{\hyperlink{class_oscillator_section_a75e50bff5d879e053140e027066bc9ac}{setSpectralMorphSelected}}(selection);\ \});}
+\DoxyCodeLine{00858\ \ \ \}}
+\DoxyCodeLine{00859\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ distortion\_type\_selector\_.get())\ \{}
+\DoxyCodeLine{00860\ \ \ \ \ \mbox{\hyperlink{struct_popup_items}{PopupItems}}\ options;}
+\DoxyCodeLine{00861\ }
+\DoxyCodeLine{00862\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1aeb34586bf1e3a42a9b18a08b95279915}{vital::SynthOscillator::kNumDistortionTypes}};\ ++i)\ \{}
+\DoxyCodeLine{00863\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (isDistortionMenuSeparator(i))}
+\DoxyCodeLine{00864\ \ \ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(-\/1,\ \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00865\ }
+\DoxyCodeLine{00866\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(i,\ getDistortionMenuString(i,\ index\_).toStdString());}
+\DoxyCodeLine{00867\ \ \ \ \ \}}
+\DoxyCodeLine{00868\ }
+\DoxyCodeLine{00869\ \ \ \ \ Point<int>\ position(distortion\_type\_selector\_-\/>getX(),\ distortion\_type\_selector\_-\/>getBottom());}
+\DoxyCodeLine{00870\ \ \ \ \ \mbox{\hyperlink{class_synth_section_a9424df12646a0b756b1b58904b9be6ff}{showPopupSelector}}(\textcolor{keyword}{this},\ position,\ options,\ [=](\textcolor{keywordtype}{int}\ selection)\ \{\ \mbox{\hyperlink{class_oscillator_section_a8b528902ea89c6b23d057ec8b84474de}{setDistortionSelected}}(selection);\ \});}
+\DoxyCodeLine{00871\ \ \ \}}
+\DoxyCodeLine{00872\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ destination\_selector\_.get())\ \{}
+\DoxyCodeLine{00873\ \ \ \ \ \mbox{\hyperlink{struct_popup_items}{PopupItems}}\ options;}
+\DoxyCodeLine{00874\ }
+\DoxyCodeLine{00875\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_source\_destinations\ =\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a1b74e02d1b88cc5edd7743ebe6be1fc5}{vital::constants::kNumSourceDestinations}};}
+\DoxyCodeLine{00876\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_source\_destinations;\ ++i)}
+\DoxyCodeLine{00877\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(i,\ \mbox{\hyperlink{namespacestrings_ae7c5aeafb4cd49cc200b4c722329b703}{strings::kDestinationMenuNames}}[i]);}
+\DoxyCodeLine{00878\ }
+\DoxyCodeLine{00879\ \ \ \ \ Point<int>\ position(destination\_selector\_-\/>getX(),\ destination\_selector\_-\/>getBottom());}
+\DoxyCodeLine{00880\ \ \ \ \ \mbox{\hyperlink{class_synth_section_a9424df12646a0b756b1b58904b9be6ff}{showPopupSelector}}(\textcolor{keyword}{this},\ position,\ options,\ [=](\textcolor{keywordtype}{int}\ selection)\ \{\ \mbox{\hyperlink{class_oscillator_section_a929bfa2cb96ad5f720a67c9e2e0a0afd}{setDestinationSelected}}(selection);\ \});}
+\DoxyCodeLine{00881\ \ \ \}}
+\DoxyCodeLine{00882\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ ttwt\_settings\_.get())}
+\DoxyCodeLine{00883\ \ \ \ \ showTtwtSettings();}
+\DoxyCodeLine{00884\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ dimension\_button\_.get())\ \{}
+\DoxyCodeLine{00885\ \ \ \ \ \textcolor{keywordtype}{int}\ render\_type\ =\ (wavetable\_-\/>getRenderType()\ +\ \mbox{\hyperlink{class_wavetable3d_aa49092fbc2a53928c6aa8d1d086e6c7ea3880e2ce5c64b71862fd312803bf93f3}{Wavetable3d::kNumRenderTypes}}\ -\/\ 1)\ \%\ \mbox{\hyperlink{class_wavetable3d_aa49092fbc2a53928c6aa8d1d086e6c7ea3880e2ce5c64b71862fd312803bf93f3}{Wavetable3d::kNumRenderTypes}};}
+\DoxyCodeLine{00886\ \ \ \ \ dimension\_button\_-\/>setText(\mbox{\hyperlink{namespacestrings_a8aa669f965c3c6beea31ec3c06d72aca}{strings::kWavetableDimensionNames}}[render\_type]);}
+\DoxyCodeLine{00887\ \ \ \ \ dimension\_value\_-\/>setValue(render\_type,\ sendNotificationSync);}
+\DoxyCodeLine{00888\ \ \ \ \ wavetable\_-\/>setRenderType(\textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_wavetable3d_aa49092fbc2a53928c6aa8d1d086e6c7e}{Wavetable3d::RenderType}}\textcolor{keyword}{>}(render\_type));}
+\DoxyCodeLine{00889\ \ \ \}}
+\DoxyCodeLine{00890\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ prev\_destination\_.get())\ \{}
+\DoxyCodeLine{00891\ \ \ \ \ \textcolor{keywordtype}{int}\ new\_destination\ =\ current\_destination\_\ -\/\ 1\ +\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a1b74e02d1b88cc5edd7743ebe6be1fc5}{vital::constants::kNumSourceDestinations}};}
+\DoxyCodeLine{00892\ \ \ \ \ \mbox{\hyperlink{class_oscillator_section_a929bfa2cb96ad5f720a67c9e2e0a0afd}{setDestinationSelected}}(new\_destination\ \%\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a1b74e02d1b88cc5edd7743ebe6be1fc5}{vital::constants::kNumSourceDestinations}});}
+\DoxyCodeLine{00893\ \ \ \}}
+\DoxyCodeLine{00894\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ next\_destination\_.get())\ \{}
+\DoxyCodeLine{00895\ \ \ \ \ \textcolor{keywordtype}{int}\ new\_destination\ =\ (current\_destination\_\ +\ 1)\ \%\ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5a1b74e02d1b88cc5edd7743ebe6be1fc5}{vital::constants::kNumSourceDestinations}};}
+\DoxyCodeLine{00896\ \ \ \ \ \mbox{\hyperlink{class_oscillator_section_a929bfa2cb96ad5f720a67c9e2e0a0afd}{setDestinationSelected}}(new\_destination);}
+\DoxyCodeLine{00897\ \ \ \}}
+\DoxyCodeLine{00898\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ prev\_spectral\_.get())\ \{}
+\DoxyCodeLine{00899\ \ \ \ \ \textcolor{keywordtype}{int}\ new\_morph\_type\ =\ current\_spectral\_morph\_type\_\ -\/\ 1\ +\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98adaea8d8c6bf89d98be67a61cbc3ff8e9a6}{vital::SynthOscillator::kNumSpectralMorphTypes}};}
+\DoxyCodeLine{00900\ \ \ \ \ \mbox{\hyperlink{class_oscillator_section_a75e50bff5d879e053140e027066bc9ac}{setSpectralMorphSelected}}(new\_morph\_type\ \%\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98adaea8d8c6bf89d98be67a61cbc3ff8e9a6}{vital::SynthOscillator::kNumSpectralMorphTypes}});}
+\DoxyCodeLine{00901\ \ \ \}}
+\DoxyCodeLine{00902\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ next\_spectral\_.get())\ \{}
+\DoxyCodeLine{00903\ \ \ \ \ \textcolor{keywordtype}{int}\ new\_morph\_type\ =\ (current\_spectral\_morph\_type\_\ +\ 1)\ \%\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98adaea8d8c6bf89d98be67a61cbc3ff8e9a6}{vital::SynthOscillator::kNumSpectralMorphTypes}};}
+\DoxyCodeLine{00904\ \ \ \ \ \mbox{\hyperlink{class_oscillator_section_a75e50bff5d879e053140e027066bc9ac}{setSpectralMorphSelected}}(new\_morph\_type);}
+\DoxyCodeLine{00905\ \ \ \}}
+\DoxyCodeLine{00906\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ prev\_distortion\_.get())\ \{}
+\DoxyCodeLine{00907\ \ \ \ \ \textcolor{keywordtype}{int}\ new\_distortion\_type\ =\ current\_distortion\_type\_\ -\/\ 1\ +\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1aeb34586bf1e3a42a9b18a08b95279915}{vital::SynthOscillator::kNumDistortionTypes}};}
+\DoxyCodeLine{00908\ \ \ \ \ \mbox{\hyperlink{class_oscillator_section_a8b528902ea89c6b23d057ec8b84474de}{setDistortionSelected}}(new\_distortion\_type\ \%\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1aeb34586bf1e3a42a9b18a08b95279915}{vital::SynthOscillator::kNumDistortionTypes}});}
+\DoxyCodeLine{00909\ \ \ \}}
+\DoxyCodeLine{00910\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ next\_distortion\_.get())\ \{}
+\DoxyCodeLine{00911\ \ \ \ \ \textcolor{keywordtype}{int}\ new\_distortion\_type\ =\ (current\_distortion\_type\_\ +\ 1)\ \%\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1aeb34586bf1e3a42a9b18a08b95279915}{vital::SynthOscillator::kNumDistortionTypes}};}
+\DoxyCodeLine{00912\ \ \ \ \ \mbox{\hyperlink{class_oscillator_section_a8b528902ea89c6b23d057ec8b84474de}{setDistortionSelected}}(new\_distortion\_type);}
+\DoxyCodeLine{00913\ \ \ \}}
+\DoxyCodeLine{00914\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00915\ \ \ \ \ \mbox{\hyperlink{class_synth_section_a0854a98f7e73eeffccfbd1e210787bbf}{SynthSection::buttonClicked}}(clicked\_button);}
+\DoxyCodeLine{00916\ \}}
+\DoxyCodeLine{00917\ }
+\DoxyCodeLine{00918\ \textcolor{comment}{//\ Updates\ local\ state\ from\ given\ control\ values\ and\ configures\ UI\ elements.}}
+\DoxyCodeLine{00919\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_af5884cf3247d61bdab127c740772a837}{OscillatorSection::setAllValues}}(\mbox{\hyperlink{namespacevital_aa714e9b3957a28c9eaf0105959aea482}{vital::control\_map}}\&\ controls)\ \{}
+\DoxyCodeLine{00920\ \ \ \mbox{\hyperlink{class_synth_section_acb4d78d85add51ee11fe4ca8bdb2cdb5}{SynthSection::setAllValues}}(controls);}
+\DoxyCodeLine{00921\ \ \ current\_spectral\_morph\_type\_\ =\ controls[spectral\_morph\_control\_name\_]-\/>value();}
+\DoxyCodeLine{00922\ \ \ current\_distortion\_type\_\ =\ controls[distortion\_control\_name\_]-\/>value();}
+\DoxyCodeLine{00923\ \ \ current\_destination\_\ =\ controls[destination\_control\_name\_]-\/>value();}
+\DoxyCodeLine{00924\ \ \ transpose\_quantize\_button\_-\/>setValue(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(controls[quantize\_control\_name\_]-\/>value()));}
+\DoxyCodeLine{00925\ \ \ setupSpectralMorph();}
+\DoxyCodeLine{00926\ \ \ setupDistortion();}
+\DoxyCodeLine{00927\ \ \ setupDestination();}
+\DoxyCodeLine{00928\ \ \ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1}{vital::SynthOscillator::DistortionType}}\ type\ =\ (\mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1}{vital::SynthOscillator::DistortionType}})current\_distortion\_type\_;}
+\DoxyCodeLine{00929\ }
+\DoxyCodeLine{00930\ \ \ setDistortionPhaseVisible(\mbox{\hyperlink{classvital_1_1_synth_oscillator_a3a20d0fe23ec20367be1a425fefca2f2}{vital::SynthOscillator::usesDistortionPhase}}(type));}
+\DoxyCodeLine{00931\ }
+\DoxyCodeLine{00932\ \ \ wavetable\_-\/>setSpectralMorphType(current\_spectral\_morph\_type\_);}
+\DoxyCodeLine{00933\ \ \ wavetable\_-\/>setDistortionType(current\_distortion\_type\_);}
+\DoxyCodeLine{00934\ \ \ \textcolor{keywordtype}{int}\ render\_type\ =\ dimension\_value\_-\/>getValue();}
+\DoxyCodeLine{00935\ \ \ dimension\_button\_-\/>setText(\mbox{\hyperlink{namespacestrings_a8aa669f965c3c6beea31ec3c06d72aca}{strings::kWavetableDimensionNames}}[render\_type]);}
+\DoxyCodeLine{00936\ \ \ wavetable\_-\/>setRenderType(\textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_wavetable3d_aa49092fbc2a53928c6aa8d1d086e6c7e}{Wavetable3d::RenderType}}\textcolor{keyword}{>}(render\_type));}
+\DoxyCodeLine{00937\ \}}
+\DoxyCodeLine{00938\ }
+\DoxyCodeLine{00939\ \textcolor{comment}{//\ Handles\ "{}Enter"{}\ pressed\ in\ TTWT\ text\ editor,\ attempts\ to\ convert\ text\ to\ wavetable.}}
+\DoxyCodeLine{00940\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a04e8db1d46dee151eac426060abcf125}{OscillatorSection::textEditorReturnKeyPressed}}(TextEditor\&\ text\_editor)\ \{}
+\DoxyCodeLine{00941\ \ \ String\ text\ =\ text\_editor.getText();}
+\DoxyCodeLine{00942\ \ \ text\ =\ text.trim();}
+\DoxyCodeLine{00943\ \ \ show\_ttwt\_error\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00944\ \ \ \textcolor{keywordflow}{if}\ (!text.isEmpty())\ \{}
+\DoxyCodeLine{00945\ \ \ \ \ std::string\ error\ =\ \mbox{\hyperlink{class_oscillator_section_ac6b6dcb67500f2e6893297259b6d7384}{loadWavetableFromText}}(text);}
+\DoxyCodeLine{00946\ \ \ \ \ show\_ttwt\_error\_\ =\ !error.empty();}
+\DoxyCodeLine{00947\ \ \ \ \ \textcolor{keywordflow}{if}\ (show\_ttwt\_error\_)\ \{}
+\DoxyCodeLine{00948\ \ \ \ \ \ \ ttwt\_error\_text\_-\/>setText(error);}
+\DoxyCodeLine{00949\ \ \ \ \ \ \ ttwt\_error\_text\_-\/>redrawImage(\textcolor{keyword}{true});}
+\DoxyCodeLine{00950\ \ \ \ \ \ \ ttwt\_error\_text\_-\/>setVisible(\textcolor{keyword}{true});}
+\DoxyCodeLine{00951\ \ \ \ \ \ \ startTimer(kShowErrorMs);}
+\DoxyCodeLine{00952\ \ \ \ \ \}}
+\DoxyCodeLine{00953\ \ \ \}}
+\DoxyCodeLine{00954\ }
+\DoxyCodeLine{00955\ \ \ ttwt\_-\/>clear();}
+\DoxyCodeLine{00956\ \ \ ttwt\_overlay\_.setVisible(show\_ttwt\_error\_);}
+\DoxyCodeLine{00957\ \ \ ttwt\_-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00958\ \ \ ttwt\_settings\_-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00959\ \}}
+\DoxyCodeLine{00960\ }
+\DoxyCodeLine{00961\ \textcolor{comment}{//\ Handles\ focus\ loss\ in\ TTWT\ text\ editor.}}
+\DoxyCodeLine{00962\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a8a943e9963642c6fc46ee88e3dd7efe1}{OscillatorSection::textEditorFocusLost}}(TextEditor\&\ text\_editor)\ \{}
+\DoxyCodeLine{00963\ \ \ \textcolor{keywordflow}{if}\ (showing\_language\_menu\_)}
+\DoxyCodeLine{00964\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00965\ }
+\DoxyCodeLine{00966\ \ \ ttwt\_overlay\_.setVisible(show\_ttwt\_error\_);}
+\DoxyCodeLine{00967\ \ \ ttwt\_-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00968\ \ \ ttwt\_settings\_-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00969\ \}}
+\DoxyCodeLine{00970\ }
+\DoxyCodeLine{00971\ \textcolor{comment}{//\ Used\ to\ hide\ error\ messages\ after\ a\ delay.}}
+\DoxyCodeLine{00972\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a887fa0f8c048cf6db54b745bc1f0e786}{OscillatorSection::timerCallback}}()\ \{}
+\DoxyCodeLine{00973\ \ \ show\_ttwt\_error\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00974\ \ \ ttwt\_error\_text\_-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00975\ \ \ ttwt\_overlay\_.setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00976\ \ \ stopTimer();}
+\DoxyCodeLine{00977\ \}}
+\DoxyCodeLine{00978\ }
+\DoxyCodeLine{00979\ \textcolor{comment}{//\ Sets\ the\ active\ state\ for\ all\ relevant\ controls.}}
+\DoxyCodeLine{00980\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a77a08e612b1da66a799080a4b0264298}{OscillatorSection::setActive}}(\textcolor{keywordtype}{bool}\ active)\ \{}
+\DoxyCodeLine{00981\ \ \ wavetable\_-\/>setActive(active);}
+\DoxyCodeLine{00982\ \ \ \mbox{\hyperlink{class_synth_section_a731aed83dc75720d2f2e3951ed5310ba}{SynthSection::setActive}}(active);}
+\DoxyCodeLine{00983\ \ \ spectral\_morph\_amount\_-\/>setActive(active\ \&\&\ current\_spectral\_morph\_type\_\ !=\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98adad166d8f8d97a5835b3c73f9b1b823a04}{vital::SynthOscillator::kNoSpectralMorph}});}
+\DoxyCodeLine{00984\ \ \ distortion\_amount\_-\/>setActive(active\ \&\&\ current\_distortion\_type\_\ !=\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1a373672d2cb099a28ac11c64fd6c92acb}{vital::SynthOscillator::kNone}});}
+\DoxyCodeLine{00985\ \}}
+\DoxyCodeLine{00986\ }
+\DoxyCodeLine{00987\ \textcolor{comment}{//\ Sets\ the\ displayed\ name\ in\ the\ preset\ selector.}}
+\DoxyCodeLine{00988\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a4d9b544fe35fb3e5dc381bea8b1604d0}{OscillatorSection::setName}}(String\ name)\ \{}
+\DoxyCodeLine{00989\ \ \ preset\_selector\_-\/>setText(name);}
+\DoxyCodeLine{00990\ \}}
+\DoxyCodeLine{00991\ }
+\DoxyCodeLine{00992\ \textcolor{comment}{//\ Shows\ TTWT\ language\ settings.}}
+\DoxyCodeLine{00993\ \textcolor{keywordtype}{void}\ OscillatorSection::showTtwtSettings()\ \{}
+\DoxyCodeLine{00994\ \ \ showing\_language\_menu\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00995\ \ \ \mbox{\hyperlink{struct_popup_items}{PopupItems}}\ options;}
+\DoxyCodeLine{00996\ }
+\DoxyCodeLine{00997\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \textcolor{keyword}{sizeof}(kLanguageNames)\ /\ \textcolor{keyword}{sizeof}(std::string);\ ++i)}
+\DoxyCodeLine{00998\ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(i,\ kLanguageNames[i]);}
+\DoxyCodeLine{00999\ }
+\DoxyCodeLine{01000\ \ \ Point<int>\ position(ttwt\_settings\_-\/>getX(),\ ttwt\_settings\_-\/>getBottom());}
+\DoxyCodeLine{01001\ \ \ \mbox{\hyperlink{class_synth_section_a9424df12646a0b756b1b58904b9be6ff}{showPopupSelector}}(\textcolor{keyword}{this},\ position,\ options,\ [=](\textcolor{keywordtype}{int}\ selection)\ \{\ \mbox{\hyperlink{class_oscillator_section_a248a0a120b08c5489534ed8aeb0a90bd}{setLanguage}}(selection);\ \});}
+\DoxyCodeLine{01002\ \}}
+\DoxyCodeLine{01003\ }
+\DoxyCodeLine{01004\ \textcolor{comment}{//\ Loads\ a\ wavetable\ by\ sending\ text\ to\ a\ web\ service\ (TTWT).}}
+\DoxyCodeLine{01005\ std::string\ \mbox{\hyperlink{class_oscillator_section_ac6b6dcb67500f2e6893297259b6d7384}{OscillatorSection::loadWavetableFromText}}(\textcolor{keyword}{const}\ String\&\ text)\ \{}
+\DoxyCodeLine{01006\ \ \ String\ clamped\_text\ =\ text.substring(0,\ kMaxTTWTLength);}
+\DoxyCodeLine{01007\ \ \ String\ language\_query\ =\ String(kLanguageUrlQuery)\ +\ URL::addEscapeChars(kLanguageCodes[ttwt\_language\_],\ \textcolor{keyword}{true});}
+\DoxyCodeLine{01008\ \ \ std::string\ token\ =\ auth\_-\/>\mbox{\hyperlink{class_authentication_ae42c64f26261ec3fcf5684104df12b5c}{token}}();}
+\DoxyCodeLine{01009\ \ \ String\ token\_query\ =\ String(kTokenUrlQuery)\ +\ URL::addEscapeChars(token,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{01010\ \ \ URL\ ttwt\_url(String(kUrlPrefix)\ +\ URL::addEscapeChars(clamped\_text,\ \textcolor{keyword}{true})\ +\ language\_query\ +\ token\_query);}
+\DoxyCodeLine{01011\ }
+\DoxyCodeLine{01012\ \ \ \textcolor{keywordflow}{try}\ \{}
+\DoxyCodeLine{01013\ \ \ \ \ String\ result\ =\ ttwt\_url.readEntireTextStream(\textcolor{keyword}{false});}
+\DoxyCodeLine{01014\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ json::parse(result.toStdString());}
+\DoxyCodeLine{01015\ }
+\DoxyCodeLine{01016\ \ \ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}error"{}}))}
+\DoxyCodeLine{01017\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ data[\textcolor{stringliteral}{"{}error"{}}];}
+\DoxyCodeLine{01018\ }
+\DoxyCodeLine{01019\ \ \ \ \ std::string\ hex\_encoded\_buffer\ =\ data[\textcolor{stringliteral}{"{}buffer"{}}];}
+\DoxyCodeLine{01020\ \ \ \ \ MemoryBlock\ audio\_memory;}
+\DoxyCodeLine{01021\ \ \ \ \ audio\_memory.loadFromHexString(hex\_encoded\_buffer);}
+\DoxyCodeLine{01022\ \ \ \ \ MemoryInputStream*\ audio\_stream\ =\ \textcolor{keyword}{new}\ MemoryInputStream(audio\_memory,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{01023\ }
+\DoxyCodeLine{01024\ \ \ \ \ \textcolor{keywordtype}{bool}\ succeeded\ =\ \mbox{\hyperlink{class_oscillator_section_a92103763d234197a2efbf4fb1e286bce}{loadAudioAsWavetable}}(\textcolor{stringliteral}{"{}TTWT"{}},\ audio\_stream,\ \mbox{\hyperlink{class_wavetable_creator_a8b6bb6fe9169f80c41a940577dc978a3a501aa58e5fa0a926281706072830bbea}{WavetableCreator::kTtwt}});}
+\DoxyCodeLine{01025\ \ \ \ \ \textcolor{keywordflow}{if}\ (succeeded)}
+\DoxyCodeLine{01026\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{01027\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Error\ converting\ speech\ to\ wavetable."{}};}
+\DoxyCodeLine{01028\ \ \ \}}
+\DoxyCodeLine{01029\ \ \ \textcolor{keywordflow}{catch}\ (\textcolor{keyword}{const}\ std::exception\&\ e)\ \{}
+\DoxyCodeLine{01030\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Error\ rendering\ speech.\ Check\ internet\ connection"{}};}
+\DoxyCodeLine{01031\ \ \ \}}
+\DoxyCodeLine{01032\ \}}
+\DoxyCodeLine{01033\ }
+\DoxyCodeLine{01034\ Slider*\ \mbox{\hyperlink{class_oscillator_section_a8424ebe6c3cc273c16bbea899ca516d9}{OscillatorSection::getWaveFrameSlider}}()\ \{}
+\DoxyCodeLine{01035\ \ \ \textcolor{keywordflow}{return}\ wave\_frame\_.get();}
+\DoxyCodeLine{01036\ \}}
+\DoxyCodeLine{01037\ }
+\DoxyCodeLine{01038\ \textcolor{comment}{//\ Updates\ the\ distortion\ selection\ and\ notifies\ listeners.}}
+\DoxyCodeLine{01039\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a8b528902ea89c6b23d057ec8b84474de}{OscillatorSection::setDistortionSelected}}(\textcolor{keywordtype}{int}\ selection)\ \{}
+\DoxyCodeLine{01040\ \ \ current\_distortion\_type\_\ =\ selection;}
+\DoxyCodeLine{01041\ \ \ wavetable\_-\/>setDistortionType(selection);}
+\DoxyCodeLine{01042\ \ \ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1}{vital::SynthOscillator::DistortionType}}\ type\ =\ (\mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1}{vital::SynthOscillator::DistortionType}})current\_distortion\_type\_;}
+\DoxyCodeLine{01043\ \ \ setDistortionPhaseVisible(\mbox{\hyperlink{classvital_1_1_synth_oscillator_a3a20d0fe23ec20367be1a425fefca2f2}{vital::SynthOscillator::usesDistortionPhase}}(type));}
+\DoxyCodeLine{01044\ \ \ notifyDistortionTypeChange();}
+\DoxyCodeLine{01045\ \}}
+\DoxyCodeLine{01046\ }
+\DoxyCodeLine{01047\ \textcolor{comment}{//\ Updates\ the\ spectral\ morph\ selection\ and\ notifies\ listeners.}}
+\DoxyCodeLine{01048\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a75e50bff5d879e053140e027066bc9ac}{OscillatorSection::setSpectralMorphSelected}}(\textcolor{keywordtype}{int}\ selection)\ \{}
+\DoxyCodeLine{01049\ \ \ current\_spectral\_morph\_type\_\ =\ selection;}
+\DoxyCodeLine{01050\ \ \ wavetable\_-\/>setSpectralMorphType(selection);}
+\DoxyCodeLine{01051\ \ \ notifySpectralMorphTypeChange();}
+\DoxyCodeLine{01052\ \}}
+\DoxyCodeLine{01053\ }
+\DoxyCodeLine{01054\ \textcolor{comment}{//\ Updates\ the\ destination\ routing\ and\ notifies\ listeners.}}
+\DoxyCodeLine{01055\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a929bfa2cb96ad5f720a67c9e2e0a0afd}{OscillatorSection::setDestinationSelected}}(\textcolor{keywordtype}{int}\ selection)\ \{}
+\DoxyCodeLine{01056\ \ \ current\_destination\_\ =\ selection;}
+\DoxyCodeLine{01057\ \ \ notifyDestinationChange();}
+\DoxyCodeLine{01058\ \}}
+\DoxyCodeLine{01059\ }
+\DoxyCodeLine{01060\ \textcolor{comment}{//\ Toggles\ filter\ routing.}}
+\DoxyCodeLine{01061\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_aed4f55b4a171fd10153b98a5ea85e1f2}{OscillatorSection::toggleFilterInput}}(\textcolor{keywordtype}{int}\ filter\_index,\ \textcolor{keywordtype}{bool}\ on)\ \{}
+\DoxyCodeLine{01062\ \ \ \mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5}{vital::constants::SourceDestination}}\ current\_destination\ =\ (\mbox{\hyperlink{namespacevital_1_1constants_ad1facc08e4c595e076a91b80dd6357b5}{vital::constants::SourceDestination}})current\_destination\_;}
+\DoxyCodeLine{01063\ \ \ \textcolor{keywordflow}{if}\ (filter\_index\ ==\ 0)}
+\DoxyCodeLine{01064\ \ \ \ \ current\_destination\_\ =\ vital::constants::toggleFilter1(current\_destination,\ on);}
+\DoxyCodeLine{01065\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{01066\ \ \ \ \ current\_destination\_\ =\ vital::constants::toggleFilter2(current\_destination,\ on);}
+\DoxyCodeLine{01067\ \ \ notifyDestinationChange();}
+\DoxyCodeLine{01068\ \}}
+\DoxyCodeLine{01069\ }
+\DoxyCodeLine{01070\ \textcolor{comment}{//\ Loads\ the\ browser\ state\ from\ the\ parent\ component.}}
+\DoxyCodeLine{01071\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a41cf4b8f9b25d20323eae52702899e67}{OscillatorSection::loadBrowserState}}()\ \{}
+\DoxyCodeLine{01072\ \ \ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ parent\ =\ findParentComponentOfClass<FullInterface>();}
+\DoxyCodeLine{01073\ \ \ \textcolor{keywordflow}{if}\ (parent)}
+\DoxyCodeLine{01074\ \ \ \ \ preset\_selector\_-\/>setText(parent-\/>\mbox{\hyperlink{class_full_interface_a073d85adf3cc833a2ff0eb6ec729ec73}{getWavetableName}}(index\_));}
+\DoxyCodeLine{01075\ \}}
+\DoxyCodeLine{01076\ }
+\DoxyCodeLine{01077\ \textcolor{comment}{//\ Sets\ the\ currently\ selected\ index\ (no\ implementation\ details\ given).}}
+\DoxyCodeLine{01078\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a0515c8588dce273fa0d9a909e35e0ed5}{OscillatorSection::setIndexSelected}}()\ \{}
+\DoxyCodeLine{01079\ \ \ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ parent\ =\ findParentComponentOfClass<FullInterface>();}
+\DoxyCodeLine{01080\ \ \ \textcolor{keywordflow}{if}\ (parent\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{01081\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{01082\ \}}
+\DoxyCodeLine{01083\ }
+\DoxyCodeLine{01084\ \textcolor{comment}{//\ Sets\ the\ language\ for\ TTWT\ and\ updates\ preferences.}}
+\DoxyCodeLine{01085\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a248a0a120b08c5489534ed8aeb0a90bd}{OscillatorSection::setLanguage}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{01086\ \ \ ttwt\_language\_\ =\ \mbox{\hyperlink{class_oscillator_section_afe30ff8b7b33e3950cf506df6b4ef762}{index}};}
+\DoxyCodeLine{01087\ \ \ \mbox{\hyperlink{class_load_save_a7af81f47a6046e6261d26c3cd9fe56f9}{LoadSave::savePreferredTTWTLanguage}}(kLanguageCodes[ttwt\_language\_]);}
+\DoxyCodeLine{01088\ \ \ showing\_language\_menu\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01089\ \ \ \textcolor{keywordflow}{if}\ (ttwt\_)}
+\DoxyCodeLine{01090\ \ \ \ \ ttwt\_-\/>grabKeyboardFocus();}
+\DoxyCodeLine{01091\ \ \ ttwt\_settings\_-\/>setToggleState(\textcolor{keyword}{false},\ dontSendNotification);}
+\DoxyCodeLine{01092\ \ \ ttwt\_settings\_-\/>setText(kLanguageCodes[ttwt\_language\_]);}
+\DoxyCodeLine{01093\ \}}
+\DoxyCodeLine{01094\ }
+\DoxyCodeLine{01095\ \textcolor{comment}{//\ Handles\ cancellation\ of\ language\ selection.}}
+\DoxyCodeLine{01096\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a36c95ece32c12a69d6a40dc8e8bc4bac}{OscillatorSection::languageSelectCancelled}}()\ \{}
+\DoxyCodeLine{01097\ \ \ showing\_language\_menu\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01098\ \ \ \textcolor{keywordflow}{if}\ (ttwt\_)}
+\DoxyCodeLine{01099\ \ \ \ \ ttwt\_-\/>grabKeyboardFocus();}
+\DoxyCodeLine{01100\ \ \ ttwt\_settings\_-\/>setToggleState(\textcolor{keyword}{false},\ dontSendNotification);}
+\DoxyCodeLine{01101\ \}}
+\DoxyCodeLine{01102\ }
+\DoxyCodeLine{01103\ \textcolor{comment}{//\ Loads\ the\ previous\ wavetable\ file.}}
+\DoxyCodeLine{01104\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_ab7bafdc45f5a751b65c27dbac274459b}{OscillatorSection::prevClicked}}()\ \{}
+\DoxyCodeLine{01105\ \ \ File\ wavetable\_file\ =\ \mbox{\hyperlink{class_load_save_a83671b0114f752dc3af21e03bad41d67}{LoadSave::getShiftedFile}}(\mbox{\hyperlink{class_load_save_ada0dc87031b963f8fc0045d3725315e4}{LoadSave::kWavetableFolderName}},\ \mbox{\hyperlink{namespacevital_a998daaf7071441df589130d24a37d148}{vital::kWavetableExtensionsList}},}
+\DoxyCodeLine{01106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_load_save_a388fcb2294874a77bcd4eed5761a6863}{LoadSave::kAdditionalWavetableFoldersName}},\ current\_file\_,\ -\/1);}
+\DoxyCodeLine{01107\ \ \ \textcolor{keywordflow}{if}\ (wavetable\_file.exists())}
+\DoxyCodeLine{01108\ \ \ \ \ \mbox{\hyperlink{class_oscillator_section_aa4ab5e8bf647a3f3ad5746602e5f1341}{loadFile}}(wavetable\_file);}
+\DoxyCodeLine{01109\ }
+\DoxyCodeLine{01110\ \ \ \mbox{\hyperlink{class_synth_section_a6a23c29d426d2c48f002958c294b155d}{updatePopupBrowser}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{01111\ \}}
+\DoxyCodeLine{01112\ }
+\DoxyCodeLine{01113\ \textcolor{comment}{//\ Loads\ the\ next\ wavetable\ file.}}
+\DoxyCodeLine{01114\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a8783e9c1a3d9e6d9c9ffbd3ba507f69c}{OscillatorSection::nextClicked}}()\ \{}
+\DoxyCodeLine{01115\ \ \ File\ wavetable\_file\ =\ \mbox{\hyperlink{class_load_save_a83671b0114f752dc3af21e03bad41d67}{LoadSave::getShiftedFile}}(\mbox{\hyperlink{class_load_save_ada0dc87031b963f8fc0045d3725315e4}{LoadSave::kWavetableFolderName}},\ \mbox{\hyperlink{namespacevital_a998daaf7071441df589130d24a37d148}{vital::kWavetableExtensionsList}},}
+\DoxyCodeLine{01116\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_load_save_a388fcb2294874a77bcd4eed5761a6863}{LoadSave::kAdditionalWavetableFoldersName}},\ current\_file\_,\ 1);}
+\DoxyCodeLine{01117\ \ \ \textcolor{keywordflow}{if}\ (wavetable\_file.exists())}
+\DoxyCodeLine{01118\ \ \ \ \ \mbox{\hyperlink{class_oscillator_section_aa4ab5e8bf647a3f3ad5746602e5f1341}{loadFile}}(wavetable\_file);}
+\DoxyCodeLine{01119\ }
+\DoxyCodeLine{01120\ \ \ \mbox{\hyperlink{class_synth_section_a6a23c29d426d2c48f002958c294b155d}{updatePopupBrowser}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{01121\ \}}
+\DoxyCodeLine{01122\ }
+\DoxyCodeLine{01123\ \textcolor{comment}{//\ Opens\ a\ popup\ browser\ on\ text\ click.}}
+\DoxyCodeLine{01124\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_ac2a61e03ea5b127ec6814c8b79b025b4}{OscillatorSection::textMouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{01125\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kBrowserWidth\ =\ 600;}
+\DoxyCodeLine{01126\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kBrowserHeight\ =\ 400;}
+\DoxyCodeLine{01127\ \ \ Rectangle<int>\ bounds(unison\_voices\_-\/>getX(),\ preset\_selector\_-\/>getY(),}
+\DoxyCodeLine{01128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ kBrowserWidth\ *\ \mbox{\hyperlink{class_synth_section_a966868a7e67306cc7ad36dab3ef22936}{size\_ratio\_}},\ kBrowserHeight\ *\ \mbox{\hyperlink{class_synth_section_a966868a7e67306cc7ad36dab3ef22936}{size\_ratio\_}});}
+\DoxyCodeLine{01129\ \ \ bounds\ =\ getLocalArea(\textcolor{keyword}{this},\ bounds);}
+\DoxyCodeLine{01130\ \ \ \mbox{\hyperlink{class_synth_section_af7cf1f2cc2937a0ff53e198f69d5ff81}{showPopupBrowser}}(\textcolor{keyword}{this},\ bounds,\ \mbox{\hyperlink{class_load_save_ac308a0d50fd5eca6e69c1650f67cf272}{LoadSave::getWavetableDirectories}}(),\ \mbox{\hyperlink{namespacevital_a998daaf7071441df589130d24a37d148}{vital::kWavetableExtensionsList}},}
+\DoxyCodeLine{01131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_load_save_ada0dc87031b963f8fc0045d3725315e4}{LoadSave::kWavetableFolderName}},\ \mbox{\hyperlink{class_load_save_a388fcb2294874a77bcd4eed5761a6863}{LoadSave::kAdditionalWavetableFoldersName}});}
+\DoxyCodeLine{01132\ \}}
+\DoxyCodeLine{01133\ }
+\DoxyCodeLine{01134\ \textcolor{comment}{//\ Updates\ transpose\ quantization\ state.}}
+\DoxyCodeLine{01135\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a9d38fb2c44cd5dbd41aa111d75a27d05}{OscillatorSection::quantizeUpdated}}()\ \{}
+\DoxyCodeLine{01136\ \ \ \textcolor{keywordtype}{int}\ value\ =\ transpose\_quantize\_button\_-\/>getValue();}
+\DoxyCodeLine{01137\ \ \ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ parent\ =\ findParentComponentOfClass<SynthGuiInterface>();}
+\DoxyCodeLine{01138\ \ \ \textcolor{keywordflow}{if}\ (parent)}
+\DoxyCodeLine{01139\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(quantize\_control\_name\_,\ value);}
+\DoxyCodeLine{01140\ \}}
+\DoxyCodeLine{01141\ }
+\DoxyCodeLine{01142\ \textcolor{comment}{//\ Resets\ distortion\ type\ if\ it's\ a\ modulation-\/based\ type.}}
+\DoxyCodeLine{01143\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a4363f98505b96fd00d906871b5b58206}{OscillatorSection::resetOscillatorModulationDistortionType}}()\ \{}
+\DoxyCodeLine{01144\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_synth_oscillator_a0f9202d02c3c0d98e00d5db165f39fbf}{vital::SynthOscillator::isFirstModulation}}(current\_distortion\_type\_)\ ||}
+\DoxyCodeLine{01145\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_oscillator_aff0873758fe53480d45719c1c67d090e}{vital::SynthOscillator::isSecondModulation}}(current\_distortion\_type\_))\ \{}
+\DoxyCodeLine{01146\ \ \ \ \ current\_distortion\_type\_\ =\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1a373672d2cb099a28ac11c64fd6c92acb}{vital::SynthOscillator::kNone}};}
+\DoxyCodeLine{01147\ \ \ \ \ notifyDistortionTypeChange();}
+\DoxyCodeLine{01148\ \ \ \}}
+\DoxyCodeLine{01149\ \}}
+\DoxyCodeLine{01150\ }
+\DoxyCodeLine{01151\ \textcolor{comment}{//\ Loads\ audio\ data\ as\ a\ wavetable.}}
+\DoxyCodeLine{01152\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_oscillator_section_a92103763d234197a2efbf4fb1e286bce}{OscillatorSection::loadAudioAsWavetable}}(String\ name,\ InputStream*\ audio\_stream,}
+\DoxyCodeLine{01153\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_a8b6bb6fe9169f80c41a940577dc978a3}{WavetableCreator::AudioFileLoadStyle}}\ style)\ \{}
+\DoxyCodeLine{01154\ \ \ preset\_selector\_-\/>setText(name);}
+\DoxyCodeLine{01155\ }
+\DoxyCodeLine{01156\ \ \ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ parent\ =\ findParentComponentOfClass<FullInterface>();}
+\DoxyCodeLine{01157\ \ \ \textcolor{keywordflow}{if}\ (parent\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{01158\ \ \ \ \ \textcolor{keyword}{delete}\ audio\_stream;}
+\DoxyCodeLine{01159\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01160\ \ \ \}}
+\DoxyCodeLine{01161\ }
+\DoxyCodeLine{01162\ \ \ wavetable\_-\/>setLoadingWavetable(\textcolor{keyword}{true});}
+\DoxyCodeLine{01163\ \ \ \textcolor{keywordtype}{bool}\ success\ =\ parent-\/>\mbox{\hyperlink{class_full_interface_a36c09f2724f6c813d6231ce689178cc0}{loadAudioAsWavetable}}(index\_,\ name,\ audio\_stream,\ style);}
+\DoxyCodeLine{01164\ \ \ wavetable\_-\/>setLoadingWavetable(\textcolor{keyword}{false});}
+\DoxyCodeLine{01165\ \ \ wavetable\_-\/>repaintBackground();}
+\DoxyCodeLine{01166\ \ \ \textcolor{keywordflow}{return}\ success;}
+\DoxyCodeLine{01167\ \}}
+\DoxyCodeLine{01168\ }
+\DoxyCodeLine{01169\ \textcolor{comment}{//\ Loads\ wavetable\ from\ JSON\ data.}}
+\DoxyCodeLine{01170\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a592ed5e7e27d89e4be4754493d66d29c}{OscillatorSection::loadWavetable}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ wavetable\_data)\ \{}
+\DoxyCodeLine{01171\ \ \ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ parent\ =\ findParentComponentOfClass<FullInterface>();}
+\DoxyCodeLine{01172\ \ \ \textcolor{keywordflow}{if}\ (parent\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{01173\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{01174\ }
+\DoxyCodeLine{01175\ \ \ wavetable\_-\/>setLoadingWavetable(\textcolor{keyword}{true});}
+\DoxyCodeLine{01176\ \ \ parent-\/>\mbox{\hyperlink{class_full_interface_affa09b4feafbb900c7a897de883c13a2}{loadWavetable}}(index\_,\ wavetable\_data);}
+\DoxyCodeLine{01177\ \ \ wavetable\_-\/>setLoadingWavetable(\textcolor{keyword}{false});}
+\DoxyCodeLine{01178\ \ \ std::string\ name\ =\ wavetable\_data[\textcolor{stringliteral}{"{}name"{}}];}
+\DoxyCodeLine{01179\ \ \ preset\_selector\_-\/>setText(name);}
+\DoxyCodeLine{01180\ \}}
+\DoxyCodeLine{01181\ }
+\DoxyCodeLine{01182\ \textcolor{comment}{//\ Loads\ the\ default\ wavetable.}}
+\DoxyCodeLine{01183\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a933e613f9acb4fd0da323b0a24c82de7}{OscillatorSection::loadDefaultWavetable}}()\ \{}
+\DoxyCodeLine{01184\ \ \ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ parent\ =\ findParentComponentOfClass<FullInterface>();}
+\DoxyCodeLine{01185\ \ \ wavetable\_-\/>setLoadingWavetable(\textcolor{keyword}{true});}
+\DoxyCodeLine{01186\ \ \ \textcolor{keywordflow}{if}\ (parent)}
+\DoxyCodeLine{01187\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_full_interface_a69027089ee29af0917bb8c474c5b6e0d}{loadDefaultWavetable}}(index\_);}
+\DoxyCodeLine{01188\ \ \ wavetable\_-\/>setLoadingWavetable(\textcolor{keyword}{false});}
+\DoxyCodeLine{01189\ }
+\DoxyCodeLine{01190\ \ \ preset\_selector\_-\/>setText(\textcolor{stringliteral}{"{}Init"{}});}
+\DoxyCodeLine{01191\ \}}
+\DoxyCodeLine{01192\ }
+\DoxyCodeLine{01193\ \textcolor{comment}{//\ Resynthesizes\ the\ current\ source\ to\ a\ wavetable.}}
+\DoxyCodeLine{01194\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a9bd040e8f9ced682bdadc3fad5c42d23}{OscillatorSection::resynthesizeToWavetable}}()\ \{}
+\DoxyCodeLine{01195\ \ \ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ parent\ =\ findParentComponentOfClass<FullInterface>();}
+\DoxyCodeLine{01196\ \ \ wavetable\_-\/>setLoadingWavetable(\textcolor{keyword}{true});}
+\DoxyCodeLine{01197\ \ \ \textcolor{keywordflow}{if}\ (parent)}
+\DoxyCodeLine{01198\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_full_interface_a65d6f926545cfab530a97c0cb3eb1ebf}{resynthesizeToWavetable}}(index\_);}
+\DoxyCodeLine{01199\ \ \ wavetable\_-\/>setLoadingWavetable(\textcolor{keyword}{false});}
+\DoxyCodeLine{01200\ \}}
+\DoxyCodeLine{01201\ }
+\DoxyCodeLine{01202\ \textcolor{comment}{//\ Initiates\ text-\/to-\/wavetable\ input\ mode.}}
+\DoxyCodeLine{01203\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_a2c4c0057f0f6c78bed435d926fd74455}{OscillatorSection::textToWavetable}}()\ \{}
+\DoxyCodeLine{01204\ \ \ \textcolor{keywordflow}{if}\ (auth\_)}
+\DoxyCodeLine{01205\ \ \ \ \ auth\_-\/>\mbox{\hyperlink{class_authentication_abb1fa7b2ad19c5613127251463efcb70}{refreshToken}}();}
+\DoxyCodeLine{01206\ }
+\DoxyCodeLine{01207\ \ \ ttwt\_settings\_-\/>setColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca0dad7b1ec93aeffd7b9098f05a065b99}{Skin::kIconButtonOff}},\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{01208\ \ \ ttwt\_overlay\_.setVisible(\textcolor{keyword}{true});}
+\DoxyCodeLine{01209\ \ \ ttwt\_-\/>setVisible(\textcolor{keyword}{true});}
+\DoxyCodeLine{01210\ \ \ ttwt\_settings\_-\/>setVisible(\textcolor{keyword}{true});}
+\DoxyCodeLine{01211\ \ \ ttwt\_-\/>resized();}
+\DoxyCodeLine{01212\ \ \ ttwt\_-\/>grabKeyboardFocus();}
+\DoxyCodeLine{01213\ \}}
+\DoxyCodeLine{01214\ }
+\DoxyCodeLine{01215\ \textcolor{comment}{//\ Saves\ the\ current\ wavetable\ to\ disk.}}
+\DoxyCodeLine{01216\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_ace307d18ff6227fa4f38156eb8bad7a6}{OscillatorSection::saveWavetable}}()\ \{}
+\DoxyCodeLine{01217\ \ \ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ parent\ =\ findParentComponentOfClass<FullInterface>();}
+\DoxyCodeLine{01218\ \ \ \textcolor{keywordflow}{if}\ (parent)}
+\DoxyCodeLine{01219\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_full_interface_a6de006648cbf3bb1fe1bc3051e1aed2f}{saveWavetable}}(index\_);}
+\DoxyCodeLine{01220\ \}}
+\DoxyCodeLine{01221\ }
+\DoxyCodeLine{01222\ \textcolor{comment}{//\ Loads\ a\ wavetable\ from\ a\ file.}}
+\DoxyCodeLine{01223\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscillator_section_aa4ab5e8bf647a3f3ad5746602e5f1341}{OscillatorSection::loadFile}}(\textcolor{keyword}{const}\ File\&\ wavetable\_file)\ \{}
+\DoxyCodeLine{01224\ \ \ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ parent\ =\ findParentComponentOfClass<FullInterface>();}
+\DoxyCodeLine{01225\ \ \ \textcolor{keywordflow}{if}\ (parent\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{01226\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{01227\ }
+\DoxyCodeLine{01228\ \ \ current\_file\_\ =\ wavetable\_file;}
+\DoxyCodeLine{01229\ \ \ \textcolor{keywordflow}{if}\ (wavetable\_file.getFileExtension()\ ==\ String(\textcolor{stringliteral}{"{}."{}})\ +\ \mbox{\hyperlink{namespacevital_a8488f2aa8f7fe9025c7c36cbf089da5a}{vital::kWavetableExtension}})\ \{}
+\DoxyCodeLine{01230\ \ \ \ \ wavetable\_-\/>setLoadingWavetable(\textcolor{keyword}{true});}
+\DoxyCodeLine{01231\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_full_interface_a904fb948305968ec4595d2d582705a21}{loadWavetableFile}}(index\_,\ wavetable\_file);}
+\DoxyCodeLine{01232\ \ \ \ \ wavetable\_-\/>setLoadingWavetable(\textcolor{keyword}{false});}
+\DoxyCodeLine{01233\ \ \ \ \ preset\_selector\_-\/>setText(wavetable\_file.getFileNameWithoutExtension());}
+\DoxyCodeLine{01234\ \ \ \ \ wavetable\_-\/>repaintBackground();}
+\DoxyCodeLine{01235\ \ \ \}}
+\DoxyCodeLine{01236\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{01237\ \ \ \ \ FileInputStream*\ input\_stream\ =\ \textcolor{keyword}{new}\ FileInputStream(wavetable\_file);}
+\DoxyCodeLine{01238\ \ \ \ \ \mbox{\hyperlink{class_oscillator_section_a92103763d234197a2efbf4fb1e286bce}{loadAudioAsWavetable}}(wavetable\_file.getFileNameWithoutExtension(),\ input\_stream,}
+\DoxyCodeLine{01239\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_a8b6bb6fe9169f80c41a940577dc978a3a1584f936e911f7122d5102051c4ed90e}{WavetableCreator::kWavetableSplice}});}
+\DoxyCodeLine{01240\ \ \ \}}
+\DoxyCodeLine{01241\ \}}
+\DoxyCodeLine{01242\ }
+\DoxyCodeLine{01243\ \textcolor{comment}{//\ Returns\ relative\ coordinates\ of\ the\ wavetable\ area.}}
+\DoxyCodeLine{01244\ Rectangle<float>\ \mbox{\hyperlink{class_oscillator_section_a477ad402aaf3a4b737851dd39cfdd41d}{OscillatorSection::getWavetableRelativeBounds}}()\ \{}
+\DoxyCodeLine{01245\ \ \ Rectangle<int>\ wavetable\_bounds\ =\ wavetable\_-\/>getBounds();}
+\DoxyCodeLine{01246\ \ \ \textcolor{keywordtype}{float}\ width\_ratio\ =\ 1.0f\ /\ getWidth();}
+\DoxyCodeLine{01247\ \ \ \textcolor{keywordtype}{float}\ height\_ratio\ =\ 1.0f\ /\ getHeight();}
+\DoxyCodeLine{01248\ \ \ \textcolor{keywordflow}{return}\ Rectangle<float>(wavetable\_bounds.getX()\ *\ width\_ratio,\ wavetable\_bounds.getY()\ *\ height\_ratio,}
+\DoxyCodeLine{01249\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ wavetable\_bounds.getWidth()\ *\ width\_ratio,\ wavetable\_bounds.getHeight()\ *\ height\_ratio);}
+\DoxyCodeLine{01250\ \}}
+\DoxyCodeLine{01251\ }
+\DoxyCodeLine{01252\ \textcolor{comment}{//\ Configures\ spectral\ morph\ parameters\ and\ UI.}}
+\DoxyCodeLine{01253\ \textcolor{keywordtype}{void}\ OscillatorSection::setupSpectralMorph()\ \{}
+\DoxyCodeLine{01254\ \ \ \textcolor{keywordtype}{bool}\ bipolar\ =\ isBipolarSpectralMorphType(current\_spectral\_morph\_type\_);}
+\DoxyCodeLine{01255\ \ \ spectral\_morph\_amount\_-\/>setBipolar(bipolar);}
+\DoxyCodeLine{01256\ \ \ spectral\_morph\_amount\_-\/>setDoubleClickReturnValue(\textcolor{keyword}{true},\ bipolar\ ?\ 0.5f\ :\ 0.0f);}
+\DoxyCodeLine{01257\ \ \ spectral\_morph\_amount\_-\/>setActive(\mbox{\hyperlink{class_synth_section_aa69758e37d2860da80a1d6acdea0b419}{isActive}}()\ \&\&}
+\DoxyCodeLine{01258\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ current\_spectral\_morph\_type\_\ !=\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a6ff8a47bfca3b5d1810da2cdf23d98adad166d8f8d97a5835b3c73f9b1b823a04}{vital::SynthOscillator::kNoSpectralMorph}});}
+\DoxyCodeLine{01259\ \ \ spectral\_morph\_amount\_-\/>redoImage();}
+\DoxyCodeLine{01260\ \ \ spectral\_morph\_type\_text\_-\/>setText(kSpectralMorphTypes[current\_spectral\_morph\_type\_]);}
+\DoxyCodeLine{01261\ \}}
+\DoxyCodeLine{01262\ }
+\DoxyCodeLine{01263\ \textcolor{comment}{//\ Configures\ distortion\ parameters\ and\ UI.}}
+\DoxyCodeLine{01264\ \textcolor{keywordtype}{void}\ OscillatorSection::setupDistortion()\ \{}
+\DoxyCodeLine{01265\ \ \ \textcolor{keywordtype}{bool}\ bipolar\ =\ isBipolarDistortionType(current\_distortion\_type\_);}
+\DoxyCodeLine{01266\ \ \ distortion\_amount\_-\/>setBipolar(bipolar);}
+\DoxyCodeLine{01267\ \ \ distortion\_amount\_-\/>setDoubleClickReturnValue(\textcolor{keyword}{true},\ bipolar\ ?\ 0.5f\ :\ 0.0f);}
+\DoxyCodeLine{01268\ \ \ distortion\_amount\_-\/>setActive(\mbox{\hyperlink{class_synth_section_aa69758e37d2860da80a1d6acdea0b419}{isActive}}()\ \&\&\ current\_distortion\_type\_\ !=\ \mbox{\hyperlink{classvital_1_1_synth_oscillator_a215e08646d130e38dda62249e95ccdc1a373672d2cb099a28ac11c64fd6c92acb}{vital::SynthOscillator::kNone}});}
+\DoxyCodeLine{01269\ \ \ distortion\_amount\_-\/>redoImage();}
+\DoxyCodeLine{01270\ \ \ distortion\_type\_text\_-\/>setText(getDistortionString(current\_distortion\_type\_,\ index\_));}
+\DoxyCodeLine{01271\ \}}
+\DoxyCodeLine{01272\ }
+\DoxyCodeLine{01273\ \textcolor{comment}{//\ Configures\ destination\ parameters\ and\ notifies\ listeners.}}
+\DoxyCodeLine{01274\ \textcolor{keywordtype}{void}\ OscillatorSection::setupDestination()\ \{}
+\DoxyCodeLine{01275\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{01276\ \ \ \ \ listener-\/>oscillatorDestinationChanged(\textcolor{keyword}{this},\ current\_destination\_);}
+\DoxyCodeLine{01277\ }
+\DoxyCodeLine{01278\ \ \ destination\_text\_-\/>setText(\mbox{\hyperlink{namespacestrings_abbfdbeac3de0a2124b415275a510f2ff}{strings::kDestinationNames}}[current\_destination\_]);}
+\DoxyCodeLine{01279\ \}}
+\DoxyCodeLine{01280\ }
+\DoxyCodeLine{01281\ \textcolor{comment}{//\ Shows\ or\ hides\ the\ distortion\ phase\ slider\ and\ updates\ layout.}}
+\DoxyCodeLine{01282\ \textcolor{keywordtype}{void}\ OscillatorSection::setDistortionPhaseVisible(\textcolor{keywordtype}{bool}\ visible)\ \{}
+\DoxyCodeLine{01283\ \ \ \textcolor{keywordflow}{if}\ (visible\ ==\ distortion\_phase\_-\/>isVisible())}
+\DoxyCodeLine{01284\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{01285\ \ \ distortion\_phase\_-\/>setVisible(visible);}
+\DoxyCodeLine{01286\ \ \ \mbox{\hyperlink{class_oscillator_section_aa531d3576f36f5375ed921f0e12fb614}{resized}}();}
+\DoxyCodeLine{01287\ \ \ \mbox{\hyperlink{class_synth_section_af3bc1e4797ef2a7399f9040e564d8ec1}{repaintBackground}}();}
+\DoxyCodeLine{01288\ \}}
+\DoxyCodeLine{01289\ }
+\DoxyCodeLine{01290\ \textcolor{comment}{//\ Notifies\ parent\ of\ spectral\ morph\ type\ change.}}
+\DoxyCodeLine{01291\ \textcolor{keywordtype}{void}\ OscillatorSection::notifySpectralMorphTypeChange()\ \{}
+\DoxyCodeLine{01292\ \ \ setupSpectralMorph();}
+\DoxyCodeLine{01293\ }
+\DoxyCodeLine{01294\ \ \ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ parent\ =\ findParentComponentOfClass<SynthGuiInterface>();}
+\DoxyCodeLine{01295\ \ \ \textcolor{keywordflow}{if}\ (parent)}
+\DoxyCodeLine{01296\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(spectral\_morph\_control\_name\_,\ current\_spectral\_morph\_type\_);}
+\DoxyCodeLine{01297\ \}}
+\DoxyCodeLine{01298\ }
+\DoxyCodeLine{01299\ \textcolor{comment}{//\ Notifies\ parent\ and\ listeners\ of\ distortion\ type\ change.}}
+\DoxyCodeLine{01300\ \textcolor{keywordtype}{void}\ OscillatorSection::notifyDistortionTypeChange()\ \{}
+\DoxyCodeLine{01301\ \ \ setupDistortion();}
+\DoxyCodeLine{01302\ }
+\DoxyCodeLine{01303\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{01304\ \ \ \ \ listener-\/>distortionTypeChanged(\textcolor{keyword}{this},\ current\_distortion\_type\_);}
+\DoxyCodeLine{01305\ }
+\DoxyCodeLine{01306\ \ \ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ parent\ =\ findParentComponentOfClass<SynthGuiInterface>();}
+\DoxyCodeLine{01307\ \ \ \textcolor{keywordflow}{if}\ (parent)}
+\DoxyCodeLine{01308\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(distortion\_control\_name\_,\ current\_distortion\_type\_);}
+\DoxyCodeLine{01309\ \}}
+\DoxyCodeLine{01310\ }
+\DoxyCodeLine{01311\ \textcolor{comment}{//\ Notifies\ parent\ and\ listeners\ of\ destination\ change.}}
+\DoxyCodeLine{01312\ \textcolor{keywordtype}{void}\ OscillatorSection::notifyDestinationChange()\ \{}
+\DoxyCodeLine{01313\ \ \ setupDestination();}
+\DoxyCodeLine{01314\ }
+\DoxyCodeLine{01315\ \ \ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ parent\ =\ findParentComponentOfClass<SynthGuiInterface>();}
+\DoxyCodeLine{01316\ \ \ \textcolor{keywordflow}{if}\ (parent)}
+\DoxyCodeLine{01317\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_a16d05ca921a59cff1314acd4a5f6dbf9}{valueChangedInternal}}(destination\_control\_name\_,\ current\_destination\_);}
+\DoxyCodeLine{01318\ \}}
+
+\end{DoxyCode}

@@ -1,0 +1,180 @@
+\doxysection{wave\+\_\+window\+\_\+overlay.\+cpp}
+\hypertarget{wave__window__overlay_8cpp_source}{}\label{wave__window__overlay_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/overlays/wave\_window\_overlay.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/overlays/wave\_window\_overlay.cpp}}
+\mbox{\hyperlink{wave__window__overlay_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__window__overlay_8h}{wave\_window\_overlay.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__frame_8h}{wave\_frame.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__look__and__feel_8h}{text\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__selector_8h}{text\_selector.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00009\ \ \ \textcolor{comment}{//\ Lookup\ table\ for\ window\ shape\ names.}}
+\DoxyCodeLine{00010\ \ \ \textcolor{keyword}{const}\ std::string\ kWindowShapeLookup[\mbox{\hyperlink{class_wave_window_modifier_af6b1447a118fbb73fec64df756b4a244a27712d6b2a0649e1f18f0265818d63c1}{WaveWindowModifier::kNumWindowShapes}}]\ =\ \{}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{stringliteral}{"{}Raised\ Cos"{}},}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{stringliteral}{"{}Half\ Sin"{}},}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{stringliteral}{"{}Linear"{}},}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{stringliteral}{"{}Square"{}},}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{stringliteral}{"{}Wiggle"{}}}
+\DoxyCodeLine{00016\ \ \ \};}
+\DoxyCodeLine{00017\ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \mbox{\hyperlink{class_wave_window_overlay_aa9874264a28496d593e1ed653efc6eff}{WaveWindowOverlay::WaveWindowOverlay}}()\ :\ \mbox{\hyperlink{class_wavetable_component_overlay}{WavetableComponentOverlay}}(\textcolor{stringliteral}{"{}WAVE\ WINDOW"{}}),\ wave\_window\_modifier\_(nullptr)\ \{}
+\DoxyCodeLine{00020\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}\ =\ std::make\_unique<WaveWindowEditor>();}
+\DoxyCodeLine{00021\ \ \ addAndMakeVisible(\mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}.get());}
+\DoxyCodeLine{00022\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}.get());}
+\DoxyCodeLine{00023\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00024\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>setFit(\textcolor{keyword}{true});}
+\DoxyCodeLine{00025\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>setFill(\textcolor{keyword}{true});}
+\DoxyCodeLine{00026\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00027\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>setVisible(\textcolor{keyword}{false});\ \textcolor{comment}{//\ Only\ visible\ when\ a\ frame\ is\ selected.}}
+\DoxyCodeLine{00028\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a63258408a5b99bb8fb28d6ecc5b37502}{current\_frame\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ \textcolor{comment}{//\ Initialize\ the\ window\ shape\ selector.}}
+\DoxyCodeLine{00031\ \ \ \mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}\ =\ std::make\_unique<TextSelector>(\textcolor{stringliteral}{"{}Window\ Shape"{}});}
+\DoxyCodeLine{00032\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}.get());}
+\DoxyCodeLine{00033\ \ \ \mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00034\ \ \ \mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00035\ \ \ \mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}-\/>setRange(0,\ \mbox{\hyperlink{class_wave_window_modifier_af6b1447a118fbb73fec64df756b4a244a27712d6b2a0649e1f18f0265818d63c1}{WaveWindowModifier::kNumWindowShapes}}\ -\/\ 1);}
+\DoxyCodeLine{00036\ \ \ \mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}-\/>setLongStringLookup(kWindowShapeLookup);}
+\DoxyCodeLine{00037\ \ \ \mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}-\/>setStringLookup(kWindowShapeLookup);}
+\DoxyCodeLine{00038\ \ \ \mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00039\ \ \ \mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00040\ \ \ \mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ Initialize\ the\ left\ and\ right\ position\ sliders.}}
+\DoxyCodeLine{00043\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}Left\ Position"{}});}
+\DoxyCodeLine{00044\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}.get());}
+\DoxyCodeLine{00045\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00046\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>getQuadComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00047\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>setRange(0.0,\ 1.0);}
+\DoxyCodeLine{00048\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>setDoubleClickReturnValue(\textcolor{keyword}{true},\ 0.0);}
+\DoxyCodeLine{00049\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00050\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>setSliderStyle(Slider::LinearBar);}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}Right\ Position"{}});}
+\DoxyCodeLine{00053\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}.get());}
+\DoxyCodeLine{00054\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00055\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}-\/>getQuadComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00056\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}-\/>setRange(0.0,\ 1.0);}
+\DoxyCodeLine{00057\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}-\/>setDoubleClickReturnValue(\textcolor{keyword}{true},\ 1.0);}
+\DoxyCodeLine{00058\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00059\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}-\/>setSliderStyle(Slider::LinearBar);}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \textcolor{comment}{//\ Set\ up\ control\ background\ titles.}}
+\DoxyCodeLine{00062\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_aa2fc0516ff532630f3bfcf5910e453b1}{clearTitles}}();}
+\DoxyCodeLine{00063\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00064\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}LEFT\ POSITION"{}});}
+\DoxyCodeLine{00065\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}RIGHT\ POSITION"{}});}
+\DoxyCodeLine{00066\ \}}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_window_overlay_aa1776aab3196aa83d2297c78b23ccb26}{WaveWindowOverlay::frameSelected}}(\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00069\ \ \ \textcolor{keywordflow}{if}\ (keyframe\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{comment}{//\ No\ keyframe\ selected:\ hide\ editor\ and\ reset\ current\ frame.}}
+\DoxyCodeLine{00071\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00072\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a63258408a5b99bb8fb28d6ecc5b37502}{current\_frame\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00073\ \ \ \}}
+\DoxyCodeLine{00074\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a568088f16dde91e6f8ae8d0f3fa5b755}{owner}}()\ ==\ \mbox{\hyperlink{class_wave_window_overlay_a7a85db589125b35ad3314e4bed5d7168}{wave\_window\_modifier\_}})\ \{}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{comment}{//\ Keyframe\ belongs\ to\ the\ WaveWindowModifier.}}
+\DoxyCodeLine{00076\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>setVisible(\textcolor{keyword}{true});}
+\DoxyCodeLine{00077\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a63258408a5b99bb8fb28d6ecc5b37502}{current\_frame\_}}\ =\ \mbox{\hyperlink{class_wave_window_overlay_a7a85db589125b35ad3314e4bed5d7168}{wave\_window\_modifier\_}}-\/>\mbox{\hyperlink{class_wave_window_modifier_a80e938e8388777d80e5bd20f0414473d}{getKeyframe}}(keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a1faf74be7dd4b7f3f4ea0e83fa75ce8d}{index}}());}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keywordtype}{float}\ left\ =\ \mbox{\hyperlink{class_wave_window_overlay_a63258408a5b99bb8fb28d6ecc5b37502}{current\_frame\_}}-\/>\mbox{\hyperlink{class_wave_window_modifier_1_1_wave_window_modifier_keyframe_a4011c106817e2926fbc71f9ae326f0fa}{getLeft}}();}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{keywordtype}{float}\ right\ =\ \mbox{\hyperlink{class_wave_window_overlay_a63258408a5b99bb8fb28d6ecc5b37502}{current\_frame\_}}-\/>\mbox{\hyperlink{class_wave_window_modifier_1_1_wave_window_modifier_keyframe_ac9e8c1d036aeb41d24927ecca79b15eb}{getRight}}();}
+\DoxyCodeLine{00080\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>setPositions(left,\ right);}
+\DoxyCodeLine{00081\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>setValue(left,\ dontSendNotification);}
+\DoxyCodeLine{00082\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}-\/>setValue(right,\ dontSendNotification);}
+\DoxyCodeLine{00083\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>redoImage();}
+\DoxyCodeLine{00084\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}-\/>redoImage();}
+\DoxyCodeLine{00085\ \ \ \}}
+\DoxyCodeLine{00086\ \}}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_window_overlay_a2144532b2463d3ea96147ca5d5ef3343}{WaveWindowOverlay::setEditBounds}}(Rectangle<int>\ bounds)\ \{}
+\DoxyCodeLine{00089\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kWaveShapeWidthHeightRatio\ =\ 5.0f;}
+\DoxyCodeLine{00090\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kPositionPaddingRatio\ =\ 0.5f;}
+\DoxyCodeLine{00091\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kPositionWidthHeightRatio\ =\ 5.0f;}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \ \textcolor{comment}{//\ Configure\ line\ and\ fill\ colors.}}
+\DoxyCodeLine{00094\ \ \ Colour\ line\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00095\ \ \ Colour\ fill\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca759c8acbffc8962e9ee2d8cba9677e73}{Skin::kWidgetSecondary1}},\ \textcolor{keyword}{true}).withMultipliedAlpha(0.5f);}
+\DoxyCodeLine{00096\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>setColor(line\_color);}
+\DoxyCodeLine{00097\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>setFillColors(fill\_color.withMultipliedAlpha(1.0f\ -\/\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a5268c3e135a7b246af15add8577ea3ac}{Skin::kWidgetFillFade}})),\ fill\_color);}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \textcolor{keywordtype}{int}\ padding\ =\ \mbox{\hyperlink{class_wavetable_component_overlay_a6247819afe1ddce8d34ad500917e3460}{getPadding}}();}
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordtype}{int}\ window\_shape\_width\ =\ bounds.getHeight()\ *\ kWaveShapeWidthHeightRatio;}
+\DoxyCodeLine{00101\ \ \ \textcolor{keywordtype}{int}\ position\_width\ =\ bounds.getHeight()\ *\ kPositionWidthHeightRatio;}
+\DoxyCodeLine{00102\ \ \ \textcolor{keywordtype}{int}\ position\_padding\ =\ bounds.getHeight()\ *\ kPositionPaddingRatio;}
+\DoxyCodeLine{00103\ \ \ \textcolor{keywordtype}{int}\ total\_width\ =\ window\_shape\_width\ +\ 2\ *\ position\_width\ +\ 2\ *\ padding;}
+\DoxyCodeLine{00104\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a16ea421b63ea56ec8a453dde9b45c7a7}{setControlsWidth}}(total\_width);}
+\DoxyCodeLine{00105\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2b9025728b8627dae45261e3d72814db}{WavetableComponentOverlay::setEditBounds}}(bounds);}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ \textcolor{keywordtype}{int}\ x\ =\ bounds.getX()\ +\ (bounds.getWidth()\ -\/\ total\_width)\ /\ 2;}
+\DoxyCodeLine{00108\ \ \ \textcolor{keywordtype}{int}\ title\_height\ =\ \mbox{\hyperlink{class_wavetable_component_overlay_a54c6e22bd9b774c88c6246d849ce8c56}{WavetableComponentOverlay::kTitleHeightRatio}}\ *\ bounds.getHeight();}
+\DoxyCodeLine{00109\ \ \ \textcolor{keywordtype}{int}\ y\ =\ bounds.getY();}
+\DoxyCodeLine{00110\ \ \ \textcolor{keywordtype}{int}\ y\_title\ =\ y\ +\ title\_height;}
+\DoxyCodeLine{00111\ \ \ \textcolor{keywordtype}{int}\ height\ =\ bounds.getHeight();}
+\DoxyCodeLine{00112\ \ \ \textcolor{keywordtype}{int}\ height\_title\ =\ height\ -\/\ title\_height;}
+\DoxyCodeLine{00113\ \ \ \mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}-\/>setBounds(x,\ y,\ window\_shape\_width,\ height);}
+\DoxyCodeLine{00114\ \ \ \mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}-\/>setTextHeightPercentage(0.4f);}
+\DoxyCodeLine{00115\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>setBounds(\mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}-\/>getRight()\ +\ padding\ +\ position\_padding,\ y\_title,}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ position\_width\ -\/\ 2\ *\ position\_padding,\ height\_title);}
+\DoxyCodeLine{00117\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}-\/>setBounds(\mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>getRight()\ +\ padding\ +\ 2\ *\ position\_padding,\ y\_title,}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ position\_width\ -\/\ 2\ *\ position\_padding,\ height\_title);}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_af5926c7c594c424bc5f4e62574e85c39}{clearLines}}();}
+\DoxyCodeLine{00121\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(window\_shape\_width);}
+\DoxyCodeLine{00122\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(window\_shape\_width\ +\ position\_width\ +\ padding);}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ \mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}-\/>redoImage();}
+\DoxyCodeLine{00125\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>redoImage();}
+\DoxyCodeLine{00126\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}-\/>redoImage();}
+\DoxyCodeLine{00127\ \}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_wave_window_overlay_a8fc57097fa23a78fff79341af295a994}{WaveWindowOverlay::setTimeDomainBounds}}(Rectangle<int>\ bounds)\ \{}
+\DoxyCodeLine{00130\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>setBounds(bounds);}
+\DoxyCodeLine{00131\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00132\ \}}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_window_overlay_a7d8db6d31ee7999ceae56658ae5e1147}{WaveWindowOverlay::windowChanged}}(\textcolor{keywordtype}{bool}\ left,\ \textcolor{keywordtype}{bool}\ mouse\_up)\ \{}
+\DoxyCodeLine{00135\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wave_window_overlay_a63258408a5b99bb8fb28d6ecc5b37502}{current\_frame\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00136\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a63258408a5b99bb8fb28d6ecc5b37502}{current\_frame\_}}-\/>\mbox{\hyperlink{class_wave_window_modifier_1_1_wave_window_modifier_keyframe_aaf13322bd26b151df2aef83cc6718fc8}{setLeft}}(\mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>getLeftPosition());}
+\DoxyCodeLine{00139\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a63258408a5b99bb8fb28d6ecc5b37502}{current\_frame\_}}-\/>\mbox{\hyperlink{class_wave_window_modifier_1_1_wave_window_modifier_keyframe_a10004c9071f9563c7f1188664100b2b3}{setRight}}(\mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>getRightPosition());}
+\DoxyCodeLine{00140\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>setValue(\mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>getLeftPosition(),\ sendNotificationSync);}
+\DoxyCodeLine{00141\ \ \ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}-\/>setValue(\mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>getRightPosition(),\ sendNotificationSync);}
+\DoxyCodeLine{00142\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(mouse\_up);}
+\DoxyCodeLine{00143\ \}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_window_overlay_a1fd72bae8b630d039d339719445b0f43}{WaveWindowOverlay::sliderValueChanged}}(Slider*\ moved\_slider)\ \{}
+\DoxyCodeLine{00146\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wave_window_overlay_a7a85db589125b35ad3314e4bed5d7168}{wave\_window\_modifier\_}}\ ==\ \textcolor{keyword}{nullptr}\ ||\ \mbox{\hyperlink{class_wave_window_overlay_a63258408a5b99bb8fb28d6ecc5b37502}{current\_frame\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \ \ \textcolor{keywordflow}{if}\ (moved\_slider\ ==\ \mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}.get())\ \{}
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keywordtype}{int}\ value\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(\mbox{\hyperlink{class_wave_window_overlay_ad31cd4f52914a78e0dfd8e822c7116cf}{window\_shape\_}}-\/>getValue());}
+\DoxyCodeLine{00151\ \ \ \ \ \mbox{\hyperlink{class_wave_window_modifier_af6b1447a118fbb73fec64df756b4a244}{WaveWindowModifier::WindowShape}}\ window\_shape\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_wave_window_modifier_af6b1447a118fbb73fec64df756b4a244}{WaveWindowModifier::WindowShape}}\textcolor{keyword}{>}(value);}
+\DoxyCodeLine{00152\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>setWindowShape(window\_shape);}
+\DoxyCodeLine{00153\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a7a85db589125b35ad3314e4bed5d7168}{wave\_window\_modifier\_}}-\/>\mbox{\hyperlink{class_wave_window_modifier_afeed5af175020efcc8b6e6cc85441b42}{setWindowShape}}(window\_shape);}
+\DoxyCodeLine{00154\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00155\ \ \ \}}
+\DoxyCodeLine{00156\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (moved\_slider\ ==\ \mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}.get())\ \{}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{keywordtype}{float}\ value\ =\ std::min(\mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>getValue(),\ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}-\/>getValue());}
+\DoxyCodeLine{00158\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>setValue(value,\ dontSendNotification);}
+\DoxyCodeLine{00159\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a63258408a5b99bb8fb28d6ecc5b37502}{current\_frame\_}}-\/>\mbox{\hyperlink{class_wave_window_modifier_1_1_wave_window_modifier_keyframe_aaf13322bd26b151df2aef83cc6718fc8}{setLeft}}(value);}
+\DoxyCodeLine{00160\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>setPositions(value,\ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}-\/>getValue());}
+\DoxyCodeLine{00161\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00162\ \ \ \}}
+\DoxyCodeLine{00163\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (moved\_slider\ ==\ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}.get())\ \{}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{keywordtype}{float}\ value\ =\ std::max(\mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}-\/>getValue(),\ \mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>getValue());}
+\DoxyCodeLine{00165\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a80bfb30bd9d74b4fc7dd9127fe03bd7f}{right\_position\_}}-\/>setValue(value,\ dontSendNotification);}
+\DoxyCodeLine{00166\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a63258408a5b99bb8fb28d6ecc5b37502}{current\_frame\_}}-\/>\mbox{\hyperlink{class_wave_window_modifier_1_1_wave_window_modifier_keyframe_a10004c9071f9563c7f1188664100b2b3}{setRight}}(value);}
+\DoxyCodeLine{00167\ \ \ \ \ \mbox{\hyperlink{class_wave_window_overlay_a1bc1e7929e13e00d9f6907dbeabba3e7}{editor\_}}-\/>setPositions(\mbox{\hyperlink{class_wave_window_overlay_a1a6987212e0a3af99e1df4cec5c1ec38}{left\_position\_}}-\/>getValue(),\ value);}
+\DoxyCodeLine{00168\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00169\ \ \ \}}
+\DoxyCodeLine{00170\ \}}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00172\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_window_overlay_a1da34e361e8793a2c22072774580b6f0}{WaveWindowOverlay::sliderDragEnded}}(Slider*\ moved\_slider)\ \{}
+\DoxyCodeLine{00173\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00174\ \}}
+
+\end{DoxyCode}

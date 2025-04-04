@@ -1,0 +1,349 @@
+\doxysection{authentication\+\_\+section.\+cpp}
+\hypertarget{authentication__section_8cpp_source}{}\label{authentication__section_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/authentication\_section.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/authentication\_section.cpp}}
+\mbox{\hyperlink{authentication__section_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{authentication__section_8h}{authentication\_section.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{authentication_8h}{authentication.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{load__save_8h}{load\_save.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#if\ NDEBUG\ \&\&\ !NO\_AUTH}}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMsAuthPoll\ =\ 1000;}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \ \ \textcolor{comment}{//\ Callback\ called\ when\ the\ token\ result\ is\ retrieved\ from\ Firebase.}}
+\DoxyCodeLine{00018\ \ \ \textcolor{keywordtype}{void}\ onTokenResult(\textcolor{keyword}{const}\ firebase::Future<std::string>\&\ completed\_future,\ \textcolor{keywordtype}{void}*\ ref\_data)\ \{}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keyword}{const}\ MessageManagerLock\ lock(Thread::getCurrentThread());}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keywordflow}{if}\ (!lock.lockWasGained())}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \ \ Component::SafePointer<AuthenticationSection>*\ reference\ =\ (Component::SafePointer<AuthenticationSection>*)ref\_data;}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keywordflow}{if}\ (completed\_future.status()\ !=\ firebase::kFutureStatusComplete)\ \{}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \mbox{\hyperlink{class_load_save_ad54bf5e7546d109b5f7800512becc849}{LoadSave::writeErrorLog}}(\textcolor{stringliteral}{"{}Firebase\ getting\ initial\ token\ error:\ not\ complete"{}});}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \textcolor{keyword}{delete}\ reference;}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00029\ \ \ \ \ \}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keywordflow}{if}\ (completed\_future.error())\ \{}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ std::string\ error\ =\ \textcolor{stringliteral}{"{}Firebase\ getting\ initial\ token\ error:\ error\ code\ "{}};}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \mbox{\hyperlink{class_load_save_ad54bf5e7546d109b5f7800512becc849}{LoadSave::writeErrorLog}}(error\ +\ std::to\_string(completed\_future.error()));}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \textcolor{keyword}{delete}\ reference;}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00036\ \ \ \ \ \}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keywordflow}{if}\ (reference-\/>getComponent())\ \{}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ reference-\/>getComponent()-\/>auth()-\/>setToken(*completed\_future.result());}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ reference-\/>getComponent()-\/>notifyLoggedIn();}
+\DoxyCodeLine{00041\ \ \ \ \ \}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keyword}{delete}\ reference;}
+\DoxyCodeLine{00044\ \ \ \}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \textcolor{comment}{//\ Callback\ called\ when\ the\ login\ result\ is\ retrieved\ from\ Firebase.}}
+\DoxyCodeLine{00047\ \ \ \textcolor{keywordtype}{void}\ onLoginResult(\textcolor{keyword}{const}\ firebase::Future<firebase::auth::User*>\&\ completed\_future,\ \textcolor{keywordtype}{void}*\ ref\_data)\ \{}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keyword}{const}\ MessageManagerLock\ lock(Thread::getCurrentThread());}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keywordflow}{if}\ (!lock.lockWasGained())}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \ \ Component::SafePointer<AuthenticationSection>*\ reference\ =\ (Component::SafePointer<AuthenticationSection>*)ref\_data;}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{keywordflow}{if}\ (completed\_future.status()\ !=\ firebase::kFutureStatusComplete)\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \mbox{\hyperlink{class_load_save_ad54bf5e7546d109b5f7800512becc849}{LoadSave::writeErrorLog}}(\textcolor{stringliteral}{"{}Firebase\ login\ error:\ not\ complete"{}});}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \textcolor{keyword}{delete}\ reference;}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00058\ \ \ \ \ \}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keywordflow}{if}\ (completed\_future.error())\ \{}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ std::string\ error\ =\ \textcolor{stringliteral}{"{}Firebase\ login\ error:\ error\ code\ "{}};}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \mbox{\hyperlink{class_load_save_ad54bf5e7546d109b5f7800512becc849}{LoadSave::writeErrorLog}}(error\ +\ std::to\_string(completed\_future.error()));}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \textcolor{keyword}{delete}\ reference;}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00065\ \ \ \ \ \}}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keywordflow}{if}\ (reference-\/>getComponent())\ \{}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (completed\_future.error())}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ reference-\/>getComponent()-\/>setError(completed\_future.error\_message());}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ firebase::Future<std::string>\ future\ =\ (*completed\_future.result())-\/>GetToken(\textcolor{keyword}{false});}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ Component::SafePointer<AuthenticationSection>*\ ref\ =}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{new}\ Component::SafePointer<AuthenticationSection>(reference-\/>getComponent());}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ future.OnCompletion(onTokenResult,\ ref);}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_load_save_aa0239e9c40787a52894e5aac4e7928c2}{LoadSave::saveAuthenticated}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ reference-\/>getComponent()-\/>finishLogin();}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \ \ \ \ reference-\/>getComponent()-\/>setButtonSettings(\textcolor{keyword}{true},\ \textcolor{stringliteral}{"{}Sign\ in"{}});}
+\DoxyCodeLine{00081\ \ \ \ \ \}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{keyword}{delete}\ reference;}
+\DoxyCodeLine{00084\ \ \ \}}
+\DoxyCodeLine{00085\ \}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \textcolor{keywordtype}{void}\ AuthInitThread::run()\ \{}
+\DoxyCodeLine{00088\ \ \ ref\_-\/>createAuth();}
+\DoxyCodeLine{00089\ \}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \mbox{\hyperlink{class_authentication_section_a48f831452ccbe7590a878ae67c025106}{AuthenticationSection::AuthenticationSection}}(\mbox{\hyperlink{class_authentication}{Authentication}}*\ auth)\ :\ \mbox{\hyperlink{class_overlay}{Overlay}}(\textcolor{stringliteral}{"{}Auth"{}}),\ auth\_(auth),}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ body\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kRoundedRectangleFragment)\ \{}
+\DoxyCodeLine{00093\ \ \ addOpenGlComponent(\&body\_);}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ logo\_\ =\ std::make\_unique<AppLogo>(\textcolor{stringliteral}{"{}logo"{}});}
+\DoxyCodeLine{00096\ \ \ addOpenGlComponent(logo\_.get());}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \ \ sign\_in\_text\_\ =\ std::make\_unique<PlainTextComponent>(\textcolor{stringliteral}{"{}Sign\ in"{}},\ \textcolor{stringliteral}{"{}Sign\ in"{}});}
+\DoxyCodeLine{00099\ \ \ addOpenGlComponent(sign\_in\_text\_.get());}
+\DoxyCodeLine{00100\ \ \ sign\_in\_text\_-\/>setFontType(\mbox{\hyperlink{class_plain_text_component_a136e53c8d27fe3d8ed1d79b42e473900a07d3b0e9e4f27f7598bd398991b882e0}{PlainTextComponent::kLight}});}
+\DoxyCodeLine{00101\ \ \ sign\_in\_text\_-\/>setTextSize(kTextHeight\ *\ size\_ratio\_\ *\ 0.6f);}
+\DoxyCodeLine{00102\ \ \ sign\_in\_text\_-\/>setJustification(Justification::centred);}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ error\_text\_\ =\ std::make\_unique<PlainTextComponent>(\textcolor{stringliteral}{"{}Error"{}},\ \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00105\ \ \ addOpenGlComponent(error\_text\_.get());}
+\DoxyCodeLine{00106\ \ \ error\_text\_-\/>setFontType(\mbox{\hyperlink{class_plain_text_component_a136e53c8d27fe3d8ed1d79b42e473900a07d3b0e9e4f27f7598bd398991b882e0}{PlainTextComponent::kLight}});}
+\DoxyCodeLine{00107\ \ \ error\_text\_-\/>setTextSize(kTextHeight\ *\ size\_ratio\_\ *\ 0.4f);}
+\DoxyCodeLine{00108\ \ \ error\_text\_-\/>setJustification(Justification::centredRight);}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \textcolor{preprocessor}{\#if\ !defined(NO\_TEXT\_ENTRY)}}
+\DoxyCodeLine{00111\ \ \ email\_\ =\ std::make\_unique<OpenGlTextEditor>(\textcolor{stringliteral}{"{}Email"{}});}
+\DoxyCodeLine{00112\ \ \ email\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00113\ \ \ addAndMakeVisible(email\_.get());}
+\DoxyCodeLine{00114\ \ \ addOpenGlComponent(email\_-\/>getImageComponent());}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ password\_\ =\ std::make\_unique<OpenGlTextEditor>(\textcolor{stringliteral}{"{}Password"{}},\ 0x2022);}
+\DoxyCodeLine{00117\ \ \ password\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00118\ \ \ addAndMakeVisible(password\_.get());}
+\DoxyCodeLine{00119\ \ \ addOpenGlComponent(password\_-\/>getImageComponent());}
+\DoxyCodeLine{00120\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ sign\_in\_button\_\ =\ std::make\_unique<OpenGlToggleButton>(\textcolor{stringliteral}{"{}Sign\ in"{}});}
+\DoxyCodeLine{00123\ \ \ sign\_in\_button\_-\/>setText(\textcolor{stringliteral}{"{}Sign\ in"{}});}
+\DoxyCodeLine{00124\ \ \ sign\_in\_button\_-\/>setUiButton(\textcolor{keyword}{true});}
+\DoxyCodeLine{00125\ \ \ sign\_in\_button\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00126\ \ \ addAndMakeVisible(sign\_in\_button\_.get());}
+\DoxyCodeLine{00127\ \ \ addOpenGlComponent(sign\_in\_button\_-\/>getGlComponent());}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ forgot\_password\_\ =\ std::make\_unique<ForgotPasswordLink>();}
+\DoxyCodeLine{00130\ \ \ addOpenGlComponent(forgot\_password\_.get());}
+\DoxyCodeLine{00131\ \ \ forgot\_password\_-\/>setFontType(\mbox{\hyperlink{class_plain_text_component_a136e53c8d27fe3d8ed1d79b42e473900a07d3b0e9e4f27f7598bd398991b882e0}{PlainTextComponent::kLight}});}
+\DoxyCodeLine{00132\ \ \ forgot\_password\_-\/>setTextSize(kTextHeight\ *\ size\_ratio\_\ *\ 0.4f);}
+\DoxyCodeLine{00133\ \ \ forgot\_password\_-\/>setJustification(Justification::centredLeft);}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \ \ work\_offline\_\ =\ std::make\_unique<WorkOffline>();}
+\DoxyCodeLine{00136\ \ \ work\_offline\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00137\ \ \ addOpenGlComponent(work\_offline\_.get());}
+\DoxyCodeLine{00138\ \ \ work\_offline\_-\/>setFontType(\mbox{\hyperlink{class_plain_text_component_a136e53c8d27fe3d8ed1d79b42e473900a07d3b0e9e4f27f7598bd398991b882e0}{PlainTextComponent::kLight}});}
+\DoxyCodeLine{00139\ \ \ work\_offline\_-\/>setTextSize(kTextHeight\ *\ size\_ratio\_\ *\ 0.4f);}
+\DoxyCodeLine{00140\ \ \ work\_offline\_-\/>setJustification(Justification::centredRight);}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \ \ setWantsKeyboardFocus(\textcolor{keyword}{true});}
+\DoxyCodeLine{00143\ \ \ setSkinOverride(\mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96ac1c1888fc1a2bdf29c15417d4005e80b}{Skin::kOverlay}});}
+\DoxyCodeLine{00144\ \}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ AuthenticationSection::\string~AuthenticationSection()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \textcolor{keywordtype}{void}\ AuthenticationSection::init()\ \{}
+\DoxyCodeLine{00149\ \ \ \textcolor{keywordflow}{if}\ (firebase::App::GetInstance()\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00150\ \ \ \ \ startTimer(kMsAuthPoll);}
+\DoxyCodeLine{00151\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00152\ \ \ \}}
+\DoxyCodeLine{00153\ \}}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00155\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_authentication_section_ae8bd8c29dd27e784cfeb941b9fbdcb41}{AuthenticationSection::create}}()\ \{}
+\DoxyCodeLine{00156\ \ \ \mbox{\hyperlink{class_authentication_a4184ba90ded7003c0809b2ce0d2bbbb2}{Authentication::create}}();}
+\DoxyCodeLine{00157\ \ \ createAuth();}
+\DoxyCodeLine{00158\ \ \ \textcolor{comment}{//\ TODO:\ Putting\ this\ on\ background\ thread\ hangs\ sometimes.}}
+\DoxyCodeLine{00159\ \ \ \textcolor{comment}{//\ auth\_init\_thread\_\ =\ std::make\_unique<AuthInitThread>(this);}}
+\DoxyCodeLine{00160\ \ \ \textcolor{comment}{//\ auth\_init\_thread\_-\/>startThread();}}
+\DoxyCodeLine{00161\ \}}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \textcolor{keywordtype}{void}\ AuthenticationSection::createAuth()\ \{}
+\DoxyCodeLine{00164\ \ \ auth\_-\/>init();}
+\DoxyCodeLine{00165\ \ \ checkAuth();}
+\DoxyCodeLine{00166\ \}}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \textcolor{keywordtype}{void}\ AuthenticationSection::checkAuth()\ \{}
+\DoxyCodeLine{00169\ \ \ \textcolor{keywordflow}{if}\ (!auth\_-\/>hasAuth())}
+\DoxyCodeLine{00170\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00172\ \ \ firebase::auth::User*\ user\ =\ auth\_-\/>auth()-\/>current\_user();}
+\DoxyCodeLine{00173\ \ \ \textcolor{keywordflow}{if}\ (user)\ \{}
+\DoxyCodeLine{00174\ \ \ \ \ firebase::Future<std::string>\ future\ =\ user-\/>GetToken(\textcolor{keyword}{true});}
+\DoxyCodeLine{00175\ \ \ \ \ SafePointer<AuthenticationSection>*\ self\_reference\ =\ \textcolor{keyword}{new}\ SafePointer<AuthenticationSection>(\textcolor{keyword}{this});}
+\DoxyCodeLine{00176\ \ \ \ \ future.OnCompletion(onTokenResult,\ self\_reference);}
+\DoxyCodeLine{00177\ \ \ \}}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00179\ \ \ \textcolor{keyword}{const}\ MessageManagerLock\ lock(Thread::getCurrentThread());}
+\DoxyCodeLine{00180\ \ \ \textcolor{keywordflow}{if}\ (!lock.lockWasGained())}
+\DoxyCodeLine{00181\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00182\ }
+\DoxyCodeLine{00183\ \ \ setVisible(user\ ==\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00184\ \ \ \textcolor{keywordflow}{if}\ (user)\ \{}
+\DoxyCodeLine{00185\ \ \ \ \ signed\_in\_email\_\ =\ user-\/>email();}
+\DoxyCodeLine{00186\ \ \ \ \ \mbox{\hyperlink{class_load_save_aa0239e9c40787a52894e5aac4e7928c2}{LoadSave::saveAuthenticated}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00187\ \ \ \}}
+\DoxyCodeLine{00188\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00189\ \ \ \ \ startTimer(kMsAuthPoll);}
+\DoxyCodeLine{00190\ \}}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \textcolor{keywordtype}{void}\ AuthenticationSection::timerCallback()\ \{}
+\DoxyCodeLine{00193\ \ \ \textcolor{keywordflow}{if}\ (!auth\_-\/>hasAuth())}
+\DoxyCodeLine{00194\ \ \ \ \ init();}
+\DoxyCodeLine{00195\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (isVisible())}
+\DoxyCodeLine{00196\ \ \ \ \ checkAuth();}
+\DoxyCodeLine{00197\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00198\ \ \ \ \ stopTimer();}
+\DoxyCodeLine{00199\ \}}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \textcolor{keywordtype}{void}\ AuthenticationSection::mouseUp(\textcolor{keyword}{const}\ MouseEvent\ \&e)\ \{}
+\DoxyCodeLine{00202\ \ \ \textcolor{keywordflow}{if}\ (!body\_.getBounds().contains(e.getPosition()))}
+\DoxyCodeLine{00203\ \ \ \ \ setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00204\ \}}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00206\ \textcolor{keywordtype}{void}\ AuthenticationSection::resized()\ \{}
+\DoxyCodeLine{00207\ \ \ \mbox{\hyperlink{class_overlay_a80c5061faf1bd9b0db9a7ad14201bdcd}{Overlay::resized}}();}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00209\ \ \ Path\ border;}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ \ \ \textcolor{keywordtype}{int}\ width\ =\ kWidth\ *\ size\_ratio\_;}
+\DoxyCodeLine{00212\ \ \ \textcolor{keywordtype}{int}\ height\ =\ kHeight\ *\ size\_ratio\_;}
+\DoxyCodeLine{00213\ \ \ \textcolor{keywordtype}{int}\ top\ =\ kY\ *\ size\_ratio\_;}
+\DoxyCodeLine{00214\ \ \ \textcolor{keywordtype}{int}\ padding\ =\ kPadding\ *\ size\_ratio\_;}
+\DoxyCodeLine{00215\ \ \ \textcolor{keywordtype}{int}\ logo\_width\ =\ kImageWidth\ *\ size\_ratio\_;}
+\DoxyCodeLine{00216\ \ \ \textcolor{keywordtype}{int}\ text\_height\ =\ kTextHeight\ *\ size\_ratio\_;}
+\DoxyCodeLine{00217\ }
+\DoxyCodeLine{00218\ \ \ \textcolor{keywordtype}{int}\ text\_width\ =\ width\ -\/\ 2\ *\ padding;}
+\DoxyCodeLine{00219\ \ \ \textcolor{keywordtype}{int}\ text\_x\ =\ (getWidth()\ -\/\ text\_width)\ /\ 2;}
+\DoxyCodeLine{00220\ \ \ \textcolor{keywordtype}{int}\ error\_height\ =\ text\_height\ *\ 0.5;}
+\DoxyCodeLine{00221\ \ \ \textcolor{keywordtype}{int}\ y\ =\ top\ +\ height\ -\/\ 2\ *\ padding\ -\/\ 4\ *\ text\_height\ -\/\ error\_height;}
+\DoxyCodeLine{00222\ \ \ \textcolor{keywordflow}{if}\ (email\_\ \&\&\ password\_)\ \{}
+\DoxyCodeLine{00223\ \ \ \ \ Colour\ caret\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caf4bb4fdf63337ceb6bb167959fb9f919}{Skin::kTextEditorCaret}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00224\ \ \ \ \ Colour\ body\_text\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caf4bb4fdf63337ceb6bb167959fb9f919}{Skin::kTextEditorCaret}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00225\ \ \ \ \ Colour\ selection\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cac5ef4508573fe6dae078edd51c88b04e}{Skin::kTextEditorSelection}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00226\ \ \ \ \ Colour\ empty\_color\ =\ body\_text.withMultipliedAlpha(0.5f);}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00228\ \ \ \ \ email\_-\/>setTextToShowWhenEmpty(TRANS(\textcolor{stringliteral}{"{}Email"{}}),\ empty\_color);}
+\DoxyCodeLine{00229\ \ \ \ \ password\_-\/>setTextToShowWhenEmpty(TRANS(\textcolor{stringliteral}{"{}Password"{}}),\ empty\_color);}
+\DoxyCodeLine{00230\ }
+\DoxyCodeLine{00231\ \ \ \ \ email\_-\/>setColour(CaretComponent::caretColourId,\ caret);}
+\DoxyCodeLine{00232\ \ \ \ \ email\_-\/>setColour(TextEditor::textColourId,\ body\_text);}
+\DoxyCodeLine{00233\ \ \ \ \ email\_-\/>setColour(TextEditor::highlightedTextColourId,\ body\_text);}
+\DoxyCodeLine{00234\ \ \ \ \ email\_-\/>setColour(TextEditor::highlightColourId,\ selection);}
+\DoxyCodeLine{00235\ \ \ \ \ password\_-\/>setColour(CaretComponent::caretColourId,\ caret);}
+\DoxyCodeLine{00236\ \ \ \ \ password\_-\/>setColour(TextEditor::textColourId,\ body\_text);}
+\DoxyCodeLine{00237\ \ \ \ \ password\_-\/>setColour(TextEditor::highlightedTextColourId,\ body\_text);}
+\DoxyCodeLine{00238\ \ \ \ \ password\_-\/>setColour(TextEditor::highlightColourId,\ selection);}
+\DoxyCodeLine{00239\ }
+\DoxyCodeLine{00240\ \ \ \ \ email\_-\/>setBounds(text\_x,\ y,\ text\_width,\ text\_height);}
+\DoxyCodeLine{00241\ \ \ \ \ password\_-\/>setBounds(text\_x,\ y\ +\ 1.25f\ *\ text\_height,\ text\_width,\ text\_height);}
+\DoxyCodeLine{00242\ \ \ \}}
+\DoxyCodeLine{00243\ }
+\DoxyCodeLine{00244\ \ \ \textcolor{keywordtype}{int}\ image\_x\ =\ (getWidth()\ -\/\ logo\_width)\ /\ 2;}
+\DoxyCodeLine{00245\ \ \ \textcolor{keywordtype}{int}\ image\_y\ =\ top\ +\ padding;}
+\DoxyCodeLine{00246\ \ \ logo\_-\/>setBounds(image\_x,\ image\_y,\ logo\_width,\ logo\_width);}
+\DoxyCodeLine{00247\ }
+\DoxyCodeLine{00248\ \ \ Colour\ text\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00249\ \ \ sign\_in\_text\_-\/>setColor(text\_color);}
+\DoxyCodeLine{00250\ \ \ sign\_in\_text\_-\/>setBounds(text\_x,\ image\_y\ +\ logo\_width,\ text\_width,\ text\_height);}
+\DoxyCodeLine{00251\ \ \ sign\_in\_text\_-\/>setTextSize(kTextHeight\ *\ size\_ratio\_\ *\ 0.6f);}
+\DoxyCodeLine{00252\ \ \ sign\_in\_button\_-\/>setBounds(text\_x,\ y\ +\ 3\ *\ text\_height\ +\ error\_height\ +\ padding,\ text\_width,\ text\_height);}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \ \ forgot\_password\_-\/>setColor(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca2dbe5efa84f5aaa45d87a00fbfdb54e2}{Skin::kWidgetAccent1}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00255\ \ \ forgot\_password\_-\/>setBounds(password\_-\/>getX(),\ password\_-\/>getBottom(),\ password\_-\/>getWidth()\ /\ 2,\ text\_height);}
+\DoxyCodeLine{00256\ \ \ forgot\_password\_-\/>setTextSize(kTextHeight\ *\ size\_ratio\_\ *\ 0.4f);}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00258\ \ \ work\_offline\_-\/>setColor(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca2dbe5efa84f5aaa45d87a00fbfdb54e2}{Skin::kWidgetAccent1}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00259\ \ \ work\_offline\_-\/>setBounds(forgot\_password\_-\/>getRight(),\ forgot\_password\_-\/>getY(),}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ password\_-\/>getRight()\ -\/\ forgot\_password\_-\/>getRight(),\ text\_height);}
+\DoxyCodeLine{00261\ \ \ work\_offline\_-\/>setTextSize(kTextHeight\ *\ size\_ratio\_\ *\ 0.4f);}
+\DoxyCodeLine{00262\ }
+\DoxyCodeLine{00263\ \ \ error\_text\_-\/>setColor(text\_color.interpolatedWith(Colours::red,\ 0.5f));}
+\DoxyCodeLine{00264\ \ \ error\_text\_-\/>setBounds(password\_-\/>getX(),\ forgot\_password\_-\/>getBottom(),\ password\_-\/>getWidth(),\ error\_height);}
+\DoxyCodeLine{00265\ \ \ error\_text\_-\/>setTextSize(kTextHeight\ *\ size\_ratio\_\ *\ 0.4f);}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00267\ \ \ body\_.setBounds((getWidth()\ -\/\ width)\ /\ 2,\ top,\ width,\ height);}
+\DoxyCodeLine{00268\ \ \ body\_.setRounding(findValue(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}}));}
+\DoxyCodeLine{00269\ \ \ body\_.setColor(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caffad88f44cd2bcaaf60dbe0032955def}{Skin::kBody}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00271\ \ \ \textcolor{keywordflow}{if}\ (isVisible())\ \{}
+\DoxyCodeLine{00272\ \ \ \ \ Image\ image(Image::ARGB,\ 1,\ 1,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00273\ \ \ \ \ Graphics\ g(image);}
+\DoxyCodeLine{00274\ \ \ \ \ paintOpenGlChildrenBackgrounds(g);}
+\DoxyCodeLine{00275\ \ \ \}}
+\DoxyCodeLine{00276\ \}}
+\DoxyCodeLine{00277\ }
+\DoxyCodeLine{00278\ \textcolor{keywordtype}{void}\ AuthenticationSection::setVisible(\textcolor{keywordtype}{bool}\ should\_be\_visible)\ \{}
+\DoxyCodeLine{00279\ \ \ \mbox{\hyperlink{class_overlay_acad40f51ef9439b9e724b34b21a4c21d}{Overlay::setVisible}}(should\_be\_visible);}
+\DoxyCodeLine{00280\ }
+\DoxyCodeLine{00281\ \ \ \textcolor{keywordflow}{if}\ (should\_be\_visible)\ \{}
+\DoxyCodeLine{00282\ \ \ \ \ Image\ image(Image::ARGB,\ 1,\ 1,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00283\ \ \ \ \ Graphics\ g(image);}
+\DoxyCodeLine{00284\ \ \ \ \ paintOpenGlChildrenBackgrounds(g);}
+\DoxyCodeLine{00285\ \ \ \}}
+\DoxyCodeLine{00286\ \}}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00288\ \textcolor{keywordtype}{void}\ AuthenticationSection::visibilityChanged()\ \{}
+\DoxyCodeLine{00289\ \ \ Component::visibilityChanged();}
+\DoxyCodeLine{00290\ \ \ \textcolor{keywordflow}{if}\ (isShowing()\ \&\&\ email\_\ \&\&\ email\_-\/>isEmpty())}
+\DoxyCodeLine{00291\ \ \ \ \ email\_-\/>grabKeyboardFocus();}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00293\ \ \ Image\ image(Image::ARGB,\ 1,\ 1,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00294\ \ \ Graphics\ g(image);}
+\DoxyCodeLine{00295\ \ \ paintOpenGlChildrenBackgrounds(g);}
+\DoxyCodeLine{00296\ \}}
+\DoxyCodeLine{00297\ }
+\DoxyCodeLine{00298\ \textcolor{keywordtype}{void}\ AuthenticationSection::workOffline()\ \{}
+\DoxyCodeLine{00299\ \ \ setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00300\ \ \ \mbox{\hyperlink{class_load_save_afe1bfa793341010a92618c68a9f2ef86}{LoadSave::saveWorkOffline}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00301\ \}}
+\DoxyCodeLine{00302\ }
+\DoxyCodeLine{00303\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_authentication_section_a70b980531eee6cdee536386818e45db5}{AuthenticationSection::signOut}}()\ \{}
+\DoxyCodeLine{00304\ \ \ auth\_-\/>auth()-\/>SignOut();}
+\DoxyCodeLine{00305\ \ \ setVisible(\textcolor{keyword}{true});}
+\DoxyCodeLine{00306\ \ \ startTimer(kMsAuthPoll);}
+\DoxyCodeLine{00307\ \}}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00309\ \textcolor{keywordtype}{void}\ AuthenticationSection::notifyLoggedIn()\ \{}
+\DoxyCodeLine{00310\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00311\ \ \ \ \ listener-\/>loggedIn();}
+\DoxyCodeLine{00312\ \}}
+\DoxyCodeLine{00313\ }
+\DoxyCodeLine{00314\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_authentication_section_a67a64d207403e3bf7da2a236aaf1bee1}{AuthenticationSection::setFocus}}()\ \{}
+\DoxyCodeLine{00315\ \ \ \textcolor{keywordflow}{if}\ (isShowing()\ \&\&\ email\_\ \&\&\ email\_-\/>isEmpty())}
+\DoxyCodeLine{00316\ \ \ \ \ email\_-\/>grabKeyboardFocus();}
+\DoxyCodeLine{00317\ \}}
+\DoxyCodeLine{00318\ }
+\DoxyCodeLine{00319\ \textcolor{keywordtype}{void}\ AuthenticationSection::finishLogin()\ \{}
+\DoxyCodeLine{00320\ \ \ setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00321\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00322\ \ \ \ \ listener-\/>loggedIn();}
+\DoxyCodeLine{00323\ \}}
+\DoxyCodeLine{00324\ }
+\DoxyCodeLine{00325\ \textcolor{keywordtype}{void}\ AuthenticationSection::tryLogin()\ \{}
+\DoxyCodeLine{00326\ \ \ \mbox{\hyperlink{class_load_save_afe1bfa793341010a92618c68a9f2ef86}{LoadSave::saveWorkOffline}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00327\ }
+\DoxyCodeLine{00328\ \ \ \textcolor{keywordflow}{if}\ (!auth\_-\/>hasAuth())\ \{}
+\DoxyCodeLine{00329\ \ \ \ \ setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00330\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00331\ \ \ \}}
+\DoxyCodeLine{00332\ }
+\DoxyCodeLine{00333\ \ \ setError(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00334\ \ \ setButtonSettings(\textcolor{keyword}{false},\ \textcolor{stringliteral}{"{}Signing\ in..."{}});}
+\DoxyCodeLine{00335\ \ \ signed\_in\_email\_\ =\ email\_-\/>getText().toStdString();}
+\DoxyCodeLine{00336\ \ \ std::string\ password\ =\ password\_-\/>getText().toStdString();}
+\DoxyCodeLine{00337\ \ \ firebase::Future<firebase::auth::User*>\ future\ =}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ auth\_-\/>auth()-\/>SignInWithEmailAndPassword(signed\_in\_email\_.c\_str(),\ password.c\_str());}
+\DoxyCodeLine{00339\ }
+\DoxyCodeLine{00340\ \ \ SafePointer<AuthenticationSection>*\ self\_reference\ =\ \textcolor{keyword}{new}\ SafePointer<AuthenticationSection>(\textcolor{keyword}{this});}
+\DoxyCodeLine{00341\ \ \ future.OnCompletion(onLoginResult,\ self\_reference);}
+\DoxyCodeLine{00342\ \}}
+\DoxyCodeLine{00343\ }
+\DoxyCodeLine{00344\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

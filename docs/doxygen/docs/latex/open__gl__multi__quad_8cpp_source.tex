@@ -1,0 +1,233 @@
+\doxysection{open\+\_\+gl\+\_\+multi\+\_\+quad.\+cpp}
+\hypertarget{open__gl__multi__quad_8cpp_source}{}\label{open__gl__multi__quad_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/open\_gl\_multi\_quad.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/open\_gl\_multi\_quad.cpp}}
+\mbox{\hyperlink{open__gl__multi__quad_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{open__gl__multi__quad_8h}{open\_gl\_multi\_quad.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{common_8h}{common.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{shaders_8h}{shaders.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \mbox{\hyperlink{class_open_gl_multi_quad_ae2db57094b576daf646d3f822d713c5e}{OpenGlMultiQuad::OpenGlMultiQuad}}(\textcolor{keywordtype}{int}\ max\_quads,\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45}{Shaders::FragmentShader}}\ shader)\ :}
+\DoxyCodeLine{00007\ \ \ \ \ target\_component\_(nullptr),\ scissor\_component\_(nullptr),\ fragment\_shader\_(shader),}
+\DoxyCodeLine{00008\ \ \ \ \ max\_quads\_(max\_quads),\ num\_quads\_(max\_quads),\ draw\_when\_not\_visible\_(false),}
+\DoxyCodeLine{00009\ \ \ \ \ active\_(true),\ dirty\_(false),\ max\_arc\_(2.0f),\ thumb\_amount\_(0.5f),\ start\_pos\_(0.0f),}
+\DoxyCodeLine{00010\ \ \ \ \ current\_alpha\_mult\_(1.0f),\ alpha\_mult\_(1.0f),\ additive\_blending\_(false),}
+\DoxyCodeLine{00011\ \ \ \ \ current\_thickness\_(1.0f),\ thickness\_(1.0f),\ rounding\_(5.0f),\ shader\_(nullptr)\ \{}
+\DoxyCodeLine{00012\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ triangles[]\ =\ \{}
+\DoxyCodeLine{00013\ \ \ \ \ 0,\ 1,\ 2,}
+\DoxyCodeLine{00014\ \ \ \ \ 2,\ 3,\ 0}
+\DoxyCodeLine{00015\ \ \ \};}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_ad1f637d8f3e570f819b0d7a8297a5fc8}{data\_}}\ =\ std::make\_unique<float[]>(\mbox{\hyperlink{class_open_gl_multi_quad_ab303bb112f678e89d9749923c9f9328b}{max\_quads\_}}\ *\ \mbox{\hyperlink{class_open_gl_multi_quad_a70e1fc76ba666ed516d19aee12c9e88c}{kNumFloatsPerQuad}});}
+\DoxyCodeLine{00018\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_aa44ce4851ac3986afbaa14f361db99b6}{indices\_}}\ =\ std::make\_unique<int[]>(\mbox{\hyperlink{class_open_gl_multi_quad_ab303bb112f678e89d9749923c9f9328b}{max\_quads\_}}\ *\ \mbox{\hyperlink{class_open_gl_multi_quad_a76764fcee3ce46357cf92219896dc8c0}{kNumIndicesPerQuad}});}
+\DoxyCodeLine{00019\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a779dda7bbb689a0bbc356db111fb44e3}{vertex\_buffer\_}}\ =\ 0;}
+\DoxyCodeLine{00020\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a5dcae5ed8fa057b6902f2fc0d7c22380}{indices\_buffer\_}}\ =\ 0;}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a2121f847a69d649793a5e968540c9c5b}{mod\_color\_}}\ =\ Colours::transparentBlack;}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_open_gl_multi_quad_ab303bb112f678e89d9749923c9f9328b}{max\_quads\_}};\ ++i)\ \{}
+\DoxyCodeLine{00025\ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a669ce09e6ce4785c489efe1ad51a784d}{setCoordinates}}(i,\ -\/1.0f,\ -\/1.0f,\ 2.0f,\ 2.0f);}
+\DoxyCodeLine{00026\ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a1f8d784949c365e3254f339d3eba752c}{setShaderValue}}(i,\ 1.0f);}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ j\ =\ 0;\ j\ <\ \mbox{\hyperlink{class_open_gl_multi_quad_a76764fcee3ce46357cf92219896dc8c0}{kNumIndicesPerQuad}};\ ++j)}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_aa44ce4851ac3986afbaa14f361db99b6}{indices\_}}[i\ *\ \mbox{\hyperlink{class_open_gl_multi_quad_a76764fcee3ce46357cf92219896dc8c0}{kNumIndicesPerQuad}}\ +\ j]\ =\ triangles[j]\ +\ i\ *\ \mbox{\hyperlink{class_open_gl_multi_quad_ac29386fdaaf415e935776399ed440ba2}{kNumVertices}};}
+\DoxyCodeLine{00030\ \ \ \}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ setInterceptsMouseClicks(\textcolor{keyword}{false},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00033\ \}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \mbox{\hyperlink{class_open_gl_multi_quad_a742f1f824d59b742388537bf81d89fa0}{OpenGlMultiQuad::\string~OpenGlMultiQuad}}()\ \{\ \}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{OpenGlMultiQuad::init}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00038\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenBuffers(1,\ \&\mbox{\hyperlink{class_open_gl_multi_quad_a779dda7bbb689a0bbc356db111fb44e3}{vertex\_buffer\_}});}
+\DoxyCodeLine{00039\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ \mbox{\hyperlink{class_open_gl_multi_quad_a779dda7bbb689a0bbc356db111fb44e3}{vertex\_buffer\_}});}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ GLsizeiptr\ vert\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(\mbox{\hyperlink{class_open_gl_multi_quad_ab303bb112f678e89d9749923c9f9328b}{max\_quads\_}}\ *\ \mbox{\hyperlink{class_open_gl_multi_quad_a70e1fc76ba666ed516d19aee12c9e88c}{kNumFloatsPerQuad}}\ *\ \textcolor{keyword}{sizeof}(float));}
+\DoxyCodeLine{00042\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ARRAY\_BUFFER,\ vert\_size,\ \mbox{\hyperlink{class_open_gl_multi_quad_ad1f637d8f3e570f819b0d7a8297a5fc8}{data\_}}.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenBuffers(1,\ \&\mbox{\hyperlink{class_open_gl_multi_quad_a5dcae5ed8fa057b6902f2fc0d7c22380}{indices\_buffer\_}});}
+\DoxyCodeLine{00045\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ \mbox{\hyperlink{class_open_gl_multi_quad_a5dcae5ed8fa057b6902f2fc0d7c22380}{indices\_buffer\_}});}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ GLsizeiptr\ bar\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(\mbox{\hyperlink{class_open_gl_multi_quad_ab303bb112f678e89d9749923c9f9328b}{max\_quads\_}}\ *\ \mbox{\hyperlink{class_open_gl_multi_quad_a76764fcee3ce46357cf92219896dc8c0}{kNumIndicesPerQuad}}\ *\ \textcolor{keyword}{sizeof}(int));}
+\DoxyCodeLine{00048\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ELEMENT\_ARRAY\_BUFFER,\ bar\_size,\ \mbox{\hyperlink{class_open_gl_multi_quad_aa44ce4851ac3986afbaa14f361db99b6}{indices\_}}.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}}\ =\ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_af70c9f649bbea5dfd68c376d1e2918ea}{shaders}}-\/>\mbox{\hyperlink{class_shaders_ae4644dfe46dda65994ede40a18e2747a}{getShaderProgram}}(\mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76ad25f3c4e61718230bbd9f68858eb771e}{Shaders::kPassthroughVertex}},\ \mbox{\hyperlink{class_open_gl_multi_quad_a056a5116e61be8df81151518a73b2113}{fragment\_shader\_}});}
+\DoxyCodeLine{00051\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}}-\/>use();}
+\DoxyCodeLine{00052\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a31eb104e4f07c9f47cadf5eb1cf3c267}{color\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}},\ \textcolor{stringliteral}{"{}color"{}});}
+\DoxyCodeLine{00053\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a3bf786590527ddd3347c1e3832c89686}{alt\_color\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}},\ \textcolor{stringliteral}{"{}alt\_color"{}});}
+\DoxyCodeLine{00054\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a769d1dbc92a92fd81815ccfe1c2af0b2}{mod\_color\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}},\ \textcolor{stringliteral}{"{}mod\_color"{}});}
+\DoxyCodeLine{00055\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a65c3dde147b41049d2ff88a642170361}{background\_color\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}},\ \textcolor{stringliteral}{"{}background\_color"{}});}
+\DoxyCodeLine{00056\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_add69eaa6ddce80ecbcbc4091c9a1626a}{thumb\_color\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}},\ \textcolor{stringliteral}{"{}thumb\_color"{}});}
+\DoxyCodeLine{00057\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a9aa17631dbbae8e41b10d8c0c6924a00}{position\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_a59361984d78ce0542bfa722179d57f93}{getAttribute}}(open\_gl,\ *\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}},\ \textcolor{stringliteral}{"{}position"{}});}
+\DoxyCodeLine{00058\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_adb8509ca6ff9055af3ded34b6dbfb994}{dimensions\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_a59361984d78ce0542bfa722179d57f93}{getAttribute}}(open\_gl,\ *\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}},\ \textcolor{stringliteral}{"{}dimensions"{}});}
+\DoxyCodeLine{00059\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a8898be4fe1c6264e5034aa389ccd0799}{coordinates\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_a59361984d78ce0542bfa722179d57f93}{getAttribute}}(open\_gl,\ *\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}},\ \textcolor{stringliteral}{"{}coordinates"{}});}
+\DoxyCodeLine{00060\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a0bcd7ef7a53438dd08273b3d26ed0cb3}{shader\_values\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_a59361984d78ce0542bfa722179d57f93}{getAttribute}}(open\_gl,\ *\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}},\ \textcolor{stringliteral}{"{}shader\_values"{}});}
+\DoxyCodeLine{00061\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_aa6a4a3a920b32ea3e75cdbfd6cde4206}{thickness\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}},\ \textcolor{stringliteral}{"{}thickness"{}});}
+\DoxyCodeLine{00062\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a9fd1b7559692dfb8848cff84d7193add}{rounding\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}},\ \textcolor{stringliteral}{"{}rounding"{}});}
+\DoxyCodeLine{00063\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_aaa7199dcf28f275335e5017e7f9dcb34}{max\_arc\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}},\ \textcolor{stringliteral}{"{}max\_arc"{}});}
+\DoxyCodeLine{00064\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_ae863af048654927ba3e5f26a47445a03}{thumb\_amount\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}},\ \textcolor{stringliteral}{"{}thumb\_amount"{}});}
+\DoxyCodeLine{00065\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_ab42ef8a97defa6a53723a78b0465edea}{start\_pos\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}},\ \textcolor{stringliteral}{"{}start\_pos"{}});}
+\DoxyCodeLine{00066\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_add731f06b46ac70f338c9e0f6d3958bb}{alpha\_mult\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}},\ \textcolor{stringliteral}{"{}alpha\_mult"{}});}
+\DoxyCodeLine{00067\ \}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{OpenGlMultiQuad::destroy}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00070\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00071\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a9aa17631dbbae8e41b10d8c0c6924a00}{position\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00072\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_adb8509ca6ff9055af3ded34b6dbfb994}{dimensions\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00073\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a8898be4fe1c6264e5034aa389ccd0799}{coordinates\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00074\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a0bcd7ef7a53438dd08273b3d26ed0cb3}{shader\_values\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00075\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a31eb104e4f07c9f47cadf5eb1cf3c267}{color\_uniform\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00076\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a3bf786590527ddd3347c1e3832c89686}{alt\_color\_uniform\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00077\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a769d1dbc92a92fd81815ccfe1c2af0b2}{mod\_color\_uniform\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00078\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_add69eaa6ddce80ecbcbc4091c9a1626a}{thumb\_color\_uniform\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00079\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_aa6a4a3a920b32ea3e75cdbfd6cde4206}{thickness\_uniform\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00080\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a9fd1b7559692dfb8848cff84d7193add}{rounding\_uniform\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00081\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_aaa7199dcf28f275335e5017e7f9dcb34}{max\_arc\_uniform\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00082\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_ae863af048654927ba3e5f26a47445a03}{thumb\_amount\_uniform\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00083\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_ab42ef8a97defa6a53723a78b0465edea}{start\_pos\_uniform\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00084\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_add731f06b46ac70f338c9e0f6d3958bb}{alpha\_mult\_uniform\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00085\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDeleteBuffers(1,\ \&\mbox{\hyperlink{class_open_gl_multi_quad_a779dda7bbb689a0bbc356db111fb44e3}{vertex\_buffer\_}});}
+\DoxyCodeLine{00086\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDeleteBuffers(1,\ \&\mbox{\hyperlink{class_open_gl_multi_quad_a5dcae5ed8fa057b6902f2fc0d7c22380}{indices\_buffer\_}});}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a779dda7bbb689a0bbc356db111fb44e3}{vertex\_buffer\_}}\ =\ 0;}
+\DoxyCodeLine{00089\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a5dcae5ed8fa057b6902f2fc0d7c22380}{indices\_buffer\_}}\ =\ 0;}
+\DoxyCodeLine{00090\ \}}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{OpenGlMultiQuad::render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00093\ \ \ Component*\ component\ =\ \mbox{\hyperlink{class_open_gl_multi_quad_ad67b7f3edf911b77d7e5b47b57caba5c}{target\_component\_}}\ ?\ \mbox{\hyperlink{class_open_gl_multi_quad_ad67b7f3edf911b77d7e5b47b57caba5c}{target\_component\_}}\ :\ \textcolor{keyword}{this};}
+\DoxyCodeLine{00094\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{class_open_gl_multi_quad_a2b5da7bbebaff605de00fbbbfd71d8cb}{active\_}}\ ||\ (!\mbox{\hyperlink{class_open_gl_multi_quad_a0994a10e440b76ac2711c703f4c3723c}{draw\_when\_not\_visible\_}}\ \&\&\ !component-\/>isVisible())\ ||\ !\mbox{\hyperlink{class_open_gl_component_a0641317fa0d502284c603188bb7da9a7}{setViewPort}}(component,\ open\_gl))}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ Component*\ scissor\_component\ =\ \mbox{\hyperlink{class_open_gl_multi_quad_ab956b5cba7402374169338cb61d7f160}{scissor\_component\_}};}
+\DoxyCodeLine{00098\ \ \ \textcolor{keywordflow}{if}\ (scissor\_component)}
+\DoxyCodeLine{00099\ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_a952d9b34dc573da02105986f794a7718}{setScissor}}(scissor\_component,\ open\_gl);}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_a02906f62b0e872238102babebe47bcff}{current\_alpha\_mult\_}}\ ==\ 0.0f\ \&\&\ \mbox{\hyperlink{class_open_gl_multi_quad_ad0e0c6555587c00f47dfcc9b31037caf}{alpha\_mult\_}}\ ==\ 0.0f)}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00105\ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ glEnable(GL\_BLEND);}
+\DoxyCodeLine{00108\ \ \ glEnable(GL\_SCISSOR\_TEST);}
+\DoxyCodeLine{00109\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_a46b90584b136f77bbefa52873c715c1d}{additive\_blending\_}})}
+\DoxyCodeLine{00110\ \ \ \ \ glBlendFunc(GL\_SRC\_ALPHA,\ GL\_ONE);}
+\DoxyCodeLine{00111\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00112\ \ \ \ \ glBlendFunc(GL\_SRC\_ALPHA,\ GL\_ONE\_MINUS\_SRC\_ALPHA);}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_ac1a6b936f89c49db789387f37c55f613}{dirty\_}})\ \{}
+\DoxyCodeLine{00115\ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_ac1a6b936f89c49db789387f37c55f613}{dirty\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_open_gl_multi_quad_aeb5e88d7562d6f071f61e25d230e7147}{num\_quads\_}};\ ++i)}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a93c8b0f1e84183068ac8f392c80456e2}{setDimensions}}(i,\ \mbox{\hyperlink{class_open_gl_multi_quad_a782376a7dc9bed691babb1527a2a517a}{getQuadWidth}}(i),\ \mbox{\hyperlink{class_open_gl_multi_quad_a3a65616636b55e936d8ca3074edfa1d0}{getQuadHeight}}(i),\ component-\/>getWidth(),\ component-\/>getHeight());}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ \mbox{\hyperlink{class_open_gl_multi_quad_a779dda7bbb689a0bbc356db111fb44e3}{vertex\_buffer\_}});}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ \ \ GLsizeiptr\ vert\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(\mbox{\hyperlink{class_open_gl_multi_quad_a70e1fc76ba666ed516d19aee12c9e88c}{kNumFloatsPerQuad}}\ *\ \mbox{\hyperlink{class_open_gl_multi_quad_ab303bb112f678e89d9749923c9f9328b}{max\_quads\_}}\ *\ \textcolor{keyword}{sizeof}(float));}
+\DoxyCodeLine{00123\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ARRAY\_BUFFER,\ vert\_size,\ \mbox{\hyperlink{class_open_gl_multi_quad_ad1f637d8f3e570f819b0d7a8297a5fc8}{data\_}}.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00124\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ 0);}
+\DoxyCodeLine{00125\ \ \ \}}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a35cbc0c7980fc36655f753e0ef388dfb}{shader\_}}-\/>use();}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ \textcolor{comment}{//\ Adjust\ alpha\ towards\ target}}
+\DoxyCodeLine{00130\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_ad0e0c6555587c00f47dfcc9b31037caf}{alpha\_mult\_}}\ >\ \mbox{\hyperlink{class_open_gl_multi_quad_a02906f62b0e872238102babebe47bcff}{current\_alpha\_mult\_}})}
+\DoxyCodeLine{00131\ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a02906f62b0e872238102babebe47bcff}{current\_alpha\_mult\_}}\ =\ std::min(\mbox{\hyperlink{class_open_gl_multi_quad_ad0e0c6555587c00f47dfcc9b31037caf}{alpha\_mult\_}},\ \mbox{\hyperlink{class_open_gl_multi_quad_a02906f62b0e872238102babebe47bcff}{current\_alpha\_mult\_}}\ +\ \mbox{\hyperlink{class_open_gl_multi_quad_a6b0c14f0959bb4a24d286385e269272e}{kAlphaInc}});}
+\DoxyCodeLine{00132\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00133\ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a02906f62b0e872238102babebe47bcff}{current\_alpha\_mult\_}}\ =\ std::max(\mbox{\hyperlink{class_open_gl_multi_quad_ad0e0c6555587c00f47dfcc9b31037caf}{alpha\_mult\_}},\ \mbox{\hyperlink{class_open_gl_multi_quad_a02906f62b0e872238102babebe47bcff}{current\_alpha\_mult\_}}\ -\/\ \mbox{\hyperlink{class_open_gl_multi_quad_a6b0c14f0959bb4a24d286385e269272e}{kAlphaInc}});}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \ \ \textcolor{keywordtype}{float}\ alpha\_color\_mult\ =\ 1.0f;}
+\DoxyCodeLine{00136\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_add731f06b46ac70f338c9e0f6d3958bb}{alpha\_mult\_uniform\_}})}
+\DoxyCodeLine{00137\ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_add731f06b46ac70f338c9e0f6d3958bb}{alpha\_mult\_uniform\_}}-\/>set(\mbox{\hyperlink{class_open_gl_multi_quad_a02906f62b0e872238102babebe47bcff}{current\_alpha\_mult\_}});}
+\DoxyCodeLine{00138\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00139\ \ \ \ \ alpha\_color\_mult\ =\ \mbox{\hyperlink{class_open_gl_multi_quad_a02906f62b0e872238102babebe47bcff}{current\_alpha\_mult\_}};}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a31eb104e4f07c9f47cadf5eb1cf3c267}{color\_uniform\_}}-\/>set(\mbox{\hyperlink{class_open_gl_multi_quad_a996fb1d1172e64ead36df79bca1c7b14}{color\_}}.getFloatRed(),\ \mbox{\hyperlink{class_open_gl_multi_quad_a996fb1d1172e64ead36df79bca1c7b14}{color\_}}.getFloatGreen(),}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a996fb1d1172e64ead36df79bca1c7b14}{color\_}}.getFloatBlue(),\ alpha\_color\_mult\ *\ \mbox{\hyperlink{class_open_gl_multi_quad_a996fb1d1172e64ead36df79bca1c7b14}{color\_}}.getFloatAlpha());}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00144\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_a3bf786590527ddd3347c1e3832c89686}{alt\_color\_uniform\_}})\ \{}
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_a1bfc09aed7112c9ee67b71c148435eaa}{alt\_color\_}}.getFloatAlpha())\ \{}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a3bf786590527ddd3347c1e3832c89686}{alt\_color\_uniform\_}}-\/>set(\mbox{\hyperlink{class_open_gl_multi_quad_a1bfc09aed7112c9ee67b71c148435eaa}{alt\_color\_}}.getFloatRed(),\ \mbox{\hyperlink{class_open_gl_multi_quad_a1bfc09aed7112c9ee67b71c148435eaa}{alt\_color\_}}.getFloatGreen(),}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a1bfc09aed7112c9ee67b71c148435eaa}{alt\_color\_}}.getFloatBlue(),\ \mbox{\hyperlink{class_open_gl_multi_quad_a1bfc09aed7112c9ee67b71c148435eaa}{alt\_color\_}}.getFloatAlpha());}
+\DoxyCodeLine{00148\ \ \ \ \ \}}
+\DoxyCodeLine{00149\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a3bf786590527ddd3347c1e3832c89686}{alt\_color\_uniform\_}}-\/>set(\mbox{\hyperlink{class_open_gl_multi_quad_a996fb1d1172e64ead36df79bca1c7b14}{color\_}}.getFloatRed(),\ \mbox{\hyperlink{class_open_gl_multi_quad_a996fb1d1172e64ead36df79bca1c7b14}{color\_}}.getFloatGreen(),\ \mbox{\hyperlink{class_open_gl_multi_quad_a996fb1d1172e64ead36df79bca1c7b14}{color\_}}.getFloatBlue(),\ 0.0f);}
+\DoxyCodeLine{00151\ \ \ \}}
+\DoxyCodeLine{00152\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_a769d1dbc92a92fd81815ccfe1c2af0b2}{mod\_color\_uniform\_}})\ \{}
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_a2121f847a69d649793a5e968540c9c5b}{mod\_color\_}}.getFloatAlpha())\ \{}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a769d1dbc92a92fd81815ccfe1c2af0b2}{mod\_color\_uniform\_}}-\/>set(\mbox{\hyperlink{class_open_gl_multi_quad_a2121f847a69d649793a5e968540c9c5b}{mod\_color\_}}.getFloatRed(),\ \mbox{\hyperlink{class_open_gl_multi_quad_a2121f847a69d649793a5e968540c9c5b}{mod\_color\_}}.getFloatGreen(),}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a2121f847a69d649793a5e968540c9c5b}{mod\_color\_}}.getFloatBlue(),\ \mbox{\hyperlink{class_open_gl_multi_quad_a2121f847a69d649793a5e968540c9c5b}{mod\_color\_}}.getFloatAlpha());}
+\DoxyCodeLine{00156\ \ \ \ \ \}}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a769d1dbc92a92fd81815ccfe1c2af0b2}{mod\_color\_uniform\_}}-\/>set(\mbox{\hyperlink{class_open_gl_multi_quad_a996fb1d1172e64ead36df79bca1c7b14}{color\_}}.getFloatRed(),\ \mbox{\hyperlink{class_open_gl_multi_quad_a996fb1d1172e64ead36df79bca1c7b14}{color\_}}.getFloatGreen(),\ \mbox{\hyperlink{class_open_gl_multi_quad_a996fb1d1172e64ead36df79bca1c7b14}{color\_}}.getFloatBlue(),\ 0.0f);}
+\DoxyCodeLine{00159\ \ \ \}}
+\DoxyCodeLine{00160\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_a65c3dde147b41049d2ff88a642170361}{background\_color\_uniform\_}})\ \{}
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_component_ae64b7a57b19c007664f3c2fd125a99db}{background\_color\_}}.getFloatAlpha())\ \{}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a65c3dde147b41049d2ff88a642170361}{background\_color\_uniform\_}}-\/>set(\mbox{\hyperlink{class_open_gl_component_ae64b7a57b19c007664f3c2fd125a99db}{background\_color\_}}.getFloatRed(),\ \mbox{\hyperlink{class_open_gl_component_ae64b7a57b19c007664f3c2fd125a99db}{background\_color\_}}.getFloatGreen(),}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_ae64b7a57b19c007664f3c2fd125a99db}{background\_color\_}}.getFloatBlue(),\ \mbox{\hyperlink{class_open_gl_component_ae64b7a57b19c007664f3c2fd125a99db}{background\_color\_}}.getFloatAlpha());}
+\DoxyCodeLine{00164\ \ \ \ \ \}}
+\DoxyCodeLine{00165\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a65c3dde147b41049d2ff88a642170361}{background\_color\_uniform\_}}-\/>set(\mbox{\hyperlink{class_open_gl_multi_quad_a996fb1d1172e64ead36df79bca1c7b14}{color\_}}.getFloatRed(),\ \mbox{\hyperlink{class_open_gl_multi_quad_a996fb1d1172e64ead36df79bca1c7b14}{color\_}}.getFloatGreen(),\ \mbox{\hyperlink{class_open_gl_multi_quad_a996fb1d1172e64ead36df79bca1c7b14}{color\_}}.getFloatBlue(),\ 0.0f);}
+\DoxyCodeLine{00167\ \ \ \}}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_add69eaa6ddce80ecbcbc4091c9a1626a}{thumb\_color\_uniform\_}})\ \{}
+\DoxyCodeLine{00170\ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_add69eaa6ddce80ecbcbc4091c9a1626a}{thumb\_color\_uniform\_}}-\/>set(\mbox{\hyperlink{class_open_gl_multi_quad_a0f7bf77bd8f73fbf234e5e56faa51354}{thumb\_color\_}}.getFloatRed(),\ \mbox{\hyperlink{class_open_gl_multi_quad_a0f7bf77bd8f73fbf234e5e56faa51354}{thumb\_color\_}}.getFloatGreen(),}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a0f7bf77bd8f73fbf234e5e56faa51354}{thumb\_color\_}}.getFloatBlue(),\ \mbox{\hyperlink{class_open_gl_multi_quad_a0f7bf77bd8f73fbf234e5e56faa51354}{thumb\_color\_}}.getFloatAlpha());}
+\DoxyCodeLine{00172\ \ \ \}}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_ae863af048654927ba3e5f26a47445a03}{thumb\_amount\_uniform\_}})}
+\DoxyCodeLine{00175\ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_ae863af048654927ba3e5f26a47445a03}{thumb\_amount\_uniform\_}}-\/>set(\mbox{\hyperlink{class_open_gl_multi_quad_a366a035c43d52d820599dd2650061098}{thumb\_amount\_}});}
+\DoxyCodeLine{00176\ }
+\DoxyCodeLine{00177\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_ab42ef8a97defa6a53723a78b0465edea}{start\_pos\_uniform\_}})}
+\DoxyCodeLine{00178\ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_ab42ef8a97defa6a53723a78b0465edea}{start\_pos\_uniform\_}}-\/>set(\mbox{\hyperlink{class_open_gl_multi_quad_ad36404248e58f73da0f9e511c105f8eb}{start\_pos\_}});}
+\DoxyCodeLine{00179\ }
+\DoxyCodeLine{00180\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_aa6a4a3a920b32ea3e75cdbfd6cde4206}{thickness\_uniform\_}})\ \{}
+\DoxyCodeLine{00181\ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_af052c9046d48c29736a05411c574383e}{current\_thickness\_}}\ =\ \mbox{\hyperlink{class_open_gl_multi_quad_af052c9046d48c29736a05411c574383e}{current\_thickness\_}}\ +\ \mbox{\hyperlink{class_open_gl_multi_quad_a3d824dd5a1b3a9fde70fb38eb39d93b7}{kThicknessDecay}}\ *\ (\mbox{\hyperlink{class_open_gl_multi_quad_a0c2f7b1a1e8076328c3b7b45f3b413fc}{thickness\_}}\ -\/\ \mbox{\hyperlink{class_open_gl_multi_quad_af052c9046d48c29736a05411c574383e}{current\_thickness\_}});}
+\DoxyCodeLine{00182\ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_aa6a4a3a920b32ea3e75cdbfd6cde4206}{thickness\_uniform\_}}-\/>set(\mbox{\hyperlink{class_open_gl_multi_quad_af052c9046d48c29736a05411c574383e}{current\_thickness\_}});}
+\DoxyCodeLine{00183\ \ \ \}}
+\DoxyCodeLine{00184\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_a9fd1b7559692dfb8848cff84d7193add}{rounding\_uniform\_}})}
+\DoxyCodeLine{00185\ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_a9fd1b7559692dfb8848cff84d7193add}{rounding\_uniform\_}}-\/>set(\mbox{\hyperlink{class_open_gl_multi_quad_a4cc4f9c8a5251eb8da52443c1978b4c5}{rounding\_}});}
+\DoxyCodeLine{00186\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_aaa7199dcf28f275335e5017e7f9dcb34}{max\_arc\_uniform\_}})}
+\DoxyCodeLine{00187\ \ \ \ \ \mbox{\hyperlink{class_open_gl_multi_quad_aaa7199dcf28f275335e5017e7f9dcb34}{max\_arc\_uniform\_}}-\/>set(\mbox{\hyperlink{class_open_gl_multi_quad_a7a714e2d2fa71c1a449f9f283155944f}{max\_arc\_}});}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ \mbox{\hyperlink{class_open_gl_multi_quad_a779dda7bbb689a0bbc356db111fb44e3}{vertex\_buffer\_}});}
+\DoxyCodeLine{00190\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ \mbox{\hyperlink{class_open_gl_multi_quad_a5dcae5ed8fa057b6902f2fc0d7c22380}{indices\_buffer\_}});}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glVertexAttribPointer(\mbox{\hyperlink{class_open_gl_multi_quad_a9aa17631dbbae8e41b10d8c0c6924a00}{position\_}}-\/>attributeID,\ 2,\ GL\_FLOAT,}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GL\_FALSE,\ \mbox{\hyperlink{class_open_gl_multi_quad_a51a28203bb0a02181bb1e28eea0e1240}{kNumFloatsPerVertex}}\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00194\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glEnableVertexAttribArray(\mbox{\hyperlink{class_open_gl_multi_quad_a9aa17631dbbae8e41b10d8c0c6924a00}{position\_}}-\/>attributeID);}
+\DoxyCodeLine{00195\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_adb8509ca6ff9055af3ded34b6dbfb994}{dimensions\_}})\ \{}
+\DoxyCodeLine{00196\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glVertexAttribPointer(\mbox{\hyperlink{class_open_gl_multi_quad_adb8509ca6ff9055af3ded34b6dbfb994}{dimensions\_}}-\/>attributeID,\ 2,\ GL\_FLOAT,}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GL\_FALSE,\ \mbox{\hyperlink{class_open_gl_multi_quad_a51a28203bb0a02181bb1e28eea0e1240}{kNumFloatsPerVertex}}\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (GLvoid*)(2\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float})));}
+\DoxyCodeLine{00199\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glEnableVertexAttribArray(\mbox{\hyperlink{class_open_gl_multi_quad_adb8509ca6ff9055af3ded34b6dbfb994}{dimensions\_}}-\/>attributeID);}
+\DoxyCodeLine{00200\ \ \ \}}
+\DoxyCodeLine{00201\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_a8898be4fe1c6264e5034aa389ccd0799}{coordinates\_}})\ \{}
+\DoxyCodeLine{00202\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glVertexAttribPointer(\mbox{\hyperlink{class_open_gl_multi_quad_a8898be4fe1c6264e5034aa389ccd0799}{coordinates\_}}-\/>attributeID,\ 2,\ GL\_FLOAT,}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GL\_FALSE,\ \mbox{\hyperlink{class_open_gl_multi_quad_a51a28203bb0a02181bb1e28eea0e1240}{kNumFloatsPerVertex}}\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (GLvoid*)(4\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float})));}
+\DoxyCodeLine{00205\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glEnableVertexAttribArray(\mbox{\hyperlink{class_open_gl_multi_quad_a8898be4fe1c6264e5034aa389ccd0799}{coordinates\_}}-\/>attributeID);}
+\DoxyCodeLine{00206\ \ \ \}}
+\DoxyCodeLine{00207\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_a0bcd7ef7a53438dd08273b3d26ed0cb3}{shader\_values\_}})\ \{}
+\DoxyCodeLine{00208\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glVertexAttribPointer(\mbox{\hyperlink{class_open_gl_multi_quad_a0bcd7ef7a53438dd08273b3d26ed0cb3}{shader\_values\_}}-\/>attributeID,\ 4,\ GL\_FLOAT,}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GL\_FALSE,\ \mbox{\hyperlink{class_open_gl_multi_quad_a51a28203bb0a02181bb1e28eea0e1240}{kNumFloatsPerVertex}}\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (GLvoid*)(6\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float})));}
+\DoxyCodeLine{00211\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glEnableVertexAttribArray(\mbox{\hyperlink{class_open_gl_multi_quad_a0bcd7ef7a53438dd08273b3d26ed0cb3}{shader\_values\_}}-\/>attributeID);}
+\DoxyCodeLine{00212\ \ \ \}}
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00214\ \ \ glDrawElements(GL\_TRIANGLES,\ \mbox{\hyperlink{class_open_gl_multi_quad_aeb5e88d7562d6f071f61e25d230e7147}{num\_quads\_}}\ *\ \mbox{\hyperlink{class_open_gl_multi_quad_a76764fcee3ce46357cf92219896dc8c0}{kNumIndicesPerQuad}},\ GL\_UNSIGNED\_INT,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00215\ }
+\DoxyCodeLine{00216\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDisableVertexAttribArray(\mbox{\hyperlink{class_open_gl_multi_quad_a9aa17631dbbae8e41b10d8c0c6924a00}{position\_}}-\/>attributeID);}
+\DoxyCodeLine{00217\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_adb8509ca6ff9055af3ded34b6dbfb994}{dimensions\_}})}
+\DoxyCodeLine{00218\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDisableVertexAttribArray(\mbox{\hyperlink{class_open_gl_multi_quad_adb8509ca6ff9055af3ded34b6dbfb994}{dimensions\_}}-\/>attributeID);}
+\DoxyCodeLine{00219\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_a8898be4fe1c6264e5034aa389ccd0799}{coordinates\_}})}
+\DoxyCodeLine{00220\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDisableVertexAttribArray(\mbox{\hyperlink{class_open_gl_multi_quad_a8898be4fe1c6264e5034aa389ccd0799}{coordinates\_}}-\/>attributeID);}
+\DoxyCodeLine{00221\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_multi_quad_a0bcd7ef7a53438dd08273b3d26ed0cb3}{shader\_values\_}})}
+\DoxyCodeLine{00222\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDisableVertexAttribArray(\mbox{\hyperlink{class_open_gl_multi_quad_a0bcd7ef7a53438dd08273b3d26ed0cb3}{shader\_values\_}}-\/>attributeID);}
+\DoxyCodeLine{00223\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ 0);}
+\DoxyCodeLine{00224\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ 0);}
+\DoxyCodeLine{00225\ \ \ glDisable(GL\_BLEND);}
+\DoxyCodeLine{00226\ \ \ glDisable(GL\_SCISSOR\_TEST);}
+\DoxyCodeLine{00227\ \}}
+
+\end{DoxyCode}

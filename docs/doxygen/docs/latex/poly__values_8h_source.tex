@@ -1,0 +1,937 @@
+\doxysection{poly\+\_\+values.\+h}
+\hypertarget{poly__values_8h_source}{}\label{poly__values_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/framework/poly\_values.h@{/Users/davidvogel/repos/VitalHelp/src/synthesis/framework/poly\_values.h}}
+\mbox{\hyperlink{poly__values_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <cstdint>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <climits>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <cstdlib>}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\ \ \#define\ VITAL\_AVX2\ 1}}
+\DoxyCodeLine{00021\ \ \ \textcolor{keyword}{static\_assert}(\textcolor{keyword}{false},\ \textcolor{stringliteral}{"{}AVX2\ is\ not\ supported\ yet."{}});}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#elif\ \_\_SSE2\_\_}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\ \ \#define\ VITAL\_SSE2\ 1}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#elif\ defined(\_\_ARM\_NEON\_\_)\ ||\ defined(\_\_ARM\_NEON)}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\ \ \#define\ VITAL\_NEON\ 1}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00027\ \ \ \textcolor{keyword}{static\_assert}(\textcolor{keyword}{false},\ \textcolor{stringliteral}{"{}No\ SIMD\ Intrinsics\ found\ which\ are\ necessary\ for\ compilation"{}});}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#if\ VITAL\_SSE2}}
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\ \ \#include\ <immintrin.h>}}
+\DoxyCodeLine{00032\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00033\ \textcolor{preprocessor}{\ \ \#include\ <arm\_neon.h>}}
+\DoxyCodeLine{00034\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \textcolor{preprocessor}{\#if\ !defined(force\_inline)}}
+\DoxyCodeLine{00037\ \textcolor{preprocessor}{\#if\ defined\ (\_MSC\_VER)}}
+\DoxyCodeLine{00038\ \textcolor{preprocessor}{\#define\ force\_inline\ \_\_forceinline}}
+\DoxyCodeLine{00039\ \textcolor{preprocessor}{\ \ \#define\ vector\_call\ \_\_vectorcall}}
+\DoxyCodeLine{00040\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\ \ \#define\ force\_inline\ inline\ \_\_attribute\_\_((always\_inline))}}
+\DoxyCodeLine{00042\ \textcolor{preprocessor}{\ \ \#define\ vector\_call}}
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00056\ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \{}
+\DoxyCodeLine{00057\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{size\_t}\ kSize\ =\ 8;\ }
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keyword}{typedef}\ \_\_m256i\ simd\_type;\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00060\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{size\_t}\ kSize\ =\ 4;\ }
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keyword}{typedef}\ \_\_m128i\ simd\_type;\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00063\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{size\_t}\ kSize\ =\ 4;\ }
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{keyword}{typedef}\ uint32x4\_t\ simd\_type;\ \ \ \ \ }
+\DoxyCodeLine{00066\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keyword}{union\ }\mbox{\hyperlink{unionvital_1_1poly__int_1_1scalar__simd__union}{scalar\_simd\_union}}\ \{}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ int32\_t\ \mbox{\hyperlink{unionvital_1_1poly__int_1_1scalar__simd__union_ab42d9dfa2153e94c9f747dfadd102651}{scalar}}[kSize];\ }
+\DoxyCodeLine{00074\ \ \ \ \ \ \ simd\_type\ \mbox{\hyperlink{unionvital_1_1poly__int_1_1scalar__simd__union_a4ee7cba47df9bd1709e4d3607ac2dea1}{simd}};\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00075\ \ \ \ \ \};}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keyword}{union\ }\mbox{\hyperlink{unionvital_1_1poly__int_1_1simd__scalar__union}{simd\_scalar\_union}}\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ simd\_type\ \mbox{\hyperlink{unionvital_1_1poly__int_1_1simd__scalar__union_a70186d0c7891f151d282bd4d1ad61ad5}{simd}};\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00083\ \ \ \ \ \ \ int32\_t\ \mbox{\hyperlink{unionvital_1_1poly__int_1_1simd__scalar__union_a05ba9de37a773416a54f42254f6b5d71}{scalar}}[kSize];\ }
+\DoxyCodeLine{00084\ \ \ \ \ \};}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ uint32\_t\ \mbox{\hyperlink{structvital_1_1poly__int_aa72577ba6209bd828b6b6621cd222f10}{kFullMask}}\ \ \ \ \ \ =\ (\textcolor{keywordtype}{unsigned}\ int)-\/1;\ \ \ }
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ uint32\_t\ \mbox{\hyperlink{structvital_1_1poly__int_a8f9449835bf022fb6269ab42443f302f}{kSignMask}}\ \ \ \ \ \ =\ 0x80000000;\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ uint32\_t\ \mbox{\hyperlink{structvital_1_1poly__int_aa98bb2f15373b76fcefcf6be6d9b7f93}{kNotSignMask}}\ \ \ =\ \mbox{\hyperlink{structvital_1_1poly__int_aa72577ba6209bd828b6b6621cd222f10}{kFullMask}}\ \string^\ \mbox{\hyperlink{structvital_1_1poly__int_a8f9449835bf022fb6269ab42443f302f}{kSignMask}};\ }
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a155294abe3df0d28d575079127edc286}{init}}(uint32\_t\ scalar)\ \{}
+\DoxyCodeLine{00096\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_set1\_epi32((int32\_t)scalar);}
+\DoxyCodeLine{00098\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_set1\_epi32((int32\_t)scalar);}
+\DoxyCodeLine{00100\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vdupq\_n\_u32(scalar);}
+\DoxyCodeLine{00102\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00103\ \ \ \ \ \}}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a681cc0d3e3f4c4b0d80bd7d0d2462f81}{load}}(\textcolor{keyword}{const}\ uint32\_t*\ memory)\ \{}
+\DoxyCodeLine{00111\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_loadu\_si256((\textcolor{keyword}{const}\ \_\_m256i*)scalar);}
+\DoxyCodeLine{00113\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_loadu\_si128((\textcolor{keyword}{const}\ \_\_m128i*)memory);}
+\DoxyCodeLine{00115\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vld1q\_u32(memory);}
+\DoxyCodeLine{00117\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00118\ \ \ \ \ \}}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a5dec7d3f9f4e317edd3631cd3af26a49}{add}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00127\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_add\_epi32(one,\ two);}
+\DoxyCodeLine{00129\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_add\_epi32(one,\ two);}
+\DoxyCodeLine{00131\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vaddq\_u32(one,\ two);}
+\DoxyCodeLine{00133\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00134\ \ \ \ \ \}}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_acaaef34a3d1eba2658a73a94fb628ad7}{sub}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00143\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_sub\_epi32(one,\ two);}
+\DoxyCodeLine{00145\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_sub\_epi32(one,\ two);}
+\DoxyCodeLine{00147\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vsubq\_u32(one,\ two);}
+\DoxyCodeLine{00149\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00150\ \ \ \ \ \}}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a8382ff2579e871a587aea80d112ae21d}{neg}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}})\ \{}
+\DoxyCodeLine{00158\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_sub\_epi32(\_mm256\_set1\_epi32(0),\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}});}
+\DoxyCodeLine{00160\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_sub\_epi32(\_mm\_set1\_epi32(0),\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}});}
+\DoxyCodeLine{00162\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vmulq\_n\_u32(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ -\/1);}
+\DoxyCodeLine{00164\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00165\ \ \ \ \ \}}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00173\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a08c0fbea3792419e96f9d3101b44b7af}{mul}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00174\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_mul\_epi32(one,\ two);}
+\DoxyCodeLine{00176\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \textcolor{comment}{//\ SSE2\ does\ not\ have\ a\ direct\ epi32\ multiply,\ so\ we\ emulate\ it:}}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ simd\_type\ mul0\_2\ =\ \_mm\_mul\_epu32(one,\ two);}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ simd\_type\ mul1\_3\ =\ \_mm\_mul\_epu32(}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \_mm\_shuffle\_epi32(one,\ \_MM\_SHUFFLE(2,\ 3,\ 0,\ 1)),}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \_mm\_shuffle\_epi32(two,\ \_MM\_SHUFFLE(2,\ 3,\ 0,\ 1)));}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_unpacklo\_epi32(}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \_mm\_shuffle\_epi32(mul0\_2,\ \_MM\_SHUFFLE\ (0,\ 0,\ 2,\ 0)),}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \_mm\_shuffle\_epi32(mul1\_3,\ \_MM\_SHUFFLE\ (0,\ 0,\ 2,\ 0)));}
+\DoxyCodeLine{00185\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vmulq\_u32(one,\ two);}
+\DoxyCodeLine{00187\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00188\ \ \ \ \ \}}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00196\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_ae380a2b9ebdf6617d825d1cb9b72b1ef}{bitAnd}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ simd\_type\ mask)\ \{}
+\DoxyCodeLine{00197\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_and\_si256(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ mask);}
+\DoxyCodeLine{00199\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_and\_si128(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ mask);}
+\DoxyCodeLine{00201\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vandq\_u32(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ mask);}
+\DoxyCodeLine{00203\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00204\ \ \ \ \ \}}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00212\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_aa23fac238bbbcb9f965968a45f1d8984}{bitOr}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ simd\_type\ mask)\ \{}
+\DoxyCodeLine{00213\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_or\_si256(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ mask);}
+\DoxyCodeLine{00215\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_or\_si128(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ mask);}
+\DoxyCodeLine{00217\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vorrq\_u32(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ mask);}
+\DoxyCodeLine{00219\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00220\ \ \ \ \ \}}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00228\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_ae68022b527921416b4669ad19f6cc8be}{bitXor}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ simd\_type\ mask)\ \{}
+\DoxyCodeLine{00229\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_xor\_si256(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ mask);}
+\DoxyCodeLine{00231\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_xor\_si128(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ mask);}
+\DoxyCodeLine{00233\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ veorq\_u32(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ mask);}
+\DoxyCodeLine{00235\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00236\ \ \ \ \ \}}
+\DoxyCodeLine{00237\ }
+\DoxyCodeLine{00243\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a737fd48a8675dd0920990cea4a566db1}{bitNot}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}})\ \{}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_ae68022b527921416b4669ad19f6cc8be}{bitXor}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ \mbox{\hyperlink{structvital_1_1poly__int_a155294abe3df0d28d575079127edc286}{init}}(-\/1));}
+\DoxyCodeLine{00245\ \ \ \ \ \}}
+\DoxyCodeLine{00246\ }
+\DoxyCodeLine{00253\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a2acb4fe9ba2b63e32043e459be437f49}{max}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00254\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00255\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_max\_epi32(one,\ two);}
+\DoxyCodeLine{00256\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ simd\_type\ greater\_than\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__int_ab6353308ea6f20002bfb7e4410acfbfd}{greaterThan}}(one,\ two);}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \textcolor{comment}{//\ Choose\ 'one'\ where\ mask\ is\ set,\ else\ 'two'}}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_or\_si128(\_mm\_and\_si128(greater\_than\_mask,\ one),}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_mm\_andnot\_si128(greater\_than\_mask,\ two));}
+\DoxyCodeLine{00261\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00262\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vmaxq\_u32(one,\ two);}
+\DoxyCodeLine{00263\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00264\ \ \ \ \ \}}
+\DoxyCodeLine{00265\ }
+\DoxyCodeLine{00272\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_aa37d83e861e960ab2efaa366fdc8768d}{min}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00273\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_min\_epi32(one,\ two);}
+\DoxyCodeLine{00275\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00276\ \ \ \ \ \ \ simd\_type\ less\_than\_mask\ =\ \_mm\_cmpgt\_epi32(two,\ one);}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \textcolor{comment}{//\ Choose\ 'one'\ where\ mask\ is\ set,\ else\ 'two'}}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_or\_si128(\_mm\_and\_si128(less\_than\_mask,\ one),}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_mm\_andnot\_si128(less\_than\_mask,\ two));}
+\DoxyCodeLine{00280\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vminq\_u32(one,\ two);}
+\DoxyCodeLine{00282\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00283\ \ \ \ \ \}}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00291\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_aba1a4192cda895a71f1928a9037d179f}{equal}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00292\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_cmpeq\_epi32(one,\ two);}
+\DoxyCodeLine{00294\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_cmpeq\_epi32(one,\ two);}
+\DoxyCodeLine{00296\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00297\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vceqq\_u32(one,\ two);}
+\DoxyCodeLine{00298\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00299\ \ \ \ \ \}}
+\DoxyCodeLine{00300\ }
+\DoxyCodeLine{00309\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_ab6353308ea6f20002bfb7e4410acfbfd}{greaterThan}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00310\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_cmpgt\_epi32(\_mm256\_xor\_si256(one,\ \mbox{\hyperlink{structvital_1_1poly__int_a155294abe3df0d28d575079127edc286}{init}}(\mbox{\hyperlink{structvital_1_1poly__int_a8f9449835bf022fb6269ab42443f302f}{kSignMask}})),}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_mm256\_xor\_si256(two,\ \mbox{\hyperlink{structvital_1_1poly__int_a155294abe3df0d28d575079127edc286}{init}}(\mbox{\hyperlink{structvital_1_1poly__int_a8f9449835bf022fb6269ab42443f302f}{kSignMask}})));}
+\DoxyCodeLine{00313\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_cmpgt\_epi32(\_mm\_xor\_si128(one,\ \mbox{\hyperlink{structvital_1_1poly__int_a155294abe3df0d28d575079127edc286}{init}}(\mbox{\hyperlink{structvital_1_1poly__int_a8f9449835bf022fb6269ab42443f302f}{kSignMask}})),}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_mm\_xor\_si128(two,\ \mbox{\hyperlink{structvital_1_1poly__int_a155294abe3df0d28d575079127edc286}{init}}(\mbox{\hyperlink{structvital_1_1poly__int_a8f9449835bf022fb6269ab42443f302f}{kSignMask}})));}
+\DoxyCodeLine{00316\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vcgtq\_u32(one,\ two);}
+\DoxyCodeLine{00318\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00319\ \ \ \ \ \}}
+\DoxyCodeLine{00320\ }
+\DoxyCodeLine{00326\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ uint32\_t\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a3b380522ce405dcfc4800ff807a96d61}{sum}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}})\ \{}
+\DoxyCodeLine{00327\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \textcolor{comment}{//\ Example\ logic\ (not\ fully\ implemented):}}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \textcolor{comment}{//\ simd\_type\ flip\ =\ \_mm256\_permute4x64\_epi64(value,\ \_MM\_SHUFFLE(1,\ 0,\ 3,\ 2));}}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \textcolor{comment}{//\ ...}}
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \textcolor{comment}{//\ return\ ...}}
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \textcolor{comment}{//\ Implementation\ incomplete\ in\ this\ code\ snippet.}}
+\DoxyCodeLine{00333\ \textcolor{preprocessor}{\ \ \ \ \ \ \#error\ "{}AVX2\ version\ not\ fully\ implemented\ in\ code\ snippet"{}}}
+\DoxyCodeLine{00334\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00335\ \ \ \ \ \ \ \mbox{\hyperlink{unionvital_1_1poly__int_1_1simd__scalar__union}{simd\_scalar\_union}}\ union\_value\ \{\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ \};}
+\DoxyCodeLine{00336\ \ \ \ \ \ \ uint32\_t\ total\ =\ 0;}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ kSize;\ ++i)}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \ \ total\ +=\ union\_value.\mbox{\hyperlink{unionvital_1_1poly__int_1_1simd__scalar__union_a05ba9de37a773416a54f42254f6b5d71}{scalar}}[i];}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ total;}
+\DoxyCodeLine{00340\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ uint32x2\_t\ partial\_sum\ =\ vpadd\_u32(vget\_low\_u32(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}),\ vget\_high\_u32(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}));}
+\DoxyCodeLine{00342\ \ \ \ \ \ \ partial\_sum\ =\ vpadd\_u32(partial\_sum,\ partial\_sum);}
+\DoxyCodeLine{00343\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vget\_lane\_u32(partial\_sum,\ 0);}
+\DoxyCodeLine{00344\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00345\ \ \ \ \ \}}
+\DoxyCodeLine{00346\ }
+\DoxyCodeLine{00352\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ uint32\_t\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a2fab54be2efa9a05ed842b91e4bad62d}{anyMask}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}})\ \{}
+\DoxyCodeLine{00353\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00354\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_movemask\_epi8(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}});}
+\DoxyCodeLine{00355\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_movemask\_epi8(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}});}
+\DoxyCodeLine{00357\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00358\ \ \ \ \ \ \ \textcolor{comment}{//\ For\ NEON,\ we\ typically\ reduce\ it\ down:}}
+\DoxyCodeLine{00359\ \ \ \ \ \ \ uint32x2\_t\ max\_vals\ =\ vpmax\_u32(vget\_low\_u32(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}),\ vget\_high\_u32(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}));}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ max\_vals\ =\ vpmax\_u32(max\_vals,\ max\_vals);}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vget\_lane\_u32(max\_vals,\ 0);}
+\DoxyCodeLine{00362\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00363\ \ \ \ \ \}}
+\DoxyCodeLine{00364\ }
+\DoxyCodeLine{00366\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a9cc99fd3c01d7458c1b861278d7d0984}{max}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ one,\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ two)\ \{}
+\DoxyCodeLine{00367\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_a2acb4fe9ba2b63e32043e459be437f49}{max}}(one.\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ two.\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}});}
+\DoxyCodeLine{00368\ \ \ \ \ \}}
+\DoxyCodeLine{00369\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a82dbf7fcfee193ba31c36569b5c6d7c3}{min}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ one,\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ two)\ \{}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_aa37d83e861e960ab2efaa366fdc8768d}{min}}(one.\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ two.\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}});}
+\DoxyCodeLine{00371\ \ \ \ \ \}}
+\DoxyCodeLine{00372\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a9237e8acdad23f130ccbbada5cedb17b}{equal}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ one,\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ two)\ \{}
+\DoxyCodeLine{00373\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_aba1a4192cda895a71f1928a9037d179f}{equal}}(one.\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ two.\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}});}
+\DoxyCodeLine{00374\ \ \ \ \ \}}
+\DoxyCodeLine{00375\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a24b981ded9fe8c49bbe2f2fe01a740c9}{greaterThan}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ one,\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ two)\ \{}
+\DoxyCodeLine{00376\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_ab6353308ea6f20002bfb7e4410acfbfd}{greaterThan}}(one.\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ two.\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}});}
+\DoxyCodeLine{00377\ \ \ \ \ \}}
+\DoxyCodeLine{00378\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_ad8eb925feb5a68bf52fd9346a67df6cf}{lessThan}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ one,\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ two)\ \{}
+\DoxyCodeLine{00379\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_ab6353308ea6f20002bfb7e4410acfbfd}{greaterThan}}(two.\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ one.\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}});}
+\DoxyCodeLine{00380\ \ \ \ \ \}}
+\DoxyCodeLine{00381\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ uint32\_t\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_afd6e169df35e54dbd3c6d43c99a64fc5}{sum}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}})\ \{}
+\DoxyCodeLine{00382\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_ab56f518ba16e397cc30867d8ac69ee92}{sum}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}.value);}
+\DoxyCodeLine{00383\ \ \ \ \ \}}
+\DoxyCodeLine{00384\ }
+\DoxyCodeLine{00385\ \ \ \ \ simd\_type\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}};\ }
+\DoxyCodeLine{00386\ }
+\DoxyCodeLine{00390\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int_a7d139e1bcfce42bab9f3951d892756fe}{poly\_int}}()\ noexcept\ \{\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_a155294abe3df0d28d575079127edc286}{init}}(0);\ \}}
+\DoxyCodeLine{00391\ }
+\DoxyCodeLine{00396\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int_a4ca22a486504a13c173102191e7be8eb}{poly\_int}}(simd\_type\ initial\_value)\ noexcept\ :\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}(initial\_value)\ \{\ \}}
+\DoxyCodeLine{00397\ }
+\DoxyCodeLine{00402\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int_abeb41cde7831f387ab7ee2b01aaed525}{poly\_int}}(uint32\_t\ initial\_value)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_a155294abe3df0d28d575079127edc286}{init}}(initial\_value);}
+\DoxyCodeLine{00404\ \ \ \ \ \}}
+\DoxyCodeLine{00405\ }
+\DoxyCodeLine{00413\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int_a8e19f20cf9e01c75916a476830fad081}{poly\_int}}(uint32\_t\ first,\ uint32\_t\ second,\ uint32\_t\ third,\ uint32\_t\ fourth)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00414\ \ \ \ \ \ \ \mbox{\hyperlink{unionvital_1_1poly__int_1_1scalar__simd__union}{scalar\_simd\_union}}\ union\_value\ \{\ (int32\_t)first,\ (int32\_t)second,\ (int32\_t)third,\ (int32\_t)fourth\ \};}
+\DoxyCodeLine{00415\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ union\_value.\mbox{\hyperlink{unionvital_1_1poly__int_1_1scalar__simd__union_a4ee7cba47df9bd1709e4d3607ac2dea1}{simd}};}
+\DoxyCodeLine{00416\ \ \ \ \ \}}
+\DoxyCodeLine{00417\ }
+\DoxyCodeLine{00423\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int_a06bf339af438a53a391fec0decdf3592}{poly\_int}}(uint32\_t\ first,\ uint32\_t\ second)\ noexcept}
+\DoxyCodeLine{00424\ \ \ \ \ \ \ :\ \mbox{\hyperlink{structvital_1_1poly__int_a7d139e1bcfce42bab9f3951d892756fe}{poly\_int}}(first,\ second,\ first,\ second)\ \{\ \}}
+\DoxyCodeLine{00425\ }
+\DoxyCodeLine{00429\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int_ad77fdb4dde0259e4abb6bbd436fe0c8e}{\string~poly\_int}}()\ noexcept\ \{\ \}}
+\DoxyCodeLine{00430\ }
+\DoxyCodeLine{00436\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ uint32\_t\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a59854d285e48e45566dbf36e7cfb3cdf}{access}}(\textcolor{keywordtype}{size\_t}\ index)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00437\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00438\ \ \ \ \ \ \ simd\_union\ union\_value\ \{\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ \};}
+\DoxyCodeLine{00439\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ union\_value.scalar[index];}
+\DoxyCodeLine{00440\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00441\ \ \ \ \ \ \ \mbox{\hyperlink{unionvital_1_1poly__int_1_1simd__scalar__union}{simd\_scalar\_union}}\ union\_value\ \{\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ \};}
+\DoxyCodeLine{00442\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ union\_value.\mbox{\hyperlink{unionvital_1_1poly__int_1_1simd__scalar__union_a05ba9de37a773416a54f42254f6b5d71}{scalar}}[index];}
+\DoxyCodeLine{00443\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00444\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}[index];}
+\DoxyCodeLine{00445\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00446\ \ \ \ \ \}}
+\DoxyCodeLine{00447\ }
+\DoxyCodeLine{00453\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a0dc7c0162bde2deefb37fd265581c23b}{set}}(\textcolor{keywordtype}{size\_t}\ index,\ uint32\_t\ new\_value)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00454\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00455\ \ \ \ \ \ \ simd\_union\ union\_value\ \{\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ \};}
+\DoxyCodeLine{00456\ \ \ \ \ \ \ union\_value.scalar[index]\ =\ new\_value;}
+\DoxyCodeLine{00457\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ union\_value.simd;}
+\DoxyCodeLine{00458\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00459\ \ \ \ \ \ \ \mbox{\hyperlink{unionvital_1_1poly__int_1_1simd__scalar__union}{simd\_scalar\_union}}\ union\_value\ \{\ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ \};}
+\DoxyCodeLine{00460\ \ \ \ \ \ \ union\_value.\mbox{\hyperlink{unionvital_1_1poly__int_1_1simd__scalar__union_a05ba9de37a773416a54f42254f6b5d71}{scalar}}[index]\ =\ (int32\_t)new\_value;}
+\DoxyCodeLine{00461\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ union\_value.simd;}
+\DoxyCodeLine{00462\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00463\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}[index]\ =\ new\_value;}
+\DoxyCodeLine{00464\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00465\ \ \ \ \ \}}
+\DoxyCodeLine{00466\ }
+\DoxyCodeLine{00472\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ uint32\_t\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a45ba40635120df4bcbe9eb1ed14015cf}{operator[]}}(\textcolor{keywordtype}{size\_t}\ index)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00473\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_a59854d285e48e45566dbf36e7cfb3cdf}{access}}(index);}
+\DoxyCodeLine{00474\ \ \ \ \ \}}
+\DoxyCodeLine{00475\ }
+\DoxyCodeLine{00477\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a20693b427c5b626fbe526be28a51de0e}{operator+=}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00478\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_a5dec7d3f9f4e317edd3631cd3af26a49}{add}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other.value);}
+\DoxyCodeLine{00479\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00480\ \ \ \ \ \}}
+\DoxyCodeLine{00481\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_ae59a6f27037b52f42b2026218312b226}{operator-\/=}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00482\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_acaaef34a3d1eba2658a73a94fb628ad7}{sub}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other.value);}
+\DoxyCodeLine{00483\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00484\ \ \ \ \ \}}
+\DoxyCodeLine{00485\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a10bcd418de0810b5bca178209cfc2892}{operator*=}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00486\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_a08c0fbea3792419e96f9d3101b44b7af}{mul}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other.value);}
+\DoxyCodeLine{00487\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00488\ \ \ \ \ \}}
+\DoxyCodeLine{00489\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a034da781fc9c9bb2ff795df1649529ac}{operator\&=}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00490\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_ae380a2b9ebdf6617d825d1cb9b72b1ef}{bitAnd}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other.value);}
+\DoxyCodeLine{00491\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00492\ \ \ \ \ \}}
+\DoxyCodeLine{00493\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a159a1164506ea4dc0b26214de8905af6}{operator|=}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00494\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_aa23fac238bbbcb9f965968a45f1d8984}{bitOr}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other.value);}
+\DoxyCodeLine{00495\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00496\ \ \ \ \ \}}
+\DoxyCodeLine{00497\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_add253a889c2d020f160563c2a6971634}{operator\string^=}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00498\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_ae68022b527921416b4669ad19f6cc8be}{bitXor}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other.value);}
+\DoxyCodeLine{00499\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00500\ \ \ \ \ \}}
+\DoxyCodeLine{00501\ }
+\DoxyCodeLine{00503\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a7ad135e4134679c4d1bc5acf80248d13}{operator+=}}(simd\_type\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00504\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_a5dec7d3f9f4e317edd3631cd3af26a49}{add}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other);}
+\DoxyCodeLine{00505\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00506\ \ \ \ \ \}}
+\DoxyCodeLine{00507\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_ac0497088eda7696d9e43e0a4de7eb2f1}{operator-\/=}}(simd\_type\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00508\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_acaaef34a3d1eba2658a73a94fb628ad7}{sub}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other);}
+\DoxyCodeLine{00509\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00510\ \ \ \ \ \}}
+\DoxyCodeLine{00511\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a7c02532c7ae58f37d3b1c5f775a38611}{operator*=}}(simd\_type\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00512\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_a08c0fbea3792419e96f9d3101b44b7af}{mul}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other);}
+\DoxyCodeLine{00513\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00514\ \ \ \ \ \}}
+\DoxyCodeLine{00515\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a01ee7bb4dfa12dfc8c38feef5d82157a}{operator\&=}}(simd\_type\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00516\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_ae380a2b9ebdf6617d825d1cb9b72b1ef}{bitAnd}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other);}
+\DoxyCodeLine{00517\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00518\ \ \ \ \ \}}
+\DoxyCodeLine{00519\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a81c664cc23f7b0f1dfcd09ae8b5ff8f4}{operator|=}}(simd\_type\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00520\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_aa23fac238bbbcb9f965968a45f1d8984}{bitOr}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other);}
+\DoxyCodeLine{00521\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00522\ \ \ \ \ \}}
+\DoxyCodeLine{00523\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a8f74638793f834ea10e02aebfb14d483}{operator\string^=}}(simd\_type\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00524\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_ae68022b527921416b4669ad19f6cc8be}{bitXor}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other);}
+\DoxyCodeLine{00525\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00526\ \ \ \ \ \}}
+\DoxyCodeLine{00527\ }
+\DoxyCodeLine{00529\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a25c44ef28052740a305780d65a9b2ff2}{operator+=}}(uint32\_t\ scalar)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00530\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_a5dec7d3f9f4e317edd3631cd3af26a49}{add}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ \mbox{\hyperlink{structvital_1_1poly__int_a155294abe3df0d28d575079127edc286}{init}}(scalar));}
+\DoxyCodeLine{00531\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00532\ \ \ \ \ \}}
+\DoxyCodeLine{00533\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a107ab0d923a5f760299f53c65aea655c}{operator-\/=}}(uint32\_t\ scalar)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00534\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_acaaef34a3d1eba2658a73a94fb628ad7}{sub}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ \mbox{\hyperlink{structvital_1_1poly__int_a155294abe3df0d28d575079127edc286}{init}}(scalar));}
+\DoxyCodeLine{00535\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00536\ \ \ \ \ \}}
+\DoxyCodeLine{00537\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a7a4926f6ac5c1b64d2a3b6de07bab4ff}{operator*=}}(uint32\_t\ scalar)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00538\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__int_a08c0fbea3792419e96f9d3101b44b7af}{mul}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ \mbox{\hyperlink{structvital_1_1poly__int_a155294abe3df0d28d575079127edc286}{init}}(scalar));}
+\DoxyCodeLine{00539\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00540\ \ \ \ \ \}}
+\DoxyCodeLine{00541\ }
+\DoxyCodeLine{00543\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a2f562f0abf823f7972a9feb885a219e8}{operator+}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ other)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00544\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_a5dec7d3f9f4e317edd3631cd3af26a49}{add}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other.value);}
+\DoxyCodeLine{00545\ \ \ \ \ \}}
+\DoxyCodeLine{00546\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a29f29b49127dc9eb715505b9ca25d890}{operator-\/}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ other)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00547\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_acaaef34a3d1eba2658a73a94fb628ad7}{sub}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other.value);}
+\DoxyCodeLine{00548\ \ \ \ \ \}}
+\DoxyCodeLine{00549\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a95de64412228bdad348b4861c5c154d2}{operator*}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ other)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00550\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_a08c0fbea3792419e96f9d3101b44b7af}{mul}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other.value);}
+\DoxyCodeLine{00551\ \ \ \ \ \}}
+\DoxyCodeLine{00552\ }
+\DoxyCodeLine{00554\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a98b352f0c8abb7e899ec05e2d7022121}{operator\&}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ other)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00555\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_ae380a2b9ebdf6617d825d1cb9b72b1ef}{bitAnd}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other.value);}
+\DoxyCodeLine{00556\ \ \ \ \ \}}
+\DoxyCodeLine{00557\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a3022e9cf20bdb9d6f3a48c9e18c7edb2}{operator|}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ other)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00558\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_aa23fac238bbbcb9f965968a45f1d8984}{bitOr}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other.value);}
+\DoxyCodeLine{00559\ \ \ \ \ \}}
+\DoxyCodeLine{00560\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_a6eef819cc0a2250d38aa944a57863d6b}{operator\string^}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ other)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00561\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_ae68022b527921416b4669ad19f6cc8be}{bitXor}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ other.value);}
+\DoxyCodeLine{00562\ \ \ \ \ \}}
+\DoxyCodeLine{00563\ }
+\DoxyCodeLine{00565\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_ab83ebb3e28014335ed230e83da6ad1d3}{operator-\/}}()\ const\ noexcept\ \{}
+\DoxyCodeLine{00566\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_a8382ff2579e871a587aea80d112ae21d}{neg}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}});}
+\DoxyCodeLine{00567\ \ \ \ \ \}}
+\DoxyCodeLine{00568\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_ae98b6bd22ea096159fd70bfe9ce65212}{operator\string~}}()\ const\ noexcept\ \{}
+\DoxyCodeLine{00569\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_a737fd48a8675dd0920990cea4a566db1}{bitNot}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}});}
+\DoxyCodeLine{00570\ \ \ \ \ \}}
+\DoxyCodeLine{00571\ }
+\DoxyCodeLine{00576\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ uint32\_t\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_ab56f518ba16e397cc30867d8ac69ee92}{sum}}()\ const\ noexcept\ \{}
+\DoxyCodeLine{00577\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_ab56f518ba16e397cc30867d8ac69ee92}{sum}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}});}
+\DoxyCodeLine{00578\ \ \ \ \ \}}
+\DoxyCodeLine{00579\ }
+\DoxyCodeLine{00584\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ uint32\_t\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__int_aa720a83f2d89871fba315c4c83beea1e}{anyMask}}()\ const\ noexcept\ \{}
+\DoxyCodeLine{00585\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_aa720a83f2d89871fba315c4c83beea1e}{anyMask}}(\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}});}
+\DoxyCodeLine{00586\ \ \ \ \ \}}
+\DoxyCodeLine{00587\ \ \ \};}
+\DoxyCodeLine{00588\ }
+\DoxyCodeLine{00590\ \ \ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}};}
+\DoxyCodeLine{00591\ }
+\DoxyCodeLine{00600\ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \{}
+\DoxyCodeLine{00601\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00602\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{size\_t}\ kSize\ =\ 8;\ }
+\DoxyCodeLine{00603\ \ \ \ \ \textcolor{keyword}{typedef}\ \_\_m256\ \ simd\_type;\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00604\ \ \ \ \ \textcolor{keyword}{typedef}\ \_\_m256i\ mask\_simd\_type;\ \ \ }
+\DoxyCodeLine{00605\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00606\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{size\_t}\ kSize\ =\ 4;\ }
+\DoxyCodeLine{00607\ \ \ \ \ \textcolor{keyword}{typedef}\ \_\_m128\ \ simd\_type;\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00608\ \ \ \ \ \textcolor{keyword}{typedef}\ \_\_m128i\ mask\_simd\_type;\ \ \ }
+\DoxyCodeLine{00609\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00610\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{size\_t}\ kSize\ =\ 4;\ }
+\DoxyCodeLine{00611\ \ \ \ \ \textcolor{keyword}{typedef}\ float32x4\_t\ simd\_type;\ \ \ \ }
+\DoxyCodeLine{00612\ \ \ \ \ \textcolor{keyword}{typedef}\ uint32x4\_t\ \ mask\_simd\_type;\ }
+\DoxyCodeLine{00613\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00614\ }
+\DoxyCodeLine{00619\ \ \ \ \ \textcolor{keyword}{union\ }\mbox{\hyperlink{unionvital_1_1poly__float_1_1simd__scalar__union}{simd\_scalar\_union}}\ \{}
+\DoxyCodeLine{00620\ \ \ \ \ \ \ simd\_type\ \mbox{\hyperlink{unionvital_1_1poly__float_1_1simd__scalar__union_a1385a2f4d4ccd1565118dade77c581c8}{simd}};\ \ \ \ \ \ }
+\DoxyCodeLine{00621\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{unionvital_1_1poly__float_1_1simd__scalar__union_a3882d4679ae1360fef92abb04d130b83}{scalar}}[kSize];\ }
+\DoxyCodeLine{00622\ \ \ \ \ \};}
+\DoxyCodeLine{00623\ }
+\DoxyCodeLine{00628\ \ \ \ \ \textcolor{keyword}{union\ }\mbox{\hyperlink{unionvital_1_1poly__float_1_1scalar__simd__union}{scalar\_simd\_union}}\ \{}
+\DoxyCodeLine{00629\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{unionvital_1_1poly__float_1_1scalar__simd__union_ad4217c6af64a874986cc099aa3ed37b1}{scalar}}[kSize];\ }
+\DoxyCodeLine{00630\ \ \ \ \ \ \ simd\_type\ \mbox{\hyperlink{unionvital_1_1poly__float_1_1scalar__simd__union_a5439112523681352aba2bb60cdb0915f}{simd}};\ \ \ \ \ \ }
+\DoxyCodeLine{00631\ \ \ \ \ \};}
+\DoxyCodeLine{00632\ }
+\DoxyCodeLine{00638\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ mask\_simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a2f022fbbde55024900b8fc13cdabc424}{toMask}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}})\ \{}
+\DoxyCodeLine{00639\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00640\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_castps\_si256(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{00641\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00642\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_castps\_si128(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{00643\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00644\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vreinterpretq\_u32\_f32(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{00645\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00646\ \ \ \ \ \}}
+\DoxyCodeLine{00647\ }
+\DoxyCodeLine{00653\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a56d49178949ff41c51c4b57d36d9fb98}{toSimd}}(mask\_simd\_type\ mask)\ \{}
+\DoxyCodeLine{00654\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00655\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_castsi256\_ps(mask);}
+\DoxyCodeLine{00656\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00657\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_castsi128\_ps(mask);}
+\DoxyCodeLine{00658\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00659\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vreinterpretq\_f32\_u32(mask);}
+\DoxyCodeLine{00660\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00661\ \ \ \ \ \}}
+\DoxyCodeLine{00662\ }
+\DoxyCodeLine{00668\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a9d10a082344341e84eca2716d2a20964}{init}}(\textcolor{keywordtype}{float}\ scalar)\ \{}
+\DoxyCodeLine{00669\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00670\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_broadcast\_ss(\&scalar);}
+\DoxyCodeLine{00671\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00672\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_set1\_ps(scalar);}
+\DoxyCodeLine{00673\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00674\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vdupq\_n\_f32(scalar);}
+\DoxyCodeLine{00675\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00676\ \ \ \ \ \}}
+\DoxyCodeLine{00677\ }
+\DoxyCodeLine{00683\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_adeae61ff12c62ecdefb0df08cc1fa351}{load}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{float}*\ memory)\ \{}
+\DoxyCodeLine{00684\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00685\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_loadu\_ps(\&scalar);}
+\DoxyCodeLine{00686\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00687\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_loadu\_ps(memory);}
+\DoxyCodeLine{00688\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00689\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vld1q\_f32(memory);}
+\DoxyCodeLine{00690\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00691\ \ \ \ \ \}}
+\DoxyCodeLine{00692\ }
+\DoxyCodeLine{00699\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_aa80b3e08351dea90da252a71e44cc86c}{add}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00700\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00701\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_add\_ps(one,\ two);}
+\DoxyCodeLine{00702\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00703\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_add\_ps(one,\ two);}
+\DoxyCodeLine{00704\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00705\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vaddq\_f32(one,\ two);}
+\DoxyCodeLine{00706\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00707\ \ \ \ \ \}}
+\DoxyCodeLine{00708\ }
+\DoxyCodeLine{00715\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a50bf8695879b76ecab08b7e0f7116575}{sub}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00716\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00717\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_sub\_ps(one,\ two);}
+\DoxyCodeLine{00718\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00719\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_sub\_ps(one,\ two);}
+\DoxyCodeLine{00720\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00721\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vsubq\_f32(one,\ two);}
+\DoxyCodeLine{00722\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00723\ \ \ \ \ \}}
+\DoxyCodeLine{00724\ }
+\DoxyCodeLine{00730\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_afe0a326a5232ddd3d7aaf8ac7a9764dc}{neg}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}})\ \{}
+\DoxyCodeLine{00731\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00732\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_xor\_ps(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \_mm256\_set1\_ps(-\/0.f));}
+\DoxyCodeLine{00733\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00734\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_xor\_ps(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \_mm\_set1\_ps(-\/0.f));}
+\DoxyCodeLine{00735\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00736\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vmulq\_n\_f32(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ -\/1.0f);}
+\DoxyCodeLine{00737\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00738\ \ \ \ \ \}}
+\DoxyCodeLine{00739\ }
+\DoxyCodeLine{00746\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a493d9b1ed5c60e5e600d8f396c0a36b7}{mul}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00747\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00748\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_mul\_ps(one,\ two);}
+\DoxyCodeLine{00749\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00750\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_mul\_ps(one,\ two);}
+\DoxyCodeLine{00751\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00752\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vmulq\_f32(one,\ two);}
+\DoxyCodeLine{00753\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00754\ \ \ \ \ \}}
+\DoxyCodeLine{00755\ }
+\DoxyCodeLine{00762\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a70ff7e0f0ceaf92192d35a51beea55a7}{mulScalar}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \textcolor{keywordtype}{float}\ scalar)\ \{}
+\DoxyCodeLine{00763\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00764\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_mul\_ps(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \_mm\_set1\_ps(scalar));}
+\DoxyCodeLine{00765\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00766\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_mul\_ps(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \_mm\_set1\_ps(scalar));}
+\DoxyCodeLine{00767\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00768\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vmulq\_n\_f32(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ scalar);}
+\DoxyCodeLine{00769\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00770\ \ \ \ \ \}}
+\DoxyCodeLine{00771\ }
+\DoxyCodeLine{00779\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_ad7abd2a606f9fb3e67162447f2f97057}{mulAdd}}(simd\_type\ one,\ simd\_type\ two,\ simd\_type\ three)\ \{}
+\DoxyCodeLine{00780\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00781\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_fmadd\_ps(two,\ three,\ one);}
+\DoxyCodeLine{00782\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00783\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_add\_ps(one,\ \_mm\_mul\_ps(two,\ three));}
+\DoxyCodeLine{00784\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00785\ \textcolor{preprocessor}{\#if\ defined(NEON\_VFP\_V3)}}
+\DoxyCodeLine{00786\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vaddq\_f32(one,\ vmulq\_f32(two,\ three));}
+\DoxyCodeLine{00787\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00788\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vmlaq\_f32(one,\ two,\ three);}
+\DoxyCodeLine{00789\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00790\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00791\ \ \ \ \ \}}
+\DoxyCodeLine{00792\ }
+\DoxyCodeLine{00800\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a42b5a0220d4392e2a388ec17c176c8ef}{mulSub}}(simd\_type\ one,\ simd\_type\ two,\ simd\_type\ three)\ \{}
+\DoxyCodeLine{00801\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00802\ \ \ \ \ \ \ \textcolor{comment}{//\ \_mm256\_fsub\_ps\ is\ not\ standard;}}
+\DoxyCodeLine{00803\ \ \ \ \ \ \ \textcolor{comment}{//\ some\ compilers\ offer\ it\ via\ FMA\ extension\ but\ it's\ not\ in\ the\ snippet.}}
+\DoxyCodeLine{00804\ \ \ \ \ \ \ \textcolor{comment}{//\ Could\ emulate:\ return\ \_mm256\_sub\_ps(one,\ \_mm256\_mul\_ps(two,\ three));}}
+\DoxyCodeLine{00805\ \textcolor{preprocessor}{\ \ \ \ \ \ \#error\ "{}AVX2\ mulSub\ is\ not\ implemented\ in\ this\ snippet"{}}}
+\DoxyCodeLine{00806\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00807\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_sub\_ps(one,\ \_mm\_mul\_ps(two,\ three));}
+\DoxyCodeLine{00808\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00809\ \textcolor{preprocessor}{\#if\ defined(NEON\_VFP\_V3)}}
+\DoxyCodeLine{00810\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vsubq\_f32(one,\ vmulq\_f32(two,\ three));}
+\DoxyCodeLine{00811\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00812\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vmlsq\_f32(one,\ two,\ three);}
+\DoxyCodeLine{00813\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00814\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00815\ \ \ \ \ \}}
+\DoxyCodeLine{00816\ }
+\DoxyCodeLine{00823\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a82328e440aabbfa9cf9f822abeaba7aa}{div}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00824\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00825\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_div\_ps(one,\ two);}
+\DoxyCodeLine{00826\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00827\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_div\_ps(one,\ two);}
+\DoxyCodeLine{00828\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00829\ \textcolor{preprocessor}{\#if\ defined(NEON\_ARM32)}}
+\DoxyCodeLine{00830\ \ \ \ \ \ \ \textcolor{comment}{//\ Approximate\ reciprocal\ then\ refine}}
+\DoxyCodeLine{00831\ \ \ \ \ \ \ simd\_type\ reciprocal\ =\ vrecpeq\_f32(two);}
+\DoxyCodeLine{00832\ \ \ \ \ \ \ reciprocal\ =\ vmulq\_f32(vrecpsq\_f32(two,\ reciprocal),\ reciprocal);}
+\DoxyCodeLine{00833\ \ \ \ \ \ \ reciprocal\ =\ vmulq\_f32(vrecpsq\_f32(two,\ reciprocal),\ reciprocal);}
+\DoxyCodeLine{00834\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vmulq\_f32(one,\ reciprocal);}
+\DoxyCodeLine{00835\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00836\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vdivq\_f32(one,\ two);}
+\DoxyCodeLine{00837\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00838\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00839\ \ \ \ \ \}}
+\DoxyCodeLine{00840\ }
+\DoxyCodeLine{00847\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_aeec4d2c819b1fa096e9445edeebeca3c}{bitAnd}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ mask\_simd\_type\ mask)\ \{}
+\DoxyCodeLine{00848\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00849\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_and\_ps(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \mbox{\hyperlink{structvital_1_1poly__float_a56d49178949ff41c51c4b57d36d9fb98}{toSimd}}(mask));}
+\DoxyCodeLine{00850\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00851\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_and\_ps(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \mbox{\hyperlink{structvital_1_1poly__float_a56d49178949ff41c51c4b57d36d9fb98}{toSimd}}(mask));}
+\DoxyCodeLine{00852\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00853\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a56d49178949ff41c51c4b57d36d9fb98}{toSimd}}(vandq\_u32(\mbox{\hyperlink{structvital_1_1poly__float_a2f022fbbde55024900b8fc13cdabc424}{toMask}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}),\ mask));}
+\DoxyCodeLine{00854\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00855\ \ \ \ \ \}}
+\DoxyCodeLine{00856\ }
+\DoxyCodeLine{00863\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_ad6920bd937eea7d756f71b4729902927}{bitOr}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ mask\_simd\_type\ mask)\ \{}
+\DoxyCodeLine{00864\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00865\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_or\_ps(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \mbox{\hyperlink{structvital_1_1poly__float_a56d49178949ff41c51c4b57d36d9fb98}{toSimd}}(mask));}
+\DoxyCodeLine{00866\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00867\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_or\_ps(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \mbox{\hyperlink{structvital_1_1poly__float_a56d49178949ff41c51c4b57d36d9fb98}{toSimd}}(mask));}
+\DoxyCodeLine{00868\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00869\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a56d49178949ff41c51c4b57d36d9fb98}{toSimd}}(vorrq\_u32(\mbox{\hyperlink{structvital_1_1poly__float_a2f022fbbde55024900b8fc13cdabc424}{toMask}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}),\ mask));}
+\DoxyCodeLine{00870\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00871\ \ \ \ \ \}}
+\DoxyCodeLine{00872\ }
+\DoxyCodeLine{00879\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a10eab2f00dff6f63dbe7c0ce69e13eab}{bitXor}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ mask\_simd\_type\ mask)\ \{}
+\DoxyCodeLine{00880\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00881\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_xor\_ps(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \mbox{\hyperlink{structvital_1_1poly__float_a56d49178949ff41c51c4b57d36d9fb98}{toSimd}}(mask));}
+\DoxyCodeLine{00882\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00883\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_xor\_ps(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \mbox{\hyperlink{structvital_1_1poly__float_a56d49178949ff41c51c4b57d36d9fb98}{toSimd}}(mask));}
+\DoxyCodeLine{00884\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00885\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a56d49178949ff41c51c4b57d36d9fb98}{toSimd}}(veorq\_u32(\mbox{\hyperlink{structvital_1_1poly__float_a2f022fbbde55024900b8fc13cdabc424}{toMask}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}),\ mask));}
+\DoxyCodeLine{00886\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00887\ \ \ \ \ \}}
+\DoxyCodeLine{00888\ }
+\DoxyCodeLine{00894\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_af02b2261bbd5f5649749320c450a82b9}{bitNot}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}})\ \{}
+\DoxyCodeLine{00895\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a10eab2f00dff6f63dbe7c0ce69e13eab}{bitXor}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \mbox{\hyperlink{structvital_1_1poly__int_a155294abe3df0d28d575079127edc286}{poly\_mask::init}}(-\/1));}
+\DoxyCodeLine{00896\ \ \ \ \ \}}
+\DoxyCodeLine{00897\ }
+\DoxyCodeLine{00904\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_abf9c15f1a8da916c8a2103d8cfd51c14}{max}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00905\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00906\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_max\_ps(one,\ two);}
+\DoxyCodeLine{00907\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00908\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_max\_ps(one,\ two);}
+\DoxyCodeLine{00909\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00910\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vmaxq\_f32(one,\ two);}
+\DoxyCodeLine{00911\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00912\ \ \ \ \ \}}
+\DoxyCodeLine{00913\ }
+\DoxyCodeLine{00920\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a85b413f04cc079c3041454acaff61a15}{min}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00921\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00922\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm256\_min\_ps(one,\ two);}
+\DoxyCodeLine{00923\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00924\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_min\_ps(one,\ two);}
+\DoxyCodeLine{00925\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00926\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vminq\_f32(one,\ two);}
+\DoxyCodeLine{00927\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00928\ \ \ \ \ \}}
+\DoxyCodeLine{00929\ }
+\DoxyCodeLine{00935\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_ac682406ecd547c6e897f3d09ac549105}{abs}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}})\ \{}
+\DoxyCodeLine{00936\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_aeec4d2c819b1fa096e9445edeebeca3c}{bitAnd}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \mbox{\hyperlink{structvital_1_1poly__int_a155294abe3df0d28d575079127edc286}{poly\_mask::init}}(\mbox{\hyperlink{structvital_1_1poly__int_aa98bb2f15373b76fcefcf6be6d9b7f93}{poly\_mask::kNotSignMask}}));}
+\DoxyCodeLine{00937\ \ \ \ \ \}}
+\DoxyCodeLine{00938\ }
+\DoxyCodeLine{00944\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ mask\_simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a770114b4d63779e873c7c643aec96fe5}{sign\_mask}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}})\ \{}
+\DoxyCodeLine{00945\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a2f022fbbde55024900b8fc13cdabc424}{toMask}}(\mbox{\hyperlink{structvital_1_1poly__float_aeec4d2c819b1fa096e9445edeebeca3c}{bitAnd}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \mbox{\hyperlink{structvital_1_1poly__int_a155294abe3df0d28d575079127edc286}{poly\_mask::init}}(\mbox{\hyperlink{structvital_1_1poly__int_a8f9449835bf022fb6269ab42443f302f}{poly\_mask::kSignMask}})));}
+\DoxyCodeLine{00946\ \ \ \ \ \}}
+\DoxyCodeLine{00947\ }
+\DoxyCodeLine{00954\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ mask\_simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{equal}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00955\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00956\ \ \ \ \ \ \ \textcolor{comment}{//\ In\ the\ snippet,\ it\ tries\ \_mm256\_cmpeq\_ps\ with\ a\ second\ param,\ but\ the\ real\ call\ is\ just\ \`{}\_mm256\_cmp\_ps(one,\ two,\ \_CMP\_EQ\_OQ)`.}}
+\DoxyCodeLine{00957\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a2f022fbbde55024900b8fc13cdabc424}{toMask}}(\_mm256\_cmp\_ps(one,\ two,\ \_CMP\_EQ\_OQ));}
+\DoxyCodeLine{00958\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00959\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a2f022fbbde55024900b8fc13cdabc424}{toMask}}(\_mm\_cmpeq\_ps(one,\ two));}
+\DoxyCodeLine{00960\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00961\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vceqq\_f32(one,\ two);}
+\DoxyCodeLine{00962\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00963\ \ \ \ \ \}}
+\DoxyCodeLine{00964\ }
+\DoxyCodeLine{00971\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ mask\_simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_afe451ece04ecb9be82648c49c4e27e7b}{greaterThan}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00972\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00973\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a2f022fbbde55024900b8fc13cdabc424}{toMask}}(\_mm256\_cmp\_ps(one,\ two,\ \_CMP\_GT\_OQ));}
+\DoxyCodeLine{00974\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00975\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a2f022fbbde55024900b8fc13cdabc424}{toMask}}(\_mm\_cmpgt\_ps(one,\ two));}
+\DoxyCodeLine{00976\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00977\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vcgtq\_f32(one,\ two);}
+\DoxyCodeLine{00978\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00979\ \ \ \ \ \}}
+\DoxyCodeLine{00980\ }
+\DoxyCodeLine{00987\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ mask\_simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a1bea6a867419c6ea42ffc195f35ec3bc}{greaterThanOrEqual}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{00988\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{00989\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a2f022fbbde55024900b8fc13cdabc424}{toMask}}(\_mm256\_cmp\_ps(one,\ two,\ \_CMP\_GE\_OQ));}
+\DoxyCodeLine{00990\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{00991\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a2f022fbbde55024900b8fc13cdabc424}{toMask}}(\_mm\_cmpge\_ps(one,\ two));}
+\DoxyCodeLine{00992\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{00993\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vcgeq\_f32(one,\ two);}
+\DoxyCodeLine{00994\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00995\ \ \ \ \ \}}
+\DoxyCodeLine{00996\ }
+\DoxyCodeLine{01003\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ mask\_simd\_type\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_ad58ea0499df6b4f55868db8213a12c98}{notEqual}}(simd\_type\ one,\ simd\_type\ two)\ \{}
+\DoxyCodeLine{01004\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{01005\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a2f022fbbde55024900b8fc13cdabc424}{toMask}}(\_mm256\_cmp\_ps(one,\ two,\ \_CMP\_NEQ\_OQ));}
+\DoxyCodeLine{01006\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{01007\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a2f022fbbde55024900b8fc13cdabc424}{toMask}}(\_mm\_cmpneq\_ps(one,\ two));}
+\DoxyCodeLine{01008\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{01009\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ greater\ =\ \mbox{\hyperlink{structvital_1_1poly__float_afe451ece04ecb9be82648c49c4e27e7b}{greaterThan}}(one,\ two);}
+\DoxyCodeLine{01010\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ less\ \ \ \ =\ \mbox{\hyperlink{structvital_1_1poly__float_a6d8428e12c1d3e637bbb4da39e8a5a86}{lessThan}}(one,\ two);}
+\DoxyCodeLine{01011\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__int_aa23fac238bbbcb9f965968a45f1d8984}{poly\_mask::bitOr}}(greater.\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}},\ less.\mbox{\hyperlink{structvital_1_1poly__int_a0788dec226807cd3313376f20fe17bc0}{value}});}
+\DoxyCodeLine{01012\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01013\ \ \ \ \ \}}
+\DoxyCodeLine{01014\ }
+\DoxyCodeLine{01020\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_ac0d714d9754c00dff8b735b4f4022a4e}{sum}}(simd\_type\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}})\ \{}
+\DoxyCodeLine{01021\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{01022\ \ \ \ \ \ \ \textcolor{comment}{//\ Example\ logic\ (not\ fully\ implemented):}}
+\DoxyCodeLine{01023\ \ \ \ \ \ \ \textcolor{comment}{//\ simd\_type\ flip\ =\ \_mm256\_permute2f128\_ps(value,\ value,\ 1);}}
+\DoxyCodeLine{01024\ \ \ \ \ \ \ \textcolor{comment}{//\ ...}}
+\DoxyCodeLine{01025\ \ \ \ \ \ \ \textcolor{comment}{//\ return\ ...}}
+\DoxyCodeLine{01026\ \ \ \ \ \ \ \textcolor{comment}{//\ Implementation\ incomplete\ in\ the\ snippet.}}
+\DoxyCodeLine{01027\ \textcolor{preprocessor}{\ \ \ \ \ \ \#error\ "{}AVX2\ version\ not\ fully\ implemented\ in\ code\ snippet"{}}}
+\DoxyCodeLine{01028\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{01029\ \ \ \ \ \ \ simd\_type\ flip\ =\ \_mm\_shuffle\_ps(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \_MM\_SHUFFLE(1,\ 0,\ 3,\ 2));}
+\DoxyCodeLine{01030\ \ \ \ \ \ \ simd\_type\ sum\_vec\ =\ \_mm\_add\_ps(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ flip);}
+\DoxyCodeLine{01031\ \ \ \ \ \ \ simd\_type\ swap\ =\ \_mm\_shuffle\_ps(sum\_vec,\ sum\_vec,\ \_MM\_SHUFFLE(2,\ 3,\ 0,\ 1));}
+\DoxyCodeLine{01032\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_mm\_cvtss\_f32(\_mm\_add\_ps(sum\_vec,\ swap));}
+\DoxyCodeLine{01033\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{01034\ \ \ \ \ \ \ float32x2\_t\ partial\_sum\ =\ vpadd\_f32(vget\_low\_f32(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}),\ vget\_high\_f32(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}));}
+\DoxyCodeLine{01035\ \ \ \ \ \ \ partial\_sum\ =\ vpadd\_f32(partial\_sum,\ partial\_sum);}
+\DoxyCodeLine{01036\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vget\_lane\_f32(partial\_sum,\ 0);}
+\DoxyCodeLine{01037\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01038\ \ \ \ \ \}}
+\DoxyCodeLine{01039\ }
+\DoxyCodeLine{01048\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a1bdfeb6a6013278e2e6c74d7cc5fcfba}{transpose}}(simd\_type\&\ row0,\ simd\_type\&\ row1,}
+\DoxyCodeLine{01049\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ simd\_type\&\ row2,\ simd\_type\&\ row3)\ \{}
+\DoxyCodeLine{01050\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{01051\ \ \ \ \ \ \ \textcolor{keyword}{static\_assert}(\textcolor{keyword}{false},\ \textcolor{stringliteral}{"{}AVX2\ transpose\ not\ supported\ yet"{}});}
+\DoxyCodeLine{01052\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{01053\ \ \ \ \ \ \ \_\_m128\ low0\ =\ \_mm\_unpacklo\_ps(row0,\ row1);}
+\DoxyCodeLine{01054\ \ \ \ \ \ \ \_\_m128\ low1\ =\ \_mm\_unpacklo\_ps(row2,\ row3);}
+\DoxyCodeLine{01055\ \ \ \ \ \ \ \_\_m128\ high0\ =\ \_mm\_unpackhi\_ps(row0,\ row1);}
+\DoxyCodeLine{01056\ \ \ \ \ \ \ \_\_m128\ high1\ =\ \_mm\_unpackhi\_ps(row2,\ row3);}
+\DoxyCodeLine{01057\ \ \ \ \ \ \ row0\ =\ \_mm\_movelh\_ps(low0,\ low1);}
+\DoxyCodeLine{01058\ \ \ \ \ \ \ row1\ =\ \_mm\_movehl\_ps(low1,\ low0);}
+\DoxyCodeLine{01059\ \ \ \ \ \ \ row2\ =\ \_mm\_movelh\_ps(high0,\ high1);}
+\DoxyCodeLine{01060\ \ \ \ \ \ \ row3\ =\ \_mm\_movehl\_ps(high1,\ high0);}
+\DoxyCodeLine{01061\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{01062\ \ \ \ \ \ \ float32x4x2\_t\ swap\_low\ =\ vtrnq\_f32(row0,\ row1);}
+\DoxyCodeLine{01063\ \ \ \ \ \ \ float32x4x2\_t\ swap\_high\ =\ vtrnq\_f32(row2,\ row3);}
+\DoxyCodeLine{01064\ \ \ \ \ \ \ \textcolor{comment}{//\ This\ snippet\ attempts\ to\ emulate\ a\ 4x4\ transpose\ with\ vtrnq\ and\ vextq}}
+\DoxyCodeLine{01065\ \ \ \ \ \ \ row0\ =\ vextq\_f32(vextq\_f32(swap\_low.val[0],\ swap\_low.val[0],\ 2),\ swap\_high.val[0],\ 2);}
+\DoxyCodeLine{01066\ \ \ \ \ \ \ row1\ =\ vextq\_f32(vextq\_f32(swap\_low.val[1],\ swap\_low.val[1],\ 2),\ swap\_high.val[1],\ 2);}
+\DoxyCodeLine{01067\ \ \ \ \ \ \ row2\ =\ vextq\_f32(swap\_low.val[0],\ vextq\_f32(swap\_high.val[0],\ swap\_high.val[0],\ 2),\ 2);}
+\DoxyCodeLine{01068\ \ \ \ \ \ \ row3\ =\ vextq\_f32(swap\_low.val[1],\ vextq\_f32(swap\_high.val[1],\ swap\_high.val[1],\ 2),\ 2);}
+\DoxyCodeLine{01069\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{01070\ \ \ \ \ \ \ \textcolor{comment}{//\ No-\/op\ or\ error\ for\ other\ platforms}}
+\DoxyCodeLine{01071\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01072\ \ \ \ \ \}}
+\DoxyCodeLine{01073\ }
+\DoxyCodeLine{01075\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a57bcdf518521ebc8c49b8508c000b979}{mulAdd}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ one,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ two,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ three)\ \{}
+\DoxyCodeLine{01076\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_ad7abd2a606f9fb3e67162447f2f97057}{mulAdd}}(one.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ two.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ three.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{01077\ \ \ \ \ \}}
+\DoxyCodeLine{01078\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_aeb2a0614f7a582e068b262c48b6a4c97}{mulSub}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ one,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ two,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ three)\ \{}
+\DoxyCodeLine{01079\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a42b5a0220d4392e2a388ec17c176c8ef}{mulSub}}(one.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ two.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ three.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{01080\ \ \ \ \ \}}
+\DoxyCodeLine{01081\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_aa6706cd22a4c32c64222282f73d7bf84}{max}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ one,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ two)\ \{}
+\DoxyCodeLine{01082\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_abf9c15f1a8da916c8a2103d8cfd51c14}{max}}(one.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ two.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{01083\ \ \ \ \ \}}
+\DoxyCodeLine{01084\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a2535e95538d0e093bcb5003e47de49c5}{min}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ one,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ two)\ \{}
+\DoxyCodeLine{01085\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a85b413f04cc079c3041454acaff61a15}{min}}(one.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ two.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{01086\ \ \ \ \ \}}
+\DoxyCodeLine{01087\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_aba200c40abb0eebdcf95738506f868df}{abs}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}})\ \{}
+\DoxyCodeLine{01088\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_ac682406ecd547c6e897f3d09ac549105}{abs}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}.value);}
+\DoxyCodeLine{01089\ \ \ \ \ \}}
+\DoxyCodeLine{01090\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_ab09b99226afc4687b402234bf0eec476}{sign\_mask}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}})\ \{}
+\DoxyCodeLine{01091\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a770114b4d63779e873c7c643aec96fe5}{sign\_mask}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}.value);}
+\DoxyCodeLine{01092\ \ \ \ \ \}}
+\DoxyCodeLine{01093\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a03d37f56ea71805b8c5a65ff7d6b52ce}{equal}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ one,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ two)\ \{}
+\DoxyCodeLine{01094\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{equal}}(one.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ two.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{01095\ \ \ \ \ \}}
+\DoxyCodeLine{01096\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a658120bc1a1fbd19e2c05effeb1c18fc}{notEqual}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ one,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ two)\ \{}
+\DoxyCodeLine{01097\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_ad58ea0499df6b4f55868db8213a12c98}{notEqual}}(one.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ two.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{01098\ \ \ \ \ \}}
+\DoxyCodeLine{01099\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a42bb73dfd1fc697a0fe3815ca6260867}{greaterThan}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ one,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ two)\ \{}
+\DoxyCodeLine{01100\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_afe451ece04ecb9be82648c49c4e27e7b}{greaterThan}}(one.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ two.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{01101\ \ \ \ \ \}}
+\DoxyCodeLine{01102\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_affe5bceb64437ccad634e868f19e0bdf}{greaterThanOrEqual}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ one,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ two)\ \{}
+\DoxyCodeLine{01103\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a1bea6a867419c6ea42ffc195f35ec3bc}{greaterThanOrEqual}}(one.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ two.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{01104\ \ \ \ \ \}}
+\DoxyCodeLine{01105\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a6d8428e12c1d3e637bbb4da39e8a5a86}{lessThan}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ one,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ two)\ \{}
+\DoxyCodeLine{01106\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_afe451ece04ecb9be82648c49c4e27e7b}{greaterThan}}(two.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ one.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{01107\ \ \ \ \ \}}
+\DoxyCodeLine{01108\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_acfab69a5f0e722bf24bfa241669954fd}{lessThanOrEqual}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ one,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ two)\ \{}
+\DoxyCodeLine{01109\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a1bea6a867419c6ea42ffc195f35ec3bc}{greaterThanOrEqual}}(two.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ one.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{01110\ \ \ \ \ \}}
+\DoxyCodeLine{01111\ }
+\DoxyCodeLine{01112\ \ \ \ \ simd\_type\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}};\ }
+\DoxyCodeLine{01113\ }
+\DoxyCodeLine{01117\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float_ab39ed732f8a66adf9ecc5c660b31cd64}{poly\_float}}()\ noexcept\ \{\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a9d10a082344341e84eca2716d2a20964}{init}}(0.0f);\ \}}
+\DoxyCodeLine{01118\ }
+\DoxyCodeLine{01123\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float_a701313da95a95a6d03a8657334c13308}{poly\_float}}(simd\_type\ initial\_value)\ noexcept\ :\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}(initial\_value)\ \{\ \}}
+\DoxyCodeLine{01124\ }
+\DoxyCodeLine{01129\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float_ab98c1d83b8e26a86debe651bb51acfc4}{poly\_float}}(\textcolor{keywordtype}{float}\ initial\_value)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01130\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a9d10a082344341e84eca2716d2a20964}{init}}(initial\_value);}
+\DoxyCodeLine{01131\ \ \ \ \ \}}
+\DoxyCodeLine{01132\ }
+\DoxyCodeLine{01138\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float_ae4e32273bcc66c99fd8f848b1363f1e8}{poly\_float}}(\textcolor{keywordtype}{float}\ initial\_value1,\ \textcolor{keywordtype}{float}\ initial\_value2)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01139\ \ \ \ \ \ \ \mbox{\hyperlink{unionvital_1_1poly__float_1_1scalar__simd__union}{scalar\_simd\_union}}\ union\_value\ \{\ initial\_value1,\ initial\_value2,\ initial\_value1,\ initial\_value2\ \};}
+\DoxyCodeLine{01140\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ union\_value.\mbox{\hyperlink{unionvital_1_1poly__float_1_1scalar__simd__union_a5439112523681352aba2bb60cdb0915f}{simd}};}
+\DoxyCodeLine{01141\ \ \ \ \ \}}
+\DoxyCodeLine{01142\ }
+\DoxyCodeLine{01150\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float_ae837c6236389bbe88c50727216f055a6}{poly\_float}}(\textcolor{keywordtype}{float}\ first,\ \textcolor{keywordtype}{float}\ second,\ \textcolor{keywordtype}{float}\ third,\ \textcolor{keywordtype}{float}\ fourth)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01151\ \ \ \ \ \ \ \mbox{\hyperlink{unionvital_1_1poly__float_1_1scalar__simd__union}{scalar\_simd\_union}}\ union\_value\ \{\ first,\ second,\ third,\ fourth\ \};}
+\DoxyCodeLine{01152\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ union\_value.\mbox{\hyperlink{unionvital_1_1poly__float_1_1scalar__simd__union_a5439112523681352aba2bb60cdb0915f}{simd}};}
+\DoxyCodeLine{01153\ \ \ \ \ \}}
+\DoxyCodeLine{01154\ }
+\DoxyCodeLine{01158\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float_a5664d11a604baa071f1b387766181018}{\string~poly\_float}}()\ noexcept\ \{\ \}}
+\DoxyCodeLine{01159\ }
+\DoxyCodeLine{01165\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_ad27c110aa4e1024ba4beaf404aaa0d1f}{access}}(\textcolor{keywordtype}{size\_t}\ index)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01166\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{01167\ \ \ \ \ \ \ simd\_union\ union\_value\ \{\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ \};}
+\DoxyCodeLine{01168\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ union\_value.scalar[index];}
+\DoxyCodeLine{01169\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{01170\ \ \ \ \ \ \ \mbox{\hyperlink{unionvital_1_1poly__float_1_1simd__scalar__union}{simd\_scalar\_union}}\ union\_value\ \{\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ \};}
+\DoxyCodeLine{01171\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ union\_value.\mbox{\hyperlink{unionvital_1_1poly__float_1_1simd__scalar__union_a3882d4679ae1360fef92abb04d130b83}{scalar}}[index];}
+\DoxyCodeLine{01172\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{01173\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}[index];}
+\DoxyCodeLine{01174\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01175\ \ \ \ \ \}}
+\DoxyCodeLine{01176\ }
+\DoxyCodeLine{01182\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_ae81ddd53c0cc124931d1a82d6ecf90c6}{set}}(\textcolor{keywordtype}{size\_t}\ index,\ \textcolor{keywordtype}{float}\ new\_value)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01183\ \textcolor{preprocessor}{\#if\ VITAL\_AVX2}}
+\DoxyCodeLine{01184\ \ \ \ \ \ \ simd\_union\ union\_value\ \{\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ \};}
+\DoxyCodeLine{01185\ \ \ \ \ \ \ union\_value.scalar[index]\ =\ new\_value;}
+\DoxyCodeLine{01186\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ union\_value.simd;}
+\DoxyCodeLine{01187\ \textcolor{preprocessor}{\#elif\ VITAL\_SSE2}}
+\DoxyCodeLine{01188\ \ \ \ \ \ \ \mbox{\hyperlink{unionvital_1_1poly__float_1_1simd__scalar__union}{simd\_scalar\_union}}\ union\_value\ \{\ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ \};}
+\DoxyCodeLine{01189\ \ \ \ \ \ \ union\_value.\mbox{\hyperlink{unionvital_1_1poly__float_1_1simd__scalar__union_a3882d4679ae1360fef92abb04d130b83}{scalar}}[index]\ =\ new\_value;}
+\DoxyCodeLine{01190\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ union\_value.simd;}
+\DoxyCodeLine{01191\ \textcolor{preprocessor}{\#elif\ VITAL\_NEON}}
+\DoxyCodeLine{01192\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}[index]\ =\ new\_value;}
+\DoxyCodeLine{01193\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01194\ \ \ \ \ \}}
+\DoxyCodeLine{01195\ }
+\DoxyCodeLine{01201\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a1588e5fd302d022ba4f2a21450f4b106}{operator[]}}(\textcolor{keywordtype}{size\_t}\ index)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01202\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_ad27c110aa4e1024ba4beaf404aaa0d1f}{access}}(index);}
+\DoxyCodeLine{01203\ \ \ \ \ \}}
+\DoxyCodeLine{01204\ }
+\DoxyCodeLine{01206\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a5f3166c19ba0605575f161b60c06e040}{operator+=}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01207\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_aa80b3e08351dea90da252a71e44cc86c}{add}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other.value);}
+\DoxyCodeLine{01208\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01209\ \ \ \ \ \}}
+\DoxyCodeLine{01210\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a4f4b6a91f50a317c75a9b118b596772f}{operator-\/=}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01211\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a50bf8695879b76ecab08b7e0f7116575}{sub}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other.value);}
+\DoxyCodeLine{01212\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01213\ \ \ \ \ \}}
+\DoxyCodeLine{01214\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_ab68e80612f575755b3f098f3f4b4c94b}{operator*=}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01215\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a493d9b1ed5c60e5e600d8f396c0a36b7}{mul}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other.value);}
+\DoxyCodeLine{01216\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01217\ \ \ \ \ \}}
+\DoxyCodeLine{01218\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_aec54a036d6a8277011902e06d3504fb9}{operator/=}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01219\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a82328e440aabbfa9cf9f822abeaba7aa}{div}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other.value);}
+\DoxyCodeLine{01220\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01221\ \ \ \ \ \}}
+\DoxyCodeLine{01222\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a433d76565cbada1fb47a700cfc133c61}{operator\&=}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01223\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_aeec4d2c819b1fa096e9445edeebeca3c}{bitAnd}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other.value);}
+\DoxyCodeLine{01224\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01225\ \ \ \ \ \}}
+\DoxyCodeLine{01226\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a811f405841ff6dd8027dd2a77cf65bf3}{operator|=}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01227\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ad6920bd937eea7d756f71b4729902927}{bitOr}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other.value);}
+\DoxyCodeLine{01228\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01229\ \ \ \ \ \}}
+\DoxyCodeLine{01230\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a13dc581a742bff0dc880f2e4fe8ca778}{operator\string^=}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01231\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a10eab2f00dff6f63dbe7c0ce69e13eab}{bitXor}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other.value);}
+\DoxyCodeLine{01232\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01233\ \ \ \ \ \}}
+\DoxyCodeLine{01234\ }
+\DoxyCodeLine{01236\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a6f57b0d63046ef4da39cbad4d0d7911d}{operator+=}}(simd\_type\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01237\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_aa80b3e08351dea90da252a71e44cc86c}{add}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other);}
+\DoxyCodeLine{01238\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01239\ \ \ \ \ \}}
+\DoxyCodeLine{01240\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a8eb959a563ade7029fffaf4b6ec3d195}{operator-\/=}}(simd\_type\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01241\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a50bf8695879b76ecab08b7e0f7116575}{sub}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other);}
+\DoxyCodeLine{01242\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01243\ \ \ \ \ \}}
+\DoxyCodeLine{01244\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a6ec6f876282f3a44f5967c8428a546b3}{operator*=}}(simd\_type\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01245\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a493d9b1ed5c60e5e600d8f396c0a36b7}{mul}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other);}
+\DoxyCodeLine{01246\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01247\ \ \ \ \ \}}
+\DoxyCodeLine{01248\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a295b0bf433f3cb405bb24056e621f704}{operator/=}}(simd\_type\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01249\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a82328e440aabbfa9cf9f822abeaba7aa}{div}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other);}
+\DoxyCodeLine{01250\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01251\ \ \ \ \ \}}
+\DoxyCodeLine{01252\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_ab64290af62da964ce40f81c367945ec1}{operator\&=}}(mask\_simd\_type\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01253\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_aeec4d2c819b1fa096e9445edeebeca3c}{bitAnd}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other);}
+\DoxyCodeLine{01254\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01255\ \ \ \ \ \}}
+\DoxyCodeLine{01256\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a3b8fa5c2d7bb04995701e08eb2efab77}{operator|=}}(mask\_simd\_type\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01257\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ad6920bd937eea7d756f71b4729902927}{bitOr}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other);}
+\DoxyCodeLine{01258\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01259\ \ \ \ \ \}}
+\DoxyCodeLine{01260\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a86f936207e9e0aec295c8be8b43fb3d2}{operator\string^=}}(mask\_simd\_type\ other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01261\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a10eab2f00dff6f63dbe7c0ce69e13eab}{bitXor}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other);}
+\DoxyCodeLine{01262\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01263\ \ \ \ \ \}}
+\DoxyCodeLine{01264\ }
+\DoxyCodeLine{01266\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a62c7c5c7150b7bfc7f08b139ea3b739a}{operator+=}}(\textcolor{keywordtype}{float}\ scalar)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01267\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_aa80b3e08351dea90da252a71e44cc86c}{add}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \mbox{\hyperlink{structvital_1_1poly__float_a9d10a082344341e84eca2716d2a20964}{init}}(scalar));}
+\DoxyCodeLine{01268\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01269\ \ \ \ \ \}}
+\DoxyCodeLine{01270\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a948979f4eab7892ec4bb3b825b789dc7}{operator-\/=}}(\textcolor{keywordtype}{float}\ scalar)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01271\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a50bf8695879b76ecab08b7e0f7116575}{sub}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \mbox{\hyperlink{structvital_1_1poly__float_a9d10a082344341e84eca2716d2a20964}{init}}(scalar));}
+\DoxyCodeLine{01272\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01273\ \ \ \ \ \}}
+\DoxyCodeLine{01274\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_aaed9564bc4df62f48cd94c0060de460a}{operator*=}}(\textcolor{keywordtype}{float}\ scalar)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01275\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a70ff7e0f0ceaf92192d35a51beea55a7}{mulScalar}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ scalar);}
+\DoxyCodeLine{01276\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01277\ \ \ \ \ \}}
+\DoxyCodeLine{01278\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\&\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a16170740d5570aa3cb8c8b1c98a22a19}{operator/=}}(\textcolor{keywordtype}{float}\ scalar)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01279\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}}\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a82328e440aabbfa9cf9f822abeaba7aa}{div}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ \mbox{\hyperlink{structvital_1_1poly__float_a9d10a082344341e84eca2716d2a20964}{init}}(scalar));}
+\DoxyCodeLine{01280\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{01281\ \ \ \ \ \}}
+\DoxyCodeLine{01282\ }
+\DoxyCodeLine{01284\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a7b603c27ae70f0264cd48d1205a475d6}{operator+}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ other)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01285\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_aa80b3e08351dea90da252a71e44cc86c}{add}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other.value);}
+\DoxyCodeLine{01286\ \ \ \ \ \}}
+\DoxyCodeLine{01287\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a9fe3bcffa953b5cb5b362dbb7eee40f0}{operator-\/}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ other)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01288\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a50bf8695879b76ecab08b7e0f7116575}{sub}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other.value);}
+\DoxyCodeLine{01289\ \ \ \ \ \}}
+\DoxyCodeLine{01290\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_ada993dc0e15d4d5b5091181fa154e49e}{operator*}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ other)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01291\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a493d9b1ed5c60e5e600d8f396c0a36b7}{mul}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other.value);}
+\DoxyCodeLine{01292\ \ \ \ \ \}}
+\DoxyCodeLine{01293\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_ad077470409743a1acd232788cd4bc279}{operator/}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ other)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01294\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a82328e440aabbfa9cf9f822abeaba7aa}{div}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other.value);}
+\DoxyCodeLine{01295\ \ \ \ \ \}}
+\DoxyCodeLine{01296\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_aa893444c6bc0c73a3c4d7a5a2724fca2}{operator*}}(\textcolor{keywordtype}{float}\ scalar)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01297\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a70ff7e0f0ceaf92192d35a51beea55a7}{mulScalar}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ scalar);}
+\DoxyCodeLine{01298\ \ \ \ \ \}}
+\DoxyCodeLine{01299\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_aa384980e84af7494d036994312e7c38e}{operator\&}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ other)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01300\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_aeec4d2c819b1fa096e9445edeebeca3c}{bitAnd}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other.value);}
+\DoxyCodeLine{01301\ \ \ \ \ \}}
+\DoxyCodeLine{01302\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_aa85487dccfdc6c59f569bc8df9087473}{operator|}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ other)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01303\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_ad6920bd937eea7d756f71b4729902927}{bitOr}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other.value);}
+\DoxyCodeLine{01304\ \ \ \ \ \}}
+\DoxyCodeLine{01305\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_afb49a10ecc6aa3871d522f8785a23cd0}{operator\string^}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ other)\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{01306\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_a10eab2f00dff6f63dbe7c0ce69e13eab}{bitXor}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ other.value);}
+\DoxyCodeLine{01307\ \ \ \ \ \}}
+\DoxyCodeLine{01308\ }
+\DoxyCodeLine{01310\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_ac967a0763bfdeabb6818f2ba035473ac}{operator-\/}}()\ const\ noexcept\ \{}
+\DoxyCodeLine{01311\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_afe0a326a5232ddd3d7aaf8ac7a9764dc}{neg}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{01312\ \ \ \ \ \}}
+\DoxyCodeLine{01313\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_a9ad162b7254b8df2fa274a4a42b1c9b5}{operator\string~}}()\ const\ noexcept\ \{}
+\DoxyCodeLine{01314\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_af02b2261bbd5f5649749320c450a82b9}{bitNot}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{01315\ \ \ \ \ \}}
+\DoxyCodeLine{01316\ }
+\DoxyCodeLine{01321\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{common_8h_a8f664f1dca231f44eaab4d8a7e1e78dc}{vector\_call}}\ \mbox{\hyperlink{structvital_1_1poly__float_acc6570ed34d12f869ed4b2098e41b99d}{sum}}()\ const\ noexcept\ \{}
+\DoxyCodeLine{01322\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structvital_1_1poly__float_acc6570ed34d12f869ed4b2098e41b99d}{sum}}(\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{01323\ \ \ \ \ \}}
+\DoxyCodeLine{01324\ \ \ \};}
+\DoxyCodeLine{01325\ }
+\DoxyCodeLine{01326\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

@@ -1,0 +1,75 @@
+\doxysection{synth\+\_\+types.\+cpp}
+\hypertarget{synth__types_8cpp_source}{}\label{synth__types_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/synth\_types.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/synth\_types.cpp}}
+\mbox{\hyperlink{synth__types_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{In\ these\ files,\ we\ define\ fundamental\ types\ and\ structures\ that\ are\ central\ to\ the\ internal\ state\ and\ logic\ of\ the\ Vital\ synthesizer\ engine.\ The\ ModulationConnection\ and\ ModulationConnectionBank\ manage\ the\ links\ between\ modulation\ sources\ (like\ LFOs)\ and\ destinations\ (like\ filter\ cutoff).\ The\ StringLayout\ helps\ map\ a\ computer\ keyboard\ to\ musical\ notes.\ The\ modulation\_change,\ control\_map,\ input\_map,\ and\ output\_map\ typedefs\ provide\ convenient,\ strongly-\/typed\ ways\ to\ manage\ changes\ to\ controls,\ handle\ various\ inputs,\ and\ track\ outputs\ throughout\ the\ synthesizer’s\ audio\ graph.}}
+\DoxyCodeLine{00004\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__types_8h}{synth\_types.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{modulation__connection__processor_8h}{modulation\_connection\_processor.h}}"{}}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00012\ \ \ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{comment}{//\ Delimiter\ used\ in\ modulation\ source\ names\ to\ separate\ prefixes.}}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{keyword}{const}\ std::string\ kModulationSourceDelimiter\ =\ \textcolor{stringliteral}{"{}\_"{}};}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{comment}{//\ Set\ of\ known\ prefixes\ that\ produce\ bipolar\ values\ by\ default\ (e.g.\ "{}lfo"{},\ "{}random"{}).}}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keyword}{const}\ std::set<std::string>\ kBipolarModulationSourcePrefixes\ =\ \{}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}lfo"{}},}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}stereo"{}},}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}random"{}},}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}pitch"{}}}
+\DoxyCodeLine{00022\ \ \ \ \ \};}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00030\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{bool}\ isConnectionAvailable(ModulationConnection*\ connection)\ \{}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ connection-\/>source\_name.empty()\ \&\&\ connection-\/>destination\_name.empty();}
+\DoxyCodeLine{00032\ \ \ \ \ \}}
+\DoxyCodeLine{00033\ \ \ \}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \mbox{\hyperlink{structvital_1_1_modulation_connection_a2346d2485158b44f48fc189fa5aef13f}{ModulationConnection::ModulationConnection}}(\textcolor{keywordtype}{int}\ index,\ std::string\ from,\ std::string\ to)\ :}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ source\_name(std::move(from)),\ destination\_name(std::move(to))\ \{}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{comment}{//\ Create\ a\ ModulationConnectionProcessor\ for\ this\ connection\ index.}}
+\DoxyCodeLine{00038\ \ \ \ \ \mbox{\hyperlink{structvital_1_1_modulation_connection_a3e60937dc576522f7c477da963dda169}{modulation\_processor}}\ =\ std::make\_unique<ModulationConnectionProcessor>(index);}
+\DoxyCodeLine{00039\ \ \ \}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \mbox{\hyperlink{structvital_1_1_modulation_connection_a7dd81fd54b54468d8235ca1ad193413f}{ModulationConnection::\string~ModulationConnection}}()\ \{\ \}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structvital_1_1_modulation_connection_ab213129e12375c699cc21ca978f52b6e}{ModulationConnection::isModulationSourceDefaultBipolar}}(\textcolor{keyword}{const}\ std::string\&\ source)\ \{}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{comment}{//\ Determine\ if\ the\ source\ prefix\ indicates\ a\ bipolar\ output.}}
+\DoxyCodeLine{00045\ \ \ \ \ std::size\_t\ pos\ =\ source.find(kModulationSourceDelimiter);}
+\DoxyCodeLine{00046\ \ \ \ \ std::string\ prefix\ =\ source.substr(0,\ pos);}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordflow}{return}\ kBipolarModulationSourcePrefixes.count(prefix)\ >\ 0;}
+\DoxyCodeLine{00048\ \ \ \}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \mbox{\hyperlink{classvital_1_1_modulation_connection_bank_ad95a5a11da64c618bc1897df68891b9f}{ModulationConnectionBank::ModulationConnectionBank}}()\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ Pre-\/allocate\ kMaxModulationConnections\ with\ empty\ source/destination.}}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_abcbdb48fbd4d9f98b90cae346ee22044}{kMaxModulationConnections}};\ ++i)\ \{}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ std::unique\_ptr<ModulationConnection>\ connection\ =\ std::make\_unique<ModulationConnection>(i);}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ all\_connections\_.push\_back(std::move(connection));}
+\DoxyCodeLine{00055\ \ \ \ \ \}}
+\DoxyCodeLine{00056\ \ \ \}}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \mbox{\hyperlink{classvital_1_1_modulation_connection_bank_a46cd5914fe31ae15e034216950000cc5}{ModulationConnectionBank::\string~ModulationConnectionBank}}()\ \{\ \}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \mbox{\hyperlink{structvital_1_1_modulation_connection}{ModulationConnection}}*\ \mbox{\hyperlink{classvital_1_1_modulation_connection_bank_a82244a6e2fb7d4ead3fa60b9a370c910}{ModulationConnectionBank::createConnection}}(\textcolor{keyword}{const}\ std::string\&\ from,\ \textcolor{keyword}{const}\ std::string\&\ to)\ \{}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{comment}{//\ Find\ an\ available\ connection\ slot\ and\ set\ up\ the\ connection.}}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ 1;}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ connection\ :\ all\_connections\_)\ \{}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ std::string\ invalid\_connection\ =\ \textcolor{stringliteral}{"{}modulation\_"{}}\ +\ std::to\_string(index++)\ +\ \textcolor{stringliteral}{"{}\_amount"{}};}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (to\ !=\ invalid\_connection\ \&\&\ isConnectionAvailable(connection.get()))\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ connection-\/>resetConnection(from,\ to);}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ connection-\/>modulation\_processor-\/>setBipolar(\mbox{\hyperlink{structvital_1_1_modulation_connection_ab213129e12375c699cc21ca978f52b6e}{ModulationConnection::isModulationSourceDefaultBipolar}}(from));}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ connection.get();}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00070\ \ \ \ \ \}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{comment}{//\ No\ available\ slots.}}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00074\ \ \ \}}
+\DoxyCodeLine{00075\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

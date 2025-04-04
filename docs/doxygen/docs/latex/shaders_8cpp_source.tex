@@ -1,0 +1,1114 @@
+\doxysection{shaders.\+cpp}
+\hypertarget{shaders_8cpp_source}{}\label{shaders_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/look\_and\_feel/shaders.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/look\_and\_feel/shaders.cpp}}
+\mbox{\hyperlink{shaders_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{shaders_8h}{shaders.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}JuceHeader.h"{}}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{open__gl__component_8h}{open\_gl\_component.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#if\ JUCE\_OPENGL\_ES\ ||\ OPENGL\_ES}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\ \ \#define\ HIGHP\ "{}highp"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\ \ \#define\ MEDIUMP\ "{}mediump"{}}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\ \ \#define\ LOWP\ "{}lowp"{}}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\ \ \#define\ HIGHP}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\ \ \#define\ MEDIUMP}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\ \ \#define\ LOWP}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#define\ FILTER\_RESPONSE\_UNIFORMS\ \(\backslash\)}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\ \ \ \ "{}uniform\ "{}\ MEDIUMP\ "{}\ float\ midi\_cutoff;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\ \ \ \ "{}uniform\ "{}\ MEDIUMP\ "{}\ float\ resonance;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\ \ \ \ "{}uniform\ "{}\ MEDIUMP\ "{}\ float\ drive;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\ \ \ \ "{}uniform\ "{}\ MEDIUMP\ "{}\ float\ mix;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\ \ \ \ "{}uniform\ "{}\ MEDIUMP\ "{}\ float\ db24;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\ \ \ \ "{}uniform\ "{}\ MEDIUMP\ "{}\ float\ stage0;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\ \ \ \ "{}uniform\ "{}\ MEDIUMP\ "{}\ float\ stage1;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\ \ \ \ "{}uniform\ "{}\ MEDIUMP\ "{}\ float\ stage2;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\ \ \ \ "{}uniform\ "{}\ MEDIUMP\ "{}\ float\ stage3;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\ \ \ \ "{}uniform\ "{}\ MEDIUMP\ "{}\ float\ stage4;\(\backslash\)n"{}}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#define\ FILTER\_RESPONSE\_CONSTANTS\ \(\backslash\)}}
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\ \ \ \ "{}const\ "{}\ MEDIUMP\ "{}\ float\ kMinMidiNote\ =\ 8.0;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00032\ \textcolor{preprocessor}{\ \ \ \ "{}const\ "{}\ MEDIUMP\ "{}\ float\ kPi\ =\ 3.14159265359;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00033\ \textcolor{preprocessor}{\ \ \ \ "{}const\ "{}\ MEDIUMP\ "{}\ float\ kMaxMidiNote\ =\ 137.0;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00034\ \textcolor{preprocessor}{\ \ \ \ "{}const\ "{}\ MEDIUMP\ "{}\ float\ kMidi0Frequency\ =\ 8.1757989156;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00035\ \textcolor{preprocessor}{\ \ \ \ "{}const\ "{}\ MEDIUMP\ "{}\ float\ kMinDb\ =\ -\/30.0;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00036\ \textcolor{preprocessor}{\ \ \ \ "{}const\ "{}\ MEDIUMP\ "{}\ float\ kMaxDb\ =\ 20.0;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00037\ \textcolor{preprocessor}{}}
+\DoxyCodeLine{00038\ \textcolor{preprocessor}{\#define\ RESPONSE\_TOOLS\ \(\backslash\)}}
+\DoxyCodeLine{00039\ \textcolor{preprocessor}{\ \ \ \ "{}vec2\ complexMultiply(vec2\ a,\ vec2\ b)\ \{\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00040\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ return\ vec2(a.x\ *\ b.x\ -\/\ a.y\ *\ b.y,\ a.y\ *\ b.x\ +\ a.x\ *\ b.y);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\ \ \ \ "{}\}\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00042\ \textcolor{preprocessor}{\ \ \ \ "{}vec2\ complexReciprocal(vec2\ num)\ \{\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ "{}\ MEDIUMP\ "{}\ vec2\ conjugate\ =\ vec2(num.x,\ -\/num.y);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ "{}\ MEDIUMP\ "{}\ vec2\ denominator\ =\ complexMultiply(num,\ conjugate);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ return\ vec2(conjugate.x\ /\ denominator.x,\ conjugate.y\ /\ denominator.x);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\ \ \ \ "{}\}\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\ \ \ \ "{}vec2\ complexDivide(vec2\ a,\ vec2\ b)\ \{\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ "{}\ MEDIUMP\ "{}\ vec2\ conjugate\ =\ vec2(b.x,\ -\/b.y);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00049\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ "{}\ MEDIUMP\ "{}\ vec2\ num\ =\ complexMultiply(a,\ conjugate);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ "{}\ MEDIUMP\ "{}\ vec2\ den\ =\ complexMultiply(b,\ conjugate);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ return\ vec2(num.x\ /\ den.x,\ num.y\ /\ den.x);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00052\ \textcolor{preprocessor}{\ \ \ \ "{}\}\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00053\ \textcolor{preprocessor}{\ \ \ \ "{}vec2\ onePoleInvertResponse(float\ cutoff)\ \{\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ return\ vec2(1.0,\ cutoff);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00055\ \textcolor{preprocessor}{\ \ \ \ "{}\}\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00056\ \textcolor{preprocessor}{\ \ \ \ "{}vec2\ onePoleResponse(float\ cutoff)\ \{\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00057\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ return\ complexReciprocal(vec2(1.0,\ cutoff));\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00058\ \textcolor{preprocessor}{\ \ \ \ "{}\}\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00059\ \textcolor{preprocessor}{\ \ \ \ "{}float\ magnitudeToDb(float\ magnitude)\ \{\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00060\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ return\ 8.685889638065037\ *\ log(magnitude);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\ \ \ \ "{}\}\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00062\ \textcolor{preprocessor}{\ \ \ \ "{}float\ getCutoffRatio(float\ x,\ float\ midi\_cutoff)\ \{\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00063\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ "{}\ MEDIUMP\ "{}\ float\ percent\ =\ 0.5\ *\ (x\ +\ 1.0);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00064\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ "{}\ MEDIUMP\ "{}\ float\ midi\_note\ =\ kMinMidiNote\ +\ percent\ *\ (kMaxMidiNote\ -\/\ kMinMidiNote);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00065\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ return\ pow(2.0,\ min((midi\_note\ -\/\ midi\_cutoff)\ /\ 12.0,\ 8.0));\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00066\ \textcolor{preprocessor}{\ \ \ \ "{}\}\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00067\ \textcolor{preprocessor}{\ \ \ \ "{}float\ getFrequencyForX(float\ x)\ \{\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00068\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ "{}\ MEDIUMP\ "{}\ float\ percent\ =\ 0.5\ *\ (x\ +\ 1.0);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00069\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ "{}\ MEDIUMP\ "{}\ float\ midi\_note\ =\ kMinMidiNote\ +\ percent\ *\ (kMaxMidiNote\ -\/\ kMinMidiNote);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00070\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ return\ kMidi0Frequency\ *\ pow(2.0,\ midi\_note\ /\ 12.0);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00071\ \textcolor{preprocessor}{\ \ \ \ "{}\}\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00072\ \textcolor{preprocessor}{\ \ \ \ "{}float\ getYForResponse(vec2\ response)\ \{\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00073\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ "{}\ MEDIUMP\ "{}\ float\ magnitude\_response\ =\ length(response);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00074\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ "{}\ MEDIUMP\ "{}\ float\ db\ =\ magnitudeToDb(magnitude\_response);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00075\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ return\ 2.0\ *\ (db\ -\/\ kMinDb)\ /\ (kMaxDb\ -\/\ kMinDb)\ -\/\ 1.0;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00076\ \textcolor{preprocessor}{\ \ \ \ "{}\}\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00077\ \textcolor{preprocessor}{\ \ \ \ "{}vec4\ computePosition(vec4\ start\_position,\ vec2\ response)\ \{\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00078\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ "{}\ MEDIUMP\ "{}\ vec4\ result\ =\ start\_position;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00079\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ result.y\ =\ getYForResponse(response);\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00080\ \textcolor{preprocessor}{\ \ \ \ "{}\ \ \ \ return\ result;\(\backslash\)n"{}\ \(\backslash\)}}
+\DoxyCodeLine{00081\ \textcolor{preprocessor}{\ \ \ \ "{}\}\(\backslash\)n"{}}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00084\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kImageVertexShader\ =}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ tex\_coord\_in;\(\backslash\)n"{}}}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ tex\_coord\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ tex\_coord\_out\ =\ tex\_coord\_in;\(\backslash\)n"{}}}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position\ =\ vec4(position.xy,\ 1.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kImageFragmentShader\ =}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ tex\_coord\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ sampler2D\ image;\(\backslash\)n"{}}}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ texture2D(image,\ tex\_coord\_out);\(\backslash\)n"{}}}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kTintedImageFragmentShader\ =}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ tex\_coord\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ sampler2D\ image;\(\backslash\)n"{}}}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ image\_color\ =\ texture2D(image,\ tex\_coord\_out);\(\backslash\)n"{}}}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ image\_color.r\ *=\ color.r;\(\backslash\)n"{}}}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ image\_color.g\ *=\ color.g;\(\backslash\)n"{}}}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ image\_color.b\ *=\ color.b;\(\backslash\)n"{}}}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ image\_color.a\ *=\ color.a;\(\backslash\)n"{}}}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ image\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kPassthroughVertexShader\ =}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions;\(\backslash\)n"{}}}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates;\(\backslash\)n"{}}}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ shader\_values;\(\backslash\)n"{}}}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ shader\_values\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ dimensions\_out\ =\ dimensions;\(\backslash\)n"{}}}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ coordinates\_out\ =\ coordinates;\(\backslash\)n"{}}}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ shader\_values\_out\ =\ shader\_values;\(\backslash\)n"{}}}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position\ =\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kScaleVertexShader\ =}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ scale;\(\backslash\)n"{}}}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position\ =\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.x\ =\ gl\_Position.x\ *\ scale.x;\(\backslash\)n"{}}}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.y\ =\ gl\_Position.y\ *\ scale.y;\(\backslash\)n"{}}}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.z\ =\ 0.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.a\ =\ 1.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kRotaryModulationVertexShader\ =}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates;\(\backslash\)n"{}}}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ range;\(\backslash\)n"{}}}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ meter\_radius;\(\backslash\)n"{}}}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ range\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ meter\_radius\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ coordinates\_out\ =\ coordinates;\(\backslash\)n"{}}}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ range\_out\ =\ range;\(\backslash\)n"{}}}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ meter\_radius\_out\ =\ meter\_radius;\(\backslash\)n"{}}}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position\ =\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00165\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kLinearModulationVertexShader\ =}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates;\(\backslash\)n"{}}}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ range;\(\backslash\)n"{}}}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ range\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ coordinates\_out\ =\ coordinates;\(\backslash\)n"{}}}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ range\_out\ =\ range;\(\backslash\)n"{}}}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position\ =\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00179\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kGainMeterVertexShader\ =}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ position\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position\ =\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ position\_out\ =\ position.xz;\(\backslash\)n"{}}}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kGainMeterFragmentShader\ =}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ position\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color\_from;\(\backslash\)n"{}}}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color\_to;\(\backslash\)n"{}}}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ t\ =\ (position\_out.x\ +\ 1.0)\ /\ 2.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ color\_to\ *\ t\ +\ color\_from\ *\ (1.0\ -\/\ t);\(\backslash\)n"{}}}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kAnalogFilterResponseVertexShader\ =}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}in\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ response\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a2e929ab023d7713f0ba2726154b0686f}{FILTER\_RESPONSE\_UNIFORMS}}}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a64659e26b85b0443dc99458d8f2849af}{FILTER\_RESPONSE\_CONSTANTS}}}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_ae4eb29a1b23c44c5c0eb0775cb1a2376}{RESPONSE\_TOOLS}}}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ one\_pole\ =\ onePoleResponse(getCutoffRatio(position.x,\ midi\_cutoff));\(\backslash\)n"{}}}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ low\ =\ complexMultiply(one\_pole,\ one\_pole);\(\backslash\)n"{}}}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ band\ =\ one\_pole\ -\/\ low;\(\backslash\)n"{}}}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ high\ =\ vec2(1.0,\ 0.0)\ -\/\ one\_pole\ -\/\ band;\(\backslash\)n"{}}}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ two\_stage\_pre\ =\ stage3\ *\ low\ +\ stage1\ *\ band\ +\ stage4\ *\ high;\(\backslash\)n"{}}}
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ two\_stage\ =\ stage0\ *\ low\ +\ stage1\ *\ band\ +\ stage2\ *\ high;\(\backslash\)n"{}}}
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ feedback\ =\ complexMultiply(one\_pole,\ vec2(1.0,\ 0.0)\ -\/\ one\_pole);\(\backslash\)n"{}}}
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\_pre\ =\ vec2(1.0,\ 0.0)\ -\/\ feedback;\(\backslash\)n"{}}}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\ =\ vec2(1.0,\ 0.0)\ -\/\ resonance\ *\ feedback;\(\backslash\)n"{}}}
+\DoxyCodeLine{00215\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response\_pre\ =\ complexDivide(two\_stage\_pre,\ denominator\_pre);\(\backslash\)n"{}}}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response\_res\ =\ complexDivide(two\_stage,\ denominator);\(\backslash\)n"{}}}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response\ =\ drive\ *\ response\_res;\(\backslash\)n"{}}}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\ =\ response\ +\ db24\ *\ (complexMultiply(response\_pre,\ response)\ -\/\ response);\(\backslash\)n"{}}}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\ =\ mix\ *\ response\ +\ vec2(1.0\ -\/\ mix,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\_out\ =\ getYForResponse(response);\(\backslash\)n"{}}}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00222\ }
+\DoxyCodeLine{00223\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kCombFilterResponseVertexShader\ =}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}in\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ response\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a2e929ab023d7713f0ba2726154b0686f}{FILTER\_RESPONSE\_UNIFORMS}}}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a64659e26b85b0443dc99458d8f2849af}{FILTER\_RESPONSE\_CONSTANTS}}}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_ae4eb29a1b23c44c5c0eb0775cb1a2376}{RESPONSE\_TOOLS}}}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}const\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ kMaxCycles\ =\ 6.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ ratio\ =\ getCutoffRatio(position.x,\ midi\_cutoff);\(\backslash\)n"{}}}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ ratio\_diff\ =\ getCutoffRatio(position.x\ +\ 0.02,\ midi\_cutoff)\ -\/\ ratio;\(\backslash\)n"{}}}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ max\_step\ =\ step(kMaxCycles,\ ratio);\(\backslash\)n"{}}}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ tick\ =\ resonance\ *\ vec2(cos(2.0\ *\ kPi\ *\ ratio),\ -\/sin(2.0\ *\ kPi\ *\ ratio));\(\backslash\)n"{}}}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ low\_pass\ =\ onePoleResponse(getCutoffRatio(position.x,\ stage2));\(\backslash\)n"{}}}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ high\_pass\ =\ vec2(1.0,\ 0.0)\ -\/\ low\_pass;\(\backslash\)n"{}}}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ one\_pole\ =\ stage0\ *\ low\_pass\ +\ stage1\ *\ high\_pass;\(\backslash\)n"{}}}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ high\_pass2\ =\ vec2(1.0,\ 0.0)\ -\/\ onePoleResponse(getCutoffRatio(position.x,\ stage3));\(\backslash\)n"{}}}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ filter\_input\ =\ vec2(1.0\ -\/\ 0.5\ *\ abs(resonance),\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ filter\_input\ =\ complexMultiply(complexMultiply(filter\_input,\ one\_pole),\ high\_pass2);\(\backslash\)n"{}}}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\ =\ vec2(1.0,\ 0.0)\ -\/\ complexMultiply(complexMultiply(tick,\ one\_pole),\ high\_pass2);\(\backslash\)n"{}}}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ round\_value\ =\ complexMultiply(one\_pole,\ high\_pass2).x\ *\ abs(resonance);\(\backslash\)n"{}}}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\_round\ =\ vec2(1.0\ -\/\ round\_value,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\_round\_down\ =\ vec2(1.0\ +\ round\_value,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ max\_step\_mult\ =\ 1.0\ -\/\ position.y;\(\backslash\)n"{}}}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ max\_step\_denominator\ =\ max\_step\_mult\ *\ denominator\_round\ +\ (1.0\ -\/\ max\_step\_mult)\ *\ denominator\_round\_down;\(\backslash\)n"{}}}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ denominator\ =\ max\_step\ *\ max\_step\_denominator\ +\ (1.0\ -\/\ max\_step)\ *\ denominator;\(\backslash\)n"{}}}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ denominator\_round\_step\ =\ 1.0\ -\/\ max(max\_step,\ step(ratio\_diff,\ length(denominator)));\(\backslash\)n"{}}}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ denominator\ =\ denominator\_round\_step\ *\ denominator\_round\ +\ (1.0\ -\/\ denominator\_round\_step)\ *\ denominator;\(\backslash\)n"{}}}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response\ =\ complexDivide(drive\ *\ filter\_input,\ denominator);\(\backslash\)n"{}}}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\ =\ mix\ *\ response\ +\ vec2(1.0\ -\/\ mix,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\_out\ =\ getYForResponse(response);\(\backslash\)n"{}}}
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00255\ }
+\DoxyCodeLine{00256\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kPositiveFlangeFilterResponseVertexShader\ =}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}in\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ response\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a2e929ab023d7713f0ba2726154b0686f}{FILTER\_RESPONSE\_UNIFORMS}}}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a64659e26b85b0443dc99458d8f2849af}{FILTER\_RESPONSE\_CONSTANTS}}}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_ae4eb29a1b23c44c5c0eb0775cb1a2376}{RESPONSE\_TOOLS}}}
+\DoxyCodeLine{00262\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}const\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ kMaxCycles\ =\ 8.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00263\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ ratio\ =\ getCutoffRatio(position.x,\ midi\_cutoff);\(\backslash\)n"{}}}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ ratio\_diff\ =\ getCutoffRatio(position.x\ +\ 0.02,\ midi\_cutoff)\ -\/\ ratio;\(\backslash\)n"{}}}
+\DoxyCodeLine{00267\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ max\_step\ =\ step(kMaxCycles,\ ratio);\(\backslash\)n"{}}}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ delay\ =\ vec2(cos(2.0\ *\ kPi\ *\ ratio),\ -\/sin(2.0\ *\ kPi\ *\ ratio));\(\backslash\)n"{}}}
+\DoxyCodeLine{00269\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ tick\ =\ resonance\ *\ delay;\(\backslash\)n"{}}}
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ low\_pass\ =\ onePoleResponse(getCutoffRatio(position.x,\ stage2));\(\backslash\)n"{}}}
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ high\_pass\ =\ vec2(1.0,\ 0.0)\ -\/\ low\_pass;\(\backslash\)n"{}}}
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ one\_pole\ =\ stage0\ *\ low\_pass\ +\ stage1\ *\ high\_pass;\(\backslash\)n"{}}}
+\DoxyCodeLine{00273\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ high\_pass2\ =\ vec2(1.0,\ 0.0)\ -\/\ onePoleResponse(getCutoffRatio(position.x,\ stage3));\(\backslash\)n"{}}}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ filter\_input\ =\ vec2(0.70710678119,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00275\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ delay\_input\ =\ complexMultiply(complexMultiply(filter\_input,\ one\_pole),\ high\_pass2);\(\backslash\)n"{}}}
+\DoxyCodeLine{00276\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\ =\ vec2(1.0,\ 0.0)\ -\/\ tick;\(\backslash\)n"{}}}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ round\_value\ =\ complexMultiply(one\_pole,\ high\_pass2)\ *\ resonance;\(\backslash\)n"{}}}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\_round\ =\ complexMultiply(delay,\ vec2(1.0,\ 0.0)\ -\/\ round\_value);\(\backslash\)n"{}}}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\_round\_down\ =\ complexMultiply(-\/delay,\ vec2(1.0,\ 0.0)\ +\ round\_value);\(\backslash\)n"{}}}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ max\_step\_mult\ =\ 1.0\ -\/\ position.y;\(\backslash\)n"{}}}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ max\_step\_denominator\ =\ max\_step\_mult\ *\ denominator\_round\ +\ (1.0\ -\/\ max\_step\_mult)\ *\ denominator\_round\_down;\(\backslash\)n"{}}}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ denominator\ =\ max\_step\ *\ max\_step\_denominator\ +\ (1.0\ -\/\ max\_step)\ *\ denominator;\(\backslash\)n"{}}}
+\DoxyCodeLine{00283\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ denominator\_round\_step\ =\ 1.0\ -\/\ max(max\_step,\ step(ratio\_diff,\ length(denominator)));\(\backslash\)n"{}}}
+\DoxyCodeLine{00284\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ denominator\ =\ denominator\_round\_step\ *\ denominator\_round\ +\ (1.0\ -\/\ denominator\_round\_step)\ *\ denominator;\(\backslash\)n"{}}}
+\DoxyCodeLine{00285\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response\ =\ filter\_input\ *\ drive\ +\ complexMultiply(complexDivide(delay\_input,\ denominator),\ delay);\(\backslash\)n"{}}}
+\DoxyCodeLine{00286\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\ =\ mix\ *\ response\ +\ vec2(1.0\ -\/\ mix,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00287\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\_out\ =\ getYForResponse(response);\(\backslash\)n"{}}}
+\DoxyCodeLine{00288\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00289\ }
+\DoxyCodeLine{00290\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kNegativeFlangeFilterResponseVertexShader\ =}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}in\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ response\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a2e929ab023d7713f0ba2726154b0686f}{FILTER\_RESPONSE\_UNIFORMS}}}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a64659e26b85b0443dc99458d8f2849af}{FILTER\_RESPONSE\_CONSTANTS}}}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_ae4eb29a1b23c44c5c0eb0775cb1a2376}{RESPONSE\_TOOLS}}}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}const\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ kMaxCycles\ =\ 8.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00297\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ ratio\ =\ getCutoffRatio(position.x,\ midi\_cutoff\ +\ 12.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ max\_step\ =\ step(kMaxCycles,\ ratio);\(\backslash\)n"{}}}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ delay\ =\ vec2(cos(2.0\ *\ kPi\ *\ ratio),\ -\/sin(2.0\ *\ kPi\ *\ ratio));\(\backslash\)n"{}}}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ tick\ =\ -\/resonance\ *\ delay;\(\backslash\)n"{}}}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ low\_pass\ =\ onePoleResponse(getCutoffRatio(position.x,\ stage2));\(\backslash\)n"{}}}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ high\_pass\ =\ vec2(1.0,\ 0.0)\ -\/\ low\_pass;\(\backslash\)n"{}}}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ one\_pole\ =\ stage0\ *\ low\_pass\ +\ stage1\ *\ high\_pass;\(\backslash\)n"{}}}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ high\_pass2\ =\ vec2(1.0,\ 0.0)\ -\/\ onePoleResponse(getCutoffRatio(position.x,\ stage3));\(\backslash\)n"{}}}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ filter\_input\ =\ vec2(0.70710678119,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ delay\_input\ =\ complexMultiply(complexMultiply(filter\_input,\ one\_pole),\ high\_pass2);\(\backslash\)n"{}}}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\ =\ vec2(1.0,\ 0.0)\ -\/\ complexMultiply(tick,\ complexMultiply(one\_pole,\ high\_pass2));\(\backslash\)n"{}}}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ round\_value\ =\ -\/complexMultiply(one\_pole,\ high\_pass2)\ *\ resonance;\(\backslash\)n"{}}}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\_round\ =\ complexMultiply(delay,\ vec2(1.0,\ 0.0)\ -\/\ round\_value);\(\backslash\)n"{}}}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\_round\_down\ =\ complexMultiply(-\/delay,\ vec2(1.0,\ 0.0)\ +\ round\_value);\(\backslash\)n"{}}}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ max\_step\_mult\ =\ 1.0\ -\/\ position.y;\(\backslash\)n"{}}}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ max\_step\_denominator\ =\ max\_step\_mult\ *\ denominator\_round\ +\ (1.0\ -\/\ max\_step\_mult)\ *\ denominator\_round\_down;\(\backslash\)n"{}}}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ denominator\ =\ max\_step\ *\ max\_step\_denominator\ +\ (1.0\ -\/\ max\_step)\ *\ denominator;\(\backslash\)n"{}}}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response\ =\ filter\_input\ *\ drive\ -\/\ complexMultiply(complexDivide(delay\_input,\ denominator),\ delay);\(\backslash\)n"{}}}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\ =\ mix\ *\ response\ +\ vec2(1.0\ -\/\ mix,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\_out\ =\ getYForResponse(response);\(\backslash\)n"{}}}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00320\ }
+\DoxyCodeLine{00321\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kDigitalFilterResponseVertexShader\ =}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}in\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ response\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a2e929ab023d7713f0ba2726154b0686f}{FILTER\_RESPONSE\_UNIFORMS}}}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a64659e26b85b0443dc99458d8f2849af}{FILTER\_RESPONSE\_CONSTANTS}}}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_ae4eb29a1b23c44c5c0eb0775cb1a2376}{RESPONSE\_TOOLS}}}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ g\ =\ getCutoffRatio(position.x,\ midi\_cutoff);\(\backslash\)n"{}}}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ g2\ =\ vec2(g\ *\ g,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\ =\ g2\ +\ vec2(0.0,\ g\ *\ resonance)\ +\ vec2(-\/1.0,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ numerator\ =\ -\/stage0\ *\ vec2(1.0,\ 0.0)\ +\ stage1\ *\ vec2(0.0,\ g)\ +\ stage2\ *\ g2;\(\backslash\)n"{}}}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ numerator\_pre\ =\ -\/stage3\ *\ vec2(1.0,\ 0.0)\ +\ stage1\ *\ vec2(0.0,\ g)\ +\ stage4\ *\ g2;\(\backslash\)n"{}}}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response\ =\ complexDivide(numerator,\ denominator);\(\backslash\)n"{}}}
+\DoxyCodeLine{00335\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ pre\_denominator\ =\ g2\ +\ vec2(0.0,\ g)\ +\ vec2(-\/1.0,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00336\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ pre\_response\ =\ complexDivide(numerator\_pre,\ pre\_denominator);\(\backslash\)n"{}}}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\ =\ response\ +\ db24\ *\ (complexMultiply(response,\ pre\_response)\ -\/\ response);\(\backslash\)n"{}}}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\ *=\ drive;\(\backslash\)n"{}}}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\ =\ mix\ *\ response\ +\ vec2(1.0\ -\/\ mix,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00340\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\_out\ =\ getYForResponse(response);\(\backslash\)n"{}}}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00342\ }
+\DoxyCodeLine{00343\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kDiodeFilterResponseVertexShader\ =}
+\DoxyCodeLine{00344\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}in\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00345\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ response\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00346\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a2e929ab023d7713f0ba2726154b0686f}{FILTER\_RESPONSE\_UNIFORMS}}}
+\DoxyCodeLine{00347\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a64659e26b85b0443dc99458d8f2849af}{FILTER\_RESPONSE\_CONSTANTS}}}
+\DoxyCodeLine{00348\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_ae4eb29a1b23c44c5c0eb0775cb1a2376}{RESPONSE\_TOOLS}}}
+\DoxyCodeLine{00349\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00350\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00351\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ ratio\ =\ getCutoffRatio(position.x,\ midi\_cutoff);\(\backslash\)n"{}}}
+\DoxyCodeLine{00352\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ one\_pole\ =\ onePoleResponse(ratio);\(\backslash\)n"{}}}
+\DoxyCodeLine{00353\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ high\_pass\_one\_pole\ =\ onePoleResponse(ratio\ /\ stage0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00354\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ high\ =\ vec2(1.0,\ 0.0)\ -\/\ high\_pass\_one\_pole\ *\ 2.0\ +\ complexMultiply(high\_pass\_one\_pole,\ high\_pass\_one\_pole);\(\backslash\)n"{}}}
+\DoxyCodeLine{00355\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ high\_feedback\ =\ complexMultiply(high\_pass\_one\_pole,\ vec2(1.0,\ 0.0)\ -\/\ high\_pass\_one\_pole);\(\backslash\)n"{}}}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ high\_denominator\ =\ vec2(1.0,\ 0.0)\ -\/\ high\_feedback;\(\backslash\)n"{}}}
+\DoxyCodeLine{00357\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ high\_pass\_response\ =\ complexDivide(high,\ high\_denominator);\(\backslash\)n"{}}}
+\DoxyCodeLine{00358\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ high\_pass\_response\ =\ vec2(1.0,\ 0.0)\ +\ db24\ *\ (high\_pass\_response\ +\ vec2(-\/1.0,\ 0.0));\(\backslash\)n"{}}}
+\DoxyCodeLine{00359\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ loop\ =\ complexMultiply(one\_pole,\ one\_pole);\(\backslash\)n"{}}}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ series\ =\ 0.125\ *\ complexMultiply(loop,\ loop);\(\backslash\)n"{}}}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ chain\ =\ complexDivide(series,\ vec2(1.0,\ 0.0)\ +\ series\ -\/\ loop);"{}}}
+\DoxyCodeLine{00362\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ numerator\ =\ drive\ *\ chain;\(\backslash\)n"{}}}
+\DoxyCodeLine{00363\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\ =\ vec2(1.0,\ 0.0)\ +\ resonance\ *\ chain;\(\backslash\)n"{}}}
+\DoxyCodeLine{00364\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response\ =\ complexDivide(numerator,\ denominator);\(\backslash\)n"{}}}
+\DoxyCodeLine{00365\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\ =\ mix\ *\ response\ +\ vec2(1.0\ -\/\ mix,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00366\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\ =\ complexMultiply(response,\ high\_pass\_response);\(\backslash\)n"{}}}
+\DoxyCodeLine{00367\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\_out\ =\ getYForResponse(response);\(\backslash\)n"{}}}
+\DoxyCodeLine{00368\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00369\ }
+\DoxyCodeLine{00370\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kDirtyFilterResponseVertexShader\ =}
+\DoxyCodeLine{00371\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}in\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00372\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ response\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00373\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a2e929ab023d7713f0ba2726154b0686f}{FILTER\_RESPONSE\_UNIFORMS}}}
+\DoxyCodeLine{00374\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a64659e26b85b0443dc99458d8f2849af}{FILTER\_RESPONSE\_CONSTANTS}}}
+\DoxyCodeLine{00375\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_ae4eb29a1b23c44c5c0eb0775cb1a2376}{RESPONSE\_TOOLS}}}
+\DoxyCodeLine{00376\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00377\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00378\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ one\_pole\ =\ onePoleResponse(getCutoffRatio(position.x,\ midi\_cutoff));\(\backslash\)n"{}}}
+\DoxyCodeLine{00379\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ low\ =\ complexMultiply(one\_pole,\ one\_pole);\(\backslash\)n"{}}}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ band\ =\ one\_pole\ -\/\ low;\(\backslash\)n"{}}}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ high\ =\ vec2(1.0,\ 0.0)\ -\/\ one\_pole\ -\/\ band;\(\backslash\)n"{}}}
+\DoxyCodeLine{00382\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ two\_stage\_pre\ =\ stage3\ *\ low\ +\ stage1\ *\ band\ +\ stage4\ *\ high;\(\backslash\)n"{}}}
+\DoxyCodeLine{00383\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ two\_stage\ =\ stage0\ *\ low\ +\ stage1\ *\ band\ +\ stage2\ *\ high;\(\backslash\)n"{}}}
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ feedback\ =\ complexMultiply(one\_pole,\ vec2(1.0,\ 0.0)\ -\/\ one\_pole);\(\backslash\)n"{}}}
+\DoxyCodeLine{00385\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\_pre\ =\ vec2(1.0,\ 0.0)\ -\/\ feedback;\(\backslash\)n"{}}}
+\DoxyCodeLine{00386\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\ =\ vec2(1.0\ /\ resonance,\ 0.0)\ -\/\ feedback;\(\backslash\)n"{}}}
+\DoxyCodeLine{00387\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ resonance\_loop\ =\ complexDivide(band,\ denominator);\(\backslash\)n"{}}}
+\DoxyCodeLine{00388\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response\_pre\ =\ complexDivide(two\_stage\_pre,\ denominator\_pre);\(\backslash\)n"{}}}
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response\_res\ =\ complexMultiply(two\_stage,\ vec2(1.0,\ 0.0)\ +\ resonance\_loop);\(\backslash\)n"{}}}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response\ =\ drive\ *\ response\_res;\(\backslash\)n"{}}}
+\DoxyCodeLine{00391\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\ =\ response\ +\ db24\ *\ (complexMultiply(response\_pre,\ response)\ -\/\ response);\(\backslash\)n"{}}}
+\DoxyCodeLine{00392\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\ =\ mix\ *\ response\ +\ vec2(1.0\ -\/\ mix,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00393\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\_out\ =\ getYForResponse(response);\(\backslash\)n"{}}}
+\DoxyCodeLine{00394\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00395\ }
+\DoxyCodeLine{00396\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kFormantFilterResponseVertexShader\ =}
+\DoxyCodeLine{00397\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}in\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00398\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ response\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00399\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a2e929ab023d7713f0ba2726154b0686f}{FILTER\_RESPONSE\_UNIFORMS}}}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a64659e26b85b0443dc99458d8f2849af}{FILTER\_RESPONSE\_CONSTANTS}}}
+\DoxyCodeLine{00401\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_ae4eb29a1b23c44c5c0eb0775cb1a2376}{RESPONSE\_TOOLS}}}
+\DoxyCodeLine{00402\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ formant\_cutoff;\(\backslash\)n"{}}}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ formant\_resonance;\(\backslash\)n"{}}}
+\DoxyCodeLine{00404\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ low;\(\backslash\)n"{}}}
+\DoxyCodeLine{00405\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ band;\(\backslash\)n"{}}}
+\DoxyCodeLine{00406\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ high;\(\backslash\)n"{}}}
+\DoxyCodeLine{00407\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ sample\_rate;\(\backslash\)n"{}}}
+\DoxyCodeLine{00408\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00409\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00410\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ g0\ =\ getCutoffRatio(position.x,\ formant\_cutoff[0]);\(\backslash\)n"{}}}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ g0\_sqr\ =\ vec2(g0\ *\ g0,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00412\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator0\ =\ g0\_sqr\ +\ vec2(0.0,\ g0\ *\ formant\_resonance[0])\ +\ vec2(-\/1.0,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00413\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ numerator0\ =\ -\/low[0]\ *\ vec2(1.0,\ 0.0)\ +\ band[0]\ *\ vec2(0.0,\ g0)\ +\ high[0]\ *\ g0\_sqr;\(\backslash\)n"{}}}
+\DoxyCodeLine{00414\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response0\ =\ complexDivide(numerator0,\ denominator0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00415\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ g1\ =\ getCutoffRatio(position.x,\ formant\_cutoff[1]);\(\backslash\)n"{}}}
+\DoxyCodeLine{00416\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ g1\_sqr\ =\ vec2(g1\ *\ g1,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00417\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator1\ =\ g1\_sqr\ +\ vec2(0.0,\ g1\ *\ formant\_resonance[1])\ +\ vec2(-\/1.0,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00418\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ numerator1\ =\ -\/low[1]\ *\ vec2(1.0,\ 0.0)\ +\ band[1]\ *\ vec2(0.0,\ g1)\ +\ high[1]\ *\ g1\_sqr;\(\backslash\)n"{}}}
+\DoxyCodeLine{00419\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response1\ =\ complexDivide(numerator1,\ denominator1);\(\backslash\)n"{}}}
+\DoxyCodeLine{00420\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ g2\ =\ getCutoffRatio(position.x,\ formant\_cutoff[2]);\(\backslash\)n"{}}}
+\DoxyCodeLine{00421\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ g2\_sqr\ =\ vec2(g2\ *\ g2,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00422\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator2\ =\ g2\_sqr\ +\ vec2(0.0,\ g2\ *\ formant\_resonance[2])\ +\ vec2(-\/1.0,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00423\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ numerator2\ =\ -\/low[2]\ *\ vec2(1.0,\ 0.0)\ +\ band[2]\ *\ vec2(0.0,\ g2)\ +\ high[2]\ *\ g2\_sqr;\(\backslash\)n"{}}}
+\DoxyCodeLine{00424\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response2\ =\ complexDivide(numerator2,\ denominator2);\(\backslash\)n"{}}}
+\DoxyCodeLine{00425\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ g3\ =\ getCutoffRatio(position.x,\ formant\_cutoff[3]);\(\backslash\)n"{}}}
+\DoxyCodeLine{00426\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ g3\_sqr\ =\ vec2(g3\ *\ g3,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00427\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator3\ =\ g3\_sqr\ +\ vec2(0.0,\ g3\ *\ formant\_resonance[3])\ +\ vec2(-\/1.0,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00428\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ numerator3\ =\ -\/low[3]\ *\ vec2(1.0,\ 0.0)\ +\ band[3]\ *\ vec2(0.0,\ g3)\ +\ high[3]\ *\ g3\_sqr;\(\backslash\)n"{}}}
+\DoxyCodeLine{00429\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response3\ =\ complexDivide(numerator3,\ denominator3);\(\backslash\)n"{}}}
+\DoxyCodeLine{00430\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response\ =\ response0\ +\ response1\ +\ response2\ +\ response3;\(\backslash\)n"{}}}
+\DoxyCodeLine{00431\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\ =\ mix\ *\ response\ +\ vec2(1.0\ -\/\ mix,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00432\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\_out\ =\ getYForResponse(response);\(\backslash\)n"{}}}
+\DoxyCodeLine{00433\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00434\ }
+\DoxyCodeLine{00435\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kLadderFilterResponseVertexShader\ =}
+\DoxyCodeLine{00436\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}in\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00437\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ response\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00438\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a2e929ab023d7713f0ba2726154b0686f}{FILTER\_RESPONSE\_UNIFORMS}}}
+\DoxyCodeLine{00439\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a64659e26b85b0443dc99458d8f2849af}{FILTER\_RESPONSE\_CONSTANTS}}}
+\DoxyCodeLine{00440\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_ae4eb29a1b23c44c5c0eb0775cb1a2376}{RESPONSE\_TOOLS}}}
+\DoxyCodeLine{00441\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00442\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00443\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ one\_pole\_invert\ =\ onePoleInvertResponse(getCutoffRatio(position.x,\ midi\_cutoff));\(\backslash\)n"{}}}
+\DoxyCodeLine{00444\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ two\_pole\_invert\ =\ complexMultiply(one\_pole\_invert,\ one\_pole\_invert);\(\backslash\)n"{}}}
+\DoxyCodeLine{00445\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ three\_pole\_invert\ =\ complexMultiply(one\_pole\_invert,\ two\_pole\_invert);\(\backslash\)n"{}}}
+\DoxyCodeLine{00446\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ four\_pole\_invert\ =\ complexMultiply(one\_pole\_invert,\ three\_pole\_invert);\(\backslash\)n"{}}}
+\DoxyCodeLine{00447\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ numerator\ =\ drive\ *\ (stage0\ *\ four\_pole\_invert\ +\ stage1\ *\ three\_pole\_invert\ +\ \(\backslash\)n"{}}}
+\DoxyCodeLine{00448\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ stage2\ *\ two\_pole\_invert\ +\ stage3\ *\ one\_pole\_invert\ +\ \(\backslash\)n"{}}}
+\DoxyCodeLine{00449\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vec2(stage4,\ 0.0));\(\backslash\)n"{}}}
+\DoxyCodeLine{00450\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\ =\ four\_pole\_invert\ +\ vec2(resonance,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00451\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response\ =\ complexDivide(numerator,\ denominator);\(\backslash\)n"{}}}
+\DoxyCodeLine{00452\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\ =\ mix\ *\ response\ +\ vec2(1.0\ -\/\ mix,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00453\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\_out\ =\ getYForResponse(response);\(\backslash\)n"{}}}
+\DoxyCodeLine{00454\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00455\ }
+\DoxyCodeLine{00456\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kPhaserFilterResponseVertexShader\ =}
+\DoxyCodeLine{00457\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}in\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00458\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ response\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00459\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a2e929ab023d7713f0ba2726154b0686f}{FILTER\_RESPONSE\_UNIFORMS}}}
+\DoxyCodeLine{00460\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_a64659e26b85b0443dc99458d8f2849af}{FILTER\_RESPONSE\_CONSTANTS}}}
+\DoxyCodeLine{00461\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_ae4eb29a1b23c44c5c0eb0775cb1a2376}{RESPONSE\_TOOLS}}}
+\DoxyCodeLine{00462\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00463\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00464\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ g\ =\ getCutoffRatio(position.x,\ midi\_cutoff);\(\backslash\)n"{}}}
+\DoxyCodeLine{00465\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ one\_pole\ =\ onePoleResponse(g);\(\backslash\)n"{}}}
+\DoxyCodeLine{00466\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ all\_pass\ =\ vec2(1.0,\ 0.0)\ -\/\ 2.0\ *\ one\_pole;\(\backslash\)n"{}}}
+\DoxyCodeLine{00467\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ half\_peak\ =\ complexMultiply(all\_pass,\ all\_pass);\(\backslash\)n"{}}}
+\DoxyCodeLine{00468\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ peak1\ =\ complexMultiply(half\_peak,\ half\_peak);\(\backslash\)n"{}}}
+\DoxyCodeLine{00469\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ peak3\ =\ complexMultiply(peak1,\ peak1);\(\backslash\)n"{}}}
+\DoxyCodeLine{00470\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ peak5\ =\ complexMultiply(peak3,\ peak1);\(\backslash\)n"{}}}
+\DoxyCodeLine{00471\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ chain\ =\ stage0\ *\ peak1\ +\ stage1\ *\ peak3\ +\ stage2\ *\ peak5;\(\backslash\)n"{}}}
+\DoxyCodeLine{00472\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ invert\_mult\ =\ 1.0\ -\/\ 2.0\ *\ db24;\(\backslash\)n"{}}}
+\DoxyCodeLine{00473\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ feedback\_chain\ =\ complexMultiply(chain,\ onePoleResponse(0.05\ *\ g));\(\backslash\)n"{}}}
+\DoxyCodeLine{00474\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ feedback\_chain\ =\ complexMultiply(feedback\_chain,\ vec2(1.0,\ 0.0)\ -\/\ onePoleResponse(20.0\ *\ g));\(\backslash\)n"{}}}
+\DoxyCodeLine{00475\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\ =\ vec2(1.0,\ 0.0)\ -\/\ invert\_mult\ *\ resonance\ *\ feedback\_chain;\(\backslash\)n"{}}}
+\DoxyCodeLine{00476\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ phase\_response\ =\ complexDivide(chain,\ denominator);\(\backslash\)n"{}}}
+\DoxyCodeLine{00477\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response\ =\ vec2(0.5,\ 0.0)\ +\ 0.5\ *\ invert\_mult\ *\ phase\_response;"{}}}
+\DoxyCodeLine{00478\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\ =\ mix\ *\ response\ +\ vec2(1.0\ -\/\ mix,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00479\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\_out\ =\ getYForResponse(response);\(\backslash\)n"{}}}
+\DoxyCodeLine{00480\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00481\ }
+\DoxyCodeLine{00482\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kEqFilterResponseVertexShader\ =}
+\DoxyCodeLine{00483\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}in\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00484\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ response\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00485\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec3\ midi\_cutoff;\(\backslash\)n"{}}}
+\DoxyCodeLine{00486\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec3\ resonance;\(\backslash\)n"{}}}
+\DoxyCodeLine{00487\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec3\ low\_amount;\(\backslash\)n"{}}}
+\DoxyCodeLine{00488\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec3\ band\_amount;\(\backslash\)n"{}}}
+\DoxyCodeLine{00489\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec3\ high\_amount;\(\backslash\)n"{}}}
+\DoxyCodeLine{00490\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}const\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ kMinMidiNote\ =\ 8.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00491\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}const\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ kSampleRate\ =\ 100000.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00492\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}const\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ kPi\ =\ 3.14159265359;\(\backslash\)n"{}}}
+\DoxyCodeLine{00493\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}const\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ kMaxMidiNote\ =\ 136.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00494\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}const\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ kMidi0Frequency\ =\ 8.1757989156;\(\backslash\)n"{}}}
+\DoxyCodeLine{00495\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}const\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ kMinDb\ =\ -\/1.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00496\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}const\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ kMaxDb\ =\ 1.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00497\ \ \ \ \ \ \ \mbox{\hyperlink{shaders_8cpp_ae4eb29a1b23c44c5c0eb0775cb1a2376}{RESPONSE\_TOOLS}}}
+\DoxyCodeLine{00498\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00499\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00500\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ g0\ =\ getCutoffRatio(position,\ midi\_cutoff[0]);\(\backslash\)n"{}}}
+\DoxyCodeLine{00501\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ g0\_sqr\ =\ vec2(g0\ *\ g0,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00502\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator0\ =\ g0\_sqr\ +\ vec2(0.0,\ g0\ *\ resonance[0])\ +\ vec2(-\/1.0,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00503\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ numerator0\ =\ -\/low\_amount[0]\ *\ vec2(1.0,\ 0.0)\ +\ band\_amount[0]\ *\ vec2(0.0,\ g0)\ +\ high\_amount[0]\ *\ g0\_sqr;\(\backslash\)n"{}}}
+\DoxyCodeLine{00504\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ g1\ =\ getCutoffRatio(position,\ midi\_cutoff[1]);\(\backslash\)n"{}}}
+\DoxyCodeLine{00505\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ g1\_sqr\ =\ vec2(g1\ *\ g1,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00506\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator1\ =\ g1\_sqr\ +\ vec2(0.0,\ g1\ *\ resonance[1])\ +\ vec2(-\/1.0,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00507\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ numerator1\ =\ -\/low\_amount[1]\ *\ vec2(1.0,\ 0.0)\ +\ band\_amount[1]\ *\ vec2(0.0,\ g1)\ +\ high\_amount[1]\ *\ g1\_sqr;\(\backslash\)n"{}}}
+\DoxyCodeLine{00508\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ g2\ =\ getCutoffRatio(position,\ midi\_cutoff[2]);\(\backslash\)n"{}}}
+\DoxyCodeLine{00509\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ g2\_sqr\ =\ vec2(g2\ *\ g2,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00510\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator2\ =\ g2\_sqr\ +\ vec2(0.0,\ g2\ *\ resonance[2])\ +\ vec2(-\/1.0,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00511\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ numerator2\ =\ -\/low\_amount[2]\ *\ vec2(1.0,\ 0.0)\ +\ band\_amount[2]\ *\ vec2(0.0,\ g2)\ +\ high\_amount[2]\ *\ g2\_sqr;\(\backslash\)n"{}}}
+\DoxyCodeLine{00512\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ numerator\ =\ complexMultiply(numerator0,\ complexMultiply(numerator1,\ numerator2));\(\backslash\)n"{}}}
+\DoxyCodeLine{00513\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ denominator\ =\ complexMultiply(denominator0,\ complexMultiply(denominator1,\ denominator2));\(\backslash\)n"{}}}
+\DoxyCodeLine{00514\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ response\ =\ complexDivide(numerator,\ denominator);\(\backslash\)n"{}}}
+\DoxyCodeLine{00515\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ response\_out\ =\ getYForResponse(response);\(\backslash\)n"{}}}
+\DoxyCodeLine{00516\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00517\ }
+\DoxyCodeLine{00518\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kColorFragmentShader\ =}
+\DoxyCodeLine{00519\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00520\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00521\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00522\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00523\ }
+\DoxyCodeLine{00524\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kFadeSquareFragmentShader\ =}
+\DoxyCodeLine{00525\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00526\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00527\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00528\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ shader\_values\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00529\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00530\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ alpha1\ =\ clamp((dimensions\_out.x\ -\/\ abs(coordinates\_out.x)\ *\ dimensions\_out.x)\ *\ 0.5,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00531\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ alpha2\ =\ clamp((dimensions\_out.y\ -\/\ abs(coordinates\_out.y)\ *\ dimensions\_out.y)\ *\ 0.5,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00532\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00533\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor.a\ =\ color.a\ *\ alpha1\ *\ alpha2\ *\ shader\_values\_out.x;\(\backslash\)n"{}}}
+\DoxyCodeLine{00534\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00535\ }
+\DoxyCodeLine{00536\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kCircleFragmentShader\ =}
+\DoxyCodeLine{00537\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00538\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00539\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00540\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00541\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_center\ =\ length(coordinates\_out)\ *\ 0.5\ *\ dimensions\_out.x;\(\backslash\)n"{}}}
+\DoxyCodeLine{00542\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ alpha\ =\ clamp(dimensions\_out.x\ *\ 0.5\ -\/\ delta\_center,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00543\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00544\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor.a\ =\ color.a\ *\ alpha;\(\backslash\)n"{}}}
+\DoxyCodeLine{00545\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00546\ }
+\DoxyCodeLine{00547\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kRingFragmentShader\ =}
+\DoxyCodeLine{00548\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00549\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ alt\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00550\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00551\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ thickness;\(\backslash\)n"{}}}
+\DoxyCodeLine{00552\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00553\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00554\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ full\_radius\ =\ 0.5\ *\ dimensions\_out.x;\(\backslash\)n"{}}}
+\DoxyCodeLine{00555\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_center\ =\ length(coordinates\_out)\ *\ full\_radius;\(\backslash\)n"{}}}
+\DoxyCodeLine{00556\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ alpha\_out\ =\ clamp(full\_radius\ -\/\ delta\_center,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00557\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ alpha\_in\ =\ clamp(delta\_center\ -\/\ full\_radius\ +\ thickness\ +\ 1.0,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00558\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ color\ *\ alpha\_in\ +\ (1.0\ -\/\ alpha\_in)\ *\ alt\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00559\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor.a\ =\ gl\_FragColor.a\ *\ alpha\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00560\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00561\ }
+\DoxyCodeLine{00562\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kRoundedCornerFragmentShader\ =}
+\DoxyCodeLine{00563\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00564\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00565\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00566\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00567\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_center\ =\ length(coordinates\_out\ *\ dimensions\_out);\(\backslash\)n"{}}}
+\DoxyCodeLine{00568\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ alpha\ =\ clamp(delta\_center\ -\/\ dimensions\_out.x\ +\ 0.5,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00569\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00570\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor.a\ =\ color.a\ *\ alpha;\(\backslash\)n"{}}}
+\DoxyCodeLine{00571\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00572\ }
+\DoxyCodeLine{00573\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kRoundedRectangleFragmentShader\ =}
+\DoxyCodeLine{00574\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00575\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00576\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00577\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ rounding;\(\backslash\)n"{}}}
+\DoxyCodeLine{00578\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00579\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ vec2\ center\_offset\ =\ abs(coordinates\_out)\ *\ dimensions\_out\ -\/\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00580\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_center\ =\ length(max(center\_offset\ +\ vec2(rounding,\ rounding),\ vec2(0.0,\ 0.0)));\(\backslash\)n"{}}}
+\DoxyCodeLine{00581\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ alpha\ =\ clamp((rounding\ -\/\ delta\_center)\ *\ 0.5\ +\ 0.5,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00582\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00583\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor.a\ =\ color.a\ *\ alpha;\(\backslash\)n"{}}}
+\DoxyCodeLine{00584\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00585\ }
+\DoxyCodeLine{00586\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kDiamondFragmentShader\ =}
+\DoxyCodeLine{00587\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00588\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ alt\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00589\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00590\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ thickness;\(\backslash\)n"{}}}
+\DoxyCodeLine{00591\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00592\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00593\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ full\_radius\ =\ 0.5\ *\ dimensions\_out.x;\(\backslash\)n"{}}}
+\DoxyCodeLine{00594\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_center\ =\ (abs(coordinates\_out.x)\ +\ abs(coordinates\_out.y))\ *\ full\_radius;\(\backslash\)n"{}}}
+\DoxyCodeLine{00595\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ alpha\_out\ =\ clamp(full\_radius\ -\/\ delta\_center,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00596\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ alpha\_in\ =\ clamp(delta\_center\ -\/\ full\_radius\ +\ thickness\ +\ 1.0,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00597\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ color\ *\ alpha\_in\ +\ (1.0\ -\/\ alpha\_in)\ *\ alt\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00598\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor.a\ =\ gl\_FragColor.a\ *\ alpha\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00599\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00600\ }
+\DoxyCodeLine{00601\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kRoundedRectangleBorderFragmentShader\ =}
+\DoxyCodeLine{00602\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00603\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00604\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00605\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ rounding;\(\backslash\)n"{}}}
+\DoxyCodeLine{00606\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ thickness;\(\backslash\)n"{}}}
+\DoxyCodeLine{00607\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ alpha\_mult;\(\backslash\)n"{}}}
+\DoxyCodeLine{00608\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00609\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ vec2\ center\_offset\ =\ abs(coordinates\_out)\ *\ dimensions\_out\ -\/\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00610\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_center\ =\ length(max(center\_offset\ +\ vec2(rounding,\ rounding),\ vec2(0.0,\ 0.0)));\(\backslash\)n"{}}}
+\DoxyCodeLine{00611\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ inside\_rounding\ =\ rounding\ +\ 2.0\ *\ thickness;\(\backslash\)n"{}}}
+\DoxyCodeLine{00612\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_center\_inside\ =\ length(max(center\_offset\ +\ vec2(inside\_rounding,\ inside\_rounding),\ vec2(0.0,\ 0.0)));\(\backslash\)n"{}}}
+\DoxyCodeLine{00613\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ border\_delta\ =\ (rounding\ -\/\ delta\_center)\ *\ 0.5;\(\backslash\)n"{}}}
+\DoxyCodeLine{00614\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ inside\_border\_delta\ =\ (rounding\ -\/\ delta\_center\_inside)\ *\ 0.5;\(\backslash\)n"{}}}
+\DoxyCodeLine{00615\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ alpha\ =\ clamp(border\_delta\ +\ 0.5,\ 0.0,\ 1.0)\ *\ clamp(-\/inside\_border\_delta\ +\ 0.5,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00616\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00617\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor.a\ =\ color.a\ *\ alpha\_mult\ *\ alpha;\(\backslash\)n"{}}}
+\DoxyCodeLine{00618\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00619\ }
+\DoxyCodeLine{00620\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kRotarySliderFragmentShader\ =}
+\DoxyCodeLine{00621\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00622\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ alt\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00623\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ thumb\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00624\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00625\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ thickness;\(\backslash\)n"{}}}
+\DoxyCodeLine{00626\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ thumb\_amount;\(\backslash\)n"{}}}
+\DoxyCodeLine{00627\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ start\_pos;\(\backslash\)n"{}}}
+\DoxyCodeLine{00628\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ max\_arc;\(\backslash\)n"{}}}
+\DoxyCodeLine{00629\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ shader\_values\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00630\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00631\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00632\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ rads\ =\ atan(coordinates\_out.x,\ coordinates\_out.y);\(\backslash\)n"{}}}
+\DoxyCodeLine{00633\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ full\_radius\ =\ 0.5\ *\ dimensions\_out.x;\(\backslash\)n"{}}}
+\DoxyCodeLine{00634\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_center\ =\ length(coordinates\_out)\ *\ full\_radius;\(\backslash\)n"{}}}
+\DoxyCodeLine{00635\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ center\_arc\ =\ full\_radius\ -\/\ thickness\ *\ 0.5\ -\/\ 0.5;\(\backslash\)n"{}}}
+\DoxyCodeLine{00636\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_arc\ =\ delta\_center\ -\/\ center\_arc;\(\backslash\)n"{}}}
+\DoxyCodeLine{00637\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ distance\_arc\ =\ abs(delta\_arc);\(\backslash\)n"{}}}
+\DoxyCodeLine{00638\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ dist\_curve\_left\ =\ max(center\_arc\ *\ (rads\ -\/\ max\_arc),\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00639\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ dist\_curve\ =\ max(center\_arc\ *\ (-\/rads\ -\/\ max\_arc),\ dist\_curve\_left);\(\backslash\)n"{}}}
+\DoxyCodeLine{00640\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ alpha\ =\ clamp(thickness\ *\ 0.5\ -\/\ length(vec2(distance\_arc,\ dist\_curve))\ +\ 0.5,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00641\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_rads\ =\ rads\ -\/\ shader\_values\_out.x;\(\backslash\)n"{}}}
+\DoxyCodeLine{00642\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ color\_step1\ =\ step(0.0,\ delta\_rads);\(\backslash\)n"{}}}
+\DoxyCodeLine{00643\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ color\_step2\ =\ step(0.0,\ start\_pos\ -\/\ rads);\(\backslash\)n"{}}}
+\DoxyCodeLine{00644\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ color\_step\ =\ abs(color\_step2\ -\/\ color\_step1);\(\backslash\)n"{}}}
+\DoxyCodeLine{00645\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ alt\_color\ *\ color\_step\ +\ color\ *\ (1.0\ -\/\ color\_step);\(\backslash\)n"{}}}
+\DoxyCodeLine{00646\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor.a\ =\ gl\_FragColor.a\ *\ alpha;\(\backslash\)n"{}}}
+\DoxyCodeLine{00647\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ thumb\_length\ =\ full\_radius\ *\ thumb\_amount;\(\backslash\)n"{}}}
+\DoxyCodeLine{00648\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ thumb\_x\ =\ sin(delta\_rads)\ *\ delta\_center;\(\backslash\)n"{}}}
+\DoxyCodeLine{00649\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ thumb\_y\ =\ cos(delta\_rads)\ *\ delta\_center\ -\/\ center\_arc;\(\backslash\)n"{}}}
+\DoxyCodeLine{00650\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ adjusted\_thumb\_y\ =\ min(thumb\_y\ +\ thumb\_length,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00651\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ outside\_arc\_step\ =\ step(0.0,\ thumb\_y);\(\backslash\)n"{}}}
+\DoxyCodeLine{00652\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ thumb\_y\_distance\ =\ thumb\_y\ *\ outside\_arc\_step\ +\ adjusted\_thumb\_y\ *\ (1.0\ -\/\ outside\_arc\_step);\(\backslash\)n"{}}}
+\DoxyCodeLine{00653\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ thumb\_distance\ =\ length(vec2(thumb\_x,\ thumb\_y\_distance));\(\backslash\)n"{}}}
+\DoxyCodeLine{00654\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ thumb\_alpha\ =\ clamp(thickness\ *\ 0.5\ -\/\ thumb\_distance\ +\ 0.5,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00655\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ gl\_FragColor\ *\ (1.0\ -\/\ thumb\_alpha)\ +\ thumb\_color\ *\ thumb\_alpha;\(\backslash\)n"{}}}
+\DoxyCodeLine{00656\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00657\ }
+\DoxyCodeLine{00658\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kRotaryModulationFragmentShader\ =}
+\DoxyCodeLine{00659\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00660\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00661\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ shader\_values\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00662\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ thickness;\(\backslash\)n"{}}}
+\DoxyCodeLine{00663\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00664\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ alt\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00665\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ mod\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00666\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ alpha\_mult;\(\backslash\)n"{}}}
+\DoxyCodeLine{00667\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ start\_pos;\(\backslash\)n"{}}}
+\DoxyCodeLine{00668\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}const\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ kPi\ =\ 3.14159265359;\(\backslash\)n"{}}\ \(\backslash\)}
+\DoxyCodeLine{00669\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00670\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00671\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ full\_radius\ =\ dimensions\_out.x\ *\ 0.5;\(\backslash\)n"{}}}
+\DoxyCodeLine{00672\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ dist\ =\ length(coordinates\_out)\ *\ full\_radius;\(\backslash\)n"{}}}
+\DoxyCodeLine{00673\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ inner\_radius\ =\ full\_radius\ -\/\ thickness;\(\backslash\)n"{}}}
+\DoxyCodeLine{00674\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ dist\_outer\_amp\ =\ clamp((full\_radius\ -\/\ dist)\ *\ 0.5\ +\ 0.5,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00675\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ dist\_amp\ =\ dist\_outer\_amp\ *\ clamp((dist\ -\/\ inner\_radius)\ *\ 0.5\ +\ 0.5,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00676\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ rads\ =\ mod(atan(coordinates\_out.x,\ coordinates\_out.y)\ +\ kPi\ +\ start\_pos,\ 2.0\ *\ kPi)\ -\/\ kPi;\(\backslash\)n"{}}}
+\DoxyCodeLine{00677\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ rads\_amp\_low\ =\ clamp(full\_radius\ *\ 0.5\ *\ (rads\ -\/\ shader\_values\_out.x)\ +\ 1.0,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00678\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ rads\_amp\_high\ =\ clamp(full\_radius\ *\ 0.5\ *\ (shader\_values\_out.y\ -\/\ rads)\ +\ 1.0,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00679\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ rads\_amp\_low\_stereo\ =\ clamp(full\_radius\ *\ 0.5\ *\ (rads\ -\/\ shader\_values\_out.z)\ +\ 0.5,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00680\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ rads\_amp\_high\_stereo\ =\ clamp(full\_radius\ *\ 0.5\ *\ (shader\_values\_out.a\ -\/\ rads)\ +\ 0.5,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00681\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ alpha\ =\ rads\_amp\_low\ *\ rads\_amp\_high;\(\backslash\)n"{}}}
+\DoxyCodeLine{00682\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ alpha\_stereo\ =\ rads\_amp\_low\_stereo\ *\ rads\_amp\_high\_stereo;\(\backslash\)n"{}}}
+\DoxyCodeLine{00683\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ alpha\_center\ =\ min(alpha,\ alpha\_stereo);\(\backslash\)n"{}}}
+\DoxyCodeLine{00684\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color\_left\ =\ (alpha\ -\/\ alpha\_center)\ *\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00685\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color\_right\ =\ (alpha\_stereo\ -\/\ alpha\_center)\ *\ alt\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00686\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color\_center\ =\ alpha\_center\ *\ mod\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00687\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ out\_color\ =\ color\ *\ (1.0\ -\/\ alpha\_stereo)\ +\ alt\_color\ *\ alpha\_stereo;\(\backslash\)n"{}}}
+\DoxyCodeLine{00688\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ out\_color\ =\ out\_color\ *\ (1.0\ -\/\ alpha\_center)\ +\ color\_center\ *\ alpha\_center;\(\backslash\)n"{}}}
+\DoxyCodeLine{00689\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ out\_color.a\ =\ max(alpha,\ alpha\_stereo)\ *\ alpha\_mult\ *\ dist\_amp;\(\backslash\)n"{}}}
+\DoxyCodeLine{00690\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ out\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00691\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00692\ }
+\DoxyCodeLine{00693\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kHorizontalSliderFragmentShader\ =}
+\DoxyCodeLine{00694\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00695\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ alt\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00696\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ thumb\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00697\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00698\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ thickness;\(\backslash\)n"{}}}
+\DoxyCodeLine{00699\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ thumb\_amount;\(\backslash\)n"{}}}
+\DoxyCodeLine{00700\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ start\_pos;\(\backslash\)n"{}}}
+\DoxyCodeLine{00701\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ rounding;\(\backslash\)n"{}}}
+\DoxyCodeLine{00702\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ shader\_values\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00703\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00704\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00705\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ vec2\ position\ =\ coordinates\_out\ *\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00706\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ vec2\ center\_offset\ =\ abs(position)\ -\/\ vec2(dimensions\_out.x,\ thickness);\(\backslash\)n"{}}}
+\DoxyCodeLine{00707\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_center\ =\ length(max(center\_offset\ +\ vec2(rounding,\ rounding),\ vec2(0.0,\ 0.0)));\(\backslash\)n"{}}}
+\DoxyCodeLine{00708\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ alpha\ =\ clamp((rounding\ -\/\ delta\_center)\ *\ 0.5\ +\ 0.5,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00709\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ adjusted\_value\ =\ shader\_values\_out.x\ *\ 2.0\ -\/\ 1.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00710\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_pos\ =\ coordinates\_out.x\ -\/\ adjusted\_value;\(\backslash\)n"{}}}
+\DoxyCodeLine{00711\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ color\_step1\ =\ step(0.001,\ delta\_pos);\(\backslash\)n"{}}}
+\DoxyCodeLine{00712\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ color\_step2\ =\ step(0.001,\ start\_pos\ -\/\ coordinates\_out.x);\(\backslash\)n"{}}}
+\DoxyCodeLine{00713\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ color\_step\ =\ abs(color\_step2\ -\/\ color\_step1);\(\backslash\)n"{}}}
+\DoxyCodeLine{00714\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ alt\_color\ *\ color\_step\ +\ color\ *\ (1.0\ -\/\ color\_step);\(\backslash\)n"{}}}
+\DoxyCodeLine{00715\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor.a\ =\ gl\_FragColor.a\ *\ alpha;\(\backslash\)n"{}}}
+\DoxyCodeLine{00716\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ vec2\ thumb\_center\_offset\ =\ abs(position\ -\/\ vec2(adjusted\_value\ *\ dimensions\_out.x,\ 0.0))\ -\/\ vec2(thumb\_amount,\ thickness);\(\backslash\)n"{}}}
+\DoxyCodeLine{00717\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ thumb\_delta\_center\ =\ length(max(thumb\_center\_offset\ +\ vec2(rounding,\ rounding),\ vec2(0.0,\ 0.0)));\(\backslash\)n"{}}}
+\DoxyCodeLine{00718\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ thumb\_alpha\ =\ clamp((rounding\ -\/\ thumb\_delta\_center)\ *\ 0.5\ +\ 0.5,\ 0.0,\ 1.0)\ *\ alpha;\(\backslash\)n"{}}}
+\DoxyCodeLine{00719\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ gl\_FragColor\ *\ (1.0\ -\/\ thumb\_alpha)\ +\ thumb\_color\ *\ thumb\_alpha;\(\backslash\)n"{}}}
+\DoxyCodeLine{00720\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00721\ }
+\DoxyCodeLine{00722\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kVerticalSliderFragmentShader\ =}
+\DoxyCodeLine{00723\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00724\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ alt\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00725\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ thumb\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00726\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00727\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ thickness;\(\backslash\)n"{}}}
+\DoxyCodeLine{00728\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ thumb\_amount;\(\backslash\)n"{}}}
+\DoxyCodeLine{00729\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ start\_pos;\(\backslash\)n"{}}}
+\DoxyCodeLine{00730\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ rounding;\(\backslash\)n"{}}}
+\DoxyCodeLine{00731\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ shader\_values\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00732\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00733\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00734\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ vec2\ position\ =\ coordinates\_out\ *\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00735\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ vec2\ center\_offset\ =\ abs(position)\ -\/\ vec2(thickness,\ dimensions\_out.y);\(\backslash\)n"{}}}
+\DoxyCodeLine{00736\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_center\ =\ length(max(center\_offset\ +\ vec2(rounding,\ rounding),\ vec2(0.0,\ 0.0)));\(\backslash\)n"{}}}
+\DoxyCodeLine{00737\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ alpha\ =\ clamp((rounding\ -\/\ delta\_center)\ *\ 0.5\ +\ 0.5,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00738\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ adjusted\_value\ =\ shader\_values\_out.x\ *\ 2.0\ -\/\ 1.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00739\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_pos\ =\ coordinates\_out.y\ -\/\ adjusted\_value;\(\backslash\)n"{}}}
+\DoxyCodeLine{00740\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ color\_step1\ =\ step(0.001,\ delta\_pos);\(\backslash\)n"{}}}
+\DoxyCodeLine{00741\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ color\_step2\ =\ step(0.001,\ start\_pos\ -\/\ coordinates\_out.y);\(\backslash\)n"{}}}
+\DoxyCodeLine{00742\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ color\_step\ =\ abs(color\_step2\ -\/\ color\_step1);\(\backslash\)n"{}}}
+\DoxyCodeLine{00743\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ color\ *\ color\_step\ +\ alt\_color\ *\ (1.0\ -\/\ color\_step);\(\backslash\)n"{}}}
+\DoxyCodeLine{00744\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor.a\ =\ gl\_FragColor.a\ *\ alpha;\(\backslash\)n"{}}}
+\DoxyCodeLine{00745\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ vec2\ thumb\_center\_offset\ =\ abs(position\ -\/\ vec2(0.0,\ adjusted\_value\ *\ dimensions\_out.y))\ -\/\ vec2(thickness,\ thumb\_amount);\(\backslash\)n"{}}}
+\DoxyCodeLine{00746\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ thumb\_delta\_center\ =\ length(max(thumb\_center\_offset\ +\ vec2(rounding,\ rounding),\ vec2(0.0,\ 0.0)));\(\backslash\)n"{}}}
+\DoxyCodeLine{00747\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ thumb\_alpha\ =\ clamp((rounding\ -\/\ thumb\_delta\_center)\ *\ 0.5\ +\ 0.5,\ 0.0,\ 1.0)\ *\ alpha;\(\backslash\)n"{}}}
+\DoxyCodeLine{00748\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ gl\_FragColor\ *\ (1.0\ -\/\ thumb\_alpha)\ +\ thumb\_color\ *\ thumb\_alpha;\(\backslash\)n"{}}}
+\DoxyCodeLine{00749\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00750\ }
+\DoxyCodeLine{00751\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kLinearModulationFragmentShader\ =}
+\DoxyCodeLine{00752\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00753\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ shader\_values\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00754\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00755\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ alt\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00756\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ mod\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00757\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00758\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00759\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ position\ =\ coordinates\_out.x\ *\ 0.5\ +\ 0.5;\(\backslash\)n"{}}}
+\DoxyCodeLine{00760\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ dist1\ =\ clamp(200.0\ *\ (position\ -\/\ shader\_values\_out.x),\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00761\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ dist2\ =\ clamp(200.0\ *\ (shader\_values\_out.y\ -\/\ position),\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00762\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ stereo\_dist1\ =\ clamp(200.0\ *\ (position\ -\/\ shader\_values\_out.z),\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00763\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ stereo\_dist2\ =\ clamp(200.0\ *\ (shader\_values\_out.a\ -\/\ position),\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00764\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ alpha\ =\ dist1\ *\ dist2;\(\backslash\)n"{}}}
+\DoxyCodeLine{00765\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ alpha\_stereo\ =\ stereo\_dist1\ *\ stereo\_dist2;\(\backslash\)n"{}}}
+\DoxyCodeLine{00766\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ alpha\_center\ =\ min(alpha,\ alpha\_stereo);\(\backslash\)n"{}}}
+\DoxyCodeLine{00767\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color\_left\ =\ (alpha\ -\/\ alpha\_center)\ *\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00768\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color\_right\ =\ (alpha\_stereo\ -\/\ alpha\_center)\ *\ alt\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00769\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color\_center\ =\ alpha\_center\ *\ mod\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00770\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color\ =\ color\_left\ +\ color\_right\ +\ color\_center;\(\backslash\)n"{}}}
+\DoxyCodeLine{00771\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ color.a\ =\ max(alpha,\ alpha\_stereo);\(\backslash\)n"{}}}
+\DoxyCodeLine{00772\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00773\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00774\ }
+\DoxyCodeLine{00775\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kModulationKnobFragmentShader\ =}
+\DoxyCodeLine{00776\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00777\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ alt\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00778\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ mod\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00779\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ background\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00780\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ thumb\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00781\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00782\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ thickness;\(\backslash\)n"{}}}
+\DoxyCodeLine{00783\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ alpha\_mult;\(\backslash\)n"{}}}
+\DoxyCodeLine{00784\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ shader\_values\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00785\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ coordinates\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00786\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00787\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ rads\ =\ atan(coordinates\_out.x,\ -\/coordinates\_out.y);\(\backslash\)n"{}}}
+\DoxyCodeLine{00788\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ full\_radius\ =\ 0.5\ *\ dimensions\_out.x;\(\backslash\)n"{}}}
+\DoxyCodeLine{00789\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_center\ =\ length(coordinates\_out)\ *\ full\_radius;\(\backslash\)n"{}}}
+\DoxyCodeLine{00790\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ circle\_alpha\ =\ clamp(full\_radius\ -\/\ delta\_center,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00791\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_rads\ =\ rads\ -\/\ shader\_values\_out.x;\(\backslash\)n"{}}}
+\DoxyCodeLine{00792\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ color\_amount\ =\ clamp(delta\_rads\ *\ max(delta\_center,\ 1.0)\ *\ 1.6,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00793\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ alt\_color\ *\ color\_amount\ +\ color\ *\ (1.0\ -\/\ color\_amount);\(\backslash\)n"{}}}
+\DoxyCodeLine{00794\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor.a\ =\ gl\_FragColor.a\ *\ circle\_alpha;\(\backslash\)n"{}}}
+\DoxyCodeLine{00795\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ center\_arc\ =\ full\_radius\ -\/\ thickness\ *\ 0.5\ -\/\ 0.5;\(\backslash\)n"{}}}
+\DoxyCodeLine{00796\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ delta\_arc\ =\ delta\_center\ -\/\ center\_arc;\(\backslash\)n"{}}}
+\DoxyCodeLine{00797\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ distance\_arc\ =\ abs(delta\_arc);\(\backslash\)n"{}}}
+\DoxyCodeLine{00798\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ thumb\_alpha\ =\ clamp(thickness\ *\ 0.5\ -\/\ distance\_arc\ +\ 0.5,\ 0.0,\ 1.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00799\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ gl\_FragColor\ *\ (1.0\ -\/\ thumb\_alpha)\ +\ thumb\_color\ *\ thumb\_alpha;\(\backslash\)n"{}}}
+\DoxyCodeLine{00800\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ mod\_alpha1\ =\ clamp(full\_radius\ *\ 0.48\ -\/\ delta\_center,\ 0.0,\ 1.0)\ *\ mod\_color.a;\(\backslash\)n"{}}}
+\DoxyCodeLine{00801\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ float\ mod\_alpha2\ =\ clamp(full\_radius\ *\ 0.35\ -\/\ delta\_center,\ 0.0,\ 1.0)\ *\ mod\_color.a;\(\backslash\)n"{}}}
+\DoxyCodeLine{00802\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ gl\_FragColor\ *\ (1.0\ -\/\ mod\_alpha1)\ +\ background\_color\ *\ mod\_alpha1;\(\backslash\)n"{}}}
+\DoxyCodeLine{00803\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ gl\_FragColor\ *\ (1.0\ -\/\ mod\_alpha2)\ +\ mod\_color\ *\ mod\_alpha2;\(\backslash\)n"{}}}
+\DoxyCodeLine{00804\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor.a\ =\ gl\_FragColor.a\ *\ alpha\_mult;\(\backslash\)n"{}}}
+\DoxyCodeLine{00805\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00806\ }
+\DoxyCodeLine{00807\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kFilterFragmentShader\ =}
+\DoxyCodeLine{00808\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color\_from;\(\backslash\)n"{}}}
+\DoxyCodeLine{00809\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color\_to;\(\backslash\)n"{}}}
+\DoxyCodeLine{00810\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ line\_width;\(\backslash\)n"{}}}
+\DoxyCodeLine{00811\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ boost;\(\backslash\)n"{}}}
+\DoxyCodeLine{00812\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ depth\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00813\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ distance;\(\backslash\)n"{}}}
+\DoxyCodeLine{00814\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00815\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color\ =\ color\_to\ *\ distance\ +\ color\_from\ *\ (1.0\ -\/\ distance);\(\backslash\)n"{}}}
+\DoxyCodeLine{00816\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ dist\_from\_edge\ =\ min(depth\_out,\ 1.0\ -\/\ depth\_out);\(\backslash\)n"{}}}
+\DoxyCodeLine{00817\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ mult\ =\ 1.0\ +\ boost\ *\ max(dist\_from\_edge\ -\/\ 2.0\ /\ line\_width,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00818\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ result\ =\ mult\ *\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00819\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ scale\ =\ line\_width\ *\ dist\_from\_edge;\(\backslash\)n"{}}}
+\DoxyCodeLine{00820\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ result.a\ =\ scale\ /\ 2.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00821\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ result;\(\backslash\)n"{}}}
+\DoxyCodeLine{00822\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00823\ }
+\DoxyCodeLine{00824\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kLineFragmentShader\ =}
+\DoxyCodeLine{00825\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00826\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ line\_width;\(\backslash\)n"{}}}
+\DoxyCodeLine{00827\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ boost;\(\backslash\)n"{}}}
+\DoxyCodeLine{00828\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ depth\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00829\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00830\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ dist\_from\_edge\ =\ min(depth\_out,\ 1.0\ -\/\ depth\_out);\(\backslash\)n"{}}}
+\DoxyCodeLine{00831\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ mult\ =\ 1.0\ +\ boost\ *\ max(dist\_from\_edge\ -\/\ 2.0\ /\ line\_width,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00832\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ result\ =\ mult\ *\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00833\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ scale\ =\ line\_width\ *\ dist\_from\_edge;\(\backslash\)n"{}}}
+\DoxyCodeLine{00834\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ result.a\ =\ result.a\ *\ scale\ /\ 2.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00835\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ result;\(\backslash\)n"{}}}
+\DoxyCodeLine{00836\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00837\ }
+\DoxyCodeLine{00838\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kFillFragmentShader\ =}
+\DoxyCodeLine{00839\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color\_from;\(\backslash\)n"{}}}
+\DoxyCodeLine{00840\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color\_to;\(\backslash\)n"{}}}
+\DoxyCodeLine{00841\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ boost;\(\backslash\)n"{}}}
+\DoxyCodeLine{00842\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ distance;\(\backslash\)n"{}}}
+\DoxyCodeLine{00843\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00844\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ delta\ =\ abs(distance);\(\backslash\)n"{}}}
+\DoxyCodeLine{00845\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ base\_color\ =\ color\_to\ *\ delta\ +\ color\_from\ *\ (1.0\ -\/\ delta);\(\backslash\)n"{}}}
+\DoxyCodeLine{00846\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ base\_color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00847\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor.a\ =\ (boost\ +\ 1.0)\ *\ base\_color.a;\(\backslash\)n"{}}}
+\DoxyCodeLine{00848\ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00849\ }
+\DoxyCodeLine{00850\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kLineVertexShader\ =}
+\DoxyCodeLine{00851\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00852\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ scale;\(\backslash\)n"{}}}
+\DoxyCodeLine{00853\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ depth\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00854\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00855\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00856\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ depth\_out\ =\ position.z;\(\backslash\)n"{}}}
+\DoxyCodeLine{00857\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position\ =\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00858\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.x\ =\ position.x\ *\ scale.x;\(\backslash\)n"{}}}
+\DoxyCodeLine{00859\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.y\ =\ position.y\ *\ scale.y;\(\backslash\)n"{}}}
+\DoxyCodeLine{00860\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.z\ =\ 0.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00861\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.w\ =\ 1.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00862\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00863\ }
+\DoxyCodeLine{00864\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kFillVertexShader\ =}
+\DoxyCodeLine{00865\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00866\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ scale;\(\backslash\)n"{}}}
+\DoxyCodeLine{00867\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ center\_position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00868\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ boost\_amount;\(\backslash\)n"{}}}
+\DoxyCodeLine{00869\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ distance;\(\backslash\)n"{}}}
+\DoxyCodeLine{00870\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ boost;\(\backslash\)n"{}}}
+\DoxyCodeLine{00871\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{00872\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00873\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ distance\ =\ (position.y\ -\/\ center\_position)\ /\ (1.0\ -\/\ center\_position);\(\backslash\)n"{}}}
+\DoxyCodeLine{00874\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ boost\ =\ boost\_amount\ *\ position.z;\(\backslash\)n"{}}}
+\DoxyCodeLine{00875\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position\ =\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00876\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.x\ =\ gl\_Position.x\ *\ scale.x;\(\backslash\)n"{}}}
+\DoxyCodeLine{00877\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.y\ =\ gl\_Position.y\ *\ scale.y;\(\backslash\)n"{}}}
+\DoxyCodeLine{00878\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.z\ =\ 0.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00879\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.a\ =\ 1.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00880\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00881\ }
+\DoxyCodeLine{00882\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kBarFragmentShader\ =}
+\DoxyCodeLine{00883\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00884\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ corner\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00885\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}varying\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ size;\(\backslash\)n"{}}}
+\DoxyCodeLine{00886\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\ \{\(\backslash\)n"{}}}
+\DoxyCodeLine{00887\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ alpha\_x\ =\ min(corner\_out.x\ *\ size.x,\ (1.0\ -\/\ corner\_out.x)\ *\ size.x);\(\backslash\)n"{}}}
+\DoxyCodeLine{00888\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ alpha\_y\ =\ min(corner\_out.y\ *\ size.y,\ (1.0\ -\/\ corner\_out.y)\ *\ size.y);\(\backslash\)n"{}}}
+\DoxyCodeLine{00889\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor\ =\ color;\(\backslash\)n"{}}}
+\DoxyCodeLine{00890\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_FragColor.a\ =\ gl\_FragColor.a\ *\ min(1.0,\ min(alpha\_x,\ alpha\_y));\(\backslash\)n"{}}}
+\DoxyCodeLine{00891\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00892\ }
+\DoxyCodeLine{00893\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kBarHorizontalVertexShader\ =}
+\DoxyCodeLine{00894\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00895\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ corner;\(\backslash\)n"{}}}
+\DoxyCodeLine{00896\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ offset;\(\backslash\)n"{}}}
+\DoxyCodeLine{00897\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ scale;\(\backslash\)n"{}}}
+\DoxyCodeLine{00898\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ width\_percent;\(\backslash\)n"{}}}
+\DoxyCodeLine{00899\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions;\(\backslash\)n"{}}}
+\DoxyCodeLine{00900\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ corner\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00901\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ size;\(\backslash\)n"{}}}
+\DoxyCodeLine{00902\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\(\backslash\)n"{}}}
+\DoxyCodeLine{00903\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\{\(\backslash\)n"{}}}
+\DoxyCodeLine{00904\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position\ =\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00905\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ size.x\ =\ position.z\ *\ dimensions.x\ /\ 2.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00906\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ size.y\ =\ width\_percent\ *\ dimensions.y\ /\ 2.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00907\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.x\ =\ scale\ *\ (position.x\ +\ 1.0)\ -\/\ 1.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00908\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ corner\_out\ =\ corner;\(\backslash\)n"{}}}
+\DoxyCodeLine{00909\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position\ =\ gl\_Position\ +\ vec4(0.0,\ offset\ -\/\ width\_percent\ *\ corner.y,\ 0.0,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00910\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.z\ =\ 0.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00911\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.w\ =\ 1.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00912\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00913\ }
+\DoxyCodeLine{00914\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kBarVerticalVertexShader\ =}
+\DoxyCodeLine{00915\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec4\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00916\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ corner;\(\backslash\)n"{}}}
+\DoxyCodeLine{00917\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ offset;\(\backslash\)n"{}}}
+\DoxyCodeLine{00918\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ scale;\(\backslash\)n"{}}}
+\DoxyCodeLine{00919\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ float\ width\_percent;\(\backslash\)n"{}}}
+\DoxyCodeLine{00920\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}uniform\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ dimensions;\(\backslash\)n"{}}}
+\DoxyCodeLine{00921\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ corner\_out;\(\backslash\)n"{}}}
+\DoxyCodeLine{00922\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\ "{}}\ \mbox{\hyperlink{shaders_8cpp_ad1c7ead09891731c899cacea125e36b0}{MEDIUMP}}\ \textcolor{stringliteral}{"{}\ vec2\ size;\(\backslash\)n"{}}}
+\DoxyCodeLine{00923\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}void\ main()\(\backslash\)n"{}}}
+\DoxyCodeLine{00924\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\{\(\backslash\)n"{}}}
+\DoxyCodeLine{00925\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position\ =\ position;\(\backslash\)n"{}}}
+\DoxyCodeLine{00926\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ size.x\ =\ width\_percent\ *\ dimensions.x\ /\ 2.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00927\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ size.y\ =\ position.z\ *\ dimensions.y\ /\ 2.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00928\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.x\ =\ scale\ *\ (position.x\ +\ 1.0)\ -\/\ 1.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00929\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ corner\_out\ =\ corner;\(\backslash\)n"{}}}
+\DoxyCodeLine{00930\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position\ =\ gl\_Position\ +\ vec4(offset\ +\ width\_percent\ *\ corner.x,\ 0.0,\ 0.0,\ 0.0);\(\backslash\)n"{}}}
+\DoxyCodeLine{00931\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.z\ =\ 0.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00932\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ \ gl\_Position.w\ =\ 1.0;\(\backslash\)n"{}}}
+\DoxyCodeLine{00933\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\}\(\backslash\)n"{}};}
+\DoxyCodeLine{00934\ }
+\DoxyCodeLine{00935\ \ \ \textcolor{keyword}{inline}\ String\ translateFragmentShader(\textcolor{keyword}{const}\ String\&\ code)\ \{}
+\DoxyCodeLine{00936\ \textcolor{preprocessor}{\ \ \#if\ OPENGL\_ES}}
+\DoxyCodeLine{00937\ \ \ \ \ \textcolor{keywordflow}{return}\ String(\textcolor{stringliteral}{"{}\#version\ 300\ es\(\backslash\)n"{}})\ +\ \textcolor{stringliteral}{"{}out\ mediump\ vec4\ fragColor;\(\backslash\)n"{}}\ +}
+\DoxyCodeLine{00938\ \ \ \ \ \ \ code.replace(\textcolor{stringliteral}{"{}varying"{}},\ \textcolor{stringliteral}{"{}in"{}}).replace(\textcolor{stringliteral}{"{}texture2D"{}},\ \textcolor{stringliteral}{"{}texture"{}}).replace(\textcolor{stringliteral}{"{}gl\_FragColor"{}},\ \textcolor{stringliteral}{"{}fragColor"{}});}
+\DoxyCodeLine{00939\ \textcolor{preprocessor}{\ \ \#else}}
+\DoxyCodeLine{00940\ \ \ \ \ \textcolor{keywordflow}{return}\ OpenGLHelpers::translateFragmentShaderToV3(code);}
+\DoxyCodeLine{00941\ \textcolor{preprocessor}{\ \ \#endif}}
+\DoxyCodeLine{00942\ \ \ \}}
+\DoxyCodeLine{00943\ }
+\DoxyCodeLine{00944\ \ \ \textcolor{keyword}{inline}\ String\ translateVertexShader(\textcolor{keyword}{const}\ String\&\ code)\ \{}
+\DoxyCodeLine{00945\ \textcolor{preprocessor}{\ \ \#if\ OPENGL\_ES}}
+\DoxyCodeLine{00946\ \ \ \ \ \textcolor{keywordflow}{return}\ String(\textcolor{stringliteral}{"{}\#version\ 300\ es\(\backslash\)n"{}})\ +\ code.replace(\textcolor{stringliteral}{"{}attribute"{}},\ \textcolor{stringliteral}{"{}in"{}}).replace(\textcolor{stringliteral}{"{}varying"{}},\ \textcolor{stringliteral}{"{}out"{}});}
+\DoxyCodeLine{00947\ \textcolor{preprocessor}{\ \ \#else}}
+\DoxyCodeLine{00948\ \ \ \ \ \textcolor{keywordflow}{return}\ OpenGLHelpers::translateVertexShaderToV3(code);}
+\DoxyCodeLine{00949\ \textcolor{preprocessor}{\ \ \#endif}}
+\DoxyCodeLine{00950\ \ \ \}}
+\DoxyCodeLine{00951\ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00952\ }
+\DoxyCodeLine{00953\ OpenGLShaderProgram*\ \mbox{\hyperlink{class_shaders_ae4644dfe46dda65994ede40a18e2747a}{Shaders::getShaderProgram}}(\mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76}{VertexShader}}\ vertex\_shader,\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45}{FragmentShader}}\ fragment\_shader,}
+\DoxyCodeLine{00954\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ GLchar**\ varyings)\ \{}
+\DoxyCodeLine{00955\ \ \ \textcolor{keywordtype}{int}\ shader\_program\_index\ =\ vertex\_shader\ *\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a148a8a90a73971897de3c5347200162f}{kNumFragmentShaders}}\ +\ fragment\_shader;}
+\DoxyCodeLine{00956\ \ \ \textcolor{keywordflow}{if}\ (shader\_programs\_.count(shader\_program\_index))}
+\DoxyCodeLine{00957\ \ \ \ \ \textcolor{keywordflow}{return}\ shader\_programs\_.at(shader\_program\_index).get();}
+\DoxyCodeLine{00958\ }
+\DoxyCodeLine{00959\ \ \ shader\_programs\_[shader\_program\_index]\ =\ std::make\_unique<OpenGLShaderProgram>(*open\_gl\_context\_);}
+\DoxyCodeLine{00960\ \ \ OpenGLShaderProgram*\ result\ =\ shader\_programs\_[shader\_program\_index].get();}
+\DoxyCodeLine{00961\ \ \ GLuint\ program\_id\ =\ result-\/>getProgramID();}
+\DoxyCodeLine{00962\ \ \ open\_gl\_context\_-\/>extensions.glAttachShader(program\_id,\ \mbox{\hyperlink{class_shaders_aa70f7c6c8446eb632acc1665dfc0d184}{getVertexShaderId}}(vertex\_shader));}
+\DoxyCodeLine{00963\ \ \ open\_gl\_context\_-\/>extensions.glAttachShader(program\_id,\ \mbox{\hyperlink{class_shaders_aac8afcbfcf372ffa911821d3d26a1d07}{getFragmentShaderId}}(fragment\_shader));}
+\DoxyCodeLine{00964\ \ \ \textcolor{keywordflow}{if}\ (varyings)}
+\DoxyCodeLine{00965\ \ \ \ \ open\_gl\_context\_-\/>extensions.glTransformFeedbackVaryings(program\_id,\ 1,\ varyings,\ GL\_INTERLEAVED\_ATTRIBS);}
+\DoxyCodeLine{00966\ }
+\DoxyCodeLine{00967\ \ \ result-\/>link();}
+\DoxyCodeLine{00968\ \ \ \textcolor{keywordflow}{return}\ result;}
+\DoxyCodeLine{00969\ \}}
+\DoxyCodeLine{00970\ }
+\DoxyCodeLine{00971\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ Shaders::getVertexShader(VertexShader\ shader)\ \{}
+\DoxyCodeLine{00972\ \ \ \textcolor{keywordflow}{switch}\ (shader)\ \{}
+\DoxyCodeLine{00973\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a24e969bbc6e5c85d9bf5b284322dfc3f}{kImageVertex}}:}
+\DoxyCodeLine{00974\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kImageVertexShader;}
+\DoxyCodeLine{00975\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76ad25f3c4e61718230bbd9f68858eb771e}{kPassthroughVertex}}:}
+\DoxyCodeLine{00976\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kPassthroughVertexShader;}
+\DoxyCodeLine{00977\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a9616ad7099380554798478a5de8bccfb}{kScaleVertex}}:}
+\DoxyCodeLine{00978\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kScaleVertexShader;}
+\DoxyCodeLine{00979\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a04446328602dcc2980d900615b98615f}{kRotaryModulationVertex}}:}
+\DoxyCodeLine{00980\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kRotaryModulationVertexShader;}
+\DoxyCodeLine{00981\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76ae2b11993ad043d1339ae990733b1ec9d}{kLinearModulationVertex}}:}
+\DoxyCodeLine{00982\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kLinearModulationVertexShader;}
+\DoxyCodeLine{00983\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76aa16c803f16ff9b1c8970c751c84786c5}{kGainMeterVertex}}:}
+\DoxyCodeLine{00984\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kGainMeterVertexShader;}
+\DoxyCodeLine{00985\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a5cf9098111f6cad5471084be636fb475}{kAnalogFilterResponseVertex}}:}
+\DoxyCodeLine{00986\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kAnalogFilterResponseVertexShader;}
+\DoxyCodeLine{00987\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76ae2367147174226e6ba2a2700801d6d21}{kCombFilterResponseVertex}}:}
+\DoxyCodeLine{00988\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kCombFilterResponseVertexShader;}
+\DoxyCodeLine{00989\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76aaf4d52f0cb282957c8096a651a5a98a5}{kPositiveFlangeFilterResponseVertex}}:}
+\DoxyCodeLine{00990\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kPositiveFlangeFilterResponseVertexShader;}
+\DoxyCodeLine{00991\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76af0f64a2498d5426cc1b4157e8e628682}{kNegativeFlangeFilterResponseVertex}}:}
+\DoxyCodeLine{00992\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kNegativeFlangeFilterResponseVertexShader;}
+\DoxyCodeLine{00993\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a3482044ea5d349745dc3fb92ac51f2a0}{kDigitalFilterResponseVertex}}:}
+\DoxyCodeLine{00994\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kDigitalFilterResponseVertexShader;}
+\DoxyCodeLine{00995\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a4444219c5877e736c327a4b82a46a74c}{kDiodeFilterResponseVertex}}:}
+\DoxyCodeLine{00996\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kDiodeFilterResponseVertexShader;}
+\DoxyCodeLine{00997\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a2185d845e107bafb7500103dd0b8e665}{kDirtyFilterResponseVertex}}:}
+\DoxyCodeLine{00998\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kDirtyFilterResponseVertexShader;}
+\DoxyCodeLine{00999\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a698d4c7756df672c055c4058e8005545}{kFormantFilterResponseVertex}}:}
+\DoxyCodeLine{01000\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kFormantFilterResponseVertexShader;}
+\DoxyCodeLine{01001\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76aa2cb4deb74d8f5b3e013c669646f7e96}{kLadderFilterResponseVertex}}:}
+\DoxyCodeLine{01002\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kLadderFilterResponseVertexShader;}
+\DoxyCodeLine{01003\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a79b4aec07c5732949edf561cbf57a49b}{kPhaserFilterResponseVertex}}:}
+\DoxyCodeLine{01004\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kPhaserFilterResponseVertexShader;}
+\DoxyCodeLine{01005\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76aaa7ca83344e7f03d2af7914da057d152}{kEqFilterResponseVertex}}:}
+\DoxyCodeLine{01006\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kEqFilterResponseVertexShader;}
+\DoxyCodeLine{01007\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a89d30dfebdd636afa738d39b4d3cd5e5}{kLineVertex}}:}
+\DoxyCodeLine{01008\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kLineVertexShader;}
+\DoxyCodeLine{01009\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a7dbc88eb5d2076fd985b3d58294bd013}{kFillVertex}}:}
+\DoxyCodeLine{01010\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kFillVertexShader;}
+\DoxyCodeLine{01011\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76ac8d58755bd75222b4814a22f622716bf}{kBarHorizontalVertex}}:}
+\DoxyCodeLine{01012\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kBarHorizontalVertexShader;}
+\DoxyCodeLine{01013\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a28ae569a107216a811a5dbf3e8481d5d}{kBarVerticalVertex}}:}
+\DoxyCodeLine{01014\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kBarVerticalVertexShader;}
+\DoxyCodeLine{01015\ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{01016\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{01017\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{01018\ \ \ \}}
+\DoxyCodeLine{01019\ \}}
+\DoxyCodeLine{01020\ }
+\DoxyCodeLine{01021\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ Shaders::getFragmentShader(FragmentShader\ shader)\ \{}
+\DoxyCodeLine{01022\ \ \ \textcolor{keywordflow}{switch}\ (shader)\ \{}
+\DoxyCodeLine{01023\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a58476f87a71f17821dd98ee2d981ec75}{kImageFragment}}:}
+\DoxyCodeLine{01024\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kImageFragmentShader;}
+\DoxyCodeLine{01025\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45abf7082d1cf1634d9a35be5c1aeb53705}{kTintedImageFragment}}:}
+\DoxyCodeLine{01026\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kTintedImageFragmentShader;}
+\DoxyCodeLine{01027\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a959f73555fa7b41d8a469d79091c48e9}{kGainMeterFragment}}:}
+\DoxyCodeLine{01028\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kGainMeterFragmentShader;}
+\DoxyCodeLine{01029\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45aa9693c965474742465f2c1f7c098670b}{kFilterResponseFragment}}:}
+\DoxyCodeLine{01030\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kFilterFragmentShader;}
+\DoxyCodeLine{01031\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a437755a3dd17f770ef84ee4c440f1c0b}{kLineFragment}}:}
+\DoxyCodeLine{01032\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kLineFragmentShader;}
+\DoxyCodeLine{01033\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45abae4b147ee4a61401e32674d80330a25}{kFillFragment}}:}
+\DoxyCodeLine{01034\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kFillFragmentShader;}
+\DoxyCodeLine{01035\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a9cc4a1b66f3b4a686f5f70f3c6bec6e4}{kBarFragment}}:}
+\DoxyCodeLine{01036\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kBarFragmentShader;}
+\DoxyCodeLine{01037\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45ac762b73020860296e14f3d37f71d369b}{kColorFragment}}:}
+\DoxyCodeLine{01038\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kColorFragmentShader;}
+\DoxyCodeLine{01039\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a0f1444c9071dfffe54031c792b7c199a}{kFadeSquareFragment}}:}
+\DoxyCodeLine{01040\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kFadeSquareFragmentShader;}
+\DoxyCodeLine{01041\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45aeab19c866d33f7b81d7bc366d49169d7}{kCircleFragment}}:}
+\DoxyCodeLine{01042\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kCircleFragmentShader;}
+\DoxyCodeLine{01043\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45ab93b6e8f0617a1095bbbd0c3ea34df14}{kRingFragment}}:}
+\DoxyCodeLine{01044\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kRingFragmentShader;}
+\DoxyCodeLine{01045\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a94030aabb6612edd573091679489f18f}{kDiamondFragment}}:}
+\DoxyCodeLine{01046\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kDiamondFragmentShader;}
+\DoxyCodeLine{01047\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a26261068633fa7ac4a6cdc57e2ee0460}{kRoundedCornerFragment}}:}
+\DoxyCodeLine{01048\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kRoundedCornerFragmentShader;}
+\DoxyCodeLine{01049\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45aa304d35136a7dc393d6d2c8db28d6ce3}{kRoundedRectangleFragment}}:}
+\DoxyCodeLine{01050\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kRoundedRectangleFragmentShader;}
+\DoxyCodeLine{01051\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a7ac7c7b1609f6a8ab5fe786defc8b321}{kRoundedRectangleBorderFragment}}:}
+\DoxyCodeLine{01052\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kRoundedRectangleBorderFragmentShader;}
+\DoxyCodeLine{01053\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a1d10a0fa9dc9a6a2b0e0eee07741a1d2}{kRotarySliderFragment}}:}
+\DoxyCodeLine{01054\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kRotarySliderFragmentShader;}
+\DoxyCodeLine{01055\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a694fbd27c24315c4418560ab3f308d73}{kRotaryModulationFragment}}:}
+\DoxyCodeLine{01056\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kRotaryModulationFragmentShader;}
+\DoxyCodeLine{01057\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a05024284124e44780a0b6bf453d1f13a}{kHorizontalSliderFragment}}:}
+\DoxyCodeLine{01058\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kHorizontalSliderFragmentShader;}
+\DoxyCodeLine{01059\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a96ac119ac91261c4c3e14dfeafc17b05}{kVerticalSliderFragment}}:}
+\DoxyCodeLine{01060\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kVerticalSliderFragmentShader;}
+\DoxyCodeLine{01061\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a0966a2ba50c4bac2e1dd8ec3184804d5}{kLinearModulationFragment}}:}
+\DoxyCodeLine{01062\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kLinearModulationFragmentShader;}
+\DoxyCodeLine{01063\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a4b91b9df24d11cb7334a10e76080295f}{kModulationKnobFragment}}:}
+\DoxyCodeLine{01064\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kModulationKnobFragmentShader;}
+\DoxyCodeLine{01065\ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{01066\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{01067\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{01068\ \ \ \}}
+\DoxyCodeLine{01069\ \}}
+\DoxyCodeLine{01070\ }
+\DoxyCodeLine{01071\ \textcolor{keywordtype}{bool}\ Shaders::checkShaderCorrect(OpenGLExtensionFunctions\&\ extensions,\ GLuint\ shader\_id)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01072\ \ \ GLint\ status\ =\ GL\_FALSE;}
+\DoxyCodeLine{01073\ \ \ extensions.glGetShaderiv(shader\_id,\ GL\_COMPILE\_STATUS,\ \&status);}
+\DoxyCodeLine{01074\ }
+\DoxyCodeLine{01075\ \ \ \textcolor{keywordflow}{if}\ (status\ !=\ GL\_FALSE)}
+\DoxyCodeLine{01076\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{01077\ }
+\DoxyCodeLine{01078\ \ \ GLchar\ info[16384];}
+\DoxyCodeLine{01079\ \ \ GLsizei\ info\_length\ =\ 0;}
+\DoxyCodeLine{01080\ \ \ extensions.glGetShaderInfoLog(shader\_id,\ \textcolor{keyword}{sizeof}(info),\ \&info\_length,\ info);}
+\DoxyCodeLine{01081\ \ \ DBG(String(info,\ (\textcolor{keywordtype}{size\_t})info\_length));}
+\DoxyCodeLine{01082\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01083\ \}}
+\DoxyCodeLine{01084\ }
+\DoxyCodeLine{01085\ GLuint\ Shaders::createVertexShader(OpenGLExtensionFunctions\&\ extensions,\ VertexShader\ shader)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01086\ \ \ GLuint\ shader\_id\ =\ extensions.glCreateShader(GL\_VERTEX\_SHADER);}
+\DoxyCodeLine{01087\ \ \ String\ code\_string\ =\ translateVertexShader(getVertexShader(shader));}
+\DoxyCodeLine{01088\ \ \ \textcolor{keyword}{const}\ GLchar*\ code\ =\ code\_string.toRawUTF8();}
+\DoxyCodeLine{01089\ \ \ extensions.glShaderSource(shader\_id,\ 1,\ \&code,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{01090\ \ \ extensions.glCompileShader(shader\_id);}
+\DoxyCodeLine{01091\ }
+\DoxyCodeLine{01092\ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(checkShaderCorrect(extensions,\ shader\_id));}
+\DoxyCodeLine{01093\ \ \ \textcolor{keywordflow}{return}\ shader\_id;}
+\DoxyCodeLine{01094\ \}}
+\DoxyCodeLine{01095\ }
+\DoxyCodeLine{01096\ GLuint\ Shaders::createFragmentShader(OpenGLExtensionFunctions\&\ extensions,\ FragmentShader\ shader)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01097\ \ \ GLuint\ shader\_id\ =\ extensions.glCreateShader(GL\_FRAGMENT\_SHADER);}
+\DoxyCodeLine{01098\ \ \ String\ code\_string\ =\ translateFragmentShader(getFragmentShader(shader));}
+\DoxyCodeLine{01099\ \ \ \textcolor{keyword}{const}\ GLchar*\ code\ =\ code\_string.toRawUTF8();}
+\DoxyCodeLine{01100\ \ \ extensions.glShaderSource(shader\_id,\ 1,\ \&code,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{01101\ \ \ extensions.glCompileShader(shader\_id);}
+\DoxyCodeLine{01102\ }
+\DoxyCodeLine{01103\ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(checkShaderCorrect(extensions,\ shader\_id));}
+\DoxyCodeLine{01104\ \ \ \textcolor{keywordflow}{return}\ shader\_id;}
+\DoxyCodeLine{01105\ \}}
+\DoxyCodeLine{01106\ }
+\DoxyCodeLine{01107\ \mbox{\hyperlink{class_shaders_ad0dd24bfcf2284121312769139566b75}{Shaders::Shaders}}(OpenGLContext\&\ open\_gl\_context)\ :\ open\_gl\_context\_(\&open\_gl\_context),}
+\DoxyCodeLine{01108\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vertex\_shader\_ids\_(),\ fragment\_shader\_ids\_()\ \{\ \}}
+
+\end{DoxyCode}

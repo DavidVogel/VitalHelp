@@ -1,0 +1,26 @@
+var structvital_1_1_synth_oscillator_1_1_voice_block =
+[
+    [ "VoiceBlock", "structvital_1_1_synth_oscillator_1_1_voice_block.html#afaaf58c7c6145815cabbb683e522c871", null ],
+    [ "isStatic", "structvital_1_1_synth_oscillator_1_1_voice_block.html#a9b9ae1e214a2ec99f86af9d7a5db12b4", null ],
+    [ "current_buffer_sample", "structvital_1_1_synth_oscillator_1_1_voice_block.html#addb53e785b5a517307531d63882b724e", null ],
+    [ "distortion", "structvital_1_1_synth_oscillator_1_1_voice_block.html#a3e4878986150c1f01e6b306831285959", null ],
+    [ "distortion_phase", "structvital_1_1_synth_oscillator_1_1_voice_block.html#ab41286f0fdf4fbba08ace01151fb442a", null ],
+    [ "end_sample", "structvital_1_1_synth_oscillator_1_1_voice_block.html#a4f4bfff7a28094bfac731f8ed526466e", null ],
+    [ "from_buffers", "structvital_1_1_synth_oscillator_1_1_voice_block.html#a76340ac1b76cecd89c69b5c2394e282f", null ],
+    [ "from_phase_inc_mult", "structvital_1_1_synth_oscillator_1_1_voice_block.html#a64211c27c531c7c2f7f2c93a0e4c6ff5", null ],
+    [ "last_distortion", "structvital_1_1_synth_oscillator_1_1_voice_block.html#ab932adcba522ee3f9692c10d2c9063d8", null ],
+    [ "last_distortion_phase", "structvital_1_1_synth_oscillator_1_1_voice_block.html#a9dd70ca935bb9673292e539aa3efbff7", null ],
+    [ "modulation_buffer", "structvital_1_1_synth_oscillator_1_1_voice_block.html#a21a623d2ec7ac52c85fb7f593be9bf03", null ],
+    [ "num_buffer_samples", "structvital_1_1_synth_oscillator_1_1_voice_block.html#aabbaf4f0006eb8e6bde26c52f4fb6b00", null ],
+    [ "phase", "structvital_1_1_synth_oscillator_1_1_voice_block.html#a9ee5dce64dc16d87be2d4b34e704a7fe", null ],
+    [ "phase_buffer", "structvital_1_1_synth_oscillator_1_1_voice_block.html#aa30280dc5a159ab7bc569317260f2a58", null ],
+    [ "phase_inc_buffer", "structvital_1_1_synth_oscillator_1_1_voice_block.html#a7f0b04da8d43fd497fc5c4c37d2cabaa", null ],
+    [ "phase_inc_mult", "structvital_1_1_synth_oscillator_1_1_voice_block.html#ab49ff56b5e6865c86b900790cc78db29", null ],
+    [ "shepard_double_mask", "structvital_1_1_synth_oscillator_1_1_voice_block.html#af655beffaea78023236c4604d5912aa9", null ],
+    [ "shepard_half_mask", "structvital_1_1_synth_oscillator_1_1_voice_block.html#a907a068afae277e8cbade8175db42748", null ],
+    [ "smoothing_enabled", "structvital_1_1_synth_oscillator_1_1_voice_block.html#a273649d79f35bedca89f3aa06a6fe75f", null ],
+    [ "spectral_morph", "structvital_1_1_synth_oscillator_1_1_voice_block.html#afc93b1fd355be2e01893234c9060ebc4", null ],
+    [ "start_sample", "structvital_1_1_synth_oscillator_1_1_voice_block.html#a252ed4853c58f110e48c7a8c54868a58", null ],
+    [ "to_buffers", "structvital_1_1_synth_oscillator_1_1_voice_block.html#a03e5e638e8e29907ccdf56090df2c09a", null ],
+    [ "total_samples", "structvital_1_1_synth_oscillator_1_1_voice_block.html#a034fb52ef85d3618e9332c8cb3bc99df", null ]
+];

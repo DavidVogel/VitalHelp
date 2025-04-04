@@ -1,0 +1,75 @@
+\doxysection{phaser\+\_\+filter.\+cpp}
+\hypertarget{phaser__filter_8cpp_source}{}\label{phaser__filter_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/filters/phaser\_filter.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/filters/phaser\_filter.cpp}}
+\mbox{\hyperlink{phaser__filter_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{phaser__filter_8h}{phaser\_filter.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{futils_8h}{futils.h}}"{}}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00011\ \ \ \mbox{\hyperlink{classvital_1_1_phaser_filter_a04efb8e87fbb545f1ac5b799768b86d1}{PhaserFilter::PhaserFilter}}(\textcolor{keywordtype}{bool}\ clean)\ :\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}(\mbox{\hyperlink{classvital_1_1_phaser_filter}{PhaserFilter}}::kNumInputs,\ 1)\ \{}
+\DoxyCodeLine{00012\ \ \ \ \ clean\_\ =\ clean;}
+\DoxyCodeLine{00013\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_phaser_filter_a72202ae4a58d1e6545919da039319da3}{hardReset}}();}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{comment}{//\ Default\ to\ no\ inversion\ of\ the\ phaser\ output}}
+\DoxyCodeLine{00015\ \ \ \ \ invert\_mult\_\ =\ 1.0f;}
+\DoxyCodeLine{00016\ \ \ \}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00022\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_phaser_filter_a55f5c526881e1dff88d7589bc8241f93}{PhaserFilter::reset}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask)\ \{}
+\DoxyCodeLine{00023\ \ \ \ \ allpass\_output\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(allpass\_output\_,\ 0.0f,\ reset\_mask);}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_phaser_filter_a1aebd49d7f42fe99c4e6672d329c6ef0}{kMaxStages}};\ ++i)}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ stages\_[i].\mbox{\hyperlink{classvital_1_1_phaser_filter_a55f5c526881e1dff88d7589bc8241f93}{reset}}(reset\_mask);}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \ \ remove\_lows\_stage\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a443d75713b1c8ffbaf044c0af6478be9}{reset}}(reset\_mask);}
+\DoxyCodeLine{00028\ \ \ \ \ remove\_highs\_stage\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a443d75713b1c8ffbaf044c0af6478be9}{reset}}(reset\_mask);}
+\DoxyCodeLine{00029\ \ \ \}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00034\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_phaser_filter_a72202ae4a58d1e6545919da039319da3}{PhaserFilter::hardReset}}()\ \{}
+\DoxyCodeLine{00035\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_phaser_filter_a55f5c526881e1dff88d7589bc8241f93}{reset}}(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}});}
+\DoxyCodeLine{00036\ \ \ \ \ resonance\_\ =\ 0.0f;}
+\DoxyCodeLine{00037\ \ \ \ \ drive\_\ =\ 0.0f;}
+\DoxyCodeLine{00038\ \ \ \ \ peak1\_amount\_\ =\ 0.0f;}
+\DoxyCodeLine{00039\ \ \ \ \ peak3\_amount\_\ =\ 0.0f;}
+\DoxyCodeLine{00040\ \ \ \ \ peak5\_amount\_\ =\ 0.0f;}
+\DoxyCodeLine{00041\ \ \ \ \ allpass\_output\_\ =\ 0.0f;}
+\DoxyCodeLine{00042\ \ \ \}}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00048\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_phaser_filter_a85b5bed3cbe0d38ca4239e69f327f2e1}{PhaserFilter::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{classvital_1_1_processor_a7e35d4d320b562f794d2e4028a04cf92}{inputMatchesBufferSize}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0ae42fd89abe5a134ebf5e5da1942f4a83}{kAudio}}));}
+\DoxyCodeLine{00050\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_phaser_filter_a909147fd961b5c3bc463d41bfcbe29fb}{processWithInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_synth_filter_a03c515d2b209852494e96aaf3ecd1fa0ae42fd89abe5a134ebf5e5da1942f4a83}{kAudio}})-\/>source-\/>buffer,\ num\_samples);}
+\DoxyCodeLine{00051\ \ \ \}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00058\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_phaser_filter_a909147fd961b5c3bc463d41bfcbe29fb}{PhaserFilter::processWithInput}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{comment}{//\ If\ clean\_\ is\ true,\ saturate\ resonance\ path\ with\ tanh;\ input\ passes\ through\ without\ saturation\ (utils::pass).}}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{comment}{//\ Otherwise,\ let\ resonance\ pass\ unaltered\ (utils::pass),\ saturating\ the\ input\ with\ hardTanh.}}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordflow}{if}\ (clean\_)}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_phaser_filter_a85b5bed3cbe0d38ca4239e69f327f2e1}{process<futils::tanh,\ utils::pass>}}(audio\_in,\ num\_samples);}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_phaser_filter_a85b5bed3cbe0d38ca4239e69f327f2e1}{process<utils::pass,\ futils::hardTanh>}}(audio\_in,\ num\_samples);}
+\DoxyCodeLine{00065\ \ \ \}}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00071\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_phaser_filter_aba06b911834108f8cbe312bcf4838aa9}{PhaserFilter::setupFilter}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state}{FilterState}}\&\ filter\_state)\ \{}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{comment}{//\ Clamp\ resonance\_percent\ between\ 0.0\ and\ 1.0}}
+\DoxyCodeLine{00073\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ resonance\_percent\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_ab36a4ba7cfc2cdf20f9df4b64266103d}{resonance\_percent}},\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00074\ \ \ \ \ resonance\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(\mbox{\hyperlink{classvital_1_1_phaser_filter_a43241d4023f08a4f8fce0a9d44a83f88}{kMinResonance}},\ \mbox{\hyperlink{classvital_1_1_phaser_filter_a40882d94076eac3c339c7126ed56d254}{kMaxResonance}},\ resonance\_percent);}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{comment}{//\ Drive\ is\ scaled\ by\ the\ resonance\ factor\ for\ some\ additional\ feedback}}
+\DoxyCodeLine{00077\ \ \ \ \ drive\_\ =\ (resonance\_\ *\ 0.5f\ +\ 1.0f)\ *\ filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a526549d852831e8ec4f70bd6dfc6a32b}{drive}};}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{comment}{//\ pass\_blend\ dictates\ how\ to\ distribute\ peaks\ among\ 1,\ 3,\ and\ 5}}
+\DoxyCodeLine{00080\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ blend\ =\ filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a3b9e6699bdd4ff6f2b48a28d08e390f3}{pass\_blend}};}
+\DoxyCodeLine{00081\ \ \ \ \ peak1\_amount\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(-\/blend\ +\ 1.0f,\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00082\ \ \ \ \ peak5\_amount\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(blend\ -\/\ 1.0f,\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{comment}{//\ peak3\_amount\_\ is\ whatever\ remains\ to\ ensure\ the\ sum\ is\ 1}}
+\DoxyCodeLine{00084\ \ \ \ \ peak3\_amount\_\ =\ -\/peak1\_amount\_\ -\/\ peak5\_amount\_\ +\ 1.0f;}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{comment}{//\ If\ style\ is\ non-\/zero,\ invert\ the\ phaser\ output;\ otherwise,\ do\ not\ invert.}}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordflow}{if}\ (filter\_state.\mbox{\hyperlink{classvital_1_1_synth_filter_1_1_filter_state_a612dfb5faa8c432ed85a59e7f42ccd8b}{style}})}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ invert\_mult\_\ =\ -\/1.0f;}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ invert\_mult\_\ =\ 1.0f;}
+\DoxyCodeLine{00091\ \ \ \}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

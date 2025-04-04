@@ -1,0 +1,265 @@
+\doxysection{envelope.\+cpp}
+\hypertarget{envelope_8cpp_source}{}\label{envelope_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/modulators/envelope.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/modulators/envelope.cpp}}
+\mbox{\hyperlink{envelope_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{envelope_8h}{envelope.h}}"{}}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{futils_8h}{futils.h}}"{}}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_envelope_ab817bf2c95cca3caaa5815de490d1416}{Envelope::Envelope}}()\ :}
+\DoxyCodeLine{00007\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}(kNumInputs,\ kNumOutputs),}
+\DoxyCodeLine{00008\ \ \ \ \ \ \ \ \ \ \ \ \ current\_value\_(0.0f),}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ \ \ \ \ position\_(0.0f),}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ \ \ \ \ value\_(0.0f),}
+\DoxyCodeLine{00011\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_state\_(0.0f),}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ \ \ \ \ start\_value\_(0.0f),}
+\DoxyCodeLine{00013\ \ \ \ \ \ \ \ \ \ \ \ \ attack\_power\_(0.0f),}
+\DoxyCodeLine{00014\ \ \ \ \ \ \ \ \ \ \ \ \ decay\_power\_(0.0f),}
+\DoxyCodeLine{00015\ \ \ \ \ \ \ \ \ \ \ \ \ release\_power\_(0.0f),}
+\DoxyCodeLine{00016\ \ \ \ \ \ \ \ \ \ \ \ \ sustain\_(0.0f)\ \{\ \}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_envelope_a42a32d53b352102ee801c7ad50bdcb4d}{Envelope::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Determine\ if\ we\ should\ process\ at\ control\ rate\ or\ audio\ rate\ based\ on\ the\ Processor\ base\ class\ logic.}}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_a7c412df809f6c84fe54bdd977681fd9a}{isControlRate}}())}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ \ \ \ \ processControlRate(num\_samples);}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \ \ \ \ processAudioRate(num\_samples);}
+\DoxyCodeLine{00024\ \ \ \ \ \}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keywordtype}{void}\ Envelope::processControlRate(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ trigger\_mask\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952aaa9c5e31ddb70249b9e40817a3c0b651}{kTrigger}})-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_ab5d8c509c6b262ea89dbbfafbc24673b}{trigger\_mask}};}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ trigger\_value\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952aaa9c5e31ddb70249b9e40817a3c0b651}{kTrigger}})-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}};}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delay\_time\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952a3aca08999fdf5645f69e6ad96f229f67}{kDelay}})-\/>at(0),\ 0.0f);}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ has\_delay\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ad58ea0499df6b4f55868db8213a12c98}{poly\_float::notEqual}}(delay\_time,\ 0.0f);}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ note\_on\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(trigger\_value,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa2ce85055a27054faf723c514c8a74dea}{kVoiceOn}});}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ trigger\_value\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(trigger\_value,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa28387566636f5e9a5863e91d7e9f9078}{kVoiceIdle}},\ has\_delay\_mask\ \&\ note\_on\_mask);}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ poly\_state\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(poly\_state\_,\ trigger\_value,\ trigger\_mask);}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ position\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(position\_,\ 0.0f,\ trigger\_mask);}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ triggered\_remaining\ =\ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}(num\_samples)\ -\/\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952aaa9c5e31ddb70249b9e40817a3c0b651}{kTrigger}})-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_a295fb3938d4bd8f9a4029c1e617230f8}{trigger\_offset}};}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ remaining\_samples\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(num\_samples,\ triggered\_remaining,\ trigger\_mask);}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ start\_value\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(start\_value\_,\ value\_,\ trigger\_mask);}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Identify\ which\ segment\ the\ envelope\ is\ currently\ in}}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ delay\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa28387566636f5e9a5863e91d7e9f9078}{kVoiceIdle}});}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ attack\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa2ce85055a27054faf723c514c8a74dea}{kVoiceOn}});}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ hold\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836faa625c70d91950ceaf0ec56ea9756ef9e}{kVoiceHold}});}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ decay\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa80399895e5f1e755a79fae5aa4db5c03}{kVoiceDecay}});}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ release\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836faa8561c95d99b0fd70d107807f0fd88ca}{kVoiceOff}});}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ kill\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa34372440894bc740541b0d8b97e54e6c}{kVoiceKill}});}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ the\ normalized\ increments\ for\ each\ stage\ based\ on\ remaining\ samples\ and\ sample\ rate}}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_time\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a29ec8af38789c39515d4b43ee42e9de6}{utils::toFloat}}(remaining\_samples)\ *\ (1.0f\ /\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}());}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_delay\ =\ delta\_time\ /\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(delay\_time,\ 0.0000001f);}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ position\_\ +=\ delta\_delay\ \&\ delay\_mask;}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ attack\_time\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952aed37c084297a8a74e4ff6265b7ee4ca4}{kAttack}})-\/>at(0),\ 0.000000001f);}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_attack\ =\ delta\_time\ /\ attack\_time;}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ position\_\ +=\ delta\_attack\ \&\ attack\_mask;}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ hold\_time\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952ae3fe4e634d1b771866d7eae4fc292b46}{kHold}})-\/>at(0),\ 0.0f);}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ has\_hold\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ad58ea0499df6b4f55868db8213a12c98}{poly\_float::notEqual}}(hold\_time,\ 0.0f);}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_hold\ =\ delta\_time\ /\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(hold\_time,\ 0.0000001f);}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ position\_\ +=\ delta\_hold\ \&\ hold\_mask;}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ decay\_time\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952a6a0954f3fab3f0417157e0484df537ed}{kDecay}})-\/>at(0),\ 0.000000001f);}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_decay\ =\ delta\_time\ /\ decay\_time;}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ position\_\ +=\ delta\_decay\ \&\ decay\_mask;}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ release\_time\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952af739daf2a160ed15390acdc704626e1b}{kRelease}})-\/>at(0),\ 0.000000001f);}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_release\ =\ delta\_time\ /\ release\_time;}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ position\_\ +=\ delta\_release\ \&\ release\_mask;}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_kill\ =\ delta\_time\ *\ (1.0f\ /\ \mbox{\hyperlink{namespacevital_abe096d50a9256a3d87627e5b01f8a9f2}{kVoiceKillTime}});}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ position\_\ +=\ delta\_kill\ \&\ kill\_mask;}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ position\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(position\_,\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Apply\ power\ scaling\ to\ shape\ the\ envelope\ curve}}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ power\ =\ (-\/\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952a9f12c22291763442ba3d7b0afd3cb2bc}{kAttackPower}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0)\ \&\ attack\_mask)\ +}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952afef16ad846a92202ec0bd8f46771a27d}{kDecayPower}})-\/>at(0)\ \&\ decay\_mask)\ +}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952a0e16a8aa6770bb9c31945073c88d14ba}{kReleasePower}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0)\ \&\ release\_mask);}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ attack\_value\ =\ \mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{futils::powerScale}}(position\_,\ power);}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ sustain\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952aa8d9b20f61d1a1bdc74551c7c5476e93}{kSustain}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Interpolate\ the\ envelope\ value\ based\ on\ the\ current\ segment}}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ decay\_value\ =\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ -\/\ (\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ -\/\ sustain)\ *\ attack\_value;}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ release\_value\ =\ start\_value\_\ *\ (\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ -\/\ attack\_value);}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ kill\_value\ =\ start\_value\_\ *\ (\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ -\/\ attack\_value);}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ value\_\ =\ (attack\_value\ \&\ attack\_mask)\ +}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ \&\ hold\_mask)\ +}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (decay\_value\ \&\ decay\_mask)\ +}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (release\_value\ \&\ release\_mask)\ +}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (kill\_value\ \&\ kill\_mask);}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ value\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(value\_,\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Output\ the\ computed\ envelope\ values}}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_envelope_a8793a4d4f6325537e70b6589a3b44ed6a933594d63633f11d0e8e6abe5b116230}{kValue}})-\/>\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ value\_;}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_envelope_a8793a4d4f6325537e70b6589a3b44ed6a933594d63633f11d0e8e6abe5b116230}{kValue}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ value\_;}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_envelope_a8793a4d4f6325537e70b6589a3b44ed6aa1ecaa783632ac7d5f9d4a5ff0963ff4}{kPhase}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ poly\_state\_\ +\ position\_;}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Check\ for\ state\ transitions}}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ attack\_transition\_mask\ =\ delay\_mask\ \&\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(position\_,\ 1.0f);}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ hold\_transition\_mask\ =\ attack\_mask\ \&\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(position\_,\ 1.0f)\ \&\ has\_hold\_mask;}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ decay\_turn\_mask\ =\ (attack\_mask\ \&\ \string~has\_hold\_mask)\ |\ hold\_mask;}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ decay\_transition\_mask\ =\ decay\_turn\_mask\ \&\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(position\_,\ 1.0f);}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ poly\_state\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa2ce85055a27054faf723c514c8a74dea}{kVoiceOn}},\ attack\_transition\_mask);}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ poly\_state\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836faa625c70d91950ceaf0ec56ea9756ef9e}{kVoiceHold}},\ hold\_transition\_mask);}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ poly\_state\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa80399895e5f1e755a79fae5aa4db5c03}{kVoiceDecay}},\ decay\_transition\_mask);}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ transition\_mask\ =\ attack\_transition\_mask\ |\ hold\_transition\_mask\ |\ decay\_transition\_mask;}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ position\_\ =\ position\_\ \&\ \string~transition\_mask;}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ dead\_transition\_mask\ =\ release\_mask\ \&\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(position\_,\ 1.0f);}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ poly\_state\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa34372440894bc740541b0d8b97e54e6c}{kVoiceKill}},\ dead\_transition\_mask);}
+\DoxyCodeLine{00123\ \ \ \ \ \}}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \ \ poly\_float\ Envelope::processSection(poly\_float*\ audio\_out,\ \textcolor{keywordtype}{int}\ from,\ \textcolor{keywordtype}{int}\ to,}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ power,\ poly\_float\ delta\_power,}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ position,\ poly\_float\ delta\_position,}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ start,\ poly\_float\ end,\ poly\_float\ delta\_end)\ \{}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_samples\ =\ to\ -\/\ from;}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ poly\_float\ current\_power\ =\ power;}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ poly\_float\ current\_position\ =\ position;}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ poly\_float\ current\_end\ =\ end;}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ from;\ i\ <\ to;\ ++i)\ \{}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ t\ =\ \mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{futils::powerScale}}(current\_position,\ current\_power);}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \ \ \ \ audio\_out[i]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(start,\ current\_end,\ t);}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \ \ \ \ current\_power\ +=\ delta\_power;}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ \ \ \ \ current\_position\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(current\_position\ +\ delta\_position,\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ \ \ \ \ current\_end\ +=\ delta\_end;}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(position\ +\ delta\_position\ *\ num\_samples,\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00151\ \ \ \ \ \}}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{keywordtype}{void}\ Envelope::processAudioRate(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ poly\_float\ delta\_time\ =\ 1.0f\ /\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}();}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ delta\_sample\ =\ 1.0f\ /\ num\_samples;}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ poly\_float\ sustain\_end\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952aa8d9b20f61d1a1bdc74551c7c5476e93}{kSustain}})-\/>at(0),\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ poly\_float\ delay\_time\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952a3aca08999fdf5645f69e6ad96f229f67}{kDelay}})-\/>at(0),\ 0.0f);}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ poly\_float\ delta\_delay\ =\ delta\_time\ /\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(delay\_time,\ 0.0000001f);}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ poly\_float\ attack\_time\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952aed37c084297a8a74e4ff6265b7ee4ca4}{kAttack}})-\/>at(0),\ 0.000000001f);}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ poly\_float\ delta\_attack\ =\ delta\_time\ /\ attack\_time;}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ poly\_float\ attack\_power\_end\ =\ -\/\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952a9f12c22291763442ba3d7b0afd3cb2bc}{kAttackPower}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00172\ }
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ poly\_float\ hold\_time\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952ae3fe4e634d1b771866d7eae4fc292b46}{kHold}})-\/>at(0),\ 0.0f);}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ has\_hold\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ad58ea0499df6b4f55868db8213a12c98}{poly\_float::notEqual}}(hold\_time,\ 0.0f);}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ poly\_float\ delta\_hold\ =\ delta\_time\ /\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(hold\_time,\ 0.0000001f);}
+\DoxyCodeLine{00176\ }
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ poly\_float\ decay\_time\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952a6a0954f3fab3f0417157e0484df537ed}{kDecay}})-\/>at(0),\ 0.000000001f);}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ poly\_float\ delta\_decay\ =\ delta\_time\ /\ decay\_time;}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ poly\_float\ decay\_power\_end\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952afef16ad846a92202ec0bd8f46771a27d}{kDecayPower}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00180\ }
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ poly\_float\ release\_time\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952af739daf2a160ed15390acdc704626e1b}{kRelease}})-\/>at(0),\ 0.000000001f);}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ poly\_float\ delta\_release\ =\ delta\_time\ /\ release\_time;}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ poly\_float\ release\_power\_end\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952a0e16a8aa6770bb9c31945073c88d14ba}{kReleasePower}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ poly\_float\ delta\_kill\ =\ delta\_time\ *\ (1.0f\ /\ \mbox{\hyperlink{namespacevital_abe096d50a9256a3d87627e5b01f8a9f2}{kVoiceKillTime}});}
+\DoxyCodeLine{00186\ }
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ trigger\_mask\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952aaa9c5e31ddb70249b9e40817a3c0b651}{kTrigger}})-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_ab5d8c509c6b262ea89dbbfafbc24673b}{trigger\_mask}};}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ poly\_float\ trigger\_value\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952aaa9c5e31ddb70249b9e40817a3c0b651}{kTrigger}})-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}};}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ has\_delay\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ad58ea0499df6b4f55868db8213a12c98}{poly\_float::notEqual}}(delay\_time,\ 0.0f);}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ note\_on\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(trigger\_value,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa2ce85055a27054faf723c514c8a74dea}{kVoiceOn}});}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ trigger\_value\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(trigger\_value,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa28387566636f5e9a5863e91d7e9f9078}{kVoiceIdle}},\ has\_delay\_mask\ \&\ note\_on\_mask);}
+\DoxyCodeLine{00192\ }
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ poly\_int\ triggered\_position\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_envelope_a517ae8132ca98558e4285a273e305952aaa9c5e31ddb70249b9e40817a3c0b651}{kTrigger}})-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_a295fb3938d4bd8f9a4029c1e617230f8}{trigger\_offset}};}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ triggered\_position\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(num\_samples,\ triggered\_position,\ trigger\_mask);}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \ \ poly\_float\ current\_position\ =\ position\_;}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ poly\_float*\ audio\_out\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_envelope_a8793a4d4f6325537e70b6589a3b44ed6a933594d63633f11d0e8e6abe5b116230}{kValue}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00198\ }
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Step\ through\ each\ sample\ at\ audio\ rate,\ updating\ envelope\ state\ and\ output}}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;)\ \{}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ triggering\ =\ trigger\_mask\ \&\ \mbox{\hyperlink{structvital_1_1poly__int_aba1a4192cda895a71f1928a9037d179f}{poly\_int::equal}}(i,\ triggered\_position);}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ \ \ \ \ triggered\_position\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(triggered\_position,\ num\_samples,\ triggering);}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_state\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(poly\_state\_,\ trigger\_value,\ triggering);}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ \ \ \ \ current\_position\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(current\_position,\ 0.0f,\ triggering);}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ start\ values\ and\ powers\ on\ triggers}}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \ \ \ \ start\_value\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(start\_value\_,\ value\_,\ triggering);}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ \ \ \ \ attack\_power\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(attack\_power\_,\ attack\_power\_end,\ triggering);}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ \ \ \ \ decay\_power\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(decay\_power\_,\ decay\_power\_end,\ triggering);}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \ \ \ \ \ \ release\_power\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(release\_power\_,\ release\_power\_end,\ triggering);}
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \ \ \ \ \ \ sustain\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(sustain\_,\ sustain\_end,\ triggering);}
+\DoxyCodeLine{00212\ }
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Identify\ envelope\ stages}}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ delay\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa28387566636f5e9a5863e91d7e9f9078}{kVoiceIdle}});}
+\DoxyCodeLine{00215\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ attack\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa2ce85055a27054faf723c514c8a74dea}{kVoiceOn}});}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ hold\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836faa625c70d91950ceaf0ec56ea9756ef9e}{kVoiceHold}});}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ decay\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa80399895e5f1e755a79fae5aa4db5c03}{kVoiceDecay}});}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ release\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836faa8561c95d99b0fd70d107807f0fd88ca}{kVoiceOff}});}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ kill\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa34372440894bc740541b0d8b97e54e6c}{kVoiceKill}});}
+\DoxyCodeLine{00220\ }
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Determine\ the\ current\ segment\ increment}}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ delta\_position\ =\ (delta\_delay\ \&\ delay\_mask)\ +\ (delta\_attack\ \&\ attack\_mask)\ +}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (delta\_hold\ \&\ hold\_mask)\ +\ (delta\_decay\ \&\ decay\_mask)\ +}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (delta\_release\ \&\ release\_mask)\ +\ (delta\_kill\ \&\ kill\_mask);}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ from\_power\ =\ (attack\_power\_\ \&\ attack\_mask)\ +}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (decay\_power\_\ \&\ decay\_mask)\ +}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (release\_power\_\ \&\ release\_mask);}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ to\_power\ =\ (attack\_power\_end\ \&\ attack\_mask)\ +}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (decay\_power\_end\ \&\ decay\_mask)\ +}
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (release\_power\_end\ \&\ release\_mask);}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00233\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Interpolate\ power\ and\ sustain\ based\ on\ current\ sample\ position}}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ power\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(from\_power,\ to\_power,\ i\ /\ (1.0f\ *\ num\_samples));}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ delta\_power\ =\ (to\_power\ -\/\ from\_power)\ *\ delta\_sample;}
+\DoxyCodeLine{00236\ }
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ cycles\_remaining\ =\ (\mbox{\hyperlink{namespacevital_1_1utils_af479ab648455a2280e53b8da6a905989}{utils::ceil}}(current\_position)\ -\/\ current\_position)\ /\ delta\_position;}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ end\_cycle\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(num\_samples,\ cycles\_remaining\ +\ i,\ attack\_mask);}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ \ \ \ \ end\_cycle\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5b6ee09220fec012fc1597235e4c50e3}{utils::min}}(end\_cycle,\ \mbox{\hyperlink{namespacevital_1_1utils_a29ec8af38789c39515d4b43ee42e9de6}{utils::toFloat}}(triggered\_position));}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ last\_cycle\ =\ std::max((\textcolor{keywordtype}{int})\mbox{\hyperlink{namespacevital_1_1utils_ab54f78b85cee61e53b9d2ad61a2f7c21}{utils::minFloat}}(end\_cycle),\ i\ +\ 1);}
+\DoxyCodeLine{00241\ }
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ current\_sustain\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(sustain\_,\ sustain\_end,\ i\ /\ (1.0f\ *\ num\_samples));}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ start\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(start\_value\_,\ 1.0f,\ decay\_mask\ |\ hold\_mask);}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ end\ =\ (poly\_float(1.0f)\ \&\ (attack\_mask\ |\ hold\_mask))\ +\ (current\_sustain\ \&\ decay\_mask);}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_float\ delta\_end\ =\ ((sustain\_end\ -\/\ sustain\_)\ *\ delta\_sample)\ \&\ decay\_mask;}
+\DoxyCodeLine{00246\ }
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Process\ the\ segment\ up\ to\ the\ calculated\ endpoint}}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ \ \ \ \ current\_position\ =\ processSection(audio\_out,\ i,\ last\_cycle,\ power,\ delta\_power,}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ current\_position,\ delta\_position,\ start,\ end,\ delta\_end);}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \ \ \ \ \ \ i\ =\ last\_cycle;}
+\DoxyCodeLine{00251\ }
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ \ \ \ \ value\_\ =\ audio\_out[i\ -\/\ 1];}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Check\ and\ handle\ state\ transitions\ after\ processing\ the\ segment}}
+\DoxyCodeLine{00255\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ attack\_transition\_mask\ =\ delay\_mask\ \&\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(current\_position,\ 1.0f);}
+\DoxyCodeLine{00256\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ hold\_transition\_mask\ =\ attack\_mask\ \&\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(current\_position,\ 1.0f)\ \&\ has\_hold\_mask;}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ decay\_turn\_mask\ =\ (attack\_mask\ \&\ \string~has\_hold\_mask)\ |\ hold\_mask;}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ decay\_transition\_mask\ =\ decay\_turn\_mask\ \&\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(current\_position,\ 1.0f);}
+\DoxyCodeLine{00259\ }
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_state\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa2ce85055a27054faf723c514c8a74dea}{kVoiceOn}},\ attack\_transition\_mask);}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_state\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836faa625c70d91950ceaf0ec56ea9756ef9e}{kVoiceHold}},\ hold\_transition\_mask);}
+\DoxyCodeLine{00262\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_state\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa80399895e5f1e755a79fae5aa4db5c03}{kVoiceDecay}},\ decay\_transition\_mask);}
+\DoxyCodeLine{00263\ }
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ transition\_mask\ =\ attack\_transition\_mask\ |\ hold\_transition\_mask\ |\ decay\_transition\_mask;}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ \ \ \ \ current\_position\ =\ current\_position\ \&\ \string~transition\_mask;}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00267\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ dead\_transition\_mask\ =\ release\_mask\ \&\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(current\_position,\ 1.0f);}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \ \ \ \ \ \ poly\_state\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(poly\_state\_,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa34372440894bc740541b0d8b97e54e6c}{kVoiceKill}},\ dead\_transition\_mask);}
+\DoxyCodeLine{00269\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_envelope_a8793a4d4f6325537e70b6589a3b44ed6a933594d63633f11d0e8e6abe5b116230}{kValue}})-\/>\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ audio\_out[0];}
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \ \ position\_\ =\ current\_position;}
+\DoxyCodeLine{00273\ \ \ \ \ \ \ \ \ attack\_power\_\ =\ attack\_power\_end;}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \ \ decay\_power\_\ =\ decay\_power\_end;}
+\DoxyCodeLine{00275\ \ \ \ \ \ \ \ \ release\_power\_\ =\ release\_power\_end;}
+\DoxyCodeLine{00276\ \ \ \ \ \ \ \ \ sustain\_\ =\ sustain\_end;}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_envelope_a8793a4d4f6325537e70b6589a3b44ed6aa1ecaa783632ac7d5f9d4a5ff0963ff4}{kPhase}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ poly\_state\_\ +\ position\_;}
+\DoxyCodeLine{00278\ \ \ \ \ \}}
+\DoxyCodeLine{00279\ }
+\DoxyCodeLine{00280\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

@@ -1,0 +1,78 @@
+\doxysection{tab\+\_\+selector.\+cpp}
+\hypertarget{tab__selector_8cpp_source}{}\label{tab__selector_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/tab\_selector.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/tab\_selector.cpp}}
+\mbox{\hyperlink{tab__selector_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{tab__selector_8h}{tab\_selector.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00011\ \mbox{\hyperlink{class_tab_selector_a165a9f416ff2aad88ba4634e75823079}{TabSelector::TabSelector}}(String\ name)\ :\ Slider(name),\ font\_height\_percent\_(kDefaultFontHeightPercent),\ active\_(true)\ \{}
+\DoxyCodeLine{00012\ \ \ image\_component\_.\mbox{\hyperlink{class_open_gl_image_component_a0b92654b5d52ecdebcf1acc15bb4ee93}{setComponent}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00013\ \ \ image\_component\_.\mbox{\hyperlink{class_open_gl_image_component_aa730ce91cd76c9bddfa20dbdd81ba077}{setScissor}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \ \ setTextBoxStyle(Slider::NoTextBox,\ \textcolor{keyword}{true},\ 0,\ 0);}
+\DoxyCodeLine{00016\ \ \ setColour(Slider::backgroundColourId,\ Colour(0xff303030));}
+\DoxyCodeLine{00017\ \ \ setColour(Slider::textBoxOutlineColourId,\ Colour(0x00000000));}
+\DoxyCodeLine{00018\ \ \ setRange(0,\ 1,\ 1);}
+\DoxyCodeLine{00019\ \}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00023\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_tab_selector_a60850b72f6b0e49fbb82fe53232d65f1}{TabSelector::paint}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00024\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kLightHeightPercent\ =\ 0.08f;}
+\DoxyCodeLine{00025\ \ \ \textcolor{keywordtype}{int}\ selected\ =\ getValue();}
+\DoxyCodeLine{00026\ \ \ \textcolor{keywordtype}{int}\ num\_types\ =\ getMaximum()\ -\/\ getMinimum()\ +\ 1;}
+\DoxyCodeLine{00027\ \ \ \textcolor{keywordtype}{int}\ from\_highlight\ =\ getTabX(selected);}
+\DoxyCodeLine{00028\ \ \ \textcolor{keywordtype}{int}\ to\_highlight\ =\ getTabX(selected\ +\ 1);}
+\DoxyCodeLine{00029\ \ \ \textcolor{keywordtype}{int}\ light\_height\ =\ std::max<int>(getHeight()\ *\ kLightHeightPercent,\ 1);}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \ \ Colour\ highlight\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00032\ \ \ \textcolor{keywordflow}{if}\ (!active\_)}
+\DoxyCodeLine{00033\ \ \ \ \ highlight\_color\ =\ highlight\_color.withSaturation(0.0f);}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00036\ \ \ g.fillRect(0,\ 0,\ getWidth(),\ light\_height);}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ g.setColour(highlight\_color);}
+\DoxyCodeLine{00039\ \ \ g.fillRect(from\_highlight,\ 0,\ to\_highlight\ -\/\ from\_highlight,\ light\_height);}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ g.setFont(\mbox{\hyperlink{class_fonts_ae7669a3eeb9db437c7d34feff9e99707}{Fonts::instance}}()-\/>proportional\_light().withPointHeight(getHeight()\ *\ font\_height\_percent\_));}
+\DoxyCodeLine{00042\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_types\ \&\&\ i\ <\ names\_.size();\ ++i)\ \{}
+\DoxyCodeLine{00043\ \ \ \ \ std::string\ name\ =\ names\_[i];}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{keywordtype}{int}\ from\_x\ =\ getTabX(i);}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keywordtype}{int}\ to\_x\ =\ getTabX(i\ +\ 1);}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ ==\ selected)}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ g.setColour(highlight\_color);}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cadac6e8c347bdd796337e3ca3d7ca3457}{Skin::kTextComponentText}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \ \ g.drawText(name,\ from\_x,\ 0,\ to\_x\ -\/\ from\_x,\ getHeight(),\ Justification::centred);}
+\DoxyCodeLine{00052\ \ \ \}}
+\DoxyCodeLine{00053\ \}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00057\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_tab_selector_a7f5d2b5cd9bcef187944a658a81f5a62}{TabSelector::mouseEvent}}(\textcolor{keyword}{const}\ juce::MouseEvent\ \&e)\ \{}
+\DoxyCodeLine{00058\ \ \ \textcolor{keywordtype}{float}\ x\ =\ e.getPosition().getX();}
+\DoxyCodeLine{00059\ \ \ \textcolor{keywordtype}{int}\ index\ =\ x\ *\ (getMaximum()\ +\ 1)\ /\ getWidth();}
+\DoxyCodeLine{00060\ \ \ setValue(index);}
+\DoxyCodeLine{00061\ \}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00065\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_tab_selector_acadf27a3011da4f28b6919a6e3184bae}{TabSelector::mouseDown}}(\textcolor{keyword}{const}\ juce::MouseEvent\ \&e)\ \{}
+\DoxyCodeLine{00066\ \ \ \mbox{\hyperlink{class_tab_selector_a7f5d2b5cd9bcef187944a658a81f5a62}{mouseEvent}}(e);}
+\DoxyCodeLine{00067\ \}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00071\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_tab_selector_a91a05bc23252c9331170c2d279b02894}{TabSelector::mouseDrag}}(\textcolor{keyword}{const}\ juce::MouseEvent\ \&e)\ \{}
+\DoxyCodeLine{00072\ \ \ \mbox{\hyperlink{class_tab_selector_a7f5d2b5cd9bcef187944a658a81f5a62}{mouseEvent}}(e);}
+\DoxyCodeLine{00073\ \}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00077\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_tab_selector_af531aea9e6dba718fef96a6d4a348971}{TabSelector::mouseUp}}(\textcolor{keyword}{const}\ juce::MouseEvent\ \&e)\ \{}
+\DoxyCodeLine{00078\ \ \ \mbox{\hyperlink{class_tab_selector_a7f5d2b5cd9bcef187944a658a81f5a62}{mouseEvent}}(e);}
+\DoxyCodeLine{00079\ \}}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00085\ \textcolor{keywordtype}{int}\ TabSelector::getTabX(\textcolor{keywordtype}{int}\ position)\ \{}
+\DoxyCodeLine{00086\ \ \ \textcolor{keywordtype}{int}\ num\_types\ =\ getMaximum()\ -\/\ getMinimum()\ +\ 1;}
+\DoxyCodeLine{00087\ \ \ \textcolor{keywordflow}{return}\ std::round(\textcolor{keywordtype}{float}((getWidth()\ +\ 1)\ *\ position)\ /\ num\_types);}
+\DoxyCodeLine{00088\ \}}
+\DoxyCodeLine{00089\ }
+
+\end{DoxyCode}

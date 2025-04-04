@@ -1,0 +1,77 @@
+\doxysection{open\+\_\+gl\+\_\+image\+\_\+component.\+cpp}
+\hypertarget{open__gl__image__component_8cpp_source}{}\label{open__gl__image__component_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/open\_gl\_image\_component.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/open\_gl\_image\_component.cpp}}
+\mbox{\hyperlink{open__gl__image__component_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{open__gl__image__component_8h}{open\_gl\_image\_component.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \mbox{\hyperlink{class_open_gl_image_component_a9f2ad136831f986c9835f1e05dc45993}{OpenGlImageComponent::OpenGlImageComponent}}(String\ name)\ :\ \mbox{\hyperlink{class_open_gl_component}{OpenGlComponent}}(name),\ component\_(nullptr),}
+\DoxyCodeLine{00004\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ active\_(true),\ static\_image\_(false),}
+\DoxyCodeLine{00005\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ paint\_entire\_component\_(true)\ \{}
+\DoxyCodeLine{00006\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1d266713e8ca1e0bd3198cb5ae3717b6}{image\_}}.\mbox{\hyperlink{class_open_gl_image_ac17018844362f423c2450bf1058b0e7d}{setTopLeft}}(-\/1.0f,\ 1.0f);}
+\DoxyCodeLine{00007\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1d266713e8ca1e0bd3198cb5ae3717b6}{image\_}}.\mbox{\hyperlink{class_open_gl_image_adf4e0bd9ada8eaa3655429c1ee8be41c}{setTopRight}}(1.0f,\ 1.0f);}
+\DoxyCodeLine{00008\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1d266713e8ca1e0bd3198cb5ae3717b6}{image\_}}.\mbox{\hyperlink{class_open_gl_image_a73ebd6bfcf3bd7d578fed727db244078}{setBottomLeft}}(-\/1.0f,\ -\/1.0f);}
+\DoxyCodeLine{00009\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1d266713e8ca1e0bd3198cb5ae3717b6}{image\_}}.\mbox{\hyperlink{class_open_gl_image_ab3af936ec021b71a61820718d8672969}{setBottomRight}}(1.0f,\ -\/1.0f);}
+\DoxyCodeLine{00010\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1d266713e8ca1e0bd3198cb5ae3717b6}{image\_}}.\mbox{\hyperlink{class_open_gl_image_aef176c26fb186f6f8a0209463a17310c}{setColor}}(Colours::white);}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \ \ \textcolor{keywordflow}{if}\ (name\ ==\ \textcolor{stringliteral}{"{}"{}})}
+\DoxyCodeLine{00013\ \ \ \ \ setInterceptsMouseClicks(\textcolor{keyword}{false},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00014\ \}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_image_component_abf279f82fefad2a83bb4eb434e1cf8ce}{OpenGlImageComponent::redrawImage}}(\textcolor{keywordtype}{bool}\ force)\ \{}
+\DoxyCodeLine{00017\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{class_open_gl_image_component_ada2f56d3f8f88e0e7e8973bd206b6a8f}{active\_}})}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ Component*\ component\ =\ \mbox{\hyperlink{class_open_gl_image_component_a805e8395d1ea86015f555d07df9756bd}{component\_}}\ ?\ \mbox{\hyperlink{class_open_gl_image_component_a805e8395d1ea86015f555d07df9756bd}{component\_}}\ :\ \textcolor{keyword}{this};}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \textcolor{keywordtype}{int}\ pixel\_scale\ =\ Desktop::getInstance().getDisplays().findDisplayForPoint(getScreenPosition()).scale;}
+\DoxyCodeLine{00023\ \ \ \textcolor{keywordtype}{int}\ width\ =\ component-\/>getWidth()\ *\ pixel\_scale;}
+\DoxyCodeLine{00024\ \ \ \textcolor{keywordtype}{int}\ height\ =\ component-\/>getHeight()\ *\ pixel\_scale;}
+\DoxyCodeLine{00025\ \ \ \textcolor{keywordflow}{if}\ (width\ <=\ 0\ ||\ height\ <=\ 0)}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \textcolor{keywordtype}{bool}\ new\_image\ =\ \mbox{\hyperlink{class_open_gl_image_component_a3a353a6522134f899eb82b73969fe943}{draw\_image\_}}\ ==\ \textcolor{keyword}{nullptr}\ ||\ \mbox{\hyperlink{class_open_gl_image_component_a3a353a6522134f899eb82b73969fe943}{draw\_image\_}}-\/>getWidth()\ !=\ width\ ||\ \mbox{\hyperlink{class_open_gl_image_component_a3a353a6522134f899eb82b73969fe943}{draw\_image\_}}-\/>getHeight()\ !=\ height;}
+\DoxyCodeLine{00029\ \ \ \textcolor{keywordflow}{if}\ (!new\_image\ \&\&\ (\mbox{\hyperlink{class_open_gl_image_component_a213f85b8b7e68027abc93e6d2cd4edff}{static\_image\_}}\ ||\ !force))}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1d266713e8ca1e0bd3198cb5ae3717b6}{image\_}}.\mbox{\hyperlink{class_open_gl_image_af40cb58c7864da1a02e366c3ddf58723}{lock}}();}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \textcolor{keywordflow}{if}\ (new\_image)}
+\DoxyCodeLine{00035\ \ \ \ \ \mbox{\hyperlink{class_open_gl_image_component_a3a353a6522134f899eb82b73969fe943}{draw\_image\_}}\ =\ std::make\_unique<Image>(Image::ARGB,\ width,\ height,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a3a353a6522134f899eb82b73969fe943}{draw\_image\_}}-\/>clear(Rectangle<int>(0,\ 0,\ width,\ height));}
+\DoxyCodeLine{00038\ \ \ Graphics\ g(*\mbox{\hyperlink{class_open_gl_image_component_a3a353a6522134f899eb82b73969fe943}{draw\_image\_}});}
+\DoxyCodeLine{00039\ \ \ g.addTransform(AffineTransform::scale(pixel\_scale));}
+\DoxyCodeLine{00040\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a4dbdcf34c32d26a0dc70c0832ba77574}{paintToImage}}(g);}
+\DoxyCodeLine{00041\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1d266713e8ca1e0bd3198cb5ae3717b6}{image\_}}.\mbox{\hyperlink{class_open_gl_image_a825377ae0a723cfbbdb658d24d6c0d41}{setImage}}(\mbox{\hyperlink{class_open_gl_image_component_a3a353a6522134f899eb82b73969fe943}{draw\_image\_}}.get());}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \textcolor{comment}{//\ Adjust\ texture\ coordinates\ to\ accommodate\ power-\/of-\/two\ sizing\ if\ needed.}}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordtype}{float}\ gl\_width\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5d3f0a1d10f1378cc23d7b7dc64138fb}{vital::utils::nextPowerOfTwo}}(width);}
+\DoxyCodeLine{00045\ \ \ \textcolor{keywordtype}{float}\ gl\_height\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5d3f0a1d10f1378cc23d7b7dc64138fb}{vital::utils::nextPowerOfTwo}}(height);}
+\DoxyCodeLine{00046\ \ \ \textcolor{keywordtype}{float}\ width\_ratio\ =\ gl\_width\ /\ width;}
+\DoxyCodeLine{00047\ \ \ \textcolor{keywordtype}{float}\ height\_ratio\ =\ gl\_height\ /\ height;}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \ \ \textcolor{keywordtype}{float}\ right\ =\ -\/1.0f\ +\ 2.0f\ *\ width\_ratio;}
+\DoxyCodeLine{00050\ \ \ \textcolor{keywordtype}{float}\ bottom\ =\ 1.0f\ -\/\ 2.0f\ *\ height\_ratio;}
+\DoxyCodeLine{00051\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1d266713e8ca1e0bd3198cb5ae3717b6}{image\_}}.\mbox{\hyperlink{class_open_gl_image_adf4e0bd9ada8eaa3655429c1ee8be41c}{setTopRight}}(right,\ 1.0f);}
+\DoxyCodeLine{00052\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1d266713e8ca1e0bd3198cb5ae3717b6}{image\_}}.\mbox{\hyperlink{class_open_gl_image_a73ebd6bfcf3bd7d578fed727db244078}{setBottomLeft}}(-\/1.0f,\ bottom);}
+\DoxyCodeLine{00053\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1d266713e8ca1e0bd3198cb5ae3717b6}{image\_}}.\mbox{\hyperlink{class_open_gl_image_ab3af936ec021b71a61820718d8672969}{setBottomRight}}(right,\ bottom);}
+\DoxyCodeLine{00054\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1d266713e8ca1e0bd3198cb5ae3717b6}{image\_}}.\mbox{\hyperlink{class_open_gl_image_a43f36367cb611489806e104f0c891541}{unlock}}();}
+\DoxyCodeLine{00055\ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_image_component_a2b6afe1d8176c6b8df5c88415a88ab44}{OpenGlImageComponent::init}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00058\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1d266713e8ca1e0bd3198cb5ae3717b6}{image\_}}.\mbox{\hyperlink{class_open_gl_image_a6b06f9ec05cca98730b58bdc5044390c}{init}}(open\_gl);}
+\DoxyCodeLine{00059\ \}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_image_component_ad35ef1d8a11f67a54fa658bc9fac4793}{OpenGlImageComponent::render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00062\ \ \ Component*\ component\ =\ \mbox{\hyperlink{class_open_gl_image_component_a805e8395d1ea86015f555d07df9756bd}{component\_}}\ ?\ \mbox{\hyperlink{class_open_gl_image_component_a805e8395d1ea86015f555d07df9756bd}{component\_}}\ :\ \textcolor{keyword}{this};}
+\DoxyCodeLine{00063\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{class_open_gl_image_component_ada2f56d3f8f88e0e7e8973bd206b6a8f}{active\_}}\ ||\ !\mbox{\hyperlink{class_open_gl_component_a0641317fa0d502284c603188bb7da9a7}{setViewPort}}(component,\ open\_gl)\ ||\ !component-\/>isVisible())}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1d266713e8ca1e0bd3198cb5ae3717b6}{image\_}}.\mbox{\hyperlink{class_open_gl_image_a7ce00e695b64c30cc996cffc3b28a6ae}{drawImage}}(open\_gl);}
+\DoxyCodeLine{00067\ \}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_image_component_a6181d02c38e2eee9e7fd050e786b7d1b}{OpenGlImageComponent::destroy}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00070\ \ \ \mbox{\hyperlink{class_open_gl_image_component_a1d266713e8ca1e0bd3198cb5ae3717b6}{image\_}}.\mbox{\hyperlink{class_open_gl_image_add1e28fc5fd2d88d843eb49eae62f8e9}{destroy}}(open\_gl);}
+\DoxyCodeLine{00071\ \}}
+
+\end{DoxyCode}

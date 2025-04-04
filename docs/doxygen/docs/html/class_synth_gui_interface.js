@@ -1,0 +1,27 @@
+var class_synth_gui_interface =
+[
+    [ "SynthGuiInterface", "class_synth_gui_interface.html#a2ce3e83d5f656f423d2b37f6c88955db", null ],
+    [ "~SynthGuiInterface", "class_synth_gui_interface.html#ac426553c9eea8b5e2c354a39700e391b", null ],
+    [ "connectModulation", "class_synth_gui_interface.html#a88576505a339eba1984a72bba9f37ad2", null ],
+    [ "connectModulation", "class_synth_gui_interface.html#ad093ca9e95e0da91ba9b00f53a8723c1", null ],
+    [ "disconnectModulation", "class_synth_gui_interface.html#a83c03b5f772f39bca3f4eb301dee3e6e", null ],
+    [ "disconnectModulation", "class_synth_gui_interface.html#a18ae663f9634f402ae9bfb1936e163eb", null ],
+    [ "externalPresetLoaded", "class_synth_gui_interface.html#ae9608a155bd4d1999a8042fcc3a9eaaa", null ],
+    [ "getAudioDeviceManager", "class_synth_gui_interface.html#acc5b5adf7b65dd78faf2194801054ab2", null ],
+    [ "getControlValue", "class_synth_gui_interface.html#a4494350af8fcffc8cbc62811d69191e9", null ],
+    [ "getGui", "class_synth_gui_interface.html#a331832c795c617ae73d1f8ee3893bb05", null ],
+    [ "getSynth", "class_synth_gui_interface.html#a4e948c6a5558b838582d7476f079251d", null ],
+    [ "initModulationValues", "class_synth_gui_interface.html#a5d8cac6d909c7a461cf7d3ca40394291", null ],
+    [ "notifyChange", "class_synth_gui_interface.html#a548667bab35a03d0382e31ebc563bfe2", null ],
+    [ "notifyFresh", "class_synth_gui_interface.html#aee2dc7c0d91f1dc959225d2e2edade26", null ],
+    [ "notifyModulationsChanged", "class_synth_gui_interface.html#a2350456774cc9efae5c0c9a19f69fbdf", null ],
+    [ "notifyModulationValueChanged", "class_synth_gui_interface.html#ad178960fdd7ae50a0b43eacabb526947", null ],
+    [ "openSaveDialog", "class_synth_gui_interface.html#acfa1684579547d58108e8647e2848af0", null ],
+    [ "setFocus", "class_synth_gui_interface.html#a992af539b2d8cf55ef29914a3b7690dd", null ],
+    [ "setGuiSize", "class_synth_gui_interface.html#a58ef863b11da4315619dce6e0a45dfce", null ],
+    [ "setModulationValues", "class_synth_gui_interface.html#a5e6c5e234e4b05850acec431cecba27a", null ],
+    [ "updateFullGui", "class_synth_gui_interface.html#ae026d18eef053aed9d73797400f236d4", null ],
+    [ "updateGuiControl", "class_synth_gui_interface.html#a70189df1a34db4d013cade41fec7f27d", null ],
+    [ "gui_", "class_synth_gui_interface.html#a2ca823c3b72d8c41e831e87be8cf0e8c", null ],
+    [ "synth_", "class_synth_gui_interface.html#a29fed2a0136503808f1cc52375a039c0", null ]
+];

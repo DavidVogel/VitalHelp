@@ -1,0 +1,92 @@
+\doxysection{curve\+\_\+look\+\_\+and\+\_\+feel.\+cpp}
+\hypertarget{curve__look__and__feel_8cpp_source}{}\label{curve__look__and__feel_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/look\_and\_feel/curve\_look\_and\_feel.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/look\_and\_feel/curve\_look\_and\_feel.cpp}}
+\mbox{\hyperlink{curve__look__and__feel_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{curve__look__and__feel_8h}{curve\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{poly__utils_8h}{poly\_utils.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{futils_8h}{futils.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__slider_8h}{synth\_slider.h}}"{}}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ CurveLookAndFeel::CurveLookAndFeel()\ \{\ \}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_curve_look_and_feel_a07125efa85593a50a4e5297ac7fdaa11}{CurveLookAndFeel::drawRotarySlider}}(Graphics\&\ g,\ \textcolor{keywordtype}{int}\ x,\ \textcolor{keywordtype}{int}\ y,\ \textcolor{keywordtype}{int}\ width,\ \textcolor{keywordtype}{int}\ height,}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ slider\_t,\ \textcolor{keywordtype}{float}\ start\_angle,\ \textcolor{keywordtype}{float}\ end\_angle,}
+\DoxyCodeLine{00013\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Slider\&\ slider)\ \{}
+\DoxyCodeLine{00014\ \ \ \textcolor{keywordtype}{bool}\ active\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00015\ \ \ \textcolor{keywordtype}{bool}\ bipolar\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \ \ \textcolor{comment}{//\ Check\ if\ we\ are\ dealing\ with\ a\ SynthSlider\ and\ get\ its\ active/bipolar\ state}}
+\DoxyCodeLine{00018\ \ \ \mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\ s\_slider\ =\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_synth_slider}{SynthSlider}}*\textcolor{keyword}{>}(\&slider);}
+\DoxyCodeLine{00019\ \ \ \textcolor{keywordflow}{if}\ (s\_slider)\ \{}
+\DoxyCodeLine{00020\ \ \ \ \ active\ =\ s\_slider-\/>\mbox{\hyperlink{class_open_gl_slider_afb98992928c2b58b61d96cadfaa8cb8c}{isActive}}();}
+\DoxyCodeLine{00021\ \ \ \ \ bipolar\ =\ s\_slider-\/>\mbox{\hyperlink{class_open_gl_slider_a2b257357f8c9be6622478d0b91fb90fd}{isBipolar}}();}
+\DoxyCodeLine{00022\ \ \ \}}
+\DoxyCodeLine{00023\ \ \ \textcolor{comment}{//\ Determine\ maximum\ size\ and\ rounding\ for\ the\ curve\ based\ on\ the\ parent\ SynthSection}}
+\DoxyCodeLine{00024\ \ \ \textcolor{keywordtype}{float}\ rounding\ =\ 0.0f;}
+\DoxyCodeLine{00025\ \ \ \textcolor{keywordtype}{float}\ short\_side\ =\ std::min(width,\ height);}
+\DoxyCodeLine{00026\ \ \ \textcolor{keywordtype}{float}\ max\_width\ =\ short\_side;}
+\DoxyCodeLine{00027\ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}*\ section\ =\ slider.findParentComponentOfClass<\mbox{\hyperlink{class_synth_section}{SynthSection}}>();}
+\DoxyCodeLine{00028\ \ \ \textcolor{keywordflow}{if}\ (section)\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ rounding\ =\ section-\/>\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180ab3cb761113ca34ffe06c8ed64a7df2f1}{Skin::kWidgetRoundedCorner}});}
+\DoxyCodeLine{00030\ \ \ \ \ max\_width\ =\ std::min(max\_width,\ section-\/>\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3e7d81cc364a5ab02c3d761d163e048f}{Skin::kKnobArcSize}}));}
+\DoxyCodeLine{00031\ \ \ \}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \textcolor{keywordtype}{int}\ inset\ =\ rounding\ /\ sqrtf(2.0f)\ +\ (short\_side\ -\/\ max\_width)\ /\ 2.0f;}
+\DoxyCodeLine{00034\ \ \ \mbox{\hyperlink{class_curve_look_and_feel_af3f37d8ebec84dfbdd35623ceeb193dd}{drawCurve}}(g,\ slider,\ x\ +\ inset,\ y\ +\ inset,\ width\ -\/\ 2.0f\ *\ inset,\ height\ -\/\ 2.0f\ *\ inset,\ active,\ bipolar);}
+\DoxyCodeLine{00035\ \}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_curve_look_and_feel_af3f37d8ebec84dfbdd35623ceeb193dd}{CurveLookAndFeel::drawCurve}}(Graphics\&\ g,\ Slider\&\ slider,\ \textcolor{keywordtype}{int}\ x,\ \textcolor{keywordtype}{int}\ y,\ \textcolor{keywordtype}{int}\ width,\ \textcolor{keywordtype}{int}\ height,}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ active,\ \textcolor{keywordtype}{bool}\ bipolar)\ \{}
+\DoxyCodeLine{00039\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kResolution\ =\ 16;}
+\DoxyCodeLine{00040\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kLineWidth\ =\ 2.0f;}
+\DoxyCodeLine{00041\ \ \ PathStrokeType\ stroke(kLineWidth,\ PathStrokeType::beveled,\ PathStrokeType::rounded);}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \textcolor{keywordtype}{float}\ curve\_width\ =\ std::min(width,\ height);}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordtype}{float}\ x\_offset\ =\ (width\ -\/\ curve\_width)\ /\ 2.0f;}
+\DoxyCodeLine{00045\ \ \ \textcolor{keywordtype}{float}\ power\ =\ -\/slider.getValue();}
+\DoxyCodeLine{00046\ \ \ Path\ path;}
+\DoxyCodeLine{00047\ \ \ \textcolor{keywordtype}{float}\ start\_x\ =\ x\ +\ x\_offset\ +\ kLineWidth\ /\ 2.0f;}
+\DoxyCodeLine{00048\ \ \ \textcolor{keywordtype}{float}\ start\_y\ =\ y\ +\ height\ -\/\ kLineWidth\ /\ 2.0f;}
+\DoxyCodeLine{00049\ \ \ path.startNewSubPath(start\_x,\ start\_y);}
+\DoxyCodeLine{00050\ \ \ \textcolor{keywordtype}{float}\ active\_width\ =\ curve\_width\ -\/\ kLineWidth;}
+\DoxyCodeLine{00051\ \ \ \textcolor{keywordtype}{float}\ active\_height\ =\ curve\_width\ -\/\ kLineWidth;}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \textcolor{comment}{//\ Construct\ the\ path\ for\ the\ curve,\ adjusting\ for\ bipolar\ if\ needed}}
+\DoxyCodeLine{00054\ \ \ \textcolor{keywordflow}{if}\ (bipolar)\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordtype}{float}\ half\_width\ =\ active\_width\ /\ 2.0f;}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordtype}{float}\ half\_height\ =\ active\_height\ /\ 2.0f;}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{comment}{//\ Left\ half\ of\ curve\ (negative\ portion)}}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ kResolution\ /\ 2;\ ++i)\ \{}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ 2\ *\ (i\ +\ 1.0f)\ /\ kResolution;}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ power\_t\ =\ \mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{vital::futils::powerScale}}(t,\ -\/power);}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ path.lineTo(start\_x\ +\ t\ *\ half\_width,\ start\_y\ -\/\ power\_t\ *\ half\_height);}
+\DoxyCodeLine{00062\ \ \ \ \ \}}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{comment}{//\ Right\ half\ of\ curve\ (positive\ portion)}}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ kResolution\ /\ 2;\ ++i)\ \{}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ 2\ *\ (i\ +\ 1.0f)\ /\ kResolution;}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ power\_t\ =\ \mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{vital::futils::powerScale}}(t,\ power);}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ path.lineTo(start\_x\ +\ t\ *\ half\_width\ +\ half\_width,\ start\_y\ -\/\ power\_t\ *\ half\_height\ -\/\ half\_height);}
+\DoxyCodeLine{00068\ \ \ \ \ \}}
+\DoxyCodeLine{00069\ \ \ \}}
+\DoxyCodeLine{00070\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{comment}{//\ Unipolar\ curve}}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ kResolution;\ ++i)\ \{}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ (i\ +\ 1.0f)\ /\ kResolution;}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ power\_t\ =\ \mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{vital::futils::powerScale}}(t,\ power);}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ path.lineTo(start\_x\ +\ t\ *\ active\_width,\ start\_y\ -\/\ power\_t\ *\ active\_height);}
+\DoxyCodeLine{00076\ \ \ \ \ \}}
+\DoxyCodeLine{00077\ \ \ \}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \ Colour\ line\ =\ slider.findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca8c4b65b04de5c483ef36c3e72fd06a5e}{Skin::kRotaryArc}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00080\ \ \ \textcolor{keywordflow}{if}\ (!active)}
+\DoxyCodeLine{00081\ \ \ \ \ line\ =\ slider.findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4f6dbca7fdb5224fc3d7e4beb68970fc}{Skin::kWidgetPrimaryDisabled}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ g.setColour(line);}
+\DoxyCodeLine{00084\ \ \ g.strokePath(path,\ stroke);}
+\DoxyCodeLine{00085\ \}}
+\DoxyCodeLine{00086\ }
+
+\end{DoxyCode}

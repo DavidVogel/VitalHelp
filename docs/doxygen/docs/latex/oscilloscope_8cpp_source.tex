@@ -1,0 +1,218 @@
+\doxysection{oscilloscope.\+cpp}
+\hypertarget{oscilloscope_8cpp_source}{}\label{oscilloscope_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/oscilloscope.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/oscilloscope.cpp}}
+\mbox{\hyperlink{oscilloscope_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{oscilloscope_8h}{oscilloscope.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fourier__transform_8h}{fourier\_transform.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{shaders_8h}{shaders.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \mbox{\hyperlink{class_oscilloscope_a8b3fecb60f1f227ba8dd21ae5637e07d}{Oscilloscope::Oscilloscope}}()\ :\ \mbox{\hyperlink{class_open_gl_line_renderer}{OpenGlLineRenderer}}(kResolution)\ \{}
+\DoxyCodeLine{00010\ \ \ memory\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00011\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a2370751b939ff421b5ad9049ce7e008d}{setFill}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00012\ \ \ \mbox{\hyperlink{class_open_gl_component_a2139561c2dc95b0a7389e65f4cea60f9}{addRoundedCorners}}();}
+\DoxyCodeLine{00013\ \}}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \mbox{\hyperlink{class_oscilloscope_a231741877f498f404545e93db1053a25}{Oscilloscope::\string~Oscilloscope}}()\ \{\ \}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscilloscope_ab2a89f26ff35814992f2b507fbcff98d}{Oscilloscope::drawWaveform}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00018\ \ \ \textcolor{keywordtype}{float}\ y\_adjust\ =\ getHeight()\ /\ 2.0f;}
+\DoxyCodeLine{00019\ \ \ \textcolor{keywordtype}{float}\ width\ =\ getWidth();}
+\DoxyCodeLine{00020\ \ \ \textcolor{keywordflow}{if}\ (memory\_)\ \{}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_oscilloscope_a5f3da3a8ad86794e73d74518a4e72b97}{kResolution}};\ ++i)\ \{}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ i\ /\ (\mbox{\hyperlink{class_oscilloscope_a5f3da3a8ad86794e73d74518a4e72b97}{kResolution}}\ -\/\ 1.0f);}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ memory\_spot\ =\ (1.0f\ *\ i\ *\ \mbox{\hyperlink{namespacevital_a104911e122febd98d6f7c2a8d6a005c6}{vital::kOscilloscopeMemoryResolution}})\ /\ \mbox{\hyperlink{class_oscilloscope_a5f3da3a8ad86794e73d74518a4e72b97}{kResolution}};}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ memory\_index\ =\ memory\_spot;}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ remainder\ =\ memory\_spot\ -\/\ memory\_index;}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ from\ =\ memory\_[memory\_index][index];}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ to\ =\ memory\_[memory\_index\ +\ 1][index];}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(i,\ t\ *\ width);}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(i,\ (1.0f\ -\/\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(from,\ to,\ remainder))\ *\ y\_adjust);}
+\DoxyCodeLine{00030\ \ \ \ \ \}}
+\DoxyCodeLine{00031\ \ \ \}}
+\DoxyCodeLine{00032\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a190b43b9e98973f2bf94d8ba6a240a11}{OpenGlLineRenderer::render}}(open\_gl,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00033\ \}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_oscilloscope_abe256490b73bde727ba2964081b118f3}{Oscilloscope::render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00036\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_aa6fb221f264f39c93c973656445b5bea}{setLineWidth}}(\mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a0706c2f54d7b90b90c5e3141c4ea3e39}{Skin::kWidgetLineWidth}}));}
+\DoxyCodeLine{00037\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a189b7b9f30f4d7e46095ad96df34489e}{setFillCenter}}(\mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a4ecdcf3e37141374ba73b7841aa397f3}{Skin::kWidgetFillCenter}}));}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ Colour\ \mbox{\hyperlink{class_open_gl_line_renderer_af0c2ca2c270b4a3439bb87eff7021e61}{color}}\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00040\ \ \ Colour\ fill\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca52527c370464bf967aac85bb7c22a5ab}{Skin::kWidgetPrimary2}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00041\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(\mbox{\hyperlink{class_open_gl_line_renderer_af0c2ca2c270b4a3439bb87eff7021e61}{color}});}
+\DoxyCodeLine{00042\ \ \ \textcolor{keywordtype}{float}\ fill\_fade\ =\ 0.0f;}
+\DoxyCodeLine{00043\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_component_afe64ec8044c5495a69c5beab004803c3}{parent\_}})}
+\DoxyCodeLine{00044\ \ \ \ \ fill\_fade\ =\ \mbox{\hyperlink{class_open_gl_component_afe64ec8044c5495a69c5beab004803c3}{parent\_}}-\/>\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a5268c3e135a7b246af15add8577ea3ac}{Skin::kWidgetFillFade}});}
+\DoxyCodeLine{00045\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a8f1edffc163ebb29305d10f4f91eef33}{setFillColors}}(fill\_color.withMultipliedAlpha(1.0f\ -\/\ fill\_fade),\ fill\_color);}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ \mbox{\hyperlink{class_oscilloscope_ab2a89f26ff35814992f2b507fbcff98d}{drawWaveform}}(open\_gl,\ 0);}
+\DoxyCodeLine{00048\ \ \ \mbox{\hyperlink{class_oscilloscope_ab2a89f26ff35814992f2b507fbcff98d}{drawWaveform}}(open\_gl,\ 1);}
+\DoxyCodeLine{00049\ \ \ \mbox{\hyperlink{class_open_gl_component_a5c6aa6d7c8a20882ce3b621efbf7e18b}{renderCorners}}(open\_gl,\ animate);}
+\DoxyCodeLine{00050\ \}}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \mbox{\hyperlink{class_spectrogram_ae4523300613ab1370fd7ae9bfc71d877}{Spectrogram::Spectrogram}}()\ :\ \mbox{\hyperlink{class_open_gl_line_renderer}{OpenGlLineRenderer}}(kResolution),\ transform\_buffer\_(),}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ left\_amps\_(),\ right\_amps\_(),\ transform\_(kBits)\ \{}
+\DoxyCodeLine{00054\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kDefaultAmp\ =\ 0.000001f;}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ paint\_background\_lines\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00057\ \ \ memory\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00058\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a2370751b939ff421b5ad9049ce7e008d}{setFill}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00059\ \ \ oversample\_amount\_\ =\ 1;}
+\DoxyCodeLine{00060\ \ \ sample\_rate\_\ =\ 44100;}
+\DoxyCodeLine{00061\ \ \ min\_frequency\_\ =\ \mbox{\hyperlink{class_spectrogram_a6c077937e29d34034ce299d76a6d7f4b}{kDefaultMinFrequency}};}
+\DoxyCodeLine{00062\ \ \ max\_frequency\_\ =\ \mbox{\hyperlink{class_spectrogram_a64d3e4facc083ec731236e3959c888c7}{kDefaultMaxFrequency}};}
+\DoxyCodeLine{00063\ \ \ min\_db\_\ =\ \mbox{\hyperlink{class_spectrogram_aac19f774bd52deaac7006d8cd85a4a61}{kDefaultMinDb}};}
+\DoxyCodeLine{00064\ \ \ max\_db\_\ =\ \mbox{\hyperlink{class_spectrogram_a37b1a44be9196841744e9f53ed811bc9}{kDefaultMaxDb}};}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_spectrogram_ab996635f04a7c4076cc0c4ad8939203f}{kAudioSize}};\ ++i)\ \{}
+\DoxyCodeLine{00067\ \ \ \ \ left\_amps\_[i]\ =\ kDefaultAmp;}
+\DoxyCodeLine{00068\ \ \ \ \ right\_amps\_[i]\ =\ kDefaultAmp;}
+\DoxyCodeLine{00069\ \ \ \}}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \mbox{\hyperlink{class_open_gl_component_a2139561c2dc95b0a7389e65f4cea60f9}{addRoundedCorners}}();}
+\DoxyCodeLine{00072\ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \mbox{\hyperlink{class_spectrogram_a175fda7cc377563bffde2240aab8bfa7}{Spectrogram::\string~Spectrogram}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \textcolor{keywordtype}{void}\ Spectrogram::applyWindow()\ \{}
+\DoxyCodeLine{00077\ \ \ \textcolor{comment}{//\ Applies\ a\ Hann\ window\ (approximated\ by\ a\ cosine\ transform)}}
+\DoxyCodeLine{00078\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{double}\ kRadianIncrement\ =\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{vital::kPi}}\ /\ (\mbox{\hyperlink{class_spectrogram_ab996635f04a7c4076cc0c4ad8939203f}{kAudioSize}}\ -\/\ 1.0);}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \textcolor{keywordtype}{double}\ real\ =\ -\/1.0f;}
+\DoxyCodeLine{00081\ \ \ \textcolor{keywordtype}{double}\ imag\ =\ 0.0f;}
+\DoxyCodeLine{00082\ \ \ \textcolor{keywordtype}{double}\ real\_mult\ =\ cos(kRadianIncrement);}
+\DoxyCodeLine{00083\ \ \ \textcolor{keywordtype}{double}\ imag\_mult\ =\ sin(kRadianIncrement);}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_spectrogram_ab996635f04a7c4076cc0c4ad8939203f}{kAudioSize}};\ ++i)\ \{}
+\DoxyCodeLine{00086\ \ \ \ \ transform\_buffer\_[i]\ *=\ 0.5f\ *\ (real\ +\ 1.0f);}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keywordtype}{double}\ next\_real\ =\ real\ *\ real\_mult\ -\/\ imag\ *\ imag\_mult;}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordtype}{double}\ next\_imag\ =\ imag\ *\ real\_mult\ +\ real\ *\ imag\_mult;}
+\DoxyCodeLine{00090\ \ \ \ \ real\ =\ next\_real;}
+\DoxyCodeLine{00091\ \ \ \ \ imag\ =\ next\_imag;}
+\DoxyCodeLine{00092\ \ \ \}}
+\DoxyCodeLine{00093\ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \textcolor{keywordtype}{void}\ Spectrogram::updateAmplitudes(\textcolor{keywordtype}{int}\ index,\ \textcolor{keywordtype}{int}\ offset)\ \{}
+\DoxyCodeLine{00096\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMinAmp\ =\ 0.000001f;}
+\DoxyCodeLine{00097\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kStartScaleAmp\ =\ 0.001f;}
+\DoxyCodeLine{00098\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMinDecay\ =\ 0.06f;}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordflow}{if}\ (memory\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \ \ \textcolor{keywordtype}{float}\ min\_frequency\ =\ min\_frequency\_\ /\ oversample\_amount\_;}
+\DoxyCodeLine{00104\ \ \ \textcolor{keywordtype}{float}\ max\_frequency\ =\ max\_frequency\_\ /\ oversample\_amount\_;}
+\DoxyCodeLine{00105\ \ \ \textcolor{keywordtype}{float}*\ amps\ =\ index\ ==\ 0\ ?\ left\_amps\_\ :\ right\_amps\_;}
+\DoxyCodeLine{00106\ \ \ \textcolor{keywordtype}{float}\ sample\_hz\ =\ (1.0f\ *\ sample\_rate\_)\ /\ \mbox{\hyperlink{class_spectrogram_ab996635f04a7c4076cc0c4ad8939203f}{kAudioSize}};}
+\DoxyCodeLine{00107\ \ \ \textcolor{keywordtype}{float}\ start\_octave\ =\ log2f(min\_frequency\ /\ sample\_hz);}
+\DoxyCodeLine{00108\ \ \ \textcolor{keywordtype}{float}\ end\_octave\ =\ std::min<float>(\mbox{\hyperlink{class_spectrogram_abd8cb23934644b2de8255d506d7520a7}{kBits}}\ -\/\ start\_octave\ +\ 1.0f,\ log2f(max\_frequency\ /\ sample\_hz));}
+\DoxyCodeLine{00109\ \ \ \textcolor{keywordtype}{float}\ num\_octaves\ =\ end\_octave\ -\/\ start\_octave;}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ memory\_-\/>\mbox{\hyperlink{classvital_1_1_memory_template_a8eb8209e293d7c839ca033ed5e5bc66b}{readSamples}}(transform\_buffer\_,\ \mbox{\hyperlink{class_spectrogram_ab996635f04a7c4076cc0c4ad8939203f}{kAudioSize}},\ offset,\ index);}
+\DoxyCodeLine{00112\ \ \ applyWindow();}
+\DoxyCodeLine{00113\ \ \ transform\_.\mbox{\hyperlink{classvital_1_1_fourier_transform_a20f55f365c06d40fc63b2e31efb118e1}{transformRealForward}}(transform\_buffer\_);}
+\DoxyCodeLine{00114\ \ \ std::complex<float>*\ frequency\_data\ =\ (std::complex<float>*)transform\_buffer\_;}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \textcolor{keywordtype}{float}\ last\_bin\ =\ powf(2.0f,\ start\_octave);}
+\DoxyCodeLine{00117\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_spectrogram_a5aaacb0ac6df64f4a6a6a4f93972b586}{kResolution}};\ ++i)\ \{}
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ i\ /\ (\mbox{\hyperlink{class_spectrogram_a5aaacb0ac6df64f4a6a6a4f93972b586}{kResolution}}\ -\/\ 1.0f);}
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keywordtype}{float}\ octave\ =\ num\_octaves\ *\ t\ +\ start\_octave;}
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keywordtype}{float}\ bin\ =\ powf(2.0f,\ octave);}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordtype}{int}\ bin\_index\ =\ last\_bin;}
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{keywordtype}{float}\ bin\_t\ =\ last\_bin\ -\/\ bin\_index;}
+\DoxyCodeLine{00124\ \ \ \ \ \textcolor{keywordtype}{float}\ prev\_amplitude\ =\ std::abs(frequency\_data[bin\_index]);}
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keywordtype}{float}\ next\_amplitude\ =\ std::abs(frequency\_data[bin\_index\ +\ 1]);}
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(prev\_amplitude,\ next\_amplitude,\ bin\_t);}
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{keywordflow}{if}\ (bin\ -\/\ last\_bin\ >\ 1.0f)\ \{}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ j\ =\ last\_bin\ +\ 1;\ j\ <\ bin;\ ++j)}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ amplitude\ =\ std::max(amplitude,\ std::abs(frequency\_data[j]));}
+\DoxyCodeLine{00130\ \ \ \ \ \}}
+\DoxyCodeLine{00131\ \ \ \ \ last\_bin\ =\ bin;}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \ \ \ \ amplitude\ =\ std::max(kMinAmp,\ 2.0f\ *\ amplitude\ /\ \mbox{\hyperlink{class_spectrogram_ab996635f04a7c4076cc0c4ad8939203f}{kAudioSize}});}
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keywordtype}{float}\ db\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a72fe86e55abbffc96cbc376ba0f12dcc}{vital::utils::magnitudeToDb}}(std::max(amplitude,\ amps[i])\ /\ kStartScaleAmp);}
+\DoxyCodeLine{00135\ \ \ \ \ db\ +=\ octave\ *\ \mbox{\hyperlink{class_spectrogram_acf31c5b889988e914f10bf9b526517ab}{kDbSlopePerOctave}};}
+\DoxyCodeLine{00136\ \ \ \ \ \textcolor{keywordtype}{float}\ decay\ =\ std::max(kMinDecay,\ std::min(1.0f,\ \mbox{\hyperlink{class_spectrogram_a702903cac48463e67509e09aaee72755}{kDecayMult}}\ *\ db));}
+\DoxyCodeLine{00137\ \ \ \ \ amps[i]\ =\ std::max(kMinAmp,\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(amps[i],\ amplitude,\ decay));}
+\DoxyCodeLine{00138\ \ \ \}}
+\DoxyCodeLine{00139\ \}}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \textcolor{keywordtype}{void}\ Spectrogram::updateAmplitudes(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00142\ \ \ updateAmplitudes(index,\ 0);}
+\DoxyCodeLine{00143\ \}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_spectrogram_a8c47465baaffbe7507bb137c80cb6c3e}{Spectrogram::drawWaveform}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00146\ \ \ \textcolor{keywordtype}{float}*\ amps\ =\ index\ ==\ 0\ ?\ left\_amps\_\ :\ right\_amps\_;}
+\DoxyCodeLine{00147\ \ \ \textcolor{keywordtype}{float}\ height\ =\ getHeight();}
+\DoxyCodeLine{00148\ \ \ \textcolor{keywordtype}{float}\ width\ =\ getWidth();}
+\DoxyCodeLine{00149\ \ \ \textcolor{keywordtype}{float}\ range\_mult\ =\ 1.0f\ /\ (max\_db\_\ -\/\ min\_db\_);}
+\DoxyCodeLine{00150\ \ \ \textcolor{keywordtype}{float}\ num\_octaves\ =\ log2f(max\_frequency\_\ /\ min\_frequency\_);}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_spectrogram_a5aaacb0ac6df64f4a6a6a4f93972b586}{kResolution}};\ ++i)\ \{}
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ i\ /\ (\mbox{\hyperlink{class_spectrogram_a5aaacb0ac6df64f4a6a6a4f93972b586}{kResolution}}\ -\/\ 1.0f);}
+\DoxyCodeLine{00154\ \ \ \ \ \textcolor{keywordtype}{float}\ db\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a72fe86e55abbffc96cbc376ba0f12dcc}{vital::utils::magnitudeToDb}}(amps[i]);}
+\DoxyCodeLine{00155\ \ \ \ \ db\ +=\ t\ *\ num\_octaves\ *\ \mbox{\hyperlink{class_spectrogram_acf31c5b889988e914f10bf9b526517ab}{kDbSlopePerOctave}};}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ (db\ -\/\ min\_db\_)\ *\ range\_mult;}
+\DoxyCodeLine{00157\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(i,\ t\ *\ width);}
+\DoxyCodeLine{00158\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(i,\ height\ -\/\ y\ *\ height);}
+\DoxyCodeLine{00159\ \ \ \}}
+\DoxyCodeLine{00160\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a190b43b9e98973f2bf94d8ba6a240a11}{OpenGlLineRenderer::render}}(open\_gl,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00161\ \}}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_spectrogram_ae60f59ccc3217ec3aac055015d066434}{Spectrogram::render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00164\ \ \ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ synth\_interface\ =\ findParentComponentOfClass<SynthGuiInterface>();}
+\DoxyCodeLine{00165\ \ \ \textcolor{keywordflow}{if}\ (synth\_interface\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00166\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \ \ sample\_rate\_\ =\ synth\_interface-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_ab19269ee60c5ee640a71947bb0ba1d30}{getSampleRate}}();}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_aa6fb221f264f39c93c973656445b5bea}{setLineWidth}}(2.0f);}
+\DoxyCodeLine{00171\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a189b7b9f30f4d7e46095ad96df34489e}{setFillCenter}}(-\/1.0f);}
+\DoxyCodeLine{00172\ }
+\DoxyCodeLine{00173\ \ \ updateAmplitudes(0);}
+\DoxyCodeLine{00174\ \ \ updateAmplitudes(1);}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \ \ Colour\ \mbox{\hyperlink{class_open_gl_line_renderer_af0c2ca2c270b4a3439bb87eff7021e61}{color}}\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00177\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(\mbox{\hyperlink{class_open_gl_line_renderer_af0c2ca2c270b4a3439bb87eff7021e61}{color}});}
+\DoxyCodeLine{00178\ \ \ Colour\ fill\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca52527c370464bf967aac85bb7c22a5ab}{Skin::kWidgetPrimary2}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00179\ \ \ \textcolor{keywordtype}{float}\ fill\_fade\ =\ 0.0f;}
+\DoxyCodeLine{00180\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_component_afe64ec8044c5495a69c5beab004803c3}{parent\_}})}
+\DoxyCodeLine{00181\ \ \ \ \ fill\_fade\ =\ \mbox{\hyperlink{class_open_gl_component_afe64ec8044c5495a69c5beab004803c3}{parent\_}}-\/>\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a5268c3e135a7b246af15add8577ea3ac}{Skin::kWidgetFillFade}});}
+\DoxyCodeLine{00182\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a8f1edffc163ebb29305d10f4f91eef33}{setFillColors}}(fill\_color.withMultipliedAlpha(1.0f\ -\/\ fill\_fade),\ fill\_color);}
+\DoxyCodeLine{00183\ \ \ \mbox{\hyperlink{class_spectrogram_a8c47465baaffbe7507bb137c80cb6c3e}{drawWaveform}}(open\_gl,\ 0);}
+\DoxyCodeLine{00184\ \ \ \mbox{\hyperlink{class_spectrogram_a8c47465baaffbe7507bb137c80cb6c3e}{drawWaveform}}(open\_gl,\ 1);}
+\DoxyCodeLine{00185\ \ \ \mbox{\hyperlink{class_open_gl_component_a5c6aa6d7c8a20882ce3b621efbf7e18b}{renderCorners}}(open\_gl,\ animate);}
+\DoxyCodeLine{00186\ \}}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_spectrogram_abf0525bce2c7bc54e7b63ab0a18956eb}{Spectrogram::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00189\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kLineSpacing\ =\ 10;}
+\DoxyCodeLine{00190\ }
+\DoxyCodeLine{00191\ \ \ \mbox{\hyperlink{class_open_gl_component_ad2e8378b36d72fa4d728a611a6aa956f}{OpenGlLineRenderer::paintBackground}}(g);}
+\DoxyCodeLine{00192\ \ \ \textcolor{keywordflow}{if}\ (!paint\_background\_lines\_)}
+\DoxyCodeLine{00193\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00195\ \ \ \textcolor{keywordtype}{int}\ height\ =\ getHeight();}
+\DoxyCodeLine{00196\ \ \ \textcolor{keywordtype}{float}\ max\_octave\ =\ log2f(max\_frequency\_\ /\ min\_frequency\_);}
+\DoxyCodeLine{00197\ \ \ g.setColour(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}).withMultipliedAlpha(0.5f));}
+\DoxyCodeLine{00198\ \ \ \textcolor{keywordtype}{float}\ frequency\ =\ 0.0f;}
+\DoxyCodeLine{00199\ \ \ \textcolor{keywordtype}{float}\ increment\ =\ 1.0f;}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \textcolor{keywordtype}{int}\ x\ =\ 0;}
+\DoxyCodeLine{00202\ \ \ \textcolor{keywordflow}{while}\ (frequency\ <\ max\_frequency\_)\ \{}
+\DoxyCodeLine{00203\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ kLineSpacing;\ ++i)\ \{}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ frequency\ +=\ increment;}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ log2f(frequency\ /\ min\_frequency\_)\ /\ max\_octave;}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ x\ =\ std::round(t\ *\ getWidth());}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ g.fillRect(x,\ 0,\ 1,\ height);}
+\DoxyCodeLine{00208\ \ \ \ \ \}}
+\DoxyCodeLine{00209\ \ \ \ \ g.fillRect(x,\ 0,\ 1,\ height);}
+\DoxyCodeLine{00210\ \ \ \ \ increment\ *=\ kLineSpacing;}
+\DoxyCodeLine{00211\ \ \ \}}
+\DoxyCodeLine{00212\ \}}
+
+\end{DoxyCode}

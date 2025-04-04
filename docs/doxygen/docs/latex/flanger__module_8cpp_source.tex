@@ -1,0 +1,77 @@
+\doxysection{flanger\+\_\+module.\+cpp}
+\hypertarget{flanger__module_8cpp_source}{}\label{flanger__module_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/modules/flanger\_module.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/modules/flanger\_module.cpp}}
+\mbox{\hyperlink{flanger__module_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{flanger__module_8h}{flanger\_module.h}}"{}}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{delay_8h}{delay.h}}"{}}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{memory_8h}{memory.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_a22ff0d7364d6acb2af995e0a0eb7c33d}{FlangerModule::FlangerModule}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ beats\_per\_second)\ :}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module}{SynthModule}}(0,\ kNumOutputs),}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ \ \ \ \ beats\_per\_second\_(beats\_per\_second),}
+\DoxyCodeLine{00011\ \ \ \ \ \ \ \ \ \ \ \ \ frequency\_(nullptr),\ phase\_offset\_(nullptr),\ mod\_depth\_(nullptr),}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ \ \ \ \ phase\_(0.0f),\ delay\_(nullptr)\ \{\ \}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_a9750a41c03331eba562fc7aa3a821183}{FlangerModule::\string~FlangerModule}}()\ \{\ \}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_flanger_module_aabe6bda3a7b25474e439beaf24d8c748}{FlangerModule::init}}()\ \{}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMaxSamples\ =\ 40000;}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1cr_1_1_value}{cr::Value}}\ kDelayStyle(\mbox{\hyperlink{classvital_1_1_delay_a12df0090f8ab627b8d287c0ee8d103f9aec34d50461ff8c4d37dcdd8876eba8ba}{StereoDelay::kClampedUnfiltered}});}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_a5a6201ac9eac57d796b59072b0c6343d}{delay\_}}\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{namespacevital_a4534ce348c7f6fad2c5ed92c897cdf91}{StereoDelay}}(kMaxSamples);}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a8bc90b699c1ec299b060ed0df32f476c}{addIdleProcessor}}(\mbox{\hyperlink{classvital_1_1_flanger_module_a5a6201ac9eac57d796b59072b0c6343d}{delay\_}});}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_aff7176948de431a97ca30356b44c75e2}{phase\_}}\ =\ 0.0f;}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_a5a6201ac9eac57d796b59072b0c6343d}{delay\_}}-\/>\mbox{\hyperlink{classvital_1_1_processor_a4ab8d1bebcc9b45ae4eefb1f0ea20d77}{useOutput}}(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_flanger_module_a2e68d8a62ff05a49904bb267b16bb822a50f88af8f7d0df20a38c4688b03b8c78}{kAudioOutput}}));}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ free\_frequency\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_ae5eccb22cca0d1f82d4c2273a91b0cad}{createMonoModControl}}(\textcolor{stringliteral}{"{}flanger\_frequency"{}});}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_a21e013dde763c3e3869bf7629262f0b7}{frequency\_}}\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_aa506e525d7867019f7412715346ff7a8}{createTempoSyncSwitch}}(\textcolor{stringliteral}{"{}flanger"{}},\ free\_frequency-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}},\ \mbox{\hyperlink{classvital_1_1_flanger_module_a54d035f3927e6a3fe5753a4e16901605}{beats\_per\_second\_}},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_acbdd2bf47b3f3f622576281c5d5f51ee}{center\_}}\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_ae5eccb22cca0d1f82d4c2273a91b0cad}{createMonoModControl}}(\textcolor{stringliteral}{"{}flanger\_center"{}});}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ feedback\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_ae5eccb22cca0d1f82d4c2273a91b0cad}{createMonoModControl}}(\textcolor{stringliteral}{"{}flanger\_feedback"{}});}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ wet\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_ae5eccb22cca0d1f82d4c2273a91b0cad}{createMonoModControl}}(\textcolor{stringliteral}{"{}flanger\_dry\_wet"{}});}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_a83076ad7ccbc3ea7cc0dff0514f3978a}{mod\_depth\_}}\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_ae5eccb22cca0d1f82d4c2273a91b0cad}{createMonoModControl}}(\textcolor{stringliteral}{"{}flanger\_mod\_depth"{}});}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_a814dd41ede54637ff804978eb32e50c3}{phase\_offset\_}}\ =\ \mbox{\hyperlink{classvital_1_1_synth_module_ae5eccb22cca0d1f82d4c2273a91b0cad}{createMonoModControl}}(\textcolor{stringliteral}{"{}flanger\_phase\_offset"{}});}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Plugging\ parameters\ into\ the\ StereoDelay}}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_a5a6201ac9eac57d796b59072b0c6343d}{delay\_}}-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&\mbox{\hyperlink{classvital_1_1_flanger_module_a7c7d869e7dea6178e9df7422cdadb1c0}{delay\_frequency\_}},\ \mbox{\hyperlink{classvital_1_1_delay_a67b4dd39c442c6e7f0bc25d89e3d7157a193adbe601a5649f24ac21658bd76ba0}{StereoDelay::kFrequency}});}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_a5a6201ac9eac57d796b59072b0c6343d}{delay\_}}-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(feedback,\ \mbox{\hyperlink{classvital_1_1_delay_a67b4dd39c442c6e7f0bc25d89e3d7157a25d008b0c6c3fdf8d27962aef2f0adac}{StereoDelay::kFeedback}});}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_a5a6201ac9eac57d796b59072b0c6343d}{delay\_}}-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(wet,\ \mbox{\hyperlink{classvital_1_1_delay_a67b4dd39c442c6e7f0bc25d89e3d7157a98deb2a1df2f0d410259d94b767b5353}{StereoDelay::kWet}});}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_a5a6201ac9eac57d796b59072b0c6343d}{delay\_}}-\/>\mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}}(\&kDelayStyle,\ \mbox{\hyperlink{classvital_1_1_delay_a67b4dd39c442c6e7f0bc25d89e3d7157ae8482225d4537a9a8981f8d4d3518128}{StereoDelay::kStyle}});}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_adb6eaa40b95275a42029ed4c0c4bcba4}{SynthModule::init}}();}
+\DoxyCodeLine{00047\ \ \ \ \ \}}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_flanger_module_a1af510d5b1f1ad633c79e133df68fd37}{FlangerModule::processWithInput}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMaxFrequency\ =\ 20000.0f;}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_aa88622055da34fca35bb4192d524dd9d}{SynthModule::process}}(num\_samples);}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ frequency\ =\ \mbox{\hyperlink{classvital_1_1_flanger_module_a21e013dde763c3e3869bf7629262f0b7}{frequency\_}}-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0];}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_phase\ =\ (frequency\ *\ num\_samples)\ /\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}();}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_aff7176948de431a97ca30356b44c75e2}{phase\_}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a02cebee05a6ccafbce870a1a18ae0d04}{utils::mod}}(\mbox{\hyperlink{classvital_1_1_flanger_module_aff7176948de431a97ca30356b44c75e2}{phase\_}}\ +\ delta\_phase);}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ phase\_offset\ =\ \mbox{\hyperlink{classvital_1_1_flanger_module_a814dd41ede54637ff804978eb32e50c3}{phase\_offset\_}}-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0];}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ right\_offset\ =\ (phase\_offset\ \&\ \mbox{\hyperlink{namespacevital_1_1constants_a9370d0a4a5d4f36eda9d07953d2cbc55}{constants::kRightMask}});}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ phase\_total\ =\ \mbox{\hyperlink{classvital_1_1_flanger_module_aff7176948de431a97ca30356b44c75e2}{phase\_}}\ -\/\ phase\_offset\ /\ 2.0f\ +\ right\_offset;}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ modulation\ as\ a\ triangle\ waveform\ varying\ from\ -\/1\ to\ 1,\ then\ map\ it\ with\ depth}}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ mod\ =\ \mbox{\hyperlink{classvital_1_1_flanger_module_a83076ad7ccbc3ea7cc0dff0514f3978a}{mod\_depth\_}}-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ *\ (\mbox{\hyperlink{namespacevital_1_1utils_a19f215cf180a7c8307f1d431f41c6dd5}{utils::triangleWave}}(phase\_total)\ *\ 2.0f\ -\/\ 1.0f)\ +\ 1.0f;}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Calculate\ the\ effective\ delay\ time\ from\ center\ (converted\ from\ MIDI\ note\ to\ frequency)}}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delay\ =\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ /\ \mbox{\hyperlink{namespacevital_1_1utils_ad576b73366d625ca0b47c8b92b81f7a4}{utils::midiNoteToFrequency}}(\mbox{\hyperlink{classvital_1_1_flanger_module_acbdd2bf47b3f3f622576281c5d5f51ee}{center\_}}-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]);}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ delay\ =\ (delay\ -\/\ \mbox{\hyperlink{classvital_1_1_flanger_module_aff2176e72a4ae6fd7aff159c9c5edac5}{kModulationDelayBuffer}})\ *\ mod\ +\ \mbox{\hyperlink{classvital_1_1_flanger_module_aff2176e72a4ae6fd7aff159c9c5edac5}{kModulationDelayBuffer}};}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delay\_frequency\ =\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ /\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{utils::max}}(delay,\ 1.0f\ /\ kMaxFrequency);}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}(\mbox{\hyperlink{classvital_1_1_flanger_module_a2e68d8a62ff05a49904bb267b16bb822aa57133238f2f7b457b6034f31739fdd0}{kFrequencyOutput}})-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ delay\_frequency;}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_a7c7d869e7dea6178e9df7422cdadb1c0}{delay\_frequency\_}}.\mbox{\hyperlink{classvital_1_1_value_a3441b8819fbaa1ee964700f72e76d223}{set}}(delay\_frequency);}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_a5a6201ac9eac57d796b59072b0c6343d}{delay\_}}-\/>\mbox{\hyperlink{classvital_1_1_delay_a350d2584edae89297ea07b32a67ccd94}{processWithInput}}(audio\_in,\ num\_samples);}
+\DoxyCodeLine{00078\ \ \ \ \ \}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_flanger_module_a9b94746afea37a9962add0bbbf62861e}{FlangerModule::correctToTime}}(\textcolor{keywordtype}{double}\ seconds)\ \{}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_flanger_module_aff7176948de431a97ca30356b44c75e2}{phase\_}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a70d1632b7ff25265d67a5b886c5c7410}{utils::getCycleOffsetFromSeconds}}(seconds,\ \mbox{\hyperlink{classvital_1_1_flanger_module_a21e013dde763c3e3869bf7629262f0b7}{frequency\_}}-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]);}
+\DoxyCodeLine{00085\ \ \ \ \ \}}
+\DoxyCodeLine{00086\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

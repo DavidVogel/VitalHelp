@@ -1,0 +1,49 @@
+\doxysection{shepard\+\_\+tone\+\_\+source.\+cpp}
+\hypertarget{shepard__tone__source_8cpp_source}{}\label{shepard__tone__source_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/shepard\_tone\_source.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/shepard\_tone\_source.cpp}}
+\mbox{\hyperlink{shepard__tone__source_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{ShepardToneSource\ uses\ a\ single\ keyframe\ and\ a\ special\ looping\ technique\ to\ produce\ a\ continuously\ rising\ (or\ falling)\ tone—an\ auditory\ illusion\ known\ as\ a\ Shepard\ tone.\ By\ rearranging\ frequency\ components\ into\ a\ loop\ frame\ and\ interpolating\ between\ these\ frames,\ this\ source\ can\ create\ a\ stable,\ looping\ sonic\ texture\ that\ simulates\ infinite\ pitch\ movement.}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{shepard__tone__source_8h}{shepard\_tone\_source.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable__component__factory_8h}{wavetable\_component\_factory.h}}"{}}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \mbox{\hyperlink{class_shepard_tone_source_a87a6b311310b07a5b7a9f9a8cdca02e8}{ShepardToneSource::ShepardToneSource}}()\ \{}
+\DoxyCodeLine{00010\ \ \ \textcolor{comment}{//\ Create\ a\ loop\ frame\ to\ facilitate\ continuous\ looping\ of\ the\ frequency\ domain\ spectrum.}}
+\DoxyCodeLine{00011\ \ \ \mbox{\hyperlink{class_shepard_tone_source_ade1db91279b3a95cf1e79117305a13dd}{loop\_frame\_}}\ =\ std::make\_unique<WaveSourceKeyframe>();}
+\DoxyCodeLine{00012\ \}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \mbox{\hyperlink{class_shepard_tone_source_aa73720d321d020b01162a47c362d0198}{ShepardToneSource::\string~ShepardToneSource}}()\ \{\ \}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_shepard_tone_source_aef257845fbfec5343a905c899e90be13}{ShepardToneSource::render}}(\mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ wave\_frame,\ \textcolor{keywordtype}{float}\ position)\ \{}
+\DoxyCodeLine{00017\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wavetable_component_a05ca43822b7adf62273544e4b1708c3c}{numFrames}}()\ ==\ 0)}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \textcolor{comment}{//\ Retrieve\ the\ single\ keyframe\ that\ holds\ the\ base\ spectrum.}}
+\DoxyCodeLine{00021\ \ \ \mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}*\ keyframe\ =\ \mbox{\hyperlink{class_wave_source_a715a55593b9018c4a380be67c5b948f9}{getKeyframe}}(0);}
+\DoxyCodeLine{00022\ \ \ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ key\_wave\_frame\ =\ keyframe-\/>\mbox{\hyperlink{class_wave_source_keyframe_ac2f19ba59f1866a789cdeb38fef24e12}{wave\_frame}}();}
+\DoxyCodeLine{00023\ \ \ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ loop\_wave\_frame\ =\ \mbox{\hyperlink{class_shepard_tone_source_ade1db91279b3a95cf1e79117305a13dd}{loop\_frame\_}}-\/>wave\_frame();}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \ \ \textcolor{comment}{//\ Interleave\ frequency\ components\ in\ a\ pattern\ (e.g.,\ placing\ them\ at\ every\ even\ index)}}
+\DoxyCodeLine{00026\ \ \ \textcolor{comment}{//\ to\ produce\ a\ continuous\ looping\ effect\ in\ the\ frequency\ domain.}}
+\DoxyCodeLine{00027\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}}\ /\ 2;\ ++i)\ \{}
+\DoxyCodeLine{00028\ \ \ \ \ loop\_wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i\ *\ 2]\ =\ key\_wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i];}
+\DoxyCodeLine{00029\ \ \ \ \ loop\_wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i\ *\ 2\ +\ 1]\ =\ 0.0f;}
+\DoxyCodeLine{00030\ \ \ \}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ loop\_wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_ab5daac5c0f9262624ec0ffd913585432}{toTimeDomain}}();}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \textcolor{comment}{//\ Use\ compute\_frame\_\ (inherited\ from\ WaveSource)\ to\ interpolate\ between\ keyframe\ and\ loop\_frame\_}}
+\DoxyCodeLine{00035\ \ \ \textcolor{comment}{//\ based\ on\ the\ given\ position,\ producing\ a\ stable\ Shepard\ tone-\/like\ result.}}
+\DoxyCodeLine{00036\ \ \ \mbox{\hyperlink{class_wave_source_a11755dbac312e2988927c173e4c8e30e}{compute\_frame\_}}-\/>setInterpolationMode(\mbox{\hyperlink{class_wave_source_a4664e91a2660a56e2a721b6c10726955}{interpolation\_mode\_}});}
+\DoxyCodeLine{00037\ \ \ \mbox{\hyperlink{class_wave_source_a11755dbac312e2988927c173e4c8e30e}{compute\_frame\_}}-\/>interpolate(keyframe,\ \mbox{\hyperlink{class_shepard_tone_source_ade1db91279b3a95cf1e79117305a13dd}{loop\_frame\_}}.get(),\ position\ /\ (\mbox{\hyperlink{namespacevital_aa72aa67cd199ba84e12ec933d74ba400}{vital::kNumOscillatorWaveFrames}}\ -\/\ 1.0f));}
+\DoxyCodeLine{00038\ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a097b35df7e1e30b50991550a21d4927b}{copy}}(\mbox{\hyperlink{class_wave_source_a11755dbac312e2988927c173e4c8e30e}{compute\_frame\_}}-\/>wave\_frame());}
+\DoxyCodeLine{00039\ \}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bd}{WavetableComponentFactory::ComponentType}}\ \mbox{\hyperlink{class_shepard_tone_source_a6669e660b585813b2b2fba48a93c95fe}{ShepardToneSource::getType}}()\ \{}
+\DoxyCodeLine{00042\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bdacc68254c662ea97c795f71bba60f66dd}{WavetableComponentFactory::kShepardToneSource}};}
+\DoxyCodeLine{00043\ \}}
+
+\end{DoxyCode}

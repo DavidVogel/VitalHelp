@@ -1,0 +1,230 @@
+\doxysection{bar\+\_\+renderer.\+cpp}
+\hypertarget{bar__renderer_8cpp_source}{}\label{bar__renderer_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/bar\_renderer.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/bar\_renderer.cpp}}
+\mbox{\hyperlink{bar__renderer_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{bar__renderer_8h}{bar\_renderer.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{shaders_8h}{shaders.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00008\ \mbox{\hyperlink{class_bar_renderer_a387b5ac300ddebaf3304d420c07033b8}{BarRenderer::BarRenderer}}(\textcolor{keywordtype}{int}\ num\_points,\ \textcolor{keywordtype}{bool}\ vertical)\ :}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ shader\_(nullptr),\ vertical\_(vertical),\ additive\_blending\_(true),\ display\_scale\_(1.0f),\ power\_scale\_(false),}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ square\_scale\_(false),\ dirty\_(false),\ num\_points\_(num\_points),\ total\_points\_(num\_points)\ \{}
+\DoxyCodeLine{00011\ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_a2139561c2dc95b0a7389e65f4cea60f9}{addRoundedCorners}}();\ \textcolor{comment}{//\ Presumably\ a\ call\ from\ a\ base\ class\ or\ utility\ to\ add\ cornering.}}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_ad3fd378f135fc2e5f224c82b563fd6e3}{scale\_}}\ =\ 1.0f;}
+\DoxyCodeLine{00014\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a90e91ba29cd6dfa68af64961eb01c288}{offset\_}}\ =\ 0.0f;}
+\DoxyCodeLine{00015\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a66e106ca5c673d2f8abe89c7cecfe0fb}{bar\_data\_}}\ =\ std::make\_unique<float[]>(\mbox{\hyperlink{class_bar_renderer_a8af81441dea75948fb7d4ce4cf20c66a}{kFloatsPerBar}}\ *\ \mbox{\hyperlink{class_bar_renderer_ae846c5aade19522a9f37b03aa227355e}{total\_points\_}});}
+\DoxyCodeLine{00016\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a722b2f4635474232d00b77599d2fbcb7}{bar\_indices\_}}\ =\ std::make\_unique<int[]>(\mbox{\hyperlink{class_bar_renderer_accfaa692035f3b813ea513dcbe64e509}{kTriangleIndicesPerBar}}\ *\ \mbox{\hyperlink{class_bar_renderer_ae846c5aade19522a9f37b03aa227355e}{total\_points\_}});}
+\DoxyCodeLine{00017\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a54cb93a8dad352f72e0cd92011b10f76}{bar\_corner\_data\_}}\ =\ std::make\_unique<float[]>(\mbox{\hyperlink{class_bar_renderer_ab4fdf4ecb15619683bebf8f1c4820b55}{kCornerFloatsPerBar}}\ *\ \mbox{\hyperlink{class_bar_renderer_ae846c5aade19522a9f37b03aa227355e}{total\_points\_}});}
+\DoxyCodeLine{00018\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_af7c9acb0a2115d435613ee6945502b0d}{bar\_buffer\_}}\ =\ 0;}
+\DoxyCodeLine{00019\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_aead9d7be15822b461e25c56a3245c138}{bar\_corner\_buffer\_}}\ =\ 0;}
+\DoxyCodeLine{00020\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_ae7a1491686aff0838a200376a58ead25}{bar\_indices\_buffer\_}}\ =\ 0;}
+\DoxyCodeLine{00021\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a4e21793ba3fb35f099c07d8c23e9e16c}{bar\_width\_}}\ =\ 1.0f;}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//\ Initialize\ bar\ geometry\ and\ indices.}}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_bar_renderer_ae846c5aade19522a9f37b03aa227355e}{total\_points\_}};\ ++i)\ \{}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ i\ /\ (\mbox{\hyperlink{class_bar_renderer_ae846c5aade19522a9f37b03aa227355e}{total\_points\_}}\ *\ 1.0f);}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ i\ *\ \mbox{\hyperlink{class_bar_renderer_a8af81441dea75948fb7d4ce4cf20c66a}{kFloatsPerBar}};}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ v\ =\ 0;\ v\ <\ \mbox{\hyperlink{class_bar_renderer_af481b646cb7d304bfc1e71afb9df4797}{kVerticesPerBar}};\ ++v)\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ vertex\_index\ =\ v\ *\ \mbox{\hyperlink{class_bar_renderer_ae8fde02e036feb60f1e42430869c9f0d}{kFloatsPerVertex}}\ +\ index;}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a66e106ca5c673d2f8abe89c7cecfe0fb}{bar\_data\_}}[vertex\_index]\ =\ 2.0f\ *\ t\ -\/\ 1.0f;}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a66e106ca5c673d2f8abe89c7cecfe0fb}{bar\_data\_}}[vertex\_index\ +\ 1]\ =\ -\/1.0f;}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ bar\_index\ =\ i\ *\ \mbox{\hyperlink{class_bar_renderer_accfaa692035f3b813ea513dcbe64e509}{kTriangleIndicesPerBar}};}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ bar\_vertex\_index\ =\ i\ *\ \mbox{\hyperlink{class_bar_renderer_af481b646cb7d304bfc1e71afb9df4797}{kVerticesPerBar}};}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a722b2f4635474232d00b77599d2fbcb7}{bar\_indices\_}}[bar\_index]\ =\ bar\_vertex\_index;}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a722b2f4635474232d00b77599d2fbcb7}{bar\_indices\_}}[bar\_index\ +\ 1]\ =\ bar\_vertex\_index\ +\ 1;}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a722b2f4635474232d00b77599d2fbcb7}{bar\_indices\_}}[bar\_index\ +\ 2]\ =\ bar\_vertex\_index\ +\ 2;}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a722b2f4635474232d00b77599d2fbcb7}{bar\_indices\_}}[bar\_index\ +\ 3]\ =\ bar\_vertex\_index\ +\ 1;}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a722b2f4635474232d00b77599d2fbcb7}{bar\_indices\_}}[bar\_index\ +\ 4]\ =\ bar\_vertex\_index\ +\ 2;}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a722b2f4635474232d00b77599d2fbcb7}{bar\_indices\_}}[bar\_index\ +\ 5]\ =\ bar\_vertex\_index\ +\ 3;}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ corner\_index\ =\ i\ *\ \mbox{\hyperlink{class_bar_renderer_ab4fdf4ecb15619683bebf8f1c4820b55}{kCornerFloatsPerBar}};}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a54cb93a8dad352f72e0cd92011b10f76}{bar\_corner\_data\_}}[corner\_index]\ =\ 0.0f;}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a54cb93a8dad352f72e0cd92011b10f76}{bar\_corner\_data\_}}[corner\_index\ +\ 1]\ =\ 1.0f;}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a54cb93a8dad352f72e0cd92011b10f76}{bar\_corner\_data\_}}[corner\_index\ +\ 2]\ =\ 1.0f;}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a54cb93a8dad352f72e0cd92011b10f76}{bar\_corner\_data\_}}[corner\_index\ +\ 3]\ =\ 1.0f;}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a54cb93a8dad352f72e0cd92011b10f76}{bar\_corner\_data\_}}[corner\_index\ +\ 4]\ =\ 0.0f;}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a54cb93a8dad352f72e0cd92011b10f76}{bar\_corner\_data\_}}[corner\_index\ +\ 5]\ =\ 0.0f;}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a54cb93a8dad352f72e0cd92011b10f76}{bar\_corner\_data\_}}[corner\_index\ +\ 6]\ =\ 1.0f;}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a54cb93a8dad352f72e0cd92011b10f76}{bar\_corner\_data\_}}[corner\_index\ +\ 7]\ =\ 0.0f;}
+\DoxyCodeLine{00052\ \ \ \ \ \}}
+\DoxyCodeLine{00053\ \}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \mbox{\hyperlink{class_bar_renderer_ae4f9914da15a5bac788f92de7449cba5}{BarRenderer::\string~BarRenderer}}()\ \{\ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bar_renderer_aba30c1b701f727fb9c2e34d807d4df73}{BarRenderer::init}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00058\ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_ad78b342a43cf1e61d4875b6137ed8127}{OpenGlComponent::init}}(open\_gl);}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenBuffers(1,\ \&\mbox{\hyperlink{class_bar_renderer_af7c9acb0a2115d435613ee6945502b0d}{bar\_buffer\_}});}
+\DoxyCodeLine{00061\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ \mbox{\hyperlink{class_bar_renderer_af7c9acb0a2115d435613ee6945502b0d}{bar\_buffer\_}});}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ GLsizeiptr\ vert\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(\mbox{\hyperlink{class_bar_renderer_a8af81441dea75948fb7d4ce4cf20c66a}{kFloatsPerBar}}\ *\ \mbox{\hyperlink{class_bar_renderer_ae846c5aade19522a9f37b03aa227355e}{total\_points\_}}\ *\ \textcolor{keyword}{sizeof}(float));}
+\DoxyCodeLine{00064\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ARRAY\_BUFFER,\ vert\_size,\ \mbox{\hyperlink{class_bar_renderer_a66e106ca5c673d2f8abe89c7cecfe0fb}{bar\_data\_}}.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenBuffers(1,\ \&\mbox{\hyperlink{class_bar_renderer_aead9d7be15822b461e25c56a3245c138}{bar\_corner\_buffer\_}});}
+\DoxyCodeLine{00067\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ \mbox{\hyperlink{class_bar_renderer_aead9d7be15822b461e25c56a3245c138}{bar\_corner\_buffer\_}});}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \ \ GLsizeiptr\ corner\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(\mbox{\hyperlink{class_bar_renderer_ab4fdf4ecb15619683bebf8f1c4820b55}{kCornerFloatsPerBar}}\ *\ \mbox{\hyperlink{class_bar_renderer_ae846c5aade19522a9f37b03aa227355e}{total\_points\_}}\ *\ \textcolor{keyword}{sizeof}(float));}
+\DoxyCodeLine{00070\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ARRAY\_BUFFER,\ corner\_size,\ \mbox{\hyperlink{class_bar_renderer_a54cb93a8dad352f72e0cd92011b10f76}{bar\_corner\_data\_}}.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenBuffers(1,\ \&\mbox{\hyperlink{class_bar_renderer_ae7a1491686aff0838a200376a58ead25}{bar\_indices\_buffer\_}});}
+\DoxyCodeLine{00073\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ \mbox{\hyperlink{class_bar_renderer_ae7a1491686aff0838a200376a58ead25}{bar\_indices\_buffer\_}});}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \ \ GLsizeiptr\ bar\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(\mbox{\hyperlink{class_bar_renderer_accfaa692035f3b813ea513dcbe64e509}{kTriangleIndicesPerBar}}\ *\ \mbox{\hyperlink{class_bar_renderer_ae846c5aade19522a9f37b03aa227355e}{total\_points\_}}\ *\ \textcolor{keyword}{sizeof}(int));}
+\DoxyCodeLine{00076\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ELEMENT\_ARRAY\_BUFFER,\ bar\_size,\ \mbox{\hyperlink{class_bar_renderer_a722b2f4635474232d00b77599d2fbcb7}{bar\_indices\_}}.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_bar_renderer_aba10b6707608fe2536bfd9a10c876e00}{vertical\_}})}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a5b76fb670c309ba362670667c6de8bd6}{shader\_}}\ =\ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_af70c9f649bbea5dfd68c376d1e2918ea}{shaders}}-\/>\mbox{\hyperlink{class_shaders_ae4644dfe46dda65994ede40a18e2747a}{getShaderProgram}}(\mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a28ae569a107216a811a5dbf3e8481d5d}{Shaders::kBarVerticalVertex}},\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a9cc4a1b66f3b4a686f5f70f3c6bec6e4}{Shaders::kBarFragment}});}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a5b76fb670c309ba362670667c6de8bd6}{shader\_}}\ =\ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_af70c9f649bbea5dfd68c376d1e2918ea}{shaders}}-\/>\mbox{\hyperlink{class_shaders_ae4644dfe46dda65994ede40a18e2747a}{getShaderProgram}}(\mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76ac8d58755bd75222b4814a22f622716bf}{Shaders::kBarHorizontalVertex}},\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a9cc4a1b66f3b4a686f5f70f3c6bec6e4}{Shaders::kBarFragment}});}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a5b76fb670c309ba362670667c6de8bd6}{shader\_}}-\/>use();}
+\DoxyCodeLine{00084\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_adf0cf5e932450ed9a1f1579a8f289af2}{color\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_bar_renderer_a5b76fb670c309ba362670667c6de8bd6}{shader\_}},\ \textcolor{stringliteral}{"{}color"{}});}
+\DoxyCodeLine{00085\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a4b812fc51bee7e1666a74578e67b02f4}{dimensions\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_bar_renderer_a5b76fb670c309ba362670667c6de8bd6}{shader\_}},\ \textcolor{stringliteral}{"{}dimensions"{}});}
+\DoxyCodeLine{00086\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_acd37eba6b124543e40950a93015cbe9f}{offset\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_bar_renderer_a5b76fb670c309ba362670667c6de8bd6}{shader\_}},\ \textcolor{stringliteral}{"{}offset"{}});}
+\DoxyCodeLine{00087\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_aac2b37d888702bb97387e5c0b2d84049}{scale\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_bar_renderer_a5b76fb670c309ba362670667c6de8bd6}{shader\_}},\ \textcolor{stringliteral}{"{}scale"{}});}
+\DoxyCodeLine{00088\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a891f52e525f1b6a41ae1053a7447803a}{width\_percent\_uniform\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *\mbox{\hyperlink{class_bar_renderer_a5b76fb670c309ba362670667c6de8bd6}{shader\_}},\ \textcolor{stringliteral}{"{}width\_percent"{}});}
+\DoxyCodeLine{00089\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a491a67b54b2898d923fa7291df5c2d2c}{position\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_a59361984d78ce0542bfa722179d57f93}{getAttribute}}(open\_gl,\ *\mbox{\hyperlink{class_bar_renderer_a5b76fb670c309ba362670667c6de8bd6}{shader\_}},\ \textcolor{stringliteral}{"{}position"{}});}
+\DoxyCodeLine{00090\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_ae20b205548c739cfdeca1d811f5a1482}{corner\_}}\ =\ \mbox{\hyperlink{class_open_gl_component_a59361984d78ce0542bfa722179d57f93}{getAttribute}}(open\_gl,\ *\mbox{\hyperlink{class_bar_renderer_a5b76fb670c309ba362670667c6de8bd6}{shader\_}},\ \textcolor{stringliteral}{"{}corner"{}});}
+\DoxyCodeLine{00091\ \}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bar_renderer_ad9c1f05ddbaa0bcd84ec9584ff1c2a91}{BarRenderer::drawBars}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{class_open_gl_component_a0641317fa0d502284c603188bb7da9a7}{setViewPort}}(open\_gl))}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_bar_renderer_a5b76fb670c309ba362670667c6de8bd6}{shader\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_aba30c1b701f727fb9c2e34d807d4df73}{init}}(open\_gl);}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \ \ glEnable(GL\_BLEND);}
+\DoxyCodeLine{00101\ \ \ \ \ glEnable(GL\_SCISSOR\_TEST);}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_bar_renderer_a22dd79cc96321bf7d3c72366fbc78892}{additive\_blending\_}})}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ glBlendFunc(GL\_SRC\_ALPHA,\ GL\_ONE);}
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ glBlendFunc(GL\_SRC\_ALPHA,\ GL\_ONE\_MINUS\_SRC\_ALPHA);}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{comment}{//\ Update\ buffer\ data\ if\ bars\ have\ changed.}}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_bar_renderer_acd1d0ab682b0ada1fd8feeec9d230341}{dirty\_}})\ \{}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_acd1d0ab682b0ada1fd8feeec9d230341}{dirty\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a90f3f66910d32f5639415edcc7d39eb3}{setBarSizes}}();}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ \mbox{\hyperlink{class_bar_renderer_af7c9acb0a2115d435613ee6945502b0d}{bar\_buffer\_}});}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ GLsizeiptr\ vert\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(\mbox{\hyperlink{class_bar_renderer_a8af81441dea75948fb7d4ce4cf20c66a}{kFloatsPerBar}}\ *\ \mbox{\hyperlink{class_bar_renderer_ae846c5aade19522a9f37b03aa227355e}{total\_points\_}}\ *\ \textcolor{keyword}{sizeof}(float));}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ARRAY\_BUFFER,\ vert\_size,\ \mbox{\hyperlink{class_bar_renderer_a66e106ca5c673d2f8abe89c7cecfe0fb}{bar\_data\_}}.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ 0);}
+\DoxyCodeLine{00116\ \ \ \ \ \}}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a5b76fb670c309ba362670667c6de8bd6}{shader\_}}-\/>use();}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_adf0cf5e932450ed9a1f1579a8f289af2}{color\_uniform\_}}-\/>set(\mbox{\hyperlink{class_bar_renderer_a5836065da654744bcc1d6de9a2c8bc14}{color\_}}.getFloatRed(),\ \mbox{\hyperlink{class_bar_renderer_a5836065da654744bcc1d6de9a2c8bc14}{color\_}}.getFloatGreen(),}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a5836065da654744bcc1d6de9a2c8bc14}{color\_}}.getFloatBlue(),\ \mbox{\hyperlink{class_bar_renderer_a5836065da654744bcc1d6de9a2c8bc14}{color\_}}.getFloatAlpha());}
+\DoxyCodeLine{00122\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a4b812fc51bee7e1666a74578e67b02f4}{dimensions\_uniform\_}}-\/>set(getWidth(),\ getHeight());}
+\DoxyCodeLine{00123\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_acd37eba6b124543e40950a93015cbe9f}{offset\_uniform\_}}-\/>set(\mbox{\hyperlink{class_bar_renderer_a90e91ba29cd6dfa68af64961eb01c288}{offset\_}});}
+\DoxyCodeLine{00124\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_aac2b37d888702bb97387e5c0b2d84049}{scale\_uniform\_}}-\/>set(\mbox{\hyperlink{class_bar_renderer_ad3fd378f135fc2e5f224c82b563fd6e3}{scale\_}});}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{keywordtype}{float}\ min\_width\ =\ 4.0f\ /\ getWidth();}
+\DoxyCodeLine{00127\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a891f52e525f1b6a41ae1053a7447803a}{width\_percent\_uniform\_}}-\/>set(std::max(min\_width,\ \mbox{\hyperlink{class_bar_renderer_a4e21793ba3fb35f099c07d8c23e9e16c}{bar\_width\_}}\ *\ \mbox{\hyperlink{class_bar_renderer_ad3fd378f135fc2e5f224c82b563fd6e3}{scale\_}}\ *\ 2.0f\ /\ \mbox{\hyperlink{class_bar_renderer_ac7deb66b7aaddba29d02914a4c57e3a3}{num\_points\_}}));}
+\DoxyCodeLine{00128\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ \mbox{\hyperlink{class_bar_renderer_af7c9acb0a2115d435613ee6945502b0d}{bar\_buffer\_}});}
+\DoxyCodeLine{00129\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ \mbox{\hyperlink{class_bar_renderer_ae7a1491686aff0838a200376a58ead25}{bar\_indices\_buffer\_}});}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glVertexAttribPointer(\mbox{\hyperlink{class_bar_renderer_a491a67b54b2898d923fa7291df5c2d2c}{position\_}}-\/>attributeID,\ \mbox{\hyperlink{class_bar_renderer_ae8fde02e036feb60f1e42430869c9f0d}{kFloatsPerVertex}},\ GL\_FLOAT,}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GL\_FALSE,\ \mbox{\hyperlink{class_bar_renderer_ae8fde02e036feb60f1e42430869c9f0d}{kFloatsPerVertex}}\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00133\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glEnableVertexAttribArray(\mbox{\hyperlink{class_bar_renderer_a491a67b54b2898d923fa7291df5c2d2c}{position\_}}-\/>attributeID);}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ \mbox{\hyperlink{class_bar_renderer_aead9d7be15822b461e25c56a3245c138}{bar\_corner\_buffer\_}});}
+\DoxyCodeLine{00136\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glVertexAttribPointer(\mbox{\hyperlink{class_bar_renderer_ae20b205548c739cfdeca1d811f5a1482}{corner\_}}-\/>attributeID,\ \mbox{\hyperlink{class_bar_renderer_a7125a4ecd293f37277c37e9baa8fb28c}{kCornerFloatsPerVertex}},\ GL\_FLOAT,}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GL\_FALSE,\ \mbox{\hyperlink{class_bar_renderer_a7125a4ecd293f37277c37e9baa8fb28c}{kCornerFloatsPerVertex}}\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00138\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glEnableVertexAttribArray(\mbox{\hyperlink{class_bar_renderer_ae20b205548c739cfdeca1d811f5a1482}{corner\_}}-\/>attributeID);}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \ \ \ \ glDrawElements(GL\_TRIANGLES,\ \mbox{\hyperlink{class_bar_renderer_accfaa692035f3b813ea513dcbe64e509}{kTriangleIndicesPerBar}}\ *\ \mbox{\hyperlink{class_bar_renderer_ae846c5aade19522a9f37b03aa227355e}{total\_points\_}},\ GL\_UNSIGNED\_INT,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDisableVertexAttribArray(\mbox{\hyperlink{class_bar_renderer_a491a67b54b2898d923fa7291df5c2d2c}{position\_}}-\/>attributeID);}
+\DoxyCodeLine{00143\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ 0);}
+\DoxyCodeLine{00144\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ 0);}
+\DoxyCodeLine{00145\ \ \ \ \ glDisable(GL\_BLEND);}
+\DoxyCodeLine{00146\ \ \ \ \ glDisable(GL\_SCISSOR\_TEST);}
+\DoxyCodeLine{00147\ \}}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bar_renderer_acc4b3fa29ee13b2594f951b5f3cbb7ef}{BarRenderer::render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00150\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_ad9c1f05ddbaa0bcd84ec9584ff1c2a91}{drawBars}}(open\_gl);}
+\DoxyCodeLine{00151\ \}}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bar_renderer_aa2cea9f84ddaea8dd0cb0a8a70ffe04d}{BarRenderer::destroy}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00154\ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_aba2309cf4b3c040f6d25418d1fa2dbd3}{OpenGlComponent::destroy}}(open\_gl);}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00156\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a5b76fb670c309ba362670667c6de8bd6}{shader\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00157\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a491a67b54b2898d923fa7291df5c2d2c}{position\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00158\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_ae20b205548c739cfdeca1d811f5a1482}{corner\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00159\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_adf0cf5e932450ed9a1f1579a8f289af2}{color\_uniform\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00160\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a4b812fc51bee7e1666a74578e67b02f4}{dimensions\_uniform\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00161\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_acd37eba6b124543e40950a93015cbe9f}{offset\_uniform\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00162\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_aac2b37d888702bb97387e5c0b2d84049}{scale\_uniform\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00163\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a891f52e525f1b6a41ae1053a7447803a}{width\_percent\_uniform\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00164\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDeleteBuffers(1,\ \&\mbox{\hyperlink{class_bar_renderer_af7c9acb0a2115d435613ee6945502b0d}{bar\_buffer\_}});}
+\DoxyCodeLine{00165\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDeleteBuffers(1,\ \&\mbox{\hyperlink{class_bar_renderer_ae7a1491686aff0838a200376a58ead25}{bar\_indices\_buffer\_}});}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00167\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_af7c9acb0a2115d435613ee6945502b0d}{bar\_buffer\_}}\ =\ 0;}
+\DoxyCodeLine{00168\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_ae7a1491686aff0838a200376a58ead25}{bar\_indices\_buffer\_}}\ =\ 0;}
+\DoxyCodeLine{00169\ \}}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bar_renderer_a90f3f66910d32f5639415edcc7d39eb3}{BarRenderer::setBarSizes}}()\ \{}
+\DoxyCodeLine{00172\ \ \ \ \ \textcolor{comment}{//\ Adjust\ the\ third\ coordinate\ to\ represent\ either\ width\ or\ height\ depending\ on\ orientation.}}
+\DoxyCodeLine{00173\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_bar_renderer_aba10b6707608fe2536bfd9a10c876e00}{vertical\_}})\ \{}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_bar_renderer_ae846c5aade19522a9f37b03aa227355e}{total\_points\_}};\ ++i)\ \{}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ i\ *\ \mbox{\hyperlink{class_bar_renderer_a8af81441dea75948fb7d4ce4cf20c66a}{kFloatsPerBar}};}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ height\ =\ fabsf(\mbox{\hyperlink{class_bar_renderer_a486897a21302672589244ba5234e4017}{yAt}}(i)\ -\/\ \mbox{\hyperlink{class_bar_renderer_a26e771ae90f5ce432474f60781bdf2a9}{bottomAt}}(i))\ *\ 0.5f\ *\ \mbox{\hyperlink{class_bar_renderer_a8be1c93aae3a25c7e4d8f0ee51761498}{display\_scale\_}};}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a66e106ca5c673d2f8abe89c7cecfe0fb}{bar\_data\_}}[index\ +\ 2]\ =\ height;}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a66e106ca5c673d2f8abe89c7cecfe0fb}{bar\_data\_}}[index\ +\ \mbox{\hyperlink{class_bar_renderer_ae8fde02e036feb60f1e42430869c9f0d}{kFloatsPerVertex}}\ +\ 2]\ =\ height;}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a66e106ca5c673d2f8abe89c7cecfe0fb}{bar\_data\_}}[index\ +\ 2\ *\ \mbox{\hyperlink{class_bar_renderer_ae8fde02e036feb60f1e42430869c9f0d}{kFloatsPerVertex}}\ +\ 2]\ =\ height;}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a66e106ca5c673d2f8abe89c7cecfe0fb}{bar\_data\_}}[index\ +\ 3\ *\ \mbox{\hyperlink{class_bar_renderer_ae8fde02e036feb60f1e42430869c9f0d}{kFloatsPerVertex}}\ +\ 2]\ =\ height;}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00183\ \ \ \ \ \}}
+\DoxyCodeLine{00184\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_bar_renderer_ae846c5aade19522a9f37b03aa227355e}{total\_points\_}};\ ++i)\ \{}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ i\ *\ \mbox{\hyperlink{class_bar_renderer_a8af81441dea75948fb7d4ce4cf20c66a}{kFloatsPerBar}};}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ width\ =\ fabsf(\mbox{\hyperlink{class_bar_renderer_ac9907e827bee97442168a304d03c31b7}{xAt}}(i)\ -\/\ \mbox{\hyperlink{class_bar_renderer_a5b70de923992459fd1da75a36af0adb5}{rightAt}}(i))\ *\ 0.5f\ *\ \mbox{\hyperlink{class_bar_renderer_a8be1c93aae3a25c7e4d8f0ee51761498}{display\_scale\_}};}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a66e106ca5c673d2f8abe89c7cecfe0fb}{bar\_data\_}}[index\ +\ 2]\ =\ width;}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a66e106ca5c673d2f8abe89c7cecfe0fb}{bar\_data\_}}[index\ +\ \mbox{\hyperlink{class_bar_renderer_ae8fde02e036feb60f1e42430869c9f0d}{kFloatsPerVertex}}\ +\ 2]\ =\ width;}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a66e106ca5c673d2f8abe89c7cecfe0fb}{bar\_data\_}}[index\ +\ 2\ *\ \mbox{\hyperlink{class_bar_renderer_ae8fde02e036feb60f1e42430869c9f0d}{kFloatsPerVertex}}\ +\ 2]\ =\ width;}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a66e106ca5c673d2f8abe89c7cecfe0fb}{bar\_data\_}}[index\ +\ 3\ *\ \mbox{\hyperlink{class_bar_renderer_ae8fde02e036feb60f1e42430869c9f0d}{kFloatsPerVertex}}\ +\ 2]\ =\ width;}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00194\ \ \ \ \ \}}
+\DoxyCodeLine{00195\ \}}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bar_renderer_a230f6b220a0c76fd13ba80cb3d466edb}{BarRenderer::setPowerScale}}(\textcolor{keywordtype}{bool}\ power\_scale)\ \{}
+\DoxyCodeLine{00198\ \ \ \ \ \textcolor{keywordflow}{if}\ (power\_scale\ ==\ \mbox{\hyperlink{class_bar_renderer_a5f88d5259009b34f7210adad8d590e26}{power\_scale\_}})}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \ \ \textcolor{keywordtype}{bool}\ old\_power\_scale\ =\ \mbox{\hyperlink{class_bar_renderer_a5f88d5259009b34f7210adad8d590e26}{power\_scale\_}};}
+\DoxyCodeLine{00202\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <\ \mbox{\hyperlink{class_bar_renderer_ac7deb66b7aaddba29d02914a4c57e3a3}{num\_points\_}};\ ++i)\ \{}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a5f88d5259009b34f7210adad8d590e26}{power\_scale\_}}\ =\ old\_power\_scale;}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ old\_y\ =\ \mbox{\hyperlink{class_bar_renderer_a4becc282210011239e52d9c4cc6cb800}{scaledYAt}}(i);}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a5f88d5259009b34f7210adad8d590e26}{power\_scale\_}}\ =\ power\_scale;}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a75109994137b289ae0d4148f0da44c6a}{setScaledY}}(i,\ old\_y);}
+\DoxyCodeLine{00207\ \ \ \ \ \}}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00209\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_acd1d0ab682b0ada1fd8feeec9d230341}{dirty\_}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00210\ \}}
+\DoxyCodeLine{00211\ }
+\DoxyCodeLine{00212\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_bar_renderer_a71edf0b8637b86de331d29d7c19d16bd}{BarRenderer::setSquareScale}}(\textcolor{keywordtype}{bool}\ square\_scale)\ \{}
+\DoxyCodeLine{00213\ \ \ \ \ \textcolor{keywordflow}{if}\ (square\_scale\ ==\ \mbox{\hyperlink{class_bar_renderer_af0d204d6a1798c1d3407b66aec4e9d89}{square\_scale\_}})}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00215\ }
+\DoxyCodeLine{00216\ \ \ \ \ \textcolor{keywordtype}{bool}\ old\_square\_scale\ =\ \mbox{\hyperlink{class_bar_renderer_af0d204d6a1798c1d3407b66aec4e9d89}{square\_scale\_}};}
+\DoxyCodeLine{00217\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_bar_renderer_ac7deb66b7aaddba29d02914a4c57e3a3}{num\_points\_}};\ ++i)\ \{}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_af0d204d6a1798c1d3407b66aec4e9d89}{square\_scale\_}}\ =\ old\_square\_scale;}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ old\_y\ =\ \mbox{\hyperlink{class_bar_renderer_a4becc282210011239e52d9c4cc6cb800}{scaledYAt}}(i);}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_af0d204d6a1798c1d3407b66aec4e9d89}{square\_scale\_}}\ =\ square\_scale;}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_a75109994137b289ae0d4148f0da44c6a}{setScaledY}}(i,\ old\_y);}
+\DoxyCodeLine{00222\ \ \ \ \ \}}
+\DoxyCodeLine{00223\ }
+\DoxyCodeLine{00224\ \ \ \ \ \mbox{\hyperlink{class_bar_renderer_acd1d0ab682b0ada1fd8feeec9d230341}{dirty\_}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00225\ \}}
+
+\end{DoxyCode}

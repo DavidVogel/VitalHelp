@@ -1,0 +1,327 @@
+\doxysection{wave\+\_\+source\+\_\+editor.\+cpp}
+\hypertarget{wave__source__editor_8cpp_source}{}\label{wave__source__editor_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/editors/wave\_source\_editor.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/editors/wave\_source\_editor.cpp}}
+\mbox{\hyperlink{wave__source__editor_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__source__editor_8h}{wave\_source\_editor.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{default__look__and__feel_8h}{default\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{shaders_8h}{shaders.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00016\ \ \ \textcolor{keywordtype}{void}\ waveSourceCallback(\textcolor{keywordtype}{int}\ result,\ \mbox{\hyperlink{class_wave_source_editor}{WaveSourceEditor}}*\ editor)\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keywordflow}{if}\ (editor\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keywordflow}{if}\ (result\ ==\ \mbox{\hyperlink{class_wave_source_editor_af31a82d1b2c57c37b99a58d0e7c0c050a7c9041fd74ffb1a5b0dddb52077c9813}{WaveSourceEditor::kClear}})}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ editor-\/>\mbox{\hyperlink{class_wave_source_editor_a5a62b3f11547b1ef9a72e7c1ed7d4e95}{clear}}();}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (result\ ==\ \mbox{\hyperlink{class_wave_source_editor_af31a82d1b2c57c37b99a58d0e7c0c050a979d94322fcb1f2cb36b117f1446fffb}{WaveSourceEditor::kFlipHorizontal}})}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ editor-\/>\mbox{\hyperlink{class_wave_source_editor_a2e8c754a583964ad5e512fdbd45c50d6}{flipHorizontal}}();}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (result\ ==\ \mbox{\hyperlink{class_wave_source_editor_af31a82d1b2c57c37b99a58d0e7c0c050ac8d7bcce2cbaab83caf39fa3bcf1c01f}{WaveSourceEditor::kFlipVertical}})}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ editor-\/>\mbox{\hyperlink{class_wave_source_editor_ab4eee7e0a383db789fbe2597e74838db}{flipVertical}}();}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{comment}{//\ kInitSaw\ can\ be\ implemented\ if\ needed.}}
+\DoxyCodeLine{00027\ \ \ \}}
+\DoxyCodeLine{00028\ \}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \mbox{\hyperlink{class_wave_source_editor_a448d73cc68184b317fca301523fb4a9d}{WaveSourceEditor::WaveSourceEditor}}(\textcolor{keywordtype}{int}\ size)\ :}
+\DoxyCodeLine{00031\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer}{OpenGlLineRenderer}}(size,\ true),}
+\DoxyCodeLine{00032\ \ \ \ \ grid\_lines\_(2\ *\ \mbox{\hyperlink{class_wavetable_component_overlay}{WavetableComponentOverlay}}::kMaxGrid,\ \mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment),}
+\DoxyCodeLine{00033\ \ \ \ \ grid\_circles\_(kNumCircles,\ \mbox{\hyperlink{class_shaders}{Shaders}}::kCircleFragment),\ hover\_circle\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kCircleFragment),\ editing\_line\_(2)\ \{}
+\DoxyCodeLine{00034\ \ \ grid\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a400b44f0d176e32e9a3014be91816808}{setTargetComponent}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00035\ \ \ grid\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a400b44f0d176e32e9a3014be91816808}{setTargetComponent}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00036\ \ \ hover\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a400b44f0d176e32e9a3014be91816808}{setTargetComponent}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00037\ \ \ hover\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ -\/2.0f,\ -\/2.0f,\ 0.0f,\ 0.0f);}
+\DoxyCodeLine{00038\ \ \ addAndMakeVisible(\&editing\_line\_);}
+\DoxyCodeLine{00039\ \ \ editing\_line\_.setInterceptsMouseClicks(\textcolor{keyword}{false},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \mbox{\hyperlink{class_wave_source_editor_a7ec1082684d2701ecca16b36a58700b6}{setEditable}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00042\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a7b6e761ef41ea8e037cc2b32cfd609a6}{setFit}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00043\ \ \ horizontal\_grid\_\ =\ 0;}
+\DoxyCodeLine{00044\ \ \ vertical\_grid\_\ =\ 0;}
+\DoxyCodeLine{00045\ \ \ editing\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00046\ \ \ dragging\_audio\_file\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ values\_\ =\ std::make\_unique<float[]>(size);}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ current\_mouse\_position\_\ =\ Point<int>(INT\_MAX\ /\ 2,\ INT\_MAX\ /\ 2);}
+\DoxyCodeLine{00051\ \}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \mbox{\hyperlink{class_wave_source_editor_aaf5249c7eba54fc7ee80ad9598551052}{WaveSourceEditor::\string~WaveSourceEditor}}()\ \{}
+\DoxyCodeLine{00054\ \}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_a7e310d8b9a29e4d1c299277f1c2c4c21}{WaveSourceEditor::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00057\ \ \ g.fillAll(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5a30a22b4659bc04528e89d1759558a7}{Skin::kWidgetBackground}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ Colour\ lighten\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00060\ \ \ grid\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(lighten);}
+\DoxyCodeLine{00061\ \ \ grid\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(lighten.withMultipliedAlpha(0.5f));}
+\DoxyCodeLine{00062\ \ \ hover\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(lighten);}
+\DoxyCodeLine{00063\ \ \ editing\_line\_.\mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(lighten);}
+\DoxyCodeLine{00064\ \}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_a347c39add40859e194a26525da5e454f}{WaveSourceEditor::resized}}()\ \{}
+\DoxyCodeLine{00067\ \ \ \textcolor{keywordtype}{float}\ width\ =\ getWidth();}
+\DoxyCodeLine{00068\ \ \ \textcolor{keywordtype}{float}\ line\_width\ =\ \mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a0706c2f54d7b90b90c5e3141c4ea3e39}{Skin::kWidgetLineWidth}});}
+\DoxyCodeLine{00069\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_aa6fb221f264f39c93c973656445b5bea}{setLineWidth}}(line\_width);}
+\DoxyCodeLine{00070\ \ \ editing\_line\_.\mbox{\hyperlink{class_open_gl_line_renderer_aa6fb221f264f39c93c973656445b5bea}{setLineWidth}}(line\_width);}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \textcolor{keywordtype}{int}\ num\_points\ =\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}();}
+\DoxyCodeLine{00073\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}();\ ++i)}
+\DoxyCodeLine{00074\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(i,\ i\ *\ width\ /\ (num\_points\ -\/\ 1.0f));}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ setLineValues();}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \mbox{\hyperlink{class_open_gl_component_a2bd142dbb0cb7690829cb0a99f84e993}{OpenGlLineRenderer::resized}}();}
+\DoxyCodeLine{00079\ \ \ editing\_line\_.setBounds(getLocalBounds());}
+\DoxyCodeLine{00080\ \ \ setGridPositions();}
+\DoxyCodeLine{00081\ \}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_ab579d7e64e6b04ae46714a857741b006}{WaveSourceEditor::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00084\ \ \ current\_mouse\_position\_\ =\ e.getPosition();}
+\DoxyCodeLine{00085\ \ \ \textcolor{keywordflow}{if}\ (e.mods.isPopupMenu())\ \{}
+\DoxyCodeLine{00086\ \ \ \ \ \mbox{\hyperlink{struct_popup_items}{PopupItems}}\ options;}
+\DoxyCodeLine{00087\ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_wave_source_editor_af31a82d1b2c57c37b99a58d0e7c0c050a7c9041fd74ffb1a5b0dddb52077c9813}{kClear}},\ \textcolor{stringliteral}{"{}Clear"{}});}
+\DoxyCodeLine{00088\ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_wave_source_editor_af31a82d1b2c57c37b99a58d0e7c0c050ac8d7bcce2cbaab83caf39fa3bcf1c01f}{kFlipVertical}},\ \textcolor{stringliteral}{"{}Flip\ Vertical"{}});}
+\DoxyCodeLine{00089\ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_wave_source_editor_af31a82d1b2c57c37b99a58d0e7c0c050a979d94322fcb1f2cb36b117f1446fffb}{kFlipHorizontal}},\ \textcolor{stringliteral}{"{}Flip\ Horizontal"{}});}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}*\ parent\ =\ findParentComponentOfClass<SynthSection>();}
+\DoxyCodeLine{00092\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_synth_section_a9424df12646a0b756b1b58904b9be6ff}{showPopupSelector}}(\textcolor{keyword}{this},\ e.getPosition(),\ options,}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ [=](\textcolor{keywordtype}{int}\ selection)\ \{\ waveSourceCallback(selection,\ this);\ \});}
+\DoxyCodeLine{00094\ \ \ \}}
+\DoxyCodeLine{00095\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ last\_edit\_position\_\ =\ getSnappedPoint(current\_mouse\_position\_);}
+\DoxyCodeLine{00097\ \ \ \ \ setHoverPosition();}
+\DoxyCodeLine{00098\ \ \ \ \ changeValues(e);}
+\DoxyCodeLine{00099\ \ \ \ \ editing\_line\_.\mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(0,\ last\_edit\_position\_.x);}
+\DoxyCodeLine{00100\ \ \ \ \ editing\_line\_.\mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(0,\ last\_edit\_position\_.y);}
+\DoxyCodeLine{00101\ \ \ \ \ editing\_line\_.\mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(1,\ current\_mouse\_position\_.x);}
+\DoxyCodeLine{00102\ \ \ \ \ editing\_line\_.\mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(1,\ current\_mouse\_position\_.y);}
+\DoxyCodeLine{00103\ \ \ \ \ editing\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00104\ \ \ \}}
+\DoxyCodeLine{00105\ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_a25451895cec0a0c7c8fac7d1d5427493}{WaveSourceEditor::mouseUp}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00108\ \ \ editing\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00109\ \ \ current\_mouse\_position\_\ =\ e.getPosition();}
+\DoxyCodeLine{00110\ \ \ \textcolor{keywordtype}{int}\ index\ =\ getHoveredIndex(snapToGrid(current\_mouse\_position\_));}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_wave_source_editor_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00113\ \ \ \ \ listener-\/>valuesChanged(index,\ index,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00114\ \}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_a4cf3c76dc8bee6b481ff4e09c755ba5f}{WaveSourceEditor::mouseMove}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00117\ \ \ current\_mouse\_position\_\ =\ e.getPosition();}
+\DoxyCodeLine{00118\ \ \ setHoverPosition();}
+\DoxyCodeLine{00119\ \}}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_a7b7f51c02f74ca8725b9ccb1f6c88e46}{WaveSourceEditor::mouseDrag}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00122\ \ \ current\_mouse\_position\_\ =\ e.getPosition();}
+\DoxyCodeLine{00123\ \ \ changeValues(e);}
+\DoxyCodeLine{00124\ \ \ last\_edit\_position\_\ =\ snapToGrid(current\_mouse\_position\_);}
+\DoxyCodeLine{00125\ \ \ setHoverPosition();}
+\DoxyCodeLine{00126\ \ \ editing\_line\_.\mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(0,\ last\_edit\_position\_.x);}
+\DoxyCodeLine{00127\ \ \ editing\_line\_.\mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(0,\ last\_edit\_position\_.y);}
+\DoxyCodeLine{00128\ \ \ editing\_line\_.\mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(1,\ current\_mouse\_position\_.x);}
+\DoxyCodeLine{00129\ \ \ editing\_line\_.\mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(1,\ current\_mouse\_position\_.y);}
+\DoxyCodeLine{00130\ \}}
+\DoxyCodeLine{00131\ }
+\DoxyCodeLine{00132\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_aaf2af6283e61f84944aa9a3eef322eca}{WaveSourceEditor::mouseExit}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00133\ \ \ current\_mouse\_position\_\ =\ Point<int>(-\/getWidth(),\ 0);}
+\DoxyCodeLine{00134\ \ \ setHoverPosition();}
+\DoxyCodeLine{00135\ \}}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \textcolor{keywordtype}{int}\ WaveSourceEditor::getHoveredIndex(Point<int>\ position)\ \{}
+\DoxyCodeLine{00138\ \ \ \textcolor{keywordtype}{int}\ index\ =\ floorf(\mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}()\ *\ (1.0f\ *\ position.x)\ /\ getWidth());}
+\DoxyCodeLine{00139\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_a0096680ab20a53e9eade83f4f2ee1895}{vital::utils::iclamp}}(index,\ 0,\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}()\ -\/\ 1);}
+\DoxyCodeLine{00140\ \}}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \textcolor{keywordtype}{float}\ WaveSourceEditor::getSnapRadius()\ \{}
+\DoxyCodeLine{00143\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{float}\ kGridProximity\ =\ 0.2f;}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ \textcolor{keywordflow}{if}\ (horizontal\_grid\_\ ==\ 0\ ||\ vertical\_grid\_\ ==\ 0)}
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{keywordflow}{return}\ 0.0f;}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \ \textcolor{keywordtype}{float}\ grid\_cell\_width\ =\ getWidth()\ /\ (1.0f\ *\ horizontal\_grid\_);}
+\DoxyCodeLine{00149\ \ \ \textcolor{keywordtype}{float}\ grid\_cell\_height\ =\ getHeight()\ /\ (1.0f\ *\ vertical\_grid\_);}
+\DoxyCodeLine{00150\ \ \ \textcolor{keywordflow}{return}\ kGridProximity\ *\ std::min(grid\_cell\_height,\ grid\_cell\_width);}
+\DoxyCodeLine{00151\ \}}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \textcolor{keywordtype}{void}\ WaveSourceEditor::setLineValues()\ \{}
+\DoxyCodeLine{00154\ \ \ \textcolor{keywordtype}{float}\ adjust\ =\ getHeight()\ /\ 2.0f;}
+\DoxyCodeLine{00155\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}();\ ++i)}
+\DoxyCodeLine{00156\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a1c7d9c959a122a2a9dfdcc4cdbe30ca3}{setYAt}}(i,\ adjust\ *\ (1.0f\ -\/\ values\_[i]));}
+\DoxyCodeLine{00157\ \}}
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \textcolor{keywordtype}{void}\ WaveSourceEditor::changeValues(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00160\ \ \ Point<int>\ mouse\_position\ =\ snapToGrid(e.getPosition());}
+\DoxyCodeLine{00161\ \ \ \textcolor{keywordtype}{int}\ from\_index\ =\ getHoveredIndex(last\_edit\_position\_);}
+\DoxyCodeLine{00162\ \ \ \textcolor{keywordtype}{int}\ selected\_index\ =\ getHoveredIndex(mouse\_position);}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \ \ \textcolor{keywordtype}{float}\ x\ =\ mouse\_position.x;}
+\DoxyCodeLine{00165\ \ \ \textcolor{keywordtype}{float}\ y\ =\ mouse\_position.y;}
+\DoxyCodeLine{00166\ \ \ \textcolor{keywordtype}{float}\ x\_delta\ =\ last\_edit\_position\_.x\ -\/\ x;}
+\DoxyCodeLine{00167\ \ \ \textcolor{keywordtype}{float}\ y\_delta\ =\ last\_edit\_position\_.y\ -\/\ y;}
+\DoxyCodeLine{00168\ \ \ \textcolor{keywordtype}{float}\ slope\ =\ y\_delta\ ==\ 0\ ?\ 0\ :\ y\_delta\ /\ x\_delta;}
+\DoxyCodeLine{00169\ \ \ \textcolor{keywordtype}{float}\ next\_x\ =\ getWidth()\ *\ (1.0f\ *\ selected\_index)\ /\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}();}
+\DoxyCodeLine{00170\ \ \ \textcolor{keywordtype}{int}\ direction\ =\ -\/1;}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00172\ \ \ \textcolor{keywordflow}{if}\ (selected\_index\ <\ from\_index)\ \{}
+\DoxyCodeLine{00173\ \ \ \ \ direction\ =\ 1;}
+\DoxyCodeLine{00174\ \ \ \ \ next\_x\ +=\ getWidth()\ *\ 1.0f\ /\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}();}
+\DoxyCodeLine{00175\ \ \ \}}
+\DoxyCodeLine{00176\ \ \ \textcolor{keywordtype}{float}\ inc\_x\ =\ next\_x\ -\/\ x;}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ index\ =\ selected\_index;\ index\ !=\ from\_index\ +\ direction;\ index\ +=\ direction)\ \{}
+\DoxyCodeLine{00179\ \ \ \ \ \textcolor{keywordflow}{if}\ (index\ >=\ 0\ \&\&\ index\ <\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}())\ \{}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ new\_value\ =\ -\/2.0f\ *\ y\ /\ getHeight()\ +\ 1.0f;}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ values\_[index]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(new\_value,\ -\/1.0f,\ 1.0f);}
+\DoxyCodeLine{00182\ \ \ \ \ \}}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \ \ \ \ y\ +=\ inc\_x\ *\ slope;}
+\DoxyCodeLine{00185\ \ \ \ \ inc\_x\ =\ direction\ *\ getWidth()\ *\ 1.0f\ /\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}();}
+\DoxyCodeLine{00186\ \ \ \}}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \ \ setLineValues();}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \ \ \textcolor{keywordtype}{int}\ min\_index\ =\ std::min(from\_index,\ selected\_index);}
+\DoxyCodeLine{00191\ \ \ \textcolor{keywordtype}{int}\ max\_index\ =\ std::max(from\_index,\ selected\_index);}
+\DoxyCodeLine{00192\ }
+\DoxyCodeLine{00193\ \ \ \textcolor{keywordflow}{for}\ (Listener*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00194\ \ \ \ \ listener-\/>valuesChanged(min\_index,\ max\_index,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00195\ \}}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ Point<int>\ WaveSourceEditor::getSnappedPoint(Point<int>\ input)\ \{}
+\DoxyCodeLine{00198\ \ \ \textcolor{keywordflow}{if}\ (horizontal\_grid\_\ ==\ 0\ ||\ vertical\_grid\_\ ==\ 0)}
+\DoxyCodeLine{00199\ \ \ \ \ \textcolor{keywordflow}{return}\ input;}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \textcolor{keywordtype}{float}\ x\ =\ horizontal\_grid\_\ *\ (1.0f\ *\ input.x)\ /\ getWidth();}
+\DoxyCodeLine{00202\ \ \ \textcolor{keywordtype}{float}\ y\ =\ vertical\_grid\_\ *\ (1.0f\ *\ input.y)\ /\ getHeight();}
+\DoxyCodeLine{00203\ \ \ \textcolor{keywordtype}{float}\ snapped\_x\ =\ getWidth()\ *\ std::roundf(x)\ /\ horizontal\_grid\_;}
+\DoxyCodeLine{00204\ \ \ \textcolor{keywordtype}{float}\ snapped\_y\ =\ getHeight()\ *\ std::roundf(y)\ /\ vertical\_grid\_;}
+\DoxyCodeLine{00205\ \ \ \textcolor{keywordflow}{return}\ Point<int>(snapped\_x,\ snapped\_y);}
+\DoxyCodeLine{00206\ \}}
+\DoxyCodeLine{00207\ }
+\DoxyCodeLine{00208\ Point<int>\ WaveSourceEditor::snapToGrid(Point<int>\ input)\ \{}
+\DoxyCodeLine{00209\ \ \ Point<int>\ snapped\ =\ getSnappedPoint(input);}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ \ \ \textcolor{keywordflow}{if}\ (input.getDistanceFrom(snapped)\ >\ getSnapRadius())}
+\DoxyCodeLine{00212\ \ \ \ \ \textcolor{keywordflow}{return}\ last\_edit\_position\_;}
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00214\ \ \ \textcolor{keywordflow}{return}\ snapped;}
+\DoxyCodeLine{00215\ \}}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00217\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_a4b1dd95334e3af8b8a425d5045676dc0}{WaveSourceEditor::loadWaveform}}(\textcolor{keywordtype}{float}*\ waveform)\ \{}
+\DoxyCodeLine{00218\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}();\ ++i)}
+\DoxyCodeLine{00219\ \ \ \ \ values\_[i]\ =\ waveform[i];}
+\DoxyCodeLine{00220\ }
+\DoxyCodeLine{00221\ \ \ setLineValues();}
+\DoxyCodeLine{00222\ \}}
+\DoxyCodeLine{00223\ }
+\DoxyCodeLine{00224\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_a7ec1082684d2701ecca16b36a58700b6}{WaveSourceEditor::setEditable}}(\textcolor{keywordtype}{bool}\ editable)\ \{}
+\DoxyCodeLine{00225\ \ \ setInterceptsMouseClicks(editable,\ editable);}
+\DoxyCodeLine{00226\ \ \ editable\_\ =\ editable;}
+\DoxyCodeLine{00227\ \}}
+\DoxyCodeLine{00228\ }
+\DoxyCodeLine{00229\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_a3c39266155b6c084c7263fa0149b7743}{WaveSourceEditor::setGrid}}(\textcolor{keywordtype}{int}\ horizontal,\ \textcolor{keywordtype}{int}\ vertical)\ \{}
+\DoxyCodeLine{00230\ \ \ horizontal\_grid\_\ =\ horizontal;}
+\DoxyCodeLine{00231\ \ \ vertical\_grid\_\ =\ \ vertical;}
+\DoxyCodeLine{00232\ \ \ setGridPositions();}
+\DoxyCodeLine{00233\ \}}
+\DoxyCodeLine{00234\ }
+\DoxyCodeLine{00235\ \textcolor{keywordtype}{void}\ WaveSourceEditor::setGridPositions()\ \{}
+\DoxyCodeLine{00236\ \ \ \textcolor{keywordtype}{float}\ pixel\_height\ =\ 2.0f\ /\ getHeight();}
+\DoxyCodeLine{00237\ \ \ \textcolor{keywordtype}{float}\ pixel\_width\ =\ 2.0f\ /\ getWidth();}
+\DoxyCodeLine{00238\ }
+\DoxyCodeLine{00239\ \ \ \textcolor{keywordtype}{int}\ grid\_index\ =\ 0;}
+\DoxyCodeLine{00240\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <\ horizontal\_grid\_;\ ++i)\ \{}
+\DoxyCodeLine{00241\ \ \ \ \ grid\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(grid\_index,\ i\ *\ 2.0f\ /\ horizontal\_grid\_\ -\/\ 1.0f,\ -\/1.0f,\ pixel\_width,\ 2.0f);}
+\DoxyCodeLine{00242\ \ \ \ \ grid\_index++;}
+\DoxyCodeLine{00243\ \ \ \}}
+\DoxyCodeLine{00244\ }
+\DoxyCodeLine{00245\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <\ vertical\_grid\_;\ ++i)\ \{}
+\DoxyCodeLine{00246\ \ \ \ \ grid\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(grid\_index,\ -\/1.0f,\ i\ *\ 2.0f\ /\ vertical\_grid\_\ -\/\ 1.0f,\ 2.0f,\ pixel\_height);}
+\DoxyCodeLine{00247\ \ \ \ \ grid\_index++;}
+\DoxyCodeLine{00248\ \ \ \}}
+\DoxyCodeLine{00249\ \ \ grid\_lines\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4107db47ccf0c13befdb137e7e98cdfd}{setNumQuads}}(grid\_index);}
+\DoxyCodeLine{00250\ }
+\DoxyCodeLine{00251\ \ \ \textcolor{keywordtype}{int}\ circle\_index\ =\ 0;}
+\DoxyCodeLine{00252\ \ \ \textcolor{keywordtype}{float}\ circle\_radius\_x\ =\ getSnapRadius()\ *\ 2.0f\ /\ getWidth();}
+\DoxyCodeLine{00253\ \ \ \textcolor{keywordtype}{float}\ circle\_radius\_y\ =\ getSnapRadius()\ *\ 2.0f\ /\ getHeight();}
+\DoxyCodeLine{00254\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ h\ =\ 0;\ h\ <=\ horizontal\_grid\_;\ ++h)\ \{}
+\DoxyCodeLine{00255\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ v\ =\ 0;\ v\ <=\ vertical\_grid\_;\ ++v)\ \{}
+\DoxyCodeLine{00256\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ x\ =\ h\ *\ 2.0f\ /\ horizontal\_grid\_\ -\/\ 1.0f;}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ v\ *\ 2.0f\ /\ vertical\_grid\_\ -\/\ 1.0f;}
+\DoxyCodeLine{00258\ }
+\DoxyCodeLine{00259\ \ \ \ \ \ \ grid\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(circle\_index,\ x\ -\/\ circle\_radius\_x,\ y\ -\/\ circle\_radius\_y,}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ circle\_radius\_x\ *\ 2.0f,\ circle\_radius\_y\ *\ 2.0f);}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ circle\_index++;}
+\DoxyCodeLine{00262\ \ \ \ \ \}}
+\DoxyCodeLine{00263\ \ \ \}}
+\DoxyCodeLine{00264\ }
+\DoxyCodeLine{00265\ \ \ grid\_circles\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4107db47ccf0c13befdb137e7e98cdfd}{setNumQuads}}(circle\_index);}
+\DoxyCodeLine{00266\ \}}
+\DoxyCodeLine{00267\ }
+\DoxyCodeLine{00268\ }
+\DoxyCodeLine{00269\ \textcolor{keywordtype}{void}\ WaveSourceEditor::setHoverPosition()\ \{}
+\DoxyCodeLine{00270\ \ \ \textcolor{keywordtype}{float}\ circle\_radius\_x\ =\ getSnapRadius()\ *\ 2.0f\ /\ getWidth();}
+\DoxyCodeLine{00271\ \ \ \textcolor{keywordtype}{float}\ circle\_radius\_y\ =\ getSnapRadius()\ *\ 2.0f\ /\ getHeight();}
+\DoxyCodeLine{00272\ }
+\DoxyCodeLine{00273\ \ \ Point<int>\ position;}
+\DoxyCodeLine{00274\ \ \ \textcolor{keywordflow}{if}\ (editing\_)}
+\DoxyCodeLine{00275\ \ \ \ \ position\ =\ last\_edit\_position\_;}
+\DoxyCodeLine{00276\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00277\ \ \ \ \ position\ =\ getSnappedPoint(current\_mouse\_position\_);}
+\DoxyCodeLine{00278\ \ \ hover\_circle\_.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ position.x\ *\ 2.0f\ /\ getWidth()\ -\/\ 1.0f\ -\/\ circle\_radius\_x,}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 1.0f\ -\/\ position.y\ *\ 2.0f\ /\ getHeight()\ -\/\ circle\_radius\_y,}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 2.0f\ *\ circle\_radius\_x,\ 2.0f\ *\ circle\_radius\_y);}
+\DoxyCodeLine{00281\ \}}
+\DoxyCodeLine{00282\ }
+\DoxyCodeLine{00283\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_ac97968fcdfc2f97b21a0180ccd2374e5}{WaveSourceEditor::audioFileLoaded}}(\textcolor{keyword}{const}\ File\&\ file)\ \{}
+\DoxyCodeLine{00284\ \ \ dragging\_audio\_file\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00285\ \}}
+\DoxyCodeLine{00286\ }
+\DoxyCodeLine{00287\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_a5b2e79400ef3e84be8faee71bbf54a31}{WaveSourceEditor::fileDragEnter}}(\textcolor{keyword}{const}\ StringArray\&\ files,\ \textcolor{keywordtype}{int}\ x,\ \textcolor{keywordtype}{int}\ y)\ \{}
+\DoxyCodeLine{00288\ \ \ dragging\_audio\_file\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00289\ \}}
+\DoxyCodeLine{00290\ }
+\DoxyCodeLine{00291\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_a882d49637caadee31342badc1177eb8f}{WaveSourceEditor::fileDragExit}}(\textcolor{keyword}{const}\ StringArray\&\ files)\ \{}
+\DoxyCodeLine{00292\ \ \ dragging\_audio\_file\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00293\ \}}
+\DoxyCodeLine{00294\ }
+\DoxyCodeLine{00295\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_a5a62b3f11547b1ef9a72e7c1ed7d4e95}{WaveSourceEditor::clear}}()\ \{}
+\DoxyCodeLine{00296\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ index\ =\ 0;\ index\ <\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}();\ ++index)}
+\DoxyCodeLine{00297\ \ \ \ \ values\_[index]\ =\ 0.0f;}
+\DoxyCodeLine{00298\ }
+\DoxyCodeLine{00299\ \ \ setLineValues();}
+\DoxyCodeLine{00300\ }
+\DoxyCodeLine{00301\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_wave_source_editor_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00302\ \ \ \ \ listener-\/>valuesChanged(0,\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}()\ -\/\ 1,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00303\ \}}
+\DoxyCodeLine{00304\ }
+\DoxyCodeLine{00305\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_ab4eee7e0a383db789fbe2597e74838db}{WaveSourceEditor::flipVertical}}()\ \{}
+\DoxyCodeLine{00306\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ index\ =\ 0;\ index\ <\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}();\ ++index)}
+\DoxyCodeLine{00307\ \ \ \ \ values\_[index]\ =\ -\/values\_[index];}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00309\ \ \ setLineValues();}
+\DoxyCodeLine{00310\ }
+\DoxyCodeLine{00311\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_wave_source_editor_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00312\ \ \ \ \ listener-\/>valuesChanged(0,\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}()\ -\/\ 1,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00313\ \}}
+\DoxyCodeLine{00314\ }
+\DoxyCodeLine{00315\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_editor_a2e8c754a583964ad5e512fdbd45c50d6}{WaveSourceEditor::flipHorizontal}}()\ \{}
+\DoxyCodeLine{00316\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ index\ =\ 0;\ index\ <\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}()\ /\ 2;\ ++index)\ \{}
+\DoxyCodeLine{00317\ \ \ \ \ \textcolor{keywordtype}{int}\ other\_index\ =\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}()\ -\/\ index\ -\/\ 1;}
+\DoxyCodeLine{00318\ \ \ \ \ \textcolor{keywordtype}{float}\ other\_value\ =\ values\_[other\_index];}
+\DoxyCodeLine{00319\ \ \ \ \ values\_[other\_index]\ =\ values\_[index];}
+\DoxyCodeLine{00320\ \ \ \ \ values\_[index]\ =\ other\_value;}
+\DoxyCodeLine{00321\ \ \ \}}
+\DoxyCodeLine{00322\ }
+\DoxyCodeLine{00323\ \ \ setLineValues();}
+\DoxyCodeLine{00324\ }
+\DoxyCodeLine{00325\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_wave_source_editor_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00326\ \ \ \ \ listener-\/>valuesChanged(0,\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}()\ -\/\ 1,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00327\ \}}
+
+\end{DoxyCode}

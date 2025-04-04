@@ -1,0 +1,298 @@
+\doxysection{line\+\_\+generator.\+cpp}
+\hypertarget{line__generator_8cpp_source}{}\label{line__generator_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/line\_generator.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/line\_generator.cpp}}
+\mbox{\hyperlink{line__generator_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{line__generator_8h}{line\_generator.h}}"{}}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{poly__utils_8h}{poly\_utils.h}}"{}}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{futils_8h}{futils.h}}"{}}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \mbox{\hyperlink{class_line_generator_a62ad83794c5262078726841e8aa8cfb2}{LineGenerator::LineGenerator}}(\textcolor{keywordtype}{int}\ resolution)\ :\ points\_(),\ powers\_(),\ num\_points\_(2),\ resolution\_(resolution),}
+\DoxyCodeLine{00006\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ loop\_(false),\ smooth\_(false),\ linear\_(true),\ render\_count\_(0)\ \{}
+\DoxyCodeLine{00007\ \ \ \mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}\ =\ std::make\_unique<vital::mono\_float[]>(\mbox{\hyperlink{class_line_generator_ab915f3ee0e673ae1aeabdf39880e2af0}{resolution}}\ +\ \mbox{\hyperlink{class_line_generator_ae6446352994f836d992ebf9ff4291ccf}{kExtraValues}});}
+\DoxyCodeLine{00008\ \ \ \mbox{\hyperlink{class_line_generator_adfacb667753a2d718e74e7db8b7d961e}{initLinear}}();}
+\DoxyCodeLine{00009\ \}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_generator_adfacb667753a2d718e74e7db8b7d961e}{LineGenerator::initLinear}}()\ \{}
+\DoxyCodeLine{00012\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[0]\ =\ \{\ 0.0f,\ 1.0f\ \};}
+\DoxyCodeLine{00013\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[1]\ =\ \{\ 1.0f,\ 0.0f\ \};}
+\DoxyCodeLine{00014\ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[0]\ =\ 0.0f;}
+\DoxyCodeLine{00015\ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[1]\ =\ 0.0f;}
+\DoxyCodeLine{00016\ \ \ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ =\ 2;}
+\DoxyCodeLine{00017\ \ \ \mbox{\hyperlink{class_line_generator_ae2a23379ff24e12069800ab724f49f68}{linear\_}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00018\ \ \ \mbox{\hyperlink{class_line_generator_a0a08809ce37639418d07b0ac49215b81}{name\_}}\ =\ \textcolor{stringliteral}{"{}Linear"{}};}
+\DoxyCodeLine{00019\ \ \ \mbox{\hyperlink{class_line_generator_ae59c2c5c4ec2df26a5a31ce8544513c8}{smooth\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00020\ \ \ \mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00021\ \}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_generator_ab4193765104ac51ea7d87e1d7fdb9739}{LineGenerator::initTriangle}}()\ \{}
+\DoxyCodeLine{00024\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[0]\ =\ \{\ 0.0f,\ 1.0f\ \};}
+\DoxyCodeLine{00025\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[1]\ =\ \{\ 0.5f,\ 0.0f\ \};}
+\DoxyCodeLine{00026\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[2]\ =\ \{\ 1.0f,\ 1.0f\ \};}
+\DoxyCodeLine{00027\ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[0]\ =\ 0.0f;}
+\DoxyCodeLine{00028\ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[1]\ =\ 0.0f;}
+\DoxyCodeLine{00029\ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[2]\ =\ 0.0f;}
+\DoxyCodeLine{00030\ \ \ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ =\ 3;}
+\DoxyCodeLine{00031\ \ \ \mbox{\hyperlink{class_line_generator_ae2a23379ff24e12069800ab724f49f68}{linear\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00032\ \ \ \mbox{\hyperlink{class_line_generator_a0a08809ce37639418d07b0ac49215b81}{name\_}}\ =\ \textcolor{stringliteral}{"{}Triangle"{}};}
+\DoxyCodeLine{00033\ \ \ \mbox{\hyperlink{class_line_generator_ae59c2c5c4ec2df26a5a31ce8544513c8}{smooth\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00034\ \ \ \mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00035\ \}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_generator_ad13f0b09b7b01beb87b5d66bf3aa731a}{LineGenerator::initSquare}}()\ \{}
+\DoxyCodeLine{00038\ \ \ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ =\ 5;}
+\DoxyCodeLine{00039\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[0]\ =\ \{\ 0.0f,\ 1.0f\ \};}
+\DoxyCodeLine{00040\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[1]\ =\ \{\ 0.0f,\ 0.0f\ \};}
+\DoxyCodeLine{00041\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[2]\ =\ \{\ 0.5f,\ 0.0f\ \};}
+\DoxyCodeLine{00042\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[3]\ =\ \{\ 0.5f,\ 1.0f\ \};}
+\DoxyCodeLine{00043\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[4]\ =\ \{\ 1.0f,\ 1.0f\ \};}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}};\ ++i)}
+\DoxyCodeLine{00046\ \ \ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[i]\ =\ 0.0f;}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \mbox{\hyperlink{class_line_generator_ae2a23379ff24e12069800ab724f49f68}{linear\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00049\ \ \ \mbox{\hyperlink{class_line_generator_a0a08809ce37639418d07b0ac49215b81}{name\_}}\ =\ \textcolor{stringliteral}{"{}Square"{}};}
+\DoxyCodeLine{00050\ \ \ \mbox{\hyperlink{class_line_generator_ae59c2c5c4ec2df26a5a31ce8544513c8}{smooth\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00051\ \ \ \mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00052\ \}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_generator_a1fb2cc6e193f1f6946a54995b1c755d8}{LineGenerator::initSin}}()\ \{}
+\DoxyCodeLine{00055\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[0]\ =\ \{\ 0.0f,\ 1.0f\ \};}
+\DoxyCodeLine{00056\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[1]\ =\ \{\ 0.5f,\ 0.0f\ \};}
+\DoxyCodeLine{00057\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[2]\ =\ \{\ 1.0f,\ 1.0f\ \};}
+\DoxyCodeLine{00058\ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[0]\ =\ 0.0f;}
+\DoxyCodeLine{00059\ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[1]\ =\ 0.0f;}
+\DoxyCodeLine{00060\ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[2]\ =\ 0.0f;}
+\DoxyCodeLine{00061\ \ \ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ =\ 3;}
+\DoxyCodeLine{00062\ \ \ \mbox{\hyperlink{class_line_generator_ae2a23379ff24e12069800ab724f49f68}{linear\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00063\ \ \ \mbox{\hyperlink{class_line_generator_a0a08809ce37639418d07b0ac49215b81}{name\_}}\ =\ \textcolor{stringliteral}{"{}Sin"{}};}
+\DoxyCodeLine{00064\ \ \ \mbox{\hyperlink{class_line_generator_ae59c2c5c4ec2df26a5a31ce8544513c8}{smooth\_}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00065\ \ \ \mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00066\ \}}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_generator_af2bedb6b3945cff1b0c02a67f9e88aea}{LineGenerator::initSawUp}}()\ \{}
+\DoxyCodeLine{00069\ \ \ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ =\ 3;}
+\DoxyCodeLine{00070\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[0]\ =\ \{\ 0.0f,\ 1.0f\ \};}
+\DoxyCodeLine{00071\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[1]\ =\ \{\ 1.0f,\ 0.0f\ \};}
+\DoxyCodeLine{00072\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[2]\ =\ \{\ 1.0f,\ 1.0f\ \};}
+\DoxyCodeLine{00073\ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[0]\ =\ 0.0f;}
+\DoxyCodeLine{00074\ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[1]\ =\ 0.0f;}
+\DoxyCodeLine{00075\ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[2]\ =\ 0.0f;}
+\DoxyCodeLine{00076\ \ \ \mbox{\hyperlink{class_line_generator_ae2a23379ff24e12069800ab724f49f68}{linear\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00077\ \ \ \mbox{\hyperlink{class_line_generator_a0a08809ce37639418d07b0ac49215b81}{name\_}}\ =\ \textcolor{stringliteral}{"{}Saw\ Up"{}};}
+\DoxyCodeLine{00078\ \ \ \mbox{\hyperlink{class_line_generator_ae59c2c5c4ec2df26a5a31ce8544513c8}{smooth\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00079\ \ \ \mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00080\ \}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_generator_ad037d1b17cd92fe3c9e924a4557a13d3}{LineGenerator::initSawDown}}()\ \{}
+\DoxyCodeLine{00083\ \ \ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ =\ 3;}
+\DoxyCodeLine{00084\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[0]\ =\ \{\ 0.0f,\ 0.0f\ \};}
+\DoxyCodeLine{00085\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[1]\ =\ \{\ 1.0f,\ 1.0f\ \};}
+\DoxyCodeLine{00086\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[2]\ =\ \{\ 1.0f,\ 0.0f\ \};}
+\DoxyCodeLine{00087\ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[0]\ =\ 0.0f;}
+\DoxyCodeLine{00088\ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[1]\ =\ 0.0f;}
+\DoxyCodeLine{00089\ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[2]\ =\ 0.0f;}
+\DoxyCodeLine{00090\ \ \ \mbox{\hyperlink{class_line_generator_ae2a23379ff24e12069800ab724f49f68}{linear\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00091\ \ \ \mbox{\hyperlink{class_line_generator_a0a08809ce37639418d07b0ac49215b81}{name\_}}\ =\ \textcolor{stringliteral}{"{}Saw\ Down"{}};}
+\DoxyCodeLine{00092\ \ \ \mbox{\hyperlink{class_line_generator_ae59c2c5c4ec2df26a5a31ce8544513c8}{smooth\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00093\ \ \ \mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00094\ \}}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_line_generator_ad89103d3ef0b3f99dee5075f114decd2}{LineGenerator::stateToJson}}()\ \{}
+\DoxyCodeLine{00097\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ point\_data;}
+\DoxyCodeLine{00098\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ power\_data;}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}};\ ++i)\ \{}
+\DoxyCodeLine{00101\ \ \ \ \ std::pair<float,\ float>\ point\ =\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[i];}
+\DoxyCodeLine{00102\ \ \ \ \ point\_data.push\_back(point.first);}
+\DoxyCodeLine{00103\ \ \ \ \ point\_data.push\_back(point.second);}
+\DoxyCodeLine{00104\ \ \ \ \ power\_data.push\_back(\mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[i]);}
+\DoxyCodeLine{00105\ \ \ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data;}
+\DoxyCodeLine{00108\ \ \ data[\textcolor{stringliteral}{"{}num\_points"{}}]\ =\ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}};}
+\DoxyCodeLine{00109\ \ \ data[\textcolor{stringliteral}{"{}points"{}}]\ =\ point\_data;}
+\DoxyCodeLine{00110\ \ \ data[\textcolor{stringliteral}{"{}powers"{}}]\ =\ power\_data;}
+\DoxyCodeLine{00111\ \ \ data[\textcolor{stringliteral}{"{}name"{}}]\ =\ \mbox{\hyperlink{class_line_generator_a0a08809ce37639418d07b0ac49215b81}{name\_}};}
+\DoxyCodeLine{00112\ \ \ data[\textcolor{stringliteral}{"{}smooth"{}}]\ =\ \mbox{\hyperlink{class_line_generator_ae59c2c5c4ec2df26a5a31ce8544513c8}{smooth\_}};}
+\DoxyCodeLine{00113\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00114\ \}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_line_generator_a920cb1d666de445e22d0875bdeb7a107}{LineGenerator::isValidJson}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00117\ \ \ \textcolor{keywordflow}{if}\ (!data.count(\textcolor{stringliteral}{"{}num\_points"{}})\ ||\ !data.count(\textcolor{stringliteral}{"{}points"{}})\ ||\ !data.count(\textcolor{stringliteral}{"{}powers"{}}))}
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ point\_data\ =\ data[\textcolor{stringliteral}{"{}points"{}}];}
+\DoxyCodeLine{00121\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ power\_data\ =\ data[\textcolor{stringliteral}{"{}powers"{}}];}
+\DoxyCodeLine{00122\ \ \ \textcolor{keywordflow}{return}\ point\_data.is\_array()\ \&\&\ power\_data.is\_array();}
+\DoxyCodeLine{00123\ \}}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_generator_acaa5e05d5e1210bf3433fb9456895fed}{LineGenerator::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00126\ \ \ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ =\ data[\textcolor{stringliteral}{"{}num\_points"{}}];}
+\DoxyCodeLine{00127\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ point\_data\ =\ data[\textcolor{stringliteral}{"{}points"{}}];}
+\DoxyCodeLine{00128\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ power\_data\ =\ data[\textcolor{stringliteral}{"{}powers"{}}];}
+\DoxyCodeLine{00129\ \ \ \mbox{\hyperlink{class_line_generator_a0a08809ce37639418d07b0ac49215b81}{name\_}}\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00130\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}name"{}}))}
+\DoxyCodeLine{00131\ \ \ \ \ \mbox{\hyperlink{class_line_generator_a0a08809ce37639418d07b0ac49215b81}{name\_}}\ =\ data[\textcolor{stringliteral}{"{}name"{}}].get<std::string>();}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \ \ \mbox{\hyperlink{class_line_generator_ae59c2c5c4ec2df26a5a31ce8544513c8}{smooth\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00134\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}smooth"{}}))}
+\DoxyCodeLine{00135\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ae59c2c5c4ec2df26a5a31ce8544513c8}{smooth\_}}\ =\ data[\textcolor{stringliteral}{"{}smooth"{}}];}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \ \ \textcolor{keywordtype}{int}\ num\_read\ =\ \mbox{\hyperlink{class_line_generator_ad0c45d07732247d3994bdc4c4da79c21}{kMaxPoints}};}
+\DoxyCodeLine{00138\ \ \ num\_read\ =\ std::min(num\_read,\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(power\_data.size()));}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_read;\ ++i)\ \{}
+\DoxyCodeLine{00141\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[i]\ =\ std::pair<float,\ float>(point\_data[2\ *\ i],\ point\_data[2\ *\ i\ +\ 1]);}
+\DoxyCodeLine{00142\ \ \ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[i]\ =\ power\_data[i];}
+\DoxyCodeLine{00143\ \ \ \}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ \mbox{\hyperlink{class_line_generator_a6151797ccceef7160438d66d468c1b4a}{checkLineIsLinear}}();}
+\DoxyCodeLine{00146\ \ \ \mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00147\ \}}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{LineGenerator::render}}()\ \{}
+\DoxyCodeLine{00150\ \ \ \mbox{\hyperlink{class_line_generator_a18d26a36a039106beef58973ad8f5a1f}{render\_count\_}}++;}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \textcolor{keywordtype}{int}\ point\_index\ =\ 0;}
+\DoxyCodeLine{00153\ \ \ std::pair<float,\ float>\ last\_point\ =\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[point\_index];}
+\DoxyCodeLine{00154\ \ \ \textcolor{keywordtype}{float}\ current\_power\ =\ 0.0f;}
+\DoxyCodeLine{00155\ \ \ std::pair<float,\ float>\ current\_point\ =\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[point\_index];}
+\DoxyCodeLine{00156\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_generator_a41cf067ce7216c3fc3088d75b2242cac}{loop\_}})\ \{}
+\DoxyCodeLine{00157\ \ \ \ \ last\_point\ =\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[\mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ -\/\ 1];}
+\DoxyCodeLine{00158\ \ \ \ \ last\_point.first\ -\/=\ 1.0f;}
+\DoxyCodeLine{00159\ \ \ \ \ current\_power\ =\ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[\mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ -\/\ 1];}
+\DoxyCodeLine{00160\ \ \ \}}
+\DoxyCodeLine{00161\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_line_generator_af69a95cd0363cc3beebe7b757cd1950d}{resolution\_}};\ ++i)\ \{}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keywordtype}{float}\ x\ =\ i\ /\ (\mbox{\hyperlink{class_line_generator_af69a95cd0363cc3beebe7b757cd1950d}{resolution\_}}\ -\/\ 1.0f);}
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ 1.0f;}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{keywordflow}{if}\ (current\_point.first\ >\ last\_point.first)}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ t\ =\ (x\ -\/\ last\_point.first)\ /\ (current\_point.first\ -\/\ last\_point.first);}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_generator_ae59c2c5c4ec2df26a5a31ce8544513c8}{smooth\_}})}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ t\ =\ \mbox{\hyperlink{class_line_generator_ac91f2c0b9b4f597c7dd9e37d4ec1afdd}{smoothTransition}}(t);}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \ \ \ \ t\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(\mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{vital::futils::powerScale}}(t,\ current\_power),\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00172\ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ last\_point.second\ +\ t\ *\ (current\_point.second\ -\/\ last\_point.second);}
+\DoxyCodeLine{00173\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}[i\ +\ 1]\ =\ 1.0f\ -\/\ y;}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{keywordflow}{while}\ (x\ >\ current\_point.first\ \&\&\ point\_index\ <\ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}})\ \{}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ current\_power\ =\ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[point\_index\ \%\ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}];}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ point\_index++;}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ last\_point\ =\ current\_point;}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ current\_point\ =\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[point\_index\ \%\ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}];}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (point\_index\ >=\ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}})\ \{}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ current\_point.first\ +=\ 1.0f;}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00184\ \ \ \ \ \}}
+\DoxyCodeLine{00185\ \ \ \}}
+\DoxyCodeLine{00186\ }
+\DoxyCodeLine{00187\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_generator_a41cf067ce7216c3fc3088d75b2242cac}{loop\_}})\ \{}
+\DoxyCodeLine{00188\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}[0]\ =\ \mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}[\mbox{\hyperlink{class_line_generator_af69a95cd0363cc3beebe7b757cd1950d}{resolution\_}}];}
+\DoxyCodeLine{00189\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}[\mbox{\hyperlink{class_line_generator_af69a95cd0363cc3beebe7b757cd1950d}{resolution\_}}\ +\ 1]\ =\ \mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}[1];}
+\DoxyCodeLine{00190\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}[\mbox{\hyperlink{class_line_generator_af69a95cd0363cc3beebe7b757cd1950d}{resolution\_}}\ +\ 2]\ =\ \mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}[2];}
+\DoxyCodeLine{00191\ \ \ \}}
+\DoxyCodeLine{00192\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00193\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}[0]\ =\ \mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}[1];}
+\DoxyCodeLine{00194\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}[\mbox{\hyperlink{class_line_generator_af69a95cd0363cc3beebe7b757cd1950d}{resolution\_}}\ +\ 1]\ =\ \mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}[\mbox{\hyperlink{class_line_generator_af69a95cd0363cc3beebe7b757cd1950d}{resolution\_}}];}
+\DoxyCodeLine{00195\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}[\mbox{\hyperlink{class_line_generator_af69a95cd0363cc3beebe7b757cd1950d}{resolution\_}}\ +\ 2]\ =\ \mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}[\mbox{\hyperlink{class_line_generator_af69a95cd0363cc3beebe7b757cd1950d}{resolution\_}}];}
+\DoxyCodeLine{00196\ \ \ \}}
+\DoxyCodeLine{00197\ \}}
+\DoxyCodeLine{00198\ }
+\DoxyCodeLine{00199\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_line_generator_a33bc4b29dd3de919bd4d75e007330405}{LineGenerator::valueAtPhase}}(\textcolor{keywordtype}{float}\ phase)\ \{}
+\DoxyCodeLine{00200\ \ \ \textcolor{keywordtype}{float}\ scaled\_phase\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(phase,\ 0.0f,\ 1.0f)\ *\ \mbox{\hyperlink{class_line_generator_af69a95cd0363cc3beebe7b757cd1950d}{resolution\_}};}
+\DoxyCodeLine{00201\ \ \ \textcolor{keywordtype}{int}\ index\ =\ scaled\_phase;}
+\DoxyCodeLine{00202\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(\mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}[index\ +\ 1],\ \mbox{\hyperlink{class_line_generator_ac5f154da3f19e48b7e1bf78f08150c4b}{buffer\_}}[index\ +\ 2],\ scaled\_phase\ -\/\ index);}
+\DoxyCodeLine{00203\ \}}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00205\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_generator_a6151797ccceef7160438d66d468c1b4a}{LineGenerator::checkLineIsLinear}}()\ \{}
+\DoxyCodeLine{00206\ \ \ \mbox{\hyperlink{class_line_generator_ae2a23379ff24e12069800ab724f49f68}{linear\_}}\ =\ !\mbox{\hyperlink{class_line_generator_ae59c2c5c4ec2df26a5a31ce8544513c8}{smooth\_}}\ \&\&\ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ ==\ 2\ \&\&\ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[0]\ ==\ 0.0f\ \&\&}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[0]\ ==\ std::pair<float,\ float>(0.0f,\ 1.0f)\ \&\&}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[1]\ ==\ std::pair<float,\ float>(1.0f,\ 0.0f);}
+\DoxyCodeLine{00209\ \}}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_line_generator_a7ade1830506fa5ae3c3dac976abf46fd}{LineGenerator::getValueBetweenPoints}}(\textcolor{keywordtype}{float}\ x,\ \textcolor{keywordtype}{int}\ index\_from,\ \textcolor{keywordtype}{int}\ index\_to)\ \{}
+\DoxyCodeLine{00212\ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(index\_from\ >=\ 0\ \&\&\ index\_to\ <\ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}});}
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00214\ \ \ std::pair<float,\ float>\ first\ =\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[index\_from];}
+\DoxyCodeLine{00215\ \ \ std::pair<float,\ float>\ second\ =\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[index\_to];}
+\DoxyCodeLine{00216\ \ \ \textcolor{keywordtype}{float}\ power\ =\ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[index\_from];}
+\DoxyCodeLine{00217\ }
+\DoxyCodeLine{00218\ \ \ \textcolor{keywordtype}{float}\ width\ =\ second.first\ -\/\ first.first;}
+\DoxyCodeLine{00219\ \ \ \textcolor{keywordflow}{if}\ (width\ <=\ 0.0f)}
+\DoxyCodeLine{00220\ \ \ \ \ \textcolor{keywordflow}{return}\ second.second;}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00222\ \ \ \textcolor{keywordtype}{float}\ t\ =\ (x\ -\/\ first.first)\ /\ width;}
+\DoxyCodeLine{00223\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_generator_ae59c2c5c4ec2df26a5a31ce8544513c8}{smooth\_}})}
+\DoxyCodeLine{00224\ \ \ \ \ t\ =\ \mbox{\hyperlink{class_line_generator_ac91f2c0b9b4f597c7dd9e37d4ec1afdd}{smoothTransition}}(t);}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00226\ \ \ t\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(\mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{vital::futils::powerScale}}(t,\ power),\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00227\ \ \ \textcolor{keywordflow}{return}\ t\ *\ (second.second\ -\/\ first.second)\ +\ first.second;}
+\DoxyCodeLine{00228\ \}}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00230\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_line_generator_ac9a1556e29bfb12d747963545bb16796}{LineGenerator::getValueAtPhase}}(\textcolor{keywordtype}{float}\ phase)\ \{}
+\DoxyCodeLine{00231\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ -\/\ 1;\ ++i)\ \{}
+\DoxyCodeLine{00232\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[i].first\ <=\ phase\ \&\&\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[i\ +\ 1].first\ >=\ phase)}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_line_generator_a7ade1830506fa5ae3c3dac976abf46fd}{getValueBetweenPoints}}(phase,\ i,\ i\ +\ 1);}
+\DoxyCodeLine{00234\ \ \ \}}
+\DoxyCodeLine{00235\ }
+\DoxyCodeLine{00236\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_line_generator_a1afe833e851003dda4ea1373a1d6fe3d}{lastPoint}}().second;}
+\DoxyCodeLine{00237\ \}}
+\DoxyCodeLine{00238\ }
+\DoxyCodeLine{00239\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_generator_ae834dac40f848592e5176dd88e8bbed9}{LineGenerator::addPoint}}(\textcolor{keywordtype}{int}\ index,\ std::pair<float,\ float>\ position)\ \{}
+\DoxyCodeLine{00240\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}};\ i\ >\ index;\ -\/-\/i)\ \{}
+\DoxyCodeLine{00241\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[i]\ =\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[i\ -\/\ 1];}
+\DoxyCodeLine{00242\ \ \ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[i]\ =\ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[i\ -\/\ 1];}
+\DoxyCodeLine{00243\ \ \ \}}
+\DoxyCodeLine{00244\ }
+\DoxyCodeLine{00245\ \ \ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}++;}
+\DoxyCodeLine{00246\ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[index]\ =\ position;}
+\DoxyCodeLine{00247\ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[index]\ =\ 0.0f;}
+\DoxyCodeLine{00248\ \ \ \mbox{\hyperlink{class_line_generator_a6151797ccceef7160438d66d468c1b4a}{checkLineIsLinear}}();}
+\DoxyCodeLine{00249\ \}}
+\DoxyCodeLine{00250\ }
+\DoxyCodeLine{00251\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_generator_a7417717f1736954a04eeb8d72cbe78ba}{LineGenerator::addMiddlePoint}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00252\ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(index\ >\ 0);}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \ \ \textcolor{keywordtype}{float}\ x\ =\ (\mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[index\ -\/\ 1].first\ +\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[index].first)\ *\ 0.5f;}
+\DoxyCodeLine{00255\ \ \ \textcolor{keywordtype}{float}\ y\ =\ \mbox{\hyperlink{class_line_generator_a7ade1830506fa5ae3c3dac976abf46fd}{getValueBetweenPoints}}(x,\ index\ -\/\ 1,\ index);}
+\DoxyCodeLine{00256\ \ \ \mbox{\hyperlink{class_line_generator_ae834dac40f848592e5176dd88e8bbed9}{addPoint}}(index,\ \{\ x,\ y\ \});}
+\DoxyCodeLine{00257\ \}}
+\DoxyCodeLine{00258\ }
+\DoxyCodeLine{00259\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_generator_aa4ea2ba9cf630300a103933798c96625}{LineGenerator::removePoint}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00260\ \ \ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}-\/-\/;}
+\DoxyCodeLine{00261\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ index;\ i\ <\ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}};\ ++i)\ \{}
+\DoxyCodeLine{00262\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[i]\ =\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[i\ +\ 1];}
+\DoxyCodeLine{00263\ \ \ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[i]\ =\ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[i\ +\ 1];}
+\DoxyCodeLine{00264\ \ \ \}}
+\DoxyCodeLine{00265\ \ \ \mbox{\hyperlink{class_line_generator_a6151797ccceef7160438d66d468c1b4a}{checkLineIsLinear}}();}
+\DoxyCodeLine{00266\ \}}
+\DoxyCodeLine{00267\ }
+\DoxyCodeLine{00268\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_generator_aa9693c409642b390ed15c6fcf512538c}{LineGenerator::flipHorizontal}}()\ \{}
+\DoxyCodeLine{00269\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ (\mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ +\ 1)\ /\ 2;\ ++i)\ \{}
+\DoxyCodeLine{00270\ \ \ \ \ \textcolor{keywordtype}{float}\ tmp\_x\ =\ 1.0f\ -\/\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[i].first;}
+\DoxyCodeLine{00271\ \ \ \ \ \textcolor{keywordtype}{float}\ tmp\_y\ =\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[i].second;}
+\DoxyCodeLine{00272\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[i].first\ =\ 1.0f\ -\/\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[\mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ -\/\ i\ -\/\ 1].first;}
+\DoxyCodeLine{00273\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[i].second\ =\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[\mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ -\/\ i\ -\/\ 1].second;}
+\DoxyCodeLine{00274\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[\mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ -\/\ i\ -\/\ 1].first\ =\ tmp\_x;}
+\DoxyCodeLine{00275\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[\mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ -\/\ i\ -\/\ 1].second\ =\ tmp\_y;}
+\DoxyCodeLine{00276\ \ \ \}}
+\DoxyCodeLine{00277\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ /\ 2;\ ++i)\ \{}
+\DoxyCodeLine{00278\ \ \ \ \ \textcolor{keywordtype}{float}\ tmp\_power\ =\ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[i];}
+\DoxyCodeLine{00279\ \ \ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[i]\ =\ -\/\mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[\mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ -\/\ i\ -\/\ 2];}
+\DoxyCodeLine{00280\ \ \ \ \ \mbox{\hyperlink{class_line_generator_a6c50674f55751366320989bb364c8027}{powers\_}}[\mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}}\ -\/\ i\ -\/\ 2]\ =\ -\/tmp\_power;}
+\DoxyCodeLine{00281\ \ \ \}}
+\DoxyCodeLine{00282\ \ \ \mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00283\ \ \ \mbox{\hyperlink{class_line_generator_a6151797ccceef7160438d66d468c1b4a}{checkLineIsLinear}}();}
+\DoxyCodeLine{00284\ \}}
+\DoxyCodeLine{00285\ }
+\DoxyCodeLine{00286\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_line_generator_aebcea1df83c0f5268a196053d4db068d}{LineGenerator::flipVertical}}()\ \{}
+\DoxyCodeLine{00287\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_line_generator_a8d44734d2de4a571a7fa5a3de2391872}{num\_points\_}};\ ++i)}
+\DoxyCodeLine{00288\ \ \ \ \ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[i].second\ =\ 1.0f\ -\/\ \mbox{\hyperlink{class_line_generator_ac567d2064ff6d91852bf0f446278d176}{points\_}}[i].second;}
+\DoxyCodeLine{00289\ }
+\DoxyCodeLine{00290\ \ \ \mbox{\hyperlink{class_line_generator_a526de7512ea79d474863bc8f1d155136}{render}}();}
+\DoxyCodeLine{00291\ \ \ \mbox{\hyperlink{class_line_generator_a6151797ccceef7160438d66d468c1b4a}{checkLineIsLinear}}();}
+\DoxyCodeLine{00292\ \}}
+
+\end{DoxyCode}

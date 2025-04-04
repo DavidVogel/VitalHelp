@@ -1,0 +1,257 @@
+\doxysection{modulation\+\_\+interface.\+cpp}
+\hypertarget{modulation__interface_8cpp_source}{}\label{modulation__interface_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/modulation\_interface.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/modulation\_interface.cpp}}
+\mbox{\hyperlink{modulation__interface_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{modulation__interface_8h}{modulation\_interface.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{envelope__section_8h}{envelope\_section.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{extra__mod__section_8h}{extra\_mod\_section.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{lfo__section_8h}{lfo\_section.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{random__section_8h}{random\_section.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__gui__interface_8h}{synth\_gui\_interface.h}}"{}}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00010\ \ \ \textcolor{comment}{//\ Strings\ representing\ keyboard\ modulation\ sources\ for\ top\ and\ bottom\ rows.}}
+\DoxyCodeLine{00011\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kKeyboardTopModulationStrings[]\ =\ \{}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{stringliteral}{"{}note"{}},}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{stringliteral}{"{}velocity"{}},}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{stringliteral}{"{}lift"{}},}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{stringliteral}{"{}note\_in\_octave"{}}}
+\DoxyCodeLine{00016\ \ \ \};}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ kKeyboardBottomModulationStrings[]\ =\ \{}
+\DoxyCodeLine{00019\ \ \ \ \textcolor{stringliteral}{"{}aftertouch"{}},}
+\DoxyCodeLine{00020\ \ \ \ \textcolor{stringliteral}{"{}slide"{}},}
+\DoxyCodeLine{00021\ \ \ \ \textcolor{stringliteral}{"{}stereo"{}},}
+\DoxyCodeLine{00022\ \ \ \ \textcolor{stringliteral}{"{}random"{}},}
+\DoxyCodeLine{00023\ \ \ \};}
+\DoxyCodeLine{00024\ \}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \mbox{\hyperlink{class_modulation_interface_acbe8f74886ebbe8489424a2aa2e23653}{ModulationInterface::ModulationInterface}}(\mbox{\hyperlink{struct_synth_gui_data}{SynthGuiData}}*\ synth\_data)\ :\ \mbox{\hyperlink{class_synth_section}{SynthSection}}(\textcolor{stringliteral}{"{}modulation"{}})\ \{}
+\DoxyCodeLine{00027\ \ \ \textcolor{comment}{//\ Create\ envelope\ sections}}
+\DoxyCodeLine{00028\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a9acbf7e6b849148921f335c101e02fe6}{vital::kNumEnvelopes}};\ ++i)\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ std::string\ string\_num\ =\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00030\ \ \ \ \ std::string\ prefix\ =\ \textcolor{stringliteral}{"{}env\_"{}}\ +\ string\_num;}
+\DoxyCodeLine{00031\ \ \ \ \ envelopes\_[i]\ =\ std::make\_unique<EnvelopeSection>(\textcolor{stringliteral}{"{}ENVELOPE\ "{}}\ +\ string\_num,\ prefix,}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ synth\_data-\/>\mbox{\hyperlink{struct_synth_gui_data_a92054f38577ae47e902766a0ba482948}{mono\_modulations}},\ synth\_data-\/>\mbox{\hyperlink{struct_synth_gui_data_a0b47ccb776e8f47b53a2341c3c6341f3}{poly\_modulations}});}
+\DoxyCodeLine{00033\ \ \ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(envelopes\_[i].get());}
+\DoxyCodeLine{00034\ \ \ \ \ envelopes\_[i]-\/>setVisible(i\ ==\ 0);}
+\DoxyCodeLine{00035\ \ \ \}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \textcolor{comment}{//\ Create\ and\ configure\ envelope\ tab\ selector}}
+\DoxyCodeLine{00038\ \ \ envelope\_tab\_selector\_\ =\ std::make\_unique<ModulationTabSelector>(\textcolor{stringliteral}{"{}env"{}},\ \mbox{\hyperlink{namespacevital_a9acbf7e6b849148921f335c101e02fe6}{vital::kNumEnvelopes}});}
+\DoxyCodeLine{00039\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(envelope\_tab\_selector\_.get());}
+\DoxyCodeLine{00040\ \ \ envelope\_tab\_selector\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00041\ \ \ envelope\_tab\_selector\_-\/>registerModulationButtons(\textcolor{keyword}{this});}
+\DoxyCodeLine{00042\ \ \ envelope\_tab\_selector\_-\/>enableSelections();}
+\DoxyCodeLine{00043\ \ \ envelope\_tab\_selector\_-\/>setMinModulationsShown(\mbox{\hyperlink{class_modulation_interface_ac0df6f43c425b416d6686ee5157a042c}{kMinEnvelopeModulationsToShow}});}
+\DoxyCodeLine{00044\ \ \ envelope\_tab\_selector\_-\/>connectRight(\textcolor{keyword}{true});}
+\DoxyCodeLine{00045\ \ \ envelope\_tab\_selector\_-\/>drawBorders(\textcolor{keyword}{true});}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ \textcolor{comment}{//\ Create\ LFO\ sections}}
+\DoxyCodeLine{00048\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_aba56646bec643d6d416700b782ed978b}{vital::kNumLfos}};\ ++i)\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ std::string\ string\_num\ =\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00050\ \ \ \ \ std::string\ prefix\ =\ \textcolor{stringliteral}{"{}lfo\_"{}}\ +\ string\_num;}
+\DoxyCodeLine{00051\ \ \ \ \ lfos\_[i]\ =\ std::make\_unique<LfoSection>(\textcolor{stringliteral}{"{}LFO\ "{}}\ +\ string\_num,\ prefix,\ synth\_data-\/>\mbox{\hyperlink{struct_synth_gui_data_a9de8894a45ac52a70516cfdb066e2a14}{synth}}-\/>\mbox{\hyperlink{class_synth_base_a80af5aada8edd7fd057c7b4251f968fb}{getLfoSource}}(i),}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ synth\_data-\/>\mbox{\hyperlink{struct_synth_gui_data_a92054f38577ae47e902766a0ba482948}{mono\_modulations}},\ synth\_data-\/>\mbox{\hyperlink{struct_synth_gui_data_a0b47ccb776e8f47b53a2341c3c6341f3}{poly\_modulations}});}
+\DoxyCodeLine{00053\ \ \ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(lfos\_[i].get());}
+\DoxyCodeLine{00054\ \ \ \ \ lfos\_[i]-\/>setVisible(i\ ==\ 0);}
+\DoxyCodeLine{00055\ \ \ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \textcolor{comment}{//\ Create\ and\ configure\ LFO\ tab\ selector}}
+\DoxyCodeLine{00058\ \ \ lfo\_tab\_selector\_\ =\ std::make\_unique<ModulationTabSelector>(\textcolor{stringliteral}{"{}lfo"{}},\ \mbox{\hyperlink{namespacevital_aba56646bec643d6d416700b782ed978b}{vital::kNumLfos}});}
+\DoxyCodeLine{00059\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(lfo\_tab\_selector\_.get());}
+\DoxyCodeLine{00060\ \ \ lfo\_tab\_selector\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00061\ \ \ lfo\_tab\_selector\_-\/>registerModulationButtons(\textcolor{keyword}{this});}
+\DoxyCodeLine{00062\ \ \ lfo\_tab\_selector\_-\/>enableSelections();}
+\DoxyCodeLine{00063\ \ \ lfo\_tab\_selector\_-\/>setMinModulationsShown(\mbox{\hyperlink{class_modulation_interface_a1e8d65d9391157e59d628d0bdc14e809}{kMinLfoModulationsToShow}});}
+\DoxyCodeLine{00064\ \ \ lfo\_tab\_selector\_-\/>connectRight(\textcolor{keyword}{true});}
+\DoxyCodeLine{00065\ \ \ lfo\_tab\_selector\_-\/>drawBorders(\textcolor{keyword}{true});}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \textcolor{comment}{//\ Create\ random\ modulation\ sections}}
+\DoxyCodeLine{00068\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a685d103a6454a0b6e8e370cb574c21b5}{vital::kNumRandomLfos}};\ ++i)\ \{}
+\DoxyCodeLine{00069\ \ \ \ \ std::string\ string\_num\ =\ std::to\_string(i\ +\ 1);}
+\DoxyCodeLine{00070\ \ \ \ \ std::string\ prefix\ =\ \textcolor{stringliteral}{"{}random\_"{}}\ +\ string\_num;}
+\DoxyCodeLine{00071\ \ \ \ \ random\_lfos\_[i]\ =\ std::make\_unique<RandomSection>(\textcolor{stringliteral}{"{}RANDOM\ "{}}\ +\ string\_num,\ prefix,}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ synth\_data-\/>\mbox{\hyperlink{struct_synth_gui_data_a92054f38577ae47e902766a0ba482948}{mono\_modulations}},\ synth\_data-\/>\mbox{\hyperlink{struct_synth_gui_data_a0b47ccb776e8f47b53a2341c3c6341f3}{poly\_modulations}});}
+\DoxyCodeLine{00073\ \ \ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(random\_lfos\_[i].get());}
+\DoxyCodeLine{00074\ \ \ \ \ random\_lfos\_[i]-\/>setVisible(i\ ==\ 0);}
+\DoxyCodeLine{00075\ \ \ \}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \textcolor{comment}{//\ Create\ and\ configure\ random\ tab\ selector}}
+\DoxyCodeLine{00078\ \ \ random\_tab\_selector\_\ =\ std::make\_unique<ModulationTabSelector>(\textcolor{stringliteral}{"{}random"{}},\ \mbox{\hyperlink{namespacevital_a685d103a6454a0b6e8e370cb574c21b5}{vital::kNumRandomLfos}});}
+\DoxyCodeLine{00079\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(random\_tab\_selector\_.get());}
+\DoxyCodeLine{00080\ \ \ random\_tab\_selector\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00081\ \ \ random\_tab\_selector\_-\/>registerModulationButtons(\textcolor{keyword}{this});}
+\DoxyCodeLine{00082\ \ \ random\_tab\_selector\_-\/>enableSelections();}
+\DoxyCodeLine{00083\ \ \ random\_tab\_selector\_-\/>setMinModulationsShown(\mbox{\hyperlink{class_modulation_interface_acf60df1f5c8f24ccd8b2dd8eb0f18358}{kMinRandomModulationsToShow}});}
+\DoxyCodeLine{00084\ \ \ random\_tab\_selector\_-\/>connectRight(\textcolor{keyword}{true});}
+\DoxyCodeLine{00085\ \ \ random\_tab\_selector\_-\/>drawBorders(\textcolor{keyword}{true});}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \textcolor{comment}{//\ Keyboard\ modulation\ selectors\ (top\ and\ bottom\ rows)}}
+\DoxyCodeLine{00088\ \ \ keyboard\_modulations\_top\_\ =\ std::make\_unique<ModulationTabSelector>(\textcolor{stringliteral}{"{}top"{}},\ 4,\ kKeyboardTopModulationStrings);}
+\DoxyCodeLine{00089\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(keyboard\_modulations\_top\_.get());}
+\DoxyCodeLine{00090\ \ \ keyboard\_modulations\_top\_-\/>registerModulationButtons(\textcolor{keyword}{this});}
+\DoxyCodeLine{00091\ \ \ keyboard\_modulations\_top\_-\/>setVertical(\textcolor{keyword}{false});}
+\DoxyCodeLine{00092\ \ \ keyboard\_modulations\_top\_-\/>getButton(3)-\/>overrideText(\textcolor{stringliteral}{"{}OCT\ NOTE"{}});\ \textcolor{comment}{//\ Special\ label}}
+\DoxyCodeLine{00093\ \ \ keyboard\_modulations\_top\_-\/>drawBorders(\textcolor{keyword}{true});}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ keyboard\_modulations\_bottom\_\ =\ std::make\_unique<ModulationTabSelector>(\textcolor{stringliteral}{"{}bottom"{}},\ 4,\ kKeyboardBottomModulationStrings);}
+\DoxyCodeLine{00096\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(keyboard\_modulations\_bottom\_.get());}
+\DoxyCodeLine{00097\ \ \ keyboard\_modulations\_bottom\_-\/>registerModulationButtons(\textcolor{keyword}{this});}
+\DoxyCodeLine{00098\ \ \ keyboard\_modulations\_bottom\_-\/>setVertical(\textcolor{keyword}{false});}
+\DoxyCodeLine{00099\ \ \ keyboard\_modulations\_bottom\_-\/>getButton(0)-\/>overrideText(\textcolor{stringliteral}{"{}PRESSURE"{}});\ \textcolor{comment}{//\ Special\ label}}
+\DoxyCodeLine{00100\ \ \ keyboard\_modulations\_bottom\_-\/>drawBorders(\textcolor{keyword}{true});}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ setOpaque(\textcolor{keyword}{false});}
+\DoxyCodeLine{00103\ \}}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \mbox{\hyperlink{class_modulation_interface_a00270c7c21765f6db01b50d15e21b232}{ModulationInterface::\string~ModulationInterface}}()\ \{\ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_interface_a4c75b58597b1bc8351cedd18ee157ca9}{ModulationInterface::paintBackground}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00108\ \ \ g.fillAll(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4bf89cbdbad7dd4c1a837af2473389ee}{Skin::kBackground}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00109\ \ \ \mbox{\hyperlink{class_modulation_interface_aa02c8bac68467eb6fc7ec9928ee33b55}{paintBackgroundShadow}}(g);}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ \textcolor{comment}{//\ Draw\ backgrounds\ behind\ mod\ sections}}
+\DoxyCodeLine{00112\ \ \ \textcolor{keywordtype}{int}\ mod\_x\ =\ lfo\_tab\_selector\_-\/>getX();}
+\DoxyCodeLine{00113\ \ \ \textcolor{keywordtype}{int}\ lfo\_env\_width\ =\ lfos\_[0]-\/>getRight()\ -\/\ mod\_x;}
+\DoxyCodeLine{00114\ \ \ Rectangle<int>\ lfo\_bounds(mod\_x,\ lfo\_tab\_selector\_-\/>getY(),\ lfo\_env\_width,\ lfo\_tab\_selector\_-\/>getHeight());}
+\DoxyCodeLine{00115\ \ \ \mbox{\hyperlink{class_synth_section_a5966e97ed0f688f9910f24a4f3bfa9ec}{paintBody}}(g,\ lfo\_bounds);}
+\DoxyCodeLine{00116\ \ \ Rectangle<int>\ env\_bounds(mod\_x,\ envelope\_tab\_selector\_-\/>getY(),\ lfo\_env\_width,\ envelope\_tab\_selector\_-\/>getHeight());}
+\DoxyCodeLine{00117\ \ \ \mbox{\hyperlink{class_synth_section_a5966e97ed0f688f9910f24a4f3bfa9ec}{paintBody}}(g,\ env\_bounds);}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \textcolor{keywordtype}{int}\ random\_width\ =\ random\_lfos\_[0]-\/>getRight()\ -\/\ mod\_x;}
+\DoxyCodeLine{00120\ \ \ Rectangle<int>\ random\_bounds(mod\_x,\ random\_tab\_selector\_-\/>getY(),\ random\_width,\ random\_tab\_selector\_-\/>getHeight());}
+\DoxyCodeLine{00121\ \ \ \mbox{\hyperlink{class_synth_section_a5966e97ed0f688f9910f24a4f3bfa9ec}{paintBody}}(g,\ random\_bounds);}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \ \ \mbox{\hyperlink{class_synth_section_a623774aef917521bc02344077422832e}{paintChildrenBackgrounds}}(g);}
+\DoxyCodeLine{00124\ \ \ g.saveState();}
+\DoxyCodeLine{00125\ \ \ \textcolor{keywordtype}{int}\ tabs\_right\ =\ lfo\_tab\_selector\_-\/>getRight();}
+\DoxyCodeLine{00126\ \ \ g.reduceClipRegion(tabs\_right,\ 0,\ getWidth()\ -\/\ tabs\_right,\ getHeight());}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \textcolor{comment}{//\ Paint\ borders\ around\ sections}}
+\DoxyCodeLine{00129\ \ \ \mbox{\hyperlink{class_synth_section_aa0e18b52d386e2575c51e6e4f540b392}{paintBorder}}(g,\ lfo\_bounds);}
+\DoxyCodeLine{00130\ \ \ \mbox{\hyperlink{class_synth_section_aa0e18b52d386e2575c51e6e4f540b392}{paintBorder}}(g,\ env\_bounds);}
+\DoxyCodeLine{00131\ \ \ \mbox{\hyperlink{class_synth_section_aa0e18b52d386e2575c51e6e4f540b392}{paintBorder}}(g,\ random\_bounds);}
+\DoxyCodeLine{00132\ \ \ g.restoreState();}
+\DoxyCodeLine{00133\ \}}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_interface_aa02c8bac68467eb6fc7ec9928ee33b55}{ModulationInterface::paintBackgroundShadow}}(Graphics\&\ g)\ \{}
+\DoxyCodeLine{00136\ \ \ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g,\ envelope\_tab\_selector\_-\/>getBounds());}
+\DoxyCodeLine{00137\ \ \ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g,\ envelopes\_[0]-\/>getBounds());}
+\DoxyCodeLine{00138\ \ \ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g,\ lfo\_tab\_selector\_-\/>getBounds());}
+\DoxyCodeLine{00139\ \ \ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g,\ lfos\_[0]-\/>getBounds());}
+\DoxyCodeLine{00140\ \ \ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g,\ random\_tab\_selector\_-\/>getBounds());}
+\DoxyCodeLine{00141\ \ \ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g,\ random\_lfos\_[0]-\/>getBounds());}
+\DoxyCodeLine{00142\ \ \ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g,\ keyboard\_modulations\_top\_-\/>getBounds());}
+\DoxyCodeLine{00143\ \ \ \mbox{\hyperlink{class_synth_section_af0a939ee7688f7cf65ccd43191f47bb6}{paintTabShadow}}(g,\ keyboard\_modulations\_bottom\_-\/>getBounds());}
+\DoxyCodeLine{00144\ \}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_interface_a884bc33c971a9448272616560056ff2c}{ModulationInterface::resized}}()\ \{}
+\DoxyCodeLine{00147\ \ \ \textcolor{keywordtype}{int}\ padding\ =\ \mbox{\hyperlink{class_synth_section_a0c688d2a15f8849c09912f4bd1f92c9f}{getPadding}}();}
+\DoxyCodeLine{00148\ \ \ \textcolor{keywordtype}{int}\ active\_width\ =\ getWidth();}
+\DoxyCodeLine{00149\ \ \ \textcolor{keywordtype}{int}\ active\_height\ =\ getHeight()\ -\/\ 2\ *\ padding;}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \ \ \textcolor{comment}{//\ Allocate\ vertical\ space\ based\ on\ minimum\ modulations\ shown}}
+\DoxyCodeLine{00152\ \ \ \textcolor{keywordtype}{int}\ envelope\_height\ =\ (active\_height\ *\ \mbox{\hyperlink{class_modulation_interface_ac0df6f43c425b416d6686ee5157a042c}{kMinEnvelopeModulationsToShow}}\ *\ 1.0f)\ /\ \mbox{\hyperlink{class_modulation_interface_a2278368c9210095fc5f6ec6b4bbe1e7a}{kMinTotalModulations}};}
+\DoxyCodeLine{00153\ \ \ \textcolor{keywordtype}{int}\ lfo\_height\ =\ (active\_height\ *\ \mbox{\hyperlink{class_modulation_interface_a1e8d65d9391157e59d628d0bdc14e809}{kMinLfoModulationsToShow}}\ *\ 1.0f)\ /\ \mbox{\hyperlink{class_modulation_interface_a2278368c9210095fc5f6ec6b4bbe1e7a}{kMinTotalModulations}};}
+\DoxyCodeLine{00154\ \ \ \textcolor{keywordtype}{int}\ mod\_width\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a5957b4323766e8a371118b24c6c8e156}{Skin::kModulationButtonWidth}});}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00156\ \ \ \textcolor{comment}{//\ Envelopes}}
+\DoxyCodeLine{00157\ \ \ envelope\_tab\_selector\_-\/>setBounds(0,\ 0,\ mod\_width,\ envelope\_height);}
+\DoxyCodeLine{00158\ \ \ Rectangle<int>\ envelope\_bounds(mod\_width,\ 0,\ active\_width\ -\/\ mod\_width,\ envelope\_height);}
+\DoxyCodeLine{00159\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a9acbf7e6b849148921f335c101e02fe6}{vital::kNumEnvelopes}};\ ++i)}
+\DoxyCodeLine{00160\ \ \ \ \ envelopes\_[i]-\/>setBounds(envelope\_bounds);}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ \ \ \textcolor{comment}{//\ LFOs}}
+\DoxyCodeLine{00163\ \ \ \textcolor{keywordtype}{int}\ lfo\_y\ =\ envelope\_bounds.getBottom()\ +\ padding;}
+\DoxyCodeLine{00164\ \ \ lfo\_tab\_selector\_-\/>setBounds(0,\ lfo\_y,\ mod\_width,\ lfo\_height);}
+\DoxyCodeLine{00165\ \ \ Rectangle<int>\ lfo\_bounds(mod\_width,\ lfo\_y,\ active\_width\ -\/\ mod\_width,\ lfo\_height);}
+\DoxyCodeLine{00166\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_aba56646bec643d6d416700b782ed978b}{vital::kNumLfos}};\ ++i)}
+\DoxyCodeLine{00167\ \ \ \ \ lfos\_[i]-\/>setBounds(lfo\_bounds);}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \ \ \textcolor{comment}{//\ Random\ modulations}}
+\DoxyCodeLine{00170\ \ \ \textcolor{keywordtype}{int}\ keyboard\_width\ =\ mod\_width\ *\ 4;}
+\DoxyCodeLine{00171\ \ \ \textcolor{keywordtype}{int}\ keyboard\_x\ =\ getWidth()\ -\/\ keyboard\_width;}
+\DoxyCodeLine{00172\ }
+\DoxyCodeLine{00173\ \ \ \textcolor{keywordtype}{int}\ random\_y\ =\ lfo\_bounds.getBottom()\ +\ padding;}
+\DoxyCodeLine{00174\ \ \ \textcolor{keywordtype}{int}\ random\_height\ =\ getHeight()\ -\/\ random\_y;}
+\DoxyCodeLine{00175\ \ \ random\_tab\_selector\_-\/>setBounds(0,\ random\_y,\ mod\_width,\ random\_height);}
+\DoxyCodeLine{00176\ \ \ Rectangle<int>\ random\_bounds(mod\_width,\ random\_y,\ keyboard\_x\ -\/\ padding\ -\/\ mod\_width,\ random\_height);}
+\DoxyCodeLine{00177\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a685d103a6454a0b6e8e370cb574c21b5}{vital::kNumRandomLfos}};\ ++i)}
+\DoxyCodeLine{00178\ \ \ \ \ random\_lfos\_[i]-\/>setBounds(random\_bounds);}
+\DoxyCodeLine{00179\ }
+\DoxyCodeLine{00180\ \ \ \textcolor{comment}{//\ Keyboard\ modulations}}
+\DoxyCodeLine{00181\ \ \ \textcolor{keywordtype}{int}\ keyboard\_top\_height\ =\ random\_height\ /\ 2;}
+\DoxyCodeLine{00182\ \ \ keyboard\_modulations\_top\_-\/>setBounds(keyboard\_x,\ random\_y,\ keyboard\_width,\ keyboard\_top\_height);}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \ \ \textcolor{keywordtype}{int}\ keyboard\_bottom\_y\ =\ random\_y\ +\ keyboard\_top\_height\ +\ 1;}
+\DoxyCodeLine{00185\ \ \ \textcolor{keywordtype}{int}\ keyboard\_bottom\_height\ =\ getHeight()\ -\/\ keyboard\_bottom\_y;}
+\DoxyCodeLine{00186\ \ \ keyboard\_modulations\_bottom\_-\/>setBounds(keyboard\_x,\ keyboard\_bottom\_y,\ keyboard\_width,\ keyboard\_bottom\_height);}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \ \ \textcolor{comment}{//\ Adjust\ font\ sizes\ for\ selectors}}
+\DoxyCodeLine{00189\ \ \ envelope\_tab\_selector\_-\/>setFontSize(\mbox{\hyperlink{class_synth_section_a06878c0d2bc71d1117f8ae4108cafd0f}{getModFontSize}}());}
+\DoxyCodeLine{00190\ \ \ lfo\_tab\_selector\_-\/>setFontSize(\mbox{\hyperlink{class_synth_section_a06878c0d2bc71d1117f8ae4108cafd0f}{getModFontSize}}());}
+\DoxyCodeLine{00191\ \ \ random\_tab\_selector\_-\/>setFontSize(\mbox{\hyperlink{class_synth_section_a06878c0d2bc71d1117f8ae4108cafd0f}{getModFontSize}}());}
+\DoxyCodeLine{00192\ \ \ keyboard\_modulations\_top\_-\/>setFontSize(\mbox{\hyperlink{class_synth_section_a06878c0d2bc71d1117f8ae4108cafd0f}{getModFontSize}}());}
+\DoxyCodeLine{00193\ \ \ keyboard\_modulations\_bottom\_-\/>setFontSize(\mbox{\hyperlink{class_synth_section_a06878c0d2bc71d1117f8ae4108cafd0f}{getModFontSize}}());}
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00195\ \ \ \mbox{\hyperlink{class_synth_section_a549f91a2b81b419368a578990cb2e6c2}{SynthSection::resized}}();}
+\DoxyCodeLine{00196\ \}}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_interface_a51a71b4e67e834f9f55add6d48dffd57}{ModulationInterface::reset}}()\ \{}
+\DoxyCodeLine{00199\ \ \ lfo\_tab\_selector\_-\/>reset();}
+\DoxyCodeLine{00200\ \ \ envelope\_tab\_selector\_-\/>reset();}
+\DoxyCodeLine{00201\ \ \ random\_tab\_selector\_-\/>reset();}
+\DoxyCodeLine{00202\ \ \ keyboard\_modulations\_top\_-\/>reset();}
+\DoxyCodeLine{00203\ \ \ keyboard\_modulations\_bottom\_-\/>reset();}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00205\ \ \ \textcolor{comment}{//\ Reset\ visible\ sections}}
+\DoxyCodeLine{00206\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a9acbf7e6b849148921f335c101e02fe6}{vital::kNumEnvelopes}};\ ++i)\ \{}
+\DoxyCodeLine{00207\ \ \ \ \ \textcolor{keywordflow}{if}\ (envelopes\_[i]-\/>isVisible())}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ envelopes\_[i]-\/>reset();}
+\DoxyCodeLine{00209\ \ \ \}}
+\DoxyCodeLine{00210\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_aba56646bec643d6d416700b782ed978b}{vital::kNumLfos}};\ ++i)\ \{}
+\DoxyCodeLine{00211\ \ \ \ \ \textcolor{keywordflow}{if}\ (lfos\_[i]-\/>isVisible())}
+\DoxyCodeLine{00212\ \ \ \ \ \ \ lfos\_[i]-\/>reset();}
+\DoxyCodeLine{00213\ \ \ \}}
+\DoxyCodeLine{00214\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a685d103a6454a0b6e8e370cb574c21b5}{vital::kNumRandomLfos}};\ ++i)\ \{}
+\DoxyCodeLine{00215\ \ \ \ \ \textcolor{keywordflow}{if}\ (random\_lfos\_[i]-\/>isVisible())}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ random\_lfos\_[i]-\/>reset();}
+\DoxyCodeLine{00217\ \ \ \}}
+\DoxyCodeLine{00218\ \}}
+\DoxyCodeLine{00219\ }
+\DoxyCodeLine{00220\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_interface_a4c29438f2aec42eca56ecb6ea807aca5}{ModulationInterface::checkNumShown}}()\ \{}
+\DoxyCodeLine{00221\ \ \ lfo\_tab\_selector\_-\/>checkNumShown(\textcolor{keyword}{true});}
+\DoxyCodeLine{00222\ \ \ envelope\_tab\_selector\_-\/>checkNumShown(\textcolor{keyword}{true});}
+\DoxyCodeLine{00223\ \ \ random\_tab\_selector\_-\/>checkNumShown(\textcolor{keyword}{true});}
+\DoxyCodeLine{00224\ \ \ keyboard\_modulations\_top\_-\/>checkNumShown(\textcolor{keyword}{true});}
+\DoxyCodeLine{00225\ \ \ keyboard\_modulations\_bottom\_-\/>checkNumShown(\textcolor{keyword}{true});}
+\DoxyCodeLine{00226\ \}}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00228\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_modulation_interface_a8d40287b3e2092d25c430eccfdaf222b}{ModulationInterface::modulationSelected}}(\mbox{\hyperlink{class_modulation_tab_selector}{ModulationTabSelector}}*\ selector,\ \textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00229\ \ \ Image\ image(Image::ARGB,\ 1,\ 1,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00230\ \ \ Graphics\ g(image);}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00232\ \ \ \textcolor{comment}{//\ Handle\ switching\ between\ different\ modulation\ tabs}}
+\DoxyCodeLine{00233\ \ \ \textcolor{keywordflow}{if}\ (selector\ ==\ envelope\_tab\_selector\_.get())\ \{}
+\DoxyCodeLine{00234\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a9acbf7e6b849148921f335c101e02fe6}{vital::kNumEnvelopes}};\ ++i)}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ envelopes\_[i]-\/>setVisible(i\ ==\ index);}
+\DoxyCodeLine{00236\ \ \ \ \ envelopes\_[index]-\/>paintOpenGlChildrenBackgrounds(g);}
+\DoxyCodeLine{00237\ \ \ \ \ envelopes\_[index]-\/>reset();}
+\DoxyCodeLine{00238\ \ \ \}}
+\DoxyCodeLine{00239\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (selector\ ==\ lfo\_tab\_selector\_.get())\ \{}
+\DoxyCodeLine{00240\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_aba56646bec643d6d416700b782ed978b}{vital::kNumLfos}};\ ++i)}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ lfos\_[i]-\/>setVisible(i\ ==\ index);}
+\DoxyCodeLine{00242\ \ \ \ \ lfos\_[index]-\/>paintOpenGlChildrenBackgrounds(g);}
+\DoxyCodeLine{00243\ \ \ \ \ lfos\_[index]-\/>reset();}
+\DoxyCodeLine{00244\ \ \ \}}
+\DoxyCodeLine{00245\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (selector\ ==\ random\_tab\_selector\_.get())\ \{}
+\DoxyCodeLine{00246\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{namespacevital_a685d103a6454a0b6e8e370cb574c21b5}{vital::kNumRandomLfos}};\ ++i)}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ random\_lfos\_[i]-\/>setVisible(i\ ==\ index);}
+\DoxyCodeLine{00248\ \ \ \ \ random\_lfos\_[index]-\/>paintOpenGlChildrenBackgrounds(g);}
+\DoxyCodeLine{00249\ \ \ \ \ random\_lfos\_[index]-\/>reset();}
+\DoxyCodeLine{00250\ \ \ \}}
+\DoxyCodeLine{00251\ \}}
+
+\end{DoxyCode}

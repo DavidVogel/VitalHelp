@@ -1,0 +1,1428 @@
+\doxysection{popup\+\_\+browser.\+cpp}
+\hypertarget{popup__browser_8cpp_source}{}\label{popup__browser_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/popup\_browser.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_sections/popup\_browser.cpp}}
+\mbox{\hyperlink{popup__browser_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{popup__browser_8h}{popup\_browser.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fonts_8h}{fonts.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{load__save_8h}{load\_save.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{paths_8h}{paths.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{open__gl__component_8h}{open\_gl\_component.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__section_8h}{synth\_section.h}}"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00011\ \ \ \textcolor{comment}{//\ Sorts\ selection\ arrays\ using\ a\ comparator.}}
+\DoxyCodeLine{00012\ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ Comparator>}
+\DoxyCodeLine{00013\ \ \ \textcolor{keywordtype}{void}\ sortSelectionArray(Array<File>\&\ selection\_array)\ \{}
+\DoxyCodeLine{00014\ \ \ \ \ Comparator\ comparator;}
+\DoxyCodeLine{00015\ \ \ \ \ selection\_array.sort(comparator,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00016\ \ \ \}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \ \ \textcolor{keyword}{const}\ std::string\ kAddFolderName\ =\ \textcolor{stringliteral}{"{}Add\ Folder"{}};}
+\DoxyCodeLine{00019\ \ \ \textcolor{keyword}{const}\ std::string\ kStoreUrl\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00020\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMaxRootFiles\ =\ 8000;}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \textcolor{comment}{//\ Checks\ if\ a\ given\ root\ folder\ contains\ too\ many\ files.}}
+\DoxyCodeLine{00023\ \ \ \textcolor{keywordtype}{bool}\ isAcceptableRoot(\textcolor{keyword}{const}\ File\&\ file)\ \{}
+\DoxyCodeLine{00024\ \ \ \ \ std::list<File>\ folders;}
+\DoxyCodeLine{00025\ \ \ \ \ folders.push\_back(file);}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_files\ =\ 0;}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keywordflow}{while}\ (!folders.empty())\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ File\ current\_file\ =\ folders.back();}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ folders.pop\_back();}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ \ \ \ \ num\_files\ +=\ current\_file.getNumberOfChildFiles(File::findFiles);}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_files\ >\ kMaxRootFiles)}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \ \ \ \ Array<File>\ sub\_folders\ =\ current\_file.findChildFiles(File::findDirectories,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ File\&\ folder\ :\ sub\_folders)}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ folders.push\_back(folder);}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \ \ \}}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00043\ \ \ \}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \textcolor{comment}{//\ Shows\ a\ warning\ if\ a\ folder\ has\ too\ many\ files.}}
+\DoxyCodeLine{00046\ \ \ \textcolor{keywordtype}{void}\ showAddRootWarning()\ \{}
+\DoxyCodeLine{00047\ \ \ \ \ String\ error\ =\ String(\textcolor{stringliteral}{"{}Folder\ has\ too\ many\ files\ to\ add\ to\ browser.\ Max:\ "{}})\ +\ String(kMaxRootFiles);}
+\DoxyCodeLine{00048\ \ \ \ \ NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon,\ \textcolor{stringliteral}{"{}Error\ Adding\ Folder"{}},\ error);}
+\DoxyCodeLine{00049\ \ \ \}}
+\DoxyCodeLine{00050\ \}}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \mbox{\hyperlink{class_popup_display_aa930db5722fb2d0339b5d493194729a2}{PopupDisplay::PopupDisplay}}()\ :\ \mbox{\hyperlink{class_synth_section}{SynthSection}}(\textcolor{stringliteral}{"{}Popup\ Display"{}}),\ text\_(\textcolor{stringliteral}{"{}Popup\ Text"{}},\ \textcolor{stringliteral}{"{}"{}}),}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ body\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kRoundedRectangleFragment),}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ border\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kRoundedRectangleBorderFragment)\ \{}
+\DoxyCodeLine{00055\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&body\_);}
+\DoxyCodeLine{00056\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&border\_);}
+\DoxyCodeLine{00057\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&text\_);}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ text\_.\mbox{\hyperlink{class_plain_text_component_ad4dd5824c1b62b6a9fee45f91e02d833}{setJustification}}(Justification::centred);}
+\DoxyCodeLine{00060\ \ \ text\_.\mbox{\hyperlink{class_plain_text_component_ae8f093e94991af7e201b150f02205026}{setFontType}}(\mbox{\hyperlink{class_plain_text_component_a136e53c8d27fe3d8ed1d79b42e473900a07d3b0e9e4f27f7598bd398991b882e0}{PlainTextComponent::kLight}});}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \ \ \mbox{\hyperlink{class_synth_section_ae4b092420f64f8d195dd2fdb406bfccf}{setSkinOverride}}(\mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96af4e995bf573e4695962f65224eed4146}{Skin::kPopupBrowser}});}
+\DoxyCodeLine{00063\ \}}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_display_a521145479cf398a858ea7ace4b2aba7d}{PopupDisplay::resized}}()\ \{}
+\DoxyCodeLine{00066\ \ \ Rectangle<int>\ bounds\ =\ getLocalBounds();}
+\DoxyCodeLine{00067\ \ \ \textcolor{keywordtype}{int}\ rounding\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}});}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ body\_.setBounds(bounds);}
+\DoxyCodeLine{00070\ \ \ body\_.\mbox{\hyperlink{class_open_gl_multi_quad_aba2d4bbfa5b4c1e4b510bc5746a221b6}{setRounding}}(rounding);}
+\DoxyCodeLine{00071\ \ \ body\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caffad88f44cd2bcaaf60dbe0032955def}{Skin::kBody}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ border\_.setBounds(bounds);}
+\DoxyCodeLine{00074\ \ \ border\_.\mbox{\hyperlink{class_open_gl_multi_quad_aba2d4bbfa5b4c1e4b510bc5746a221b6}{setRounding}}(rounding);}
+\DoxyCodeLine{00075\ \ \ border\_.\mbox{\hyperlink{class_open_gl_multi_quad_a0e0f55028083ff593df1457f746a173a}{setThickness}}(1.0f,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00076\ \ \ border\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4cb587bac7f55843677153a9eeb3a4f2}{Skin::kBorder}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ text\_.setBounds(bounds);}
+\DoxyCodeLine{00079\ \ \ text\_.\mbox{\hyperlink{class_open_gl_image_component_ac4a9062681f893c5b68fc404a0331905}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00080\ \}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_display_a128d8fd4eeb7aeb85309e127751bc6aa}{PopupDisplay::setContent}}(\textcolor{keyword}{const}\ std::string\&\ text,\ Rectangle<int>\ bounds,}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ BubbleComponent::BubblePlacement\ placement)\ \{}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \textcolor{comment}{//\ Convert\ std::string\ to\ JUCE\ String}}
+\DoxyCodeLine{00086\ \ \ String\ textToDisplay(text.c\_str());}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \textcolor{comment}{//\ 1)\ Split\ lines:}}
+\DoxyCodeLine{00089\ \ \ StringArray\ lines;}
+\DoxyCodeLine{00090\ \ \ lines.addLines(textToDisplay);}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \textcolor{comment}{//\ 2)\ Choose\ your\ base\ Font:}}
+\DoxyCodeLine{00093\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kBaseHeight\ =\ 24;}
+\DoxyCodeLine{00094\ \ \ \textcolor{keywordtype}{int}\ height\ =\ kBaseHeight\ *\ \mbox{\hyperlink{class_synth_section_a966868a7e67306cc7ad36dab3ef22936}{size\_ratio\_}};}
+\DoxyCodeLine{00095\ \ \ \textcolor{keywordtype}{int}\ mult\ =\ \mbox{\hyperlink{class_synth_section_a78dd0f15e5945a73e881ed882173358e}{getPixelMultiple}}();}
+\DoxyCodeLine{00096\ \ \ Font\ font\ =\ \mbox{\hyperlink{class_fonts_ae7669a3eeb9db437c7d34feff9e99707}{Fonts::instance}}()-\/>\mbox{\hyperlink{class_fonts_ad3f42cf6c33957340cc7689bca94b90a}{proportional\_light}}().withPointHeight(height\ *\ 0.5f\ *\ mult);}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \ \ \textcolor{comment}{//\ 3)\ Measure\ widest\ line\ and\ total\ height:}}
+\DoxyCodeLine{00099\ \ \ \textcolor{keywordtype}{int}\ maxWidth\ =\ 0;}
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ line\ :\ lines)\ \{}
+\DoxyCodeLine{00101\ \ \ \ \ maxWidth\ =\ jmax(maxWidth,\ font.getStringWidth(line));}
+\DoxyCodeLine{00102\ \ \ \}}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \textcolor{comment}{//\ Add\ some\ margins/padding:}}
+\DoxyCodeLine{00105\ \ \ \textcolor{keywordtype}{int}\ padding\ \ \ =\ height\ /\ 4;}
+\DoxyCodeLine{00106\ \ \ \textcolor{keywordtype}{int}\ buffer\ \ \ \ =\ padding\ *\ 2\ +\ 2;}
+\DoxyCodeLine{00107\ \ \ \textcolor{keywordtype}{int}\ totalWidth\ =\ (maxWidth\ /\ \mbox{\hyperlink{class_synth_section_a78dd0f15e5945a73e881ed882173358e}{getPixelMultiple}}())\ +\ buffer;}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \textcolor{comment}{//\ Each\ line\ is\ about\ \`{}height`\ tall,\ or\ you\ can\ do\ more\ precise\ measurement:}}
+\DoxyCodeLine{00110\ \ \ \textcolor{keywordtype}{int}\ numLines\ \ \ \ =\ lines.size();}
+\DoxyCodeLine{00111\ \ \ \textcolor{keywordtype}{int}\ lineHeight\ \ =\ height;\ \textcolor{comment}{//\ or\ e.g.\ 1.2\ *\ height\ if\ you\ want\ more\ spacing}}
+\DoxyCodeLine{00112\ \ \ \textcolor{keywordtype}{int}\ totalHeight\ =\ lineHeight\ *\ numLines;}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \ \ \textcolor{comment}{//\ 4)\ Decide\ final\ bounds:}}
+\DoxyCodeLine{00115\ \ \ \textcolor{comment}{//\ For\ instance,\ if\ bubble\ is\ above:}}
+\DoxyCodeLine{00116\ \ \ \textcolor{keywordtype}{int}\ middle\_x\ =\ bounds.getX()\ +\ bounds.getWidth()\ /\ 2;}
+\DoxyCodeLine{00117\ \ \ \textcolor{keywordtype}{int}\ middle\_y\ =\ bounds.getY()\ +\ bounds.getHeight()\ /\ 2;}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \textcolor{keywordflow}{if}\ (placement\ ==\ BubbleComponent::above)\ \{}
+\DoxyCodeLine{00120\ \ \ \ \ setBounds(middle\_x\ -\/\ totalWidth\ /\ 2,}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bounds.getY()\ -\/\ totalHeight,}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ totalWidth,\ totalHeight);}
+\DoxyCodeLine{00123\ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (placement\ ==\ BubbleComponent::below)\ \{}
+\DoxyCodeLine{00124\ \ \ \ \ setBounds(middle\_x\ -\/\ totalWidth\ /\ 2,}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bounds.getBottom(),}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ totalWidth,\ totalHeight);}
+\DoxyCodeLine{00127\ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (placement\ ==\ BubbleComponent::left)\ \{}
+\DoxyCodeLine{00128\ \ \ \ \ setBounds(bounds.getX()\ -\/\ totalWidth,}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ middle\_y\ -\/\ totalHeight\ /\ 2,}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ totalWidth,\ totalHeight);}
+\DoxyCodeLine{00131\ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (placement\ ==\ BubbleComponent::right)\ \{}
+\DoxyCodeLine{00132\ \ \ \ \ setBounds(bounds.getRight(),}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ middle\_y\ -\/\ totalHeight\ /\ 2,}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ totalWidth,\ totalHeight);}
+\DoxyCodeLine{00135\ \ \ \}}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \ \ \textcolor{comment}{//\ 5)\ Actually\ set\ the\ text\ and\ font\ size\ in\ your\ PlainTextComponent}}
+\DoxyCodeLine{00138\ \ \ text\_.\mbox{\hyperlink{class_plain_text_component_a35c2c0b047e8a71a6fd2ee5f97b4cc96}{setText}}(text);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ keep\ the\ newlines}}
+\DoxyCodeLine{00139\ \ \ text\_.\mbox{\hyperlink{class_plain_text_component_ad4dd5824c1b62b6a9fee45f91e02d833}{setJustification}}(Justification::centred);}
+\DoxyCodeLine{00140\ \ \ text\_.\mbox{\hyperlink{class_plain_text_component_a3eeb1618a317f4522596652f119ed6dc}{setTextSize}}(height\ *\ 0.5f);}
+\DoxyCodeLine{00141\ \}}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \mbox{\hyperlink{class_popup_list_a5aaab423bed5aea054acc96342efdc66}{PopupList::PopupList}}()\ :\ \mbox{\hyperlink{class_synth_section}{SynthSection}}(\textcolor{stringliteral}{"{}Popup\ List"{}}),}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ selected\_(-\/1),\ hovered\_(-\/1),\ show\_selected\_(false),\ view\_position\_(0.0f),}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ highlight\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment),\ hover\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment)\ \{}
+\DoxyCodeLine{00146\ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a400b44f0d176e32e9a3014be91816808}{setTargetComponent}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00147\ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_ae9fa34755aa7b17c5130dc3764f1c502}{setAdditive}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a400b44f0d176e32e9a3014be91816808}{setTargetComponent}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00150\ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_ae9fa34755aa7b17c5130dc3764f1c502}{setAdditive}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ scroll\_bar\_\ =\ std::make\_unique<OpenGlScrollBar>();}
+\DoxyCodeLine{00153\ \ \ addAndMakeVisible(scroll\_bar\_.get());}
+\DoxyCodeLine{00154\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(scroll\_bar\_-\/>getGlComponent());}
+\DoxyCodeLine{00155\ \ \ scroll\_bar\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00156\ \}}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_list_a73721a12a1bd1707d1218bc0116bcbf3}{PopupList::resized}}()\ \{}
+\DoxyCodeLine{00159\ \ \ Colour\ lighten\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00160\ \ \ scroll\_bar\_-\/>setColor(lighten);}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_popup_list_a46058e0c3c0d5f6bdf299b27ac09c54b}{getScrollableRange}}()\ >\ getHeight())\ \{}
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{keywordtype}{int}\ scroll\_bar\_width\ =\ \mbox{\hyperlink{class_popup_list_a9310c92480cda8082bc6a9c1d6be6718}{kScrollBarWidth}}\ *\ \mbox{\hyperlink{class_synth_section_aba2f74f948fd7114c12bdc06f4da60e9}{getSizeRatio}}();}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{keywordtype}{int}\ scroll\_bar\_height\ =\ getHeight();}
+\DoxyCodeLine{00165\ \ \ \ \ scroll\_bar\_-\/>setVisible(\textcolor{keyword}{true});}
+\DoxyCodeLine{00166\ \ \ \ \ scroll\_bar\_-\/>setBounds(getWidth()\ -\/\ scroll\_bar\_width,\ 0,\ scroll\_bar\_width,\ scroll\_bar\_height);}
+\DoxyCodeLine{00167\ \ \ \ \ \mbox{\hyperlink{class_popup_list_ab4c34fa0b9bfeba2a26dbd5a45aa5e93}{setScrollBarRange}}();}
+\DoxyCodeLine{00168\ \ \ \}}
+\DoxyCodeLine{00169\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00170\ \ \ \ \ scroll\_bar\_-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00172\ \ \ redoImage();}
+\DoxyCodeLine{00173\ \}}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_list_a1f76a1a51c98d1ff30f6cf402a06050b}{PopupList::setSelections}}(\mbox{\hyperlink{struct_popup_items}{PopupItems}}\ selections)\ \{}
+\DoxyCodeLine{00176\ \ \ selections\_\ =\ std::move(selections);}
+\DoxyCodeLine{00177\ \ \ selected\_\ =\ std::min(selected\_,\ selections\_.\mbox{\hyperlink{struct_popup_items_aaf52ec13ebd6e21ead128b9e6b716787}{size}}()\ -\/\ 1);}
+\DoxyCodeLine{00178\ \ \ hovered\_\ =\ std::min(hovered\_,\ selections\_.\mbox{\hyperlink{struct_popup_items_aaf52ec13ebd6e21ead128b9e6b716787}{size}}()\ -\/\ 1);}
+\DoxyCodeLine{00179\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ selections\_.\mbox{\hyperlink{struct_popup_items_aaf52ec13ebd6e21ead128b9e6b716787}{size}}();\ ++i)\ \{}
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{keywordflow}{if}\ (selections\_.\mbox{\hyperlink{struct_popup_items_a07fa02617fdc68c3ded5694bafbfc6a3}{items}}[i].selected)}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ selected\_\ =\ i;}
+\DoxyCodeLine{00182\ \ \ \}}
+\DoxyCodeLine{00183\ \ \ \mbox{\hyperlink{class_popup_list_a73721a12a1bd1707d1218bc0116bcbf3}{resized}}();}
+\DoxyCodeLine{00184\ \}}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_popup_list_a66df21557aa0db486c544d80654966ac}{PopupList::getRowFromPosition}}(\textcolor{keywordtype}{float}\ mouse\_position)\ \{}
+\DoxyCodeLine{00187\ \ \ \textcolor{keywordtype}{int}\ index\ =\ floorf((mouse\_position\ +\ getViewPosition())\ /\ \mbox{\hyperlink{class_popup_list_af0f5c24547e59448f7db87ccf9f6e487}{getRowHeight}}());}
+\DoxyCodeLine{00188\ \ \ \textcolor{keywordflow}{if}\ (index\ <\ selections\_.\mbox{\hyperlink{struct_popup_items_aaf52ec13ebd6e21ead128b9e6b716787}{size}}()\ \&\&\ index\ >=\ 0\ \&\&\ selections\_.\mbox{\hyperlink{struct_popup_items_a07fa02617fdc68c3ded5694bafbfc6a3}{items}}[index].id\ <\ 0)}
+\DoxyCodeLine{00189\ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{00190\ \ \ \textcolor{keywordflow}{return}\ index;}
+\DoxyCodeLine{00191\ \}}
+\DoxyCodeLine{00192\ }
+\DoxyCodeLine{00193\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_popup_list_accea02a2e4c65c15abae3cc70fc5146b}{PopupList::getBrowseWidth}}()\ \{}
+\DoxyCodeLine{00194\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kMinWidth\ =\ 150;}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00196\ \ \ Font\ font\ =\ \mbox{\hyperlink{class_popup_list_ac8a16a105763fc2089bac085eec465de}{getFont}}();}
+\DoxyCodeLine{00197\ \ \ \textcolor{keywordtype}{int}\ max\_width\ =\ kMinWidth\ *\ \mbox{\hyperlink{class_synth_section_a966868a7e67306cc7ad36dab3ef22936}{size\_ratio\_}};}
+\DoxyCodeLine{00198\ \ \ \textcolor{keywordtype}{int}\ buffer\ =\ \mbox{\hyperlink{class_popup_list_a8cfa97b33035abcad33559fd1024e18b}{getTextPadding}}()\ *\ 2\ +\ 2;}
+\DoxyCodeLine{00199\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ selections\_.\mbox{\hyperlink{struct_popup_items_aaf52ec13ebd6e21ead128b9e6b716787}{size}}();\ ++i)}
+\DoxyCodeLine{00200\ \ \ \ \ max\_width\ =\ std::max(max\_width,\ font.getStringWidth(selections\_.\mbox{\hyperlink{struct_popup_items_a07fa02617fdc68c3ded5694bafbfc6a3}{items}}[i].name)\ /\ \mbox{\hyperlink{class_synth_section_a78dd0f15e5945a73e881ed882173358e}{getPixelMultiple}}()\ +\ buffer);}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00202\ \ \ \textcolor{keywordflow}{return}\ max\_width;}
+\DoxyCodeLine{00203\ \}}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00205\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_list_ad43bd1b972c89a3a07e234933fc2267d}{PopupList::mouseMove}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00206\ \ \ \textcolor{keywordtype}{int}\ row\ =\ \mbox{\hyperlink{class_popup_list_a66df21557aa0db486c544d80654966ac}{getRowFromPosition}}(e.position.y);}
+\DoxyCodeLine{00207\ \ \ \textcolor{keywordflow}{if}\ (row\ >=\ selections\_.\mbox{\hyperlink{struct_popup_items_aaf52ec13ebd6e21ead128b9e6b716787}{size}}()\ ||\ row\ <\ 0)}
+\DoxyCodeLine{00208\ \ \ \ \ row\ =\ -\/1;}
+\DoxyCodeLine{00209\ \ \ hovered\_\ =\ row;}
+\DoxyCodeLine{00210\ \}}
+\DoxyCodeLine{00211\ }
+\DoxyCodeLine{00212\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_list_ac1285e988c41ba2cd7f7d341773d94e1}{PopupList::mouseDrag}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00213\ \ \ \textcolor{keywordtype}{int}\ row\ =\ \mbox{\hyperlink{class_popup_list_a66df21557aa0db486c544d80654966ac}{getRowFromPosition}}(e.position.y);}
+\DoxyCodeLine{00214\ \ \ \textcolor{keywordflow}{if}\ (e.position.x\ <\ 0\ ||\ e.position.x\ >\ getWidth()\ ||\ row\ >=\ selections\_.\mbox{\hyperlink{struct_popup_items_aaf52ec13ebd6e21ead128b9e6b716787}{size}}()\ ||\ row\ <\ 0)}
+\DoxyCodeLine{00215\ \ \ \ \ row\ =\ -\/1;}
+\DoxyCodeLine{00216\ \ \ hovered\_\ =\ row;}
+\DoxyCodeLine{00217\ \}}
+\DoxyCodeLine{00218\ }
+\DoxyCodeLine{00219\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_list_a4c068a682830ff00f21a56a7b470da28}{PopupList::mouseExit}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00220\ \ \ hovered\_\ =\ -\/1;}
+\DoxyCodeLine{00221\ \}}
+\DoxyCodeLine{00222\ }
+\DoxyCodeLine{00223\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_popup_list_a85286b89907ca39057fc5d8387e9e1b3}{PopupList::getSelection}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00224\ \ \ \textcolor{keywordtype}{float}\ click\_y\_position\ =\ e.position.y;}
+\DoxyCodeLine{00225\ \ \ \textcolor{keywordtype}{int}\ row\ =\ \mbox{\hyperlink{class_popup_list_a66df21557aa0db486c544d80654966ac}{getRowFromPosition}}(click\_y\_position);}
+\DoxyCodeLine{00226\ \ \ \textcolor{keywordflow}{if}\ (row\ <\ selections\_.\mbox{\hyperlink{struct_popup_items_aaf52ec13ebd6e21ead128b9e6b716787}{size}}()\ \&\&\ row\ >=\ 0)}
+\DoxyCodeLine{00227\ \ \ \ \ \textcolor{keywordflow}{return}\ row;}
+\DoxyCodeLine{00228\ }
+\DoxyCodeLine{00229\ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{00230\ \}}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00232\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_list_a1596bf3c487e1b93b8ade871bf5f7db1}{PopupList::mouseUp}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00233\ \ \ \textcolor{keywordflow}{if}\ (e.position.x\ <\ 0\ ||\ e.position.x\ >\ getWidth())}
+\DoxyCodeLine{00234\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00235\ }
+\DoxyCodeLine{00236\ \ \ \mbox{\hyperlink{class_popup_list_a991b8ed7e2f04b7b13d8f233d7850e87}{select}}(\mbox{\hyperlink{class_popup_list_a85286b89907ca39057fc5d8387e9e1b3}{getSelection}}(e));}
+\DoxyCodeLine{00237\ \}}
+\DoxyCodeLine{00238\ }
+\DoxyCodeLine{00239\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_list_a8c195ff7b45dc6b81331d6b9262e3dc6}{PopupList::mouseDoubleClick}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00240\ \ \ \textcolor{keywordtype}{int}\ selection\ =\ \mbox{\hyperlink{class_popup_list_a85286b89907ca39057fc5d8387e9e1b3}{getSelection}}(e);}
+\DoxyCodeLine{00241\ \ \ \textcolor{keywordflow}{if}\ (selection\ !=\ selected\_\ ||\ selection\ <\ 0)}
+\DoxyCodeLine{00242\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00243\ }
+\DoxyCodeLine{00244\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_popup_list_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00245\ \ \ \ \ listener-\/>doubleClickedSelected(\textcolor{keyword}{this},\ selections\_.\mbox{\hyperlink{struct_popup_items_a07fa02617fdc68c3ded5694bafbfc6a3}{items}}[selection].id,\ selection);}
+\DoxyCodeLine{00246\ \}}
+\DoxyCodeLine{00247\ }
+\DoxyCodeLine{00248\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_list_a991b8ed7e2f04b7b13d8f233d7850e87}{PopupList::select}}(\textcolor{keywordtype}{int}\ selection)\ \{}
+\DoxyCodeLine{00249\ \ \ \textcolor{keywordflow}{if}\ (selection\ <\ 0\ ||\ selection\ >=\ selections\_.\mbox{\hyperlink{struct_popup_items_aaf52ec13ebd6e21ead128b9e6b716787}{size}}())}
+\DoxyCodeLine{00250\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00251\ }
+\DoxyCodeLine{00252\ \ \ selected\_\ =\ selection;}
+\DoxyCodeLine{00253\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ selections\_.\mbox{\hyperlink{struct_popup_items_aaf52ec13ebd6e21ead128b9e6b716787}{size}}();\ ++i)}
+\DoxyCodeLine{00254\ \ \ \ \ selections\_.\mbox{\hyperlink{struct_popup_items_a07fa02617fdc68c3ded5694bafbfc6a3}{items}}[i].selected\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00255\ \ \ selections\_.\mbox{\hyperlink{struct_popup_items_a07fa02617fdc68c3ded5694bafbfc6a3}{items}}[selected\_].selected\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00256\ }
+\DoxyCodeLine{00257\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_popup_list_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00258\ \ \ \ \ listener-\/>newSelection(\textcolor{keyword}{this},\ selections\_.\mbox{\hyperlink{struct_popup_items_a07fa02617fdc68c3ded5694bafbfc6a3}{items}}[selection].id,\ selection);}
+\DoxyCodeLine{00259\ \}}
+\DoxyCodeLine{00260\ }
+\DoxyCodeLine{00261\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_list_af8b561b471980efb56957d773b268393}{PopupList::initOpenGlComponents}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00262\ \ \ rows\_.\mbox{\hyperlink{class_open_gl_image_a6b06f9ec05cca98730b58bdc5044390c}{init}}(open\_gl);}
+\DoxyCodeLine{00263\ \ \ rows\_.\mbox{\hyperlink{class_open_gl_image_aef176c26fb186f6f8a0209463a17310c}{setColor}}(Colours::white);}
+\DoxyCodeLine{00264\ }
+\DoxyCodeLine{00265\ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00266\ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00267\ \ \ \mbox{\hyperlink{class_synth_section_aeb169e2a98d8132a836bbe2b211c68bd}{SynthSection::initOpenGlComponents}}(open\_gl);}
+\DoxyCodeLine{00268\ \}}
+\DoxyCodeLine{00269\ }
+\DoxyCodeLine{00270\ \textcolor{keywordtype}{void}\ PopupList::redoImage()\ \{}
+\DoxyCodeLine{00271\ \ \ \textcolor{keywordflow}{if}\ (getWidth()\ <=\ 0\ ||\ getHeight()\ <=\ 0)}
+\DoxyCodeLine{00272\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00273\ }
+\DoxyCodeLine{00274\ \ \ \textcolor{keywordtype}{int}\ mult\ =\ \mbox{\hyperlink{class_synth_section_a78dd0f15e5945a73e881ed882173358e}{getPixelMultiple}}();}
+\DoxyCodeLine{00275\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_popup_list_af0f5c24547e59448f7db87ccf9f6e487}{getRowHeight}}()\ *\ mult;}
+\DoxyCodeLine{00276\ \ \ \textcolor{keywordtype}{int}\ image\_width\ =\ getWidth()\ *\ mult;}
+\DoxyCodeLine{00277\ }
+\DoxyCodeLine{00278\ \ \ Colour\ text\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cadac6e8c347bdd796337e3ca3d7ca3457}{Skin::kTextComponentText}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00279\ \ \ Colour\ lighten\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00280\ \ \ \textcolor{keywordtype}{int}\ image\_height\ =\ std::max(row\_height\ *\ selections\_.\mbox{\hyperlink{struct_popup_items_aaf52ec13ebd6e21ead128b9e6b716787}{size}}(),\ getHeight());}
+\DoxyCodeLine{00281\ \ \ Image\ rows\_image(Image::ARGB,\ image\_width,\ image\_height,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00282\ \ \ Graphics\ g(rows\_image);}
+\DoxyCodeLine{00283\ \ \ g.setColour(text\_color);}
+\DoxyCodeLine{00284\ \ \ g.setFont(\mbox{\hyperlink{class_popup_list_ac8a16a105763fc2089bac085eec465de}{getFont}}());}
+\DoxyCodeLine{00285\ }
+\DoxyCodeLine{00286\ \ \ \textcolor{keywordtype}{int}\ padding\ =\ \mbox{\hyperlink{class_popup_list_a8cfa97b33035abcad33559fd1024e18b}{getTextPadding}}();}
+\DoxyCodeLine{00287\ \ \ \textcolor{keywordtype}{int}\ width\ =\ (getWidth()\ -\/\ 2\ *\ padding)\ *\ mult;}
+\DoxyCodeLine{00288\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ selections\_.\mbox{\hyperlink{struct_popup_items_aaf52ec13ebd6e21ead128b9e6b716787}{size}}();\ ++i)\ \{}
+\DoxyCodeLine{00289\ \ \ \ \ \textcolor{keywordflow}{if}\ (selections\_.\mbox{\hyperlink{struct_popup_items_a07fa02617fdc68c3ded5694bafbfc6a3}{items}}[i].id\ <\ 0)\ \{}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ g.setColour(lighten);}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ y\ =\ row\_height\ *\ (i\ +\ 0.5f);}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ g.drawRect(padding,\ y,\ width,\ 1);}
+\DoxyCodeLine{00293\ \ \ \ \ \}}
+\DoxyCodeLine{00294\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ g.setColour(text\_color);}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ String\ name\ =\ selections\_.\mbox{\hyperlink{struct_popup_items_a07fa02617fdc68c3ded5694bafbfc6a3}{items}}[i].name;}
+\DoxyCodeLine{00297\ \ \ \ \ \ \ g.drawText(name,\ padding,\ row\_height\ *\ i,\ width,\ row\_height,\ Justification::centredLeft,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00298\ \ \ \ \ \}}
+\DoxyCodeLine{00299\ \ \ \}}
+\DoxyCodeLine{00300\ \ \ rows\_.\mbox{\hyperlink{class_open_gl_image_a512ce30b2a7e53635472f1c2c5a71599}{setOwnImage}}(rows\_image);}
+\DoxyCodeLine{00301\ \}}
+\DoxyCodeLine{00302\ }
+\DoxyCodeLine{00303\ \textcolor{keywordtype}{void}\ PopupList::moveQuadToRow(\mbox{\hyperlink{class_open_gl_quad}{OpenGlQuad}}\&\ quad,\ \textcolor{keywordtype}{int}\ row)\ \{}
+\DoxyCodeLine{00304\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_popup_list_af0f5c24547e59448f7db87ccf9f6e487}{getRowHeight}}();}
+\DoxyCodeLine{00305\ \ \ \textcolor{keywordtype}{float}\ view\_height\ =\ getHeight();}
+\DoxyCodeLine{00306\ \ \ \textcolor{keywordtype}{float}\ open\_gl\_row\_height\ =\ 2.0f\ *\ row\_height\ /\ view\_height;}
+\DoxyCodeLine{00307\ \ \ \textcolor{keywordtype}{float}\ offset\ =\ row\ *\ open\_gl\_row\_height\ -\/\ 2.0f\ *\ getViewPosition()\ /\ view\_height;}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00309\ \ \ \textcolor{keywordtype}{float}\ y\ =\ 1.0f\ -\/\ offset;}
+\DoxyCodeLine{00310\ \ \ quad.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ -\/1.0f,\ y\ -\/\ open\_gl\_row\_height,\ 2.0f,\ open\_gl\_row\_height);}
+\DoxyCodeLine{00311\ \}}
+\DoxyCodeLine{00312\ }
+\DoxyCodeLine{00313\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_list_a60ed25b1e7b3e2665d886a7c15cf4894}{PopupList::renderOpenGlComponents}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00314\ \ \ Rectangle<int>\ view\_bounds(getLocalBounds());}
+\DoxyCodeLine{00315\ \ \ \mbox{\hyperlink{class_open_gl_component_a0641317fa0d502284c603188bb7da9a7}{OpenGlComponent::setViewPort}}(\textcolor{keyword}{this},\ view\_bounds,\ open\_gl);}
+\DoxyCodeLine{00316\ }
+\DoxyCodeLine{00317\ \ \ \textcolor{keywordtype}{float}\ image\_width\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5d3f0a1d10f1378cc23d7b7dc64138fb}{vital::utils::nextPowerOfTwo}}(getWidth());}
+\DoxyCodeLine{00318\ \ \ \textcolor{keywordtype}{float}\ image\_height\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5d3f0a1d10f1378cc23d7b7dc64138fb}{vital::utils::nextPowerOfTwo}}(rows\_.\mbox{\hyperlink{class_open_gl_image_a8c3361e68a668231d42b9d798d1770be}{getImageHeight}}());}
+\DoxyCodeLine{00319\ \ \ \textcolor{keywordtype}{float}\ width\_ratio\ =\ image\_width\ /\ getWidth();}
+\DoxyCodeLine{00320\ \ \ \textcolor{keywordtype}{float}\ height\_ratio\ =\ image\_height\ /\ (\mbox{\hyperlink{class_synth_section_a78dd0f15e5945a73e881ed882173358e}{getPixelMultiple}}()\ *\ getHeight());}
+\DoxyCodeLine{00321\ \ \ \textcolor{keywordtype}{float}\ y\_offset\ =\ 2.0f\ *\ getViewPosition()\ /\ getHeight();}
+\DoxyCodeLine{00322\ }
+\DoxyCodeLine{00323\ \ \ rows\_.\mbox{\hyperlink{class_open_gl_image_ac17018844362f423c2450bf1058b0e7d}{setTopLeft}}(-\/1.0f,\ 1.0f\ +\ y\_offset);}
+\DoxyCodeLine{00324\ \ \ rows\_.\mbox{\hyperlink{class_open_gl_image_adf4e0bd9ada8eaa3655429c1ee8be41c}{setTopRight}}(2.0f\ *\ width\_ratio\ -\/\ 1.0f,\ 1.0f\ +\ y\_offset);}
+\DoxyCodeLine{00325\ \ \ rows\_.\mbox{\hyperlink{class_open_gl_image_a73ebd6bfcf3bd7d578fed727db244078}{setBottomLeft}}(-\/1.0f,\ 1.0f\ +\ y\_offset\ -\/\ 2.0f\ *\ height\_ratio);}
+\DoxyCodeLine{00326\ \ \ rows\_.\mbox{\hyperlink{class_open_gl_image_ab3af936ec021b71a61820718d8672969}{setBottomRight}}(2.0f\ *\ width\_ratio\ -\/\ 1.0f,\ 1.0f\ +\ y\_offset\ -\/\ 2.0f\ *\ height\_ratio);}
+\DoxyCodeLine{00327\ \ \ rows\_.\mbox{\hyperlink{class_open_gl_image_a7ce00e695b64c30cc996cffc3b28a6ae}{drawImage}}(open\_gl);}
+\DoxyCodeLine{00328\ }
+\DoxyCodeLine{00329\ \ \ \textcolor{keywordflow}{if}\ (hovered\_\ >=\ 0)\ \{}
+\DoxyCodeLine{00330\ \ \ \ \ moveQuadToRow(hover\_,\ hovered\_);}
+\DoxyCodeLine{00331\ \ \ \ \ \textcolor{keywordflow}{if}\ (show\_selected\_)}
+\DoxyCodeLine{00332\ \ \ \ \ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00333\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true}).darker(0.8f));}
+\DoxyCodeLine{00335\ \ \ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ \mbox{\hyperlink{class_synth_section_a23ece0b1a7ac3a7a3ffb8623875d7220}{animate}});}
+\DoxyCodeLine{00336\ \ \ \}}
+\DoxyCodeLine{00337\ \ \ \textcolor{keywordflow}{if}\ (selected\_\ >=\ 0\ \&\&\ show\_selected\_)\ \{}
+\DoxyCodeLine{00338\ \ \ \ \ moveQuadToRow(highlight\_,\ selected\_);}
+\DoxyCodeLine{00339\ \ \ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true}).darker(0.8f));}
+\DoxyCodeLine{00340\ \ \ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ \mbox{\hyperlink{class_synth_section_a23ece0b1a7ac3a7a3ffb8623875d7220}{animate}});}
+\DoxyCodeLine{00341\ \ \ \}}
+\DoxyCodeLine{00342\ }
+\DoxyCodeLine{00343\ \ \ \mbox{\hyperlink{class_synth_section_a0b94a0f0b660853bfb868c2ece290d33}{SynthSection::renderOpenGlComponents}}(open\_gl,\ \mbox{\hyperlink{class_synth_section_a23ece0b1a7ac3a7a3ffb8623875d7220}{animate}});}
+\DoxyCodeLine{00344\ \}}
+\DoxyCodeLine{00345\ }
+\DoxyCodeLine{00346\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_list_a99bbcb945ab3cf26b7ae76041359e4d7}{PopupList::destroyOpenGlComponents}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00347\ \ \ rows\_.\mbox{\hyperlink{class_open_gl_image_add1e28fc5fd2d88d843eb49eae62f8e9}{destroy}}(open\_gl);}
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00349\ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00350\ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00351\ \ \ \mbox{\hyperlink{class_synth_section_a8a425cebdb8eff2ef9ea78c1c262b761}{SynthSection::destroyOpenGlComponents}}(open\_gl);}
+\DoxyCodeLine{00352\ \}}
+\DoxyCodeLine{00353\ }
+\DoxyCodeLine{00354\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_list_af78ce6027feceb05aee8eec61d23da99}{PopupList::resetScrollPosition}}()\ \{}
+\DoxyCodeLine{00355\ \ \ view\_position\_\ =\ 0;}
+\DoxyCodeLine{00356\ \ \ \mbox{\hyperlink{class_popup_list_ab4c34fa0b9bfeba2a26dbd5a45aa5e93}{setScrollBarRange}}();}
+\DoxyCodeLine{00357\ \}}
+\DoxyCodeLine{00358\ }
+\DoxyCodeLine{00359\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_list_a86676ee00d388122d776d1b12fe3a3d3}{PopupList::mouseWheelMove}}(\textcolor{keyword}{const}\ MouseEvent\&\ e,\ \textcolor{keyword}{const}\ MouseWheelDetails\&\ wheel)\ \{}
+\DoxyCodeLine{00360\ \ \ view\_position\_\ -\/=\ wheel.deltaY\ *\ \mbox{\hyperlink{class_popup_list_a1f91f74e243159324d065bf689a53ecd}{kScrollSensitivity}};}
+\DoxyCodeLine{00361\ \ \ view\_position\_\ =\ std::max(0.0f,\ view\_position\_);}
+\DoxyCodeLine{00362\ \ \ \textcolor{keywordtype}{float}\ scaled\_height\ =\ getHeight();}
+\DoxyCodeLine{00363\ \ \ \textcolor{keywordtype}{int}\ scrollable\_range\ =\ \mbox{\hyperlink{class_popup_list_a46058e0c3c0d5f6bdf299b27ac09c54b}{getScrollableRange}}();}
+\DoxyCodeLine{00364\ \ \ view\_position\_\ =\ std::min(view\_position\_,\ 1.0f\ *\ scrollable\_range\ -\/\ scaled\_height);}
+\DoxyCodeLine{00365\ \ \ \mbox{\hyperlink{class_popup_list_ab4c34fa0b9bfeba2a26dbd5a45aa5e93}{setScrollBarRange}}();}
+\DoxyCodeLine{00366\ \}}
+\DoxyCodeLine{00367\ }
+\DoxyCodeLine{00368\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_list_a74d422d7201cc6069229be56de5ca49e}{PopupList::scrollBarMoved}}(ScrollBar*\ scroll\_bar,\ \textcolor{keywordtype}{double}\ range\_start)\ \{}
+\DoxyCodeLine{00369\ \ \ view\_position\_\ =\ range\_start;}
+\DoxyCodeLine{00370\ \}}
+\DoxyCodeLine{00371\ }
+\DoxyCodeLine{00372\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_list_ab4c34fa0b9bfeba2a26dbd5a45aa5e93}{PopupList::setScrollBarRange}}()\ \{}
+\DoxyCodeLine{00373\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kScrollStepRatio\ =\ 0.05f;}
+\DoxyCodeLine{00374\ }
+\DoxyCodeLine{00375\ \ \ \textcolor{keywordtype}{float}\ scaled\_height\ =\ getHeight();}
+\DoxyCodeLine{00376\ \ \ scroll\_bar\_-\/>setRangeLimits(0.0f,\ \mbox{\hyperlink{class_popup_list_a46058e0c3c0d5f6bdf299b27ac09c54b}{getScrollableRange}}());}
+\DoxyCodeLine{00377\ \ \ scroll\_bar\_-\/>setCurrentRange(getViewPosition(),\ scaled\_height,\ dontSendNotification);}
+\DoxyCodeLine{00378\ \ \ scroll\_bar\_-\/>setSingleStepSize(scroll\_bar\_-\/>getHeight()\ *\ kScrollStepRatio);}
+\DoxyCodeLine{00379\ \ \ scroll\_bar\_-\/>cancelPendingUpdate();}
+\DoxyCodeLine{00380\ \}}
+\DoxyCodeLine{00381\ }
+\DoxyCodeLine{00382\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_popup_list_a46058e0c3c0d5f6bdf299b27ac09c54b}{PopupList::getScrollableRange}}()\ \{}
+\DoxyCodeLine{00383\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_popup_list_af0f5c24547e59448f7db87ccf9f6e487}{getRowHeight}}();}
+\DoxyCodeLine{00384\ \ \ \textcolor{keywordtype}{int}\ selections\_height\ =\ row\_height\ *\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(selections\_.\mbox{\hyperlink{struct_popup_items_aaf52ec13ebd6e21ead128b9e6b716787}{size}}());}
+\DoxyCodeLine{00385\ \ \ \textcolor{keywordflow}{return}\ std::max(selections\_height,\ getHeight());}
+\DoxyCodeLine{00386\ \}}
+\DoxyCodeLine{00387\ }
+\DoxyCodeLine{00388\ \mbox{\hyperlink{class_selection_list_a769516db6b28f11cce5626822415041a}{SelectionList::SelectionList}}()\ :\ \mbox{\hyperlink{class_synth_section}{SynthSection}}(\textcolor{stringliteral}{"{}Selection\ List"{}}),\ favorites\_option\_(false),}
+\DoxyCodeLine{00389\ \ \ \ \ num\_view\_selections\_(0),\ hovered\_(-\/1),\ x\_area\_(false),\ cache\_position\_(0),\ is\_additional\_(),}
+\DoxyCodeLine{00390\ \ \ \ \ highlight\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment),\ hover\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment),}
+\DoxyCodeLine{00391\ \ \ \ \ remove\_additional\_x\_(\textcolor{stringliteral}{"{}remove\_additional"{}}),\ view\_position\_(0.0f)\ \{}
+\DoxyCodeLine{00392\ \ \ addAndMakeVisible(browse\_area\_);}
+\DoxyCodeLine{00393\ \ \ addChildComponent(remove\_additional\_x\_);}
+\DoxyCodeLine{00394\ }
+\DoxyCodeLine{00395\ \ \ remove\_additional\_x\_.\mbox{\hyperlink{class_plain_shape_component_a7374dbbefb05ae093d230058d4b2f3b8}{setShape}}(\mbox{\hyperlink{class_paths_af9dc8b1042a0e31b6801277461fd320d}{Paths::thickX}}());}
+\DoxyCodeLine{00396\ \ \ browse\_area\_.setInterceptsMouseClicks(\textcolor{keyword}{false},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00397\ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a400b44f0d176e32e9a3014be91816808}{setTargetComponent}}(\&browse\_area\_);}
+\DoxyCodeLine{00398\ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a400b44f0d176e32e9a3014be91816808}{setTargetComponent}}(\&browse\_area\_);}
+\DoxyCodeLine{00399\ }
+\DoxyCodeLine{00400\ \ \ scroll\_bar\_\ =\ std::make\_unique<OpenGlScrollBar>();}
+\DoxyCodeLine{00401\ \ \ addAndMakeVisible(scroll\_bar\_.get());}
+\DoxyCodeLine{00402\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(scroll\_bar\_-\/>getGlComponent());}
+\DoxyCodeLine{00403\ \ \ scroll\_bar\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00404\ }
+\DoxyCodeLine{00405\ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_ae9fa34755aa7b17c5130dc3764f1c502}{setAdditive}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00406\ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_ae9fa34755aa7b17c5130dc3764f1c502}{setAdditive}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00407\ }
+\DoxyCodeLine{00408\ \ \ favorites\_\ =\ \mbox{\hyperlink{class_load_save_affbbb33ac112da6c49d8328ad04e7625}{LoadSave::getFavorites}}();}
+\DoxyCodeLine{00409\ \}}
+\DoxyCodeLine{00410\ }
+\DoxyCodeLine{00411\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_ac3e8f975ab7a3983feadb563f6f1f36b}{SelectionList::resized}}()\ \{}
+\DoxyCodeLine{00412\ \ \ \textcolor{keywordtype}{int}\ scroll\_bar\_width\ =\ \mbox{\hyperlink{class_selection_list_a39d82df427ca342d129d95acf5f0e996}{kScrollBarWidth}}\ *\ \mbox{\hyperlink{class_synth_section_aba2f74f948fd7114c12bdc06f4da60e9}{getSizeRatio}}();}
+\DoxyCodeLine{00413\ \ \ \textcolor{keywordtype}{int}\ scroll\_bar\_height\ =\ getHeight();}
+\DoxyCodeLine{00414\ \ \ scroll\_bar\_-\/>setBounds(getWidth()\ -\/\ scroll\_bar\_width,\ 0,\ scroll\_bar\_width,\ scroll\_bar\_height);}
+\DoxyCodeLine{00415\ \ \ \mbox{\hyperlink{class_selection_list_a47bcd2e647ad12d8b11890b420e0587e}{setScrollBarRange}}();}
+\DoxyCodeLine{00416\ }
+\DoxyCodeLine{00417\ \ \ browse\_area\_.setBounds(2,\ 0,\ scroll\_bar\_-\/>getX()\ -\/\ 3,\ getHeight());}
+\DoxyCodeLine{00418\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_selection_list_afd6e0e4ed98c85f6e7df12a157b976b2}{getRowHeight}}();}
+\DoxyCodeLine{00419\ \ \ remove\_additional\_x\_.setBounds(0,\ 0,\ row\_height,\ row\_height);}
+\DoxyCodeLine{00420\ \ \ remove\_additional\_x\_.\mbox{\hyperlink{class_open_gl_image_component_abf279f82fefad2a83bb4eb434e1cf8ce}{redrawImage}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00421\ }
+\DoxyCodeLine{00422\ \ \ loadBrowserCache(cache\_position\_,\ cache\_position\_\ +\ \mbox{\hyperlink{class_selection_list_afc8077874986cda303286dcb8932a579}{kNumCachedRows}});}
+\DoxyCodeLine{00423\ }
+\DoxyCodeLine{00424\ \ \ Colour\ lighten\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00425\ \ \ scroll\_bar\_-\/>setColor(lighten);}
+\DoxyCodeLine{00426\ \}}
+\DoxyCodeLine{00427\ }
+\DoxyCodeLine{00428\ \textcolor{keywordtype}{void}\ SelectionList::sort()\ \{}
+\DoxyCodeLine{00429\ \ \ sortFileArray<FileNameAscendingComparator>(selections\_);}
+\DoxyCodeLine{00430\ \ \ \mbox{\hyperlink{class_selection_list_a88921ece6eac0204efe009cc39e7b8b7}{filter}}(filter\_string\_);}
+\DoxyCodeLine{00431\ \ \ \mbox{\hyperlink{class_selection_list_a47bcd2e647ad12d8b11890b420e0587e}{setScrollBarRange}}();}
+\DoxyCodeLine{00432\ \}}
+\DoxyCodeLine{00433\ }
+\DoxyCodeLine{00434\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a8f87a396f0caeb2066e0744cfd096b47}{SelectionList::setSelections}}(Array<File>\ selections)\ \{}
+\DoxyCodeLine{00435\ \ \ selections\_\ =\ std::move(selections);}
+\DoxyCodeLine{00436\ \ \ sort();}
+\DoxyCodeLine{00437\ \ \ \mbox{\hyperlink{class_selection_list_ac967d71fc50497c1cfa69f6d058fb38b}{redoCache}}();}
+\DoxyCodeLine{00438\ \}}
+\DoxyCodeLine{00439\ }
+\DoxyCodeLine{00440\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a379c11f77dda8f5a520697b306be4fe0}{SelectionList::resetScrollPosition}}()\ \{}
+\DoxyCodeLine{00441\ \ \ view\_position\_\ =\ 0;}
+\DoxyCodeLine{00442\ \ \ viewPositionChanged();}
+\DoxyCodeLine{00443\ \ \ \mbox{\hyperlink{class_selection_list_a47bcd2e647ad12d8b11890b420e0587e}{setScrollBarRange}}();}
+\DoxyCodeLine{00444\ \}}
+\DoxyCodeLine{00445\ }
+\DoxyCodeLine{00446\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a745f6cdab716073394048bb05592aade}{SelectionList::mouseWheelMove}}(\textcolor{keyword}{const}\ MouseEvent\&\ e,\ \textcolor{keyword}{const}\ MouseWheelDetails\&\ wheel)\ \{}
+\DoxyCodeLine{00447\ \ \ view\_position\_\ -\/=\ wheel.deltaY\ *\ \mbox{\hyperlink{class_selection_list_a55a01c660b71b71446c8707f3966fcd5}{kScrollSensitivity}};}
+\DoxyCodeLine{00448\ \ \ view\_position\_\ =\ std::max(0.0f,\ view\_position\_);}
+\DoxyCodeLine{00449\ \ \ \textcolor{keywordtype}{float}\ scaled\_height\ =\ getHeight();}
+\DoxyCodeLine{00450\ \ \ \textcolor{keywordtype}{int}\ scrollable\_range\ =\ \mbox{\hyperlink{class_selection_list_aac53dd362def7d2f265199b3a5d02bdb}{getScrollableRange}}();}
+\DoxyCodeLine{00451\ \ \ view\_position\_\ =\ std::min(view\_position\_,\ 1.0f\ *\ scrollable\_range\ -\/\ scaled\_height);}
+\DoxyCodeLine{00452\ \ \ viewPositionChanged();}
+\DoxyCodeLine{00453\ \ \ \mbox{\hyperlink{class_selection_list_a47bcd2e647ad12d8b11890b420e0587e}{setScrollBarRange}}();}
+\DoxyCodeLine{00454\ \}}
+\DoxyCodeLine{00455\ }
+\DoxyCodeLine{00456\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_selection_list_a07994adf4f21f7e05849fc8362de973c}{SelectionList::getRowFromPosition}}(\textcolor{keywordtype}{float}\ mouse\_position)\ \{}
+\DoxyCodeLine{00457\ \ \ \textcolor{keywordflow}{return}\ floorf((mouse\_position\ +\ getViewPosition())\ /\ \mbox{\hyperlink{class_selection_list_afd6e0e4ed98c85f6e7df12a157b976b2}{getRowHeight}}());}
+\DoxyCodeLine{00458\ \}}
+\DoxyCodeLine{00459\ }
+\DoxyCodeLine{00460\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a66f7f3fc0997459e23da02c96c1fd0ce}{SelectionList::mouseMove}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00461\ \ \ hovered\_\ =\ \mbox{\hyperlink{class_selection_list_a07994adf4f21f7e05849fc8362de973c}{getRowFromPosition}}(e.position.y);}
+\DoxyCodeLine{00462\ \ \ \textcolor{keywordflow}{if}\ (hovered\_\ >=\ filtered\_selections\_.size())}
+\DoxyCodeLine{00463\ \ \ \ \ hovered\_\ =\ -\/1;}
+\DoxyCodeLine{00464\ }
+\DoxyCodeLine{00465\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_selection_list_afd6e0e4ed98c85f6e7df12a157b976b2}{getRowHeight}}();}
+\DoxyCodeLine{00466\ \ \ \textcolor{keywordtype}{int}\ x\ =\ e.position.x\ -\/\ getWidth()\ +\ \mbox{\hyperlink{class_selection_list_a39d82df427ca342d129d95acf5f0e996}{kScrollBarWidth}}\ *\ \mbox{\hyperlink{class_synth_section_a966868a7e67306cc7ad36dab3ef22936}{size\_ratio\_}}\ +\ row\_height;}
+\DoxyCodeLine{00467\ \ \ x\_area\_\ =\ x\ >=\ 0\ \&\&\ x\ <\ row\_height;}
+\DoxyCodeLine{00468\ \}}
+\DoxyCodeLine{00469\ }
+\DoxyCodeLine{00470\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a13a917c20806cdddefc23b671628de2a}{SelectionList::mouseExit}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00471\ \ \ hovered\_\ =\ -\/1;}
+\DoxyCodeLine{00472\ \}}
+\DoxyCodeLine{00473\ }
+\DoxyCodeLine{00474\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_ada71c5694afeb480ce0e6e70a6fbb9e9}{SelectionList::respondToMenuCallback}}(\textcolor{keywordtype}{int}\ result)\ \{}
+\DoxyCodeLine{00475\ \ \ \textcolor{keywordflow}{if}\ (result\ <\ 0\ ||\ result\ >=\ filtered\_selections\_.size())}
+\DoxyCodeLine{00476\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00477\ }
+\DoxyCodeLine{00478\ \ \ filtered\_selections\_[result].revealToUser();}
+\DoxyCodeLine{00479\ \}}
+\DoxyCodeLine{00480\ }
+\DoxyCodeLine{00481\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_ade7462b5daeeafab1a9586942aa72488}{SelectionList::menuClick}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00482\ \ \ \textcolor{keywordtype}{float}\ click\_y\_position\ =\ e.position.y;}
+\DoxyCodeLine{00483\ \ \ \textcolor{keywordtype}{int}\ row\ =\ \mbox{\hyperlink{class_selection_list_a07994adf4f21f7e05849fc8362de973c}{getRowFromPosition}}(click\_y\_position);}
+\DoxyCodeLine{00484\ }
+\DoxyCodeLine{00485\ \ \ \textcolor{keywordflow}{if}\ (row\ >=\ 0\ \&\&\ hovered\_\ >=\ 0)\ \{}
+\DoxyCodeLine{00486\ \ \ \ \ \mbox{\hyperlink{struct_popup_items}{PopupItems}}\ options;}
+\DoxyCodeLine{00487\ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(hovered\_,\ \textcolor{stringliteral}{"{}Open\ File\ Location"{}});}
+\DoxyCodeLine{00488\ \ \ \ \ \mbox{\hyperlink{class_synth_section_a9424df12646a0b756b1b58904b9be6ff}{showPopupSelector}}(\textcolor{keyword}{this},\ e.getPosition(),\ options,\ [=](\textcolor{keywordtype}{int}\ selection)\ \{\ respondToMenuCallback(selection);\ \});}
+\DoxyCodeLine{00489\ \ \ \}}
+\DoxyCodeLine{00490\ \}}
+\DoxyCodeLine{00491\ }
+\DoxyCodeLine{00492\ File\ \mbox{\hyperlink{class_selection_list_a5daf92f311d301df90ffa328750d4135}{SelectionList::getSelection}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00493\ \ \ \textcolor{keywordtype}{float}\ click\_y\_position\ =\ e.position.y;}
+\DoxyCodeLine{00494\ \ \ \textcolor{keywordtype}{int}\ row\ =\ \mbox{\hyperlink{class_selection_list_a07994adf4f21f7e05849fc8362de973c}{getRowFromPosition}}(click\_y\_position);}
+\DoxyCodeLine{00495\ \ \ \textcolor{keywordflow}{if}\ (row\ <\ filtered\_selections\_.size()\ \&\&\ row\ >=\ 0)}
+\DoxyCodeLine{00496\ \ \ \ \ \textcolor{keywordflow}{return}\ filtered\_selections\_[row];}
+\DoxyCodeLine{00497\ }
+\DoxyCodeLine{00498\ \ \ \textcolor{keywordflow}{return}\ File();}
+\DoxyCodeLine{00499\ \}}
+\DoxyCodeLine{00500\ }
+\DoxyCodeLine{00501\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a8cd7c9c307592ef8e7b76464f6ba3cac}{SelectionList::leftClick}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00502\ \ \ \textcolor{keywordtype}{float}\ click\_x\_position\ =\ e.position.x;}
+\DoxyCodeLine{00503\ \ \ \textcolor{keywordtype}{int}\ star\_right\ =\ \mbox{\hyperlink{class_selection_list_afd6e0e4ed98c85f6e7df12a157b976b2}{getRowHeight}}()\ +\ \mbox{\hyperlink{class_selection_list_acae1f77445229d51e1ed876da505fb85}{getIconPadding}}();}
+\DoxyCodeLine{00504\ \ \ File\ selection\ =\ \mbox{\hyperlink{class_selection_list_a5daf92f311d301df90ffa328750d4135}{getSelection}}(e);}
+\DoxyCodeLine{00505\ \ \ \textcolor{keywordflow}{if}\ (!selection.exists()\ \&\&\ selection\ !=\ \mbox{\hyperlink{class_selection_list_abffee1acff61129711014bf8a8d10a4e}{getFavoritesFile}}()\ \&\&\ selection\ !=\ \mbox{\hyperlink{class_selection_list_a2a645543d3a15ccb55b9f9d454848226}{getAllFile}}())\ \{}
+\DoxyCodeLine{00506\ \ \ \ \ \textcolor{keywordflow}{if}\ (selection.getFileName()\ ==\ String(kAddFolderName))}
+\DoxyCodeLine{00507\ \ \ \ \ \ \ \mbox{\hyperlink{class_selection_list_a4e760d1d02e652e244ac75e39ad37f7c}{addAdditionalFolder}}();}
+\DoxyCodeLine{00508\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00509\ \ \ \}}
+\DoxyCodeLine{00510\ }
+\DoxyCodeLine{00511\ \ \ \textcolor{keywordflow}{if}\ (click\_x\_position\ <\ star\_right)}
+\DoxyCodeLine{00512\ \ \ \ \ \mbox{\hyperlink{class_selection_list_a5b0f40459563606a71ba4116a69823c2}{selectIcon}}(selection);}
+\DoxyCodeLine{00513\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (x\_area\_)}
+\DoxyCodeLine{00514\ \ \ \ \ \mbox{\hyperlink{class_selection_list_a74135298fdb2b7ead3ba7a1bb9159f57}{removeAdditionalFolder}}(selection);}
+\DoxyCodeLine{00515\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00516\ \ \ \ \ \mbox{\hyperlink{class_selection_list_af15567c3cf34d9d11a5378642d2a8278}{select}}(selection);}
+\DoxyCodeLine{00517\ \}}
+\DoxyCodeLine{00518\ }
+\DoxyCodeLine{00519\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_ac976193ef8da804b5d57771a47644326}{SelectionList::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00520\ \ \ \textcolor{keywordflow}{if}\ (e.mods.isPopupMenu())}
+\DoxyCodeLine{00521\ \ \ \ \ \mbox{\hyperlink{class_selection_list_ade7462b5daeeafab1a9586942aa72488}{menuClick}}(e);}
+\DoxyCodeLine{00522\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00523\ \ \ \ \ \mbox{\hyperlink{class_selection_list_a8cd7c9c307592ef8e7b76464f6ba3cac}{leftClick}}(e);}
+\DoxyCodeLine{00524\ \}}
+\DoxyCodeLine{00525\ }
+\DoxyCodeLine{00526\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a91c70f5c754fa7927c0e319819d1a12c}{SelectionList::mouseDoubleClick}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00527\ \ \ \textcolor{keywordtype}{float}\ click\_x\_position\ =\ e.position.x;}
+\DoxyCodeLine{00528\ \ \ \textcolor{keywordtype}{int}\ star\_right\ =\ \mbox{\hyperlink{class_selection_list_afd6e0e4ed98c85f6e7df12a157b976b2}{getRowHeight}}()\ +\ \mbox{\hyperlink{class_selection_list_acae1f77445229d51e1ed876da505fb85}{getIconPadding}}();}
+\DoxyCodeLine{00529\ \ \ File\ selection\ =\ \mbox{\hyperlink{class_selection_list_a5daf92f311d301df90ffa328750d4135}{getSelection}}(e);}
+\DoxyCodeLine{00530\ \ \ \textcolor{keywordflow}{if}\ (!selection.exists())}
+\DoxyCodeLine{00531\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00532\ }
+\DoxyCodeLine{00533\ \ \ \textcolor{keywordflow}{if}\ (click\_x\_position\ <\ star\_right\ ||\ selection\ !=\ selected\_)}
+\DoxyCodeLine{00534\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00535\ }
+\DoxyCodeLine{00536\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_selection_list_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00537\ \ \ \ \ listener-\/>doubleClickedSelected(selection);}
+\DoxyCodeLine{00538\ \}}
+\DoxyCodeLine{00539\ }
+\DoxyCodeLine{00540\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a4e760d1d02e652e244ac75e39ad37f7c}{SelectionList::addAdditionalFolder}}()\ \{}
+\DoxyCodeLine{00541\ \ \ FileChooser\ open\_box(\textcolor{stringliteral}{"{}Add\ Folder"{}},\ File());}
+\DoxyCodeLine{00542\ \ \ \textcolor{keywordflow}{if}\ (open\_box.browseForDirectory())\ \{}
+\DoxyCodeLine{00543\ \ \ \ \ File\ result\ =\ open\_box.getResult();}
+\DoxyCodeLine{00544\ \ \ \ \ \textcolor{keywordflow}{if}\ (result.exists())\ \{}
+\DoxyCodeLine{00545\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (isAcceptableRoot(result))\ \{}
+\DoxyCodeLine{00546\ \ \ \ \ \ \ \ \ std::vector<std::string>\ roots\ =\ \mbox{\hyperlink{class_load_save_a57ee2e7e55cd804a392b65c222c19dee}{LoadSave::getAdditionalFolders}}(additional\_roots\_name\_);}
+\DoxyCodeLine{00547\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ std::string\&\ root\ :\ roots)\ \{}
+\DoxyCodeLine{00548\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (result\ ==\ File(root))\ \{}
+\DoxyCodeLine{00549\ \ \ \ \ \ \ \ \ \ \ \ \ NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon,\ \textcolor{stringliteral}{"{}Error\ Adding\ Folder"{}},}
+\DoxyCodeLine{00550\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ String(\textcolor{stringliteral}{"{}Folder\ already\ added"{}}));}
+\DoxyCodeLine{00551\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00552\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00553\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00554\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (selections\_.contains(File(result)))\ \{}
+\DoxyCodeLine{00555\ \ \ \ \ \ \ \ \ \ \ NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon,\ \textcolor{stringliteral}{"{}Error\ Adding\ Folder"{}},}
+\DoxyCodeLine{00556\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ String(\textcolor{stringliteral}{"{}Folder\ already\ added"{}}));}
+\DoxyCodeLine{00557\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00558\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00559\ \ \ \ \ \ \ \ \ additional\_roots\_.add(result);}
+\DoxyCodeLine{00560\ \ \ \ \ \ \ \ \ roots.push\_back(result.getFullPathName().toStdString());}
+\DoxyCodeLine{00561\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_load_save_a2a8b9b5b7938230a948f6a04ca3ebab1}{LoadSave::saveAdditionalFolders}}(additional\_roots\_name\_,\ roots);}
+\DoxyCodeLine{00562\ \ \ \ \ \ \ \ \ sort();}
+\DoxyCodeLine{00563\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_selection_list_ac967d71fc50497c1cfa69f6d058fb38b}{redoCache}}();}
+\DoxyCodeLine{00564\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00565\ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00566\ \ \ \ \ \ \ \ \ showAddRootWarning();}
+\DoxyCodeLine{00567\ \ \ \ \ \}}
+\DoxyCodeLine{00568\ \ \ \}}
+\DoxyCodeLine{00569\ \}}
+\DoxyCodeLine{00570\ }
+\DoxyCodeLine{00571\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a74135298fdb2b7ead3ba7a1bb9159f57}{SelectionList::removeAdditionalFolder}}(\textcolor{keyword}{const}\ File\&\ folder)\ \{}
+\DoxyCodeLine{00572\ \ \ additional\_roots\_.removeFirstMatchingValue(folder);}
+\DoxyCodeLine{00573\ \ \ std::vector<std::string>\ roots\ =\ \mbox{\hyperlink{class_load_save_a57ee2e7e55cd804a392b65c222c19dee}{LoadSave::getAdditionalFolders}}(additional\_roots\_name\_);}
+\DoxyCodeLine{00574\ \ \ std::string\ path\ =\ folder.getFullPathName().toStdString();}
+\DoxyCodeLine{00575\ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ pos\ =\ std::find(roots.begin(),\ roots.end(),\ path);}
+\DoxyCodeLine{00576\ \ \ \textcolor{keywordflow}{if}\ (pos\ !=\ roots.end())}
+\DoxyCodeLine{00577\ \ \ \ \ roots.erase(pos);}
+\DoxyCodeLine{00578\ \ \ \mbox{\hyperlink{class_load_save_a2a8b9b5b7938230a948f6a04ca3ebab1}{LoadSave::saveAdditionalFolders}}(additional\_roots\_name\_,\ roots);}
+\DoxyCodeLine{00579\ }
+\DoxyCodeLine{00580\ \ \ sort();}
+\DoxyCodeLine{00581\ \ \ \mbox{\hyperlink{class_selection_list_ac967d71fc50497c1cfa69f6d058fb38b}{redoCache}}();}
+\DoxyCodeLine{00582\ \}}
+\DoxyCodeLine{00583\ }
+\DoxyCodeLine{00584\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_af15567c3cf34d9d11a5378642d2a8278}{SelectionList::select}}(\textcolor{keyword}{const}\ File\&\ selection)\ \{}
+\DoxyCodeLine{00585\ \ \ \textcolor{keywordflow}{if}\ (selection.exists()\ \&\&\ selection.isDirectory()\ \&\&\ selection\ ==\ selected\_)\ \{}
+\DoxyCodeLine{00586\ \ \ \ \ toggleOpenFolder(selection);}
+\DoxyCodeLine{00587\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00588\ \ \ \}}
+\DoxyCodeLine{00589\ \ \ selected\_\ =\ selection;}
+\DoxyCodeLine{00590\ }
+\DoxyCodeLine{00591\ \ \ \textcolor{keywordflow}{if}\ (selected\_\ ==\ \mbox{\hyperlink{class_selection_list_abffee1acff61129711014bf8a8d10a4e}{getFavoritesFile}}())\ \{}
+\DoxyCodeLine{00592\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_selection_list_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00593\ \ \ \ \ \ \ listener-\/>favoritesSelected();}
+\DoxyCodeLine{00594\ \ \ \}}
+\DoxyCodeLine{00595\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (selected\_\ ==\ \mbox{\hyperlink{class_selection_list_a2a645543d3a15ccb55b9f9d454848226}{getAllFile}}())\ \{}
+\DoxyCodeLine{00596\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_selection_list_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00597\ \ \ \ \ \ \ listener-\/>allSelected();}
+\DoxyCodeLine{00598\ \ \ \}}
+\DoxyCodeLine{00599\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (selected\_.exists())\ \{}
+\DoxyCodeLine{00600\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_selection_list_1_1_listener}{Listener}}*\ listener\ :\ listeners\_)}
+\DoxyCodeLine{00601\ \ \ \ \ \ \ listener-\/>newSelection(selection);}
+\DoxyCodeLine{00602\ \ \ \}}
+\DoxyCodeLine{00603\ \}}
+\DoxyCodeLine{00604\ }
+\DoxyCodeLine{00605\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a5b0f40459563606a71ba4116a69823c2}{SelectionList::selectIcon}}(\textcolor{keyword}{const}\ File\&\ selection)\ \{}
+\DoxyCodeLine{00606\ \ \ \textcolor{keywordflow}{if}\ (selection.isDirectory())}
+\DoxyCodeLine{00607\ \ \ \ \ \mbox{\hyperlink{class_selection_list_af15567c3cf34d9d11a5378642d2a8278}{select}}(selection);}
+\DoxyCodeLine{00608\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00609\ \ \ \ \ toggleFavorite(selection);}
+\DoxyCodeLine{00610\ \}}
+\DoxyCodeLine{00611\ }
+\DoxyCodeLine{00612\ \textcolor{keywordtype}{void}\ SelectionList::toggleFavorite(\textcolor{keyword}{const}\ File\&\ selection)\ \{}
+\DoxyCodeLine{00613\ \ \ \textcolor{keywordflow}{if}\ (selection\ ==\ \mbox{\hyperlink{class_selection_list_abffee1acff61129711014bf8a8d10a4e}{getFavoritesFile}}()\ ||\ selection\ ==\ \mbox{\hyperlink{class_selection_list_a2a645543d3a15ccb55b9f9d454848226}{getAllFile}}())\ \{}
+\DoxyCodeLine{00614\ \ \ \ \ \mbox{\hyperlink{class_selection_list_af15567c3cf34d9d11a5378642d2a8278}{select}}(selection);}
+\DoxyCodeLine{00615\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00616\ \ \ \}}
+\DoxyCodeLine{00617\ }
+\DoxyCodeLine{00618\ \ \ std::string\ path\ =\ selection.getFullPathName().toStdString();}
+\DoxyCodeLine{00619\ \ \ \textcolor{keywordflow}{if}\ (favorites\_.count(path))\ \{}
+\DoxyCodeLine{00620\ \ \ \ \ favorites\_.erase(path);}
+\DoxyCodeLine{00621\ \ \ \ \ \mbox{\hyperlink{class_load_save_a92b96c53349631d064255b4274222497}{LoadSave::removeFavorite}}(selection);}
+\DoxyCodeLine{00622\ \ \ \}}
+\DoxyCodeLine{00623\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00624\ \ \ \ \ favorites\_.insert(path);}
+\DoxyCodeLine{00625\ \ \ \ \ \mbox{\hyperlink{class_load_save_a759e101ab9f742813c6487fc2c2eec22}{LoadSave::addFavorite}}(selection);}
+\DoxyCodeLine{00626\ \ \ \}}
+\DoxyCodeLine{00627\ \ \ \mbox{\hyperlink{class_selection_list_ac967d71fc50497c1cfa69f6d058fb38b}{redoCache}}();}
+\DoxyCodeLine{00628\ \}}
+\DoxyCodeLine{00629\ }
+\DoxyCodeLine{00630\ \textcolor{keywordtype}{void}\ SelectionList::toggleOpenFolder(\textcolor{keyword}{const}\ File\&\ selection)\ \{}
+\DoxyCodeLine{00631\ \ \ std::string\ path\ =\ selection.getFullPathName().toStdString();}
+\DoxyCodeLine{00632\ \ \ Array<File>\ children;}
+\DoxyCodeLine{00633\ \ \ selection.findChildFiles(children,\ File::findDirectories,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00634\ \ \ \textcolor{keywordflow}{if}\ (open\_folders\_.count(path))}
+\DoxyCodeLine{00635\ \ \ \ \ open\_folders\_.erase(path);}
+\DoxyCodeLine{00636\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (!children.isEmpty())}
+\DoxyCodeLine{00637\ \ \ \ \ open\_folders\_[path]\ =\ \mbox{\hyperlink{class_selection_list_a02b240d1387f05f1732063f62cf9b1cc}{getFolderDepth}}(selection);}
+\DoxyCodeLine{00638\ \ \ sort();}
+\DoxyCodeLine{00639\ \ \ \mbox{\hyperlink{class_selection_list_ac967d71fc50497c1cfa69f6d058fb38b}{redoCache}}();}
+\DoxyCodeLine{00640\ \}}
+\DoxyCodeLine{00641\ }
+\DoxyCodeLine{00642\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a2494dfb0280e3ee1efac6f5ef5a0dd5e}{SelectionList::scrollBarMoved}}(ScrollBar*\ scroll\_bar,\ \textcolor{keywordtype}{double}\ range\_start)\ \{}
+\DoxyCodeLine{00643\ \ \ view\_position\_\ =\ range\_start;}
+\DoxyCodeLine{00644\ \ \ viewPositionChanged();}
+\DoxyCodeLine{00645\ \}}
+\DoxyCodeLine{00646\ }
+\DoxyCodeLine{00647\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a47bcd2e647ad12d8b11890b420e0587e}{SelectionList::setScrollBarRange}}()\ \{}
+\DoxyCodeLine{00648\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kScrollStepRatio\ =\ 0.05f;}
+\DoxyCodeLine{00649\ }
+\DoxyCodeLine{00650\ \ \ \textcolor{keywordtype}{float}\ scaled\_height\ =\ getHeight();}
+\DoxyCodeLine{00651\ \ \ scroll\_bar\_-\/>setRangeLimits(0.0f,\ \mbox{\hyperlink{class_selection_list_aac53dd362def7d2f265199b3a5d02bdb}{getScrollableRange}}());}
+\DoxyCodeLine{00652\ \ \ scroll\_bar\_-\/>setCurrentRange(getViewPosition(),\ scaled\_height,\ dontSendNotification);}
+\DoxyCodeLine{00653\ \ \ scroll\_bar\_-\/>setSingleStepSize(scroll\_bar\_-\/>getHeight()\ *\ kScrollStepRatio);}
+\DoxyCodeLine{00654\ \ \ scroll\_bar\_-\/>cancelPendingUpdate();}
+\DoxyCodeLine{00655\ \}}
+\DoxyCodeLine{00656\ }
+\DoxyCodeLine{00657\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_ac967d71fc50497c1cfa69f6d058fb38b}{SelectionList::redoCache}}()\ \{}
+\DoxyCodeLine{00658\ \ \ \textcolor{keywordflow}{if}\ (getWidth()\ <=\ 0\ ||\ getHeight()\ <=\ 0)}
+\DoxyCodeLine{00659\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00660\ }
+\DoxyCodeLine{00661\ \ \ \textcolor{keywordtype}{int}\ max\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(filtered\_selections\_.size())\ -\/\ \mbox{\hyperlink{class_selection_list_afc8077874986cda303286dcb8932a579}{kNumCachedRows}};}
+\DoxyCodeLine{00662\ \ \ \textcolor{keywordtype}{int}\ position\ =\ std::max(0,\ std::min<int>(cache\_position\_,\ max));}
+\DoxyCodeLine{00663\ \ \ loadBrowserCache(position,\ position\ +\ \mbox{\hyperlink{class_selection_list_afc8077874986cda303286dcb8932a579}{kNumCachedRows}});}
+\DoxyCodeLine{00664\ \}}
+\DoxyCodeLine{00665\ }
+\DoxyCodeLine{00666\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_selection_list_a02b240d1387f05f1732063f62cf9b1cc}{SelectionList::getFolderDepth}}(\textcolor{keyword}{const}\ File\&\ file)\ \{}
+\DoxyCodeLine{00667\ \ \ std::string\ parent\_string\ =\ file.getParentDirectory().getFullPathName().toStdString();}
+\DoxyCodeLine{00668\ \ \ \textcolor{keywordflow}{if}\ (open\_folders\_.count(parent\_string))}
+\DoxyCodeLine{00669\ \ \ \ \ \textcolor{keywordflow}{return}\ open\_folders\_[parent\_string]\ +\ 1;}
+\DoxyCodeLine{00670\ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00671\ \}}
+\DoxyCodeLine{00672\ }
+\DoxyCodeLine{00673\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a5e7a580ccad24904c16c939c2d9d9ce8}{SelectionList::addSubfolderSelections}}(\textcolor{keyword}{const}\ File\&\ selection,\ std::vector<File>\&\ selections)\ \{}
+\DoxyCodeLine{00674\ \ \ Array<File>\ children;}
+\DoxyCodeLine{00675\ \ \ selection.findChildFiles(children,\ File::findDirectories,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00676\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ File\&\ child\ :\ children)\ \{}
+\DoxyCodeLine{00677\ \ \ \ \ selections.push\_back(child);}
+\DoxyCodeLine{00678\ \ \ \ \ \textcolor{keywordflow}{if}\ (open\_folders\_.count(child.getFullPathName().toStdString()))}
+\DoxyCodeLine{00679\ \ \ \ \ \ \ \mbox{\hyperlink{class_selection_list_a5e7a580ccad24904c16c939c2d9d9ce8}{addSubfolderSelections}}(child,\ selections);}
+\DoxyCodeLine{00680\ \ \ \}}
+\DoxyCodeLine{00681\ \}}
+\DoxyCodeLine{00682\ }
+\DoxyCodeLine{00683\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a4094e99b08de8551f5a3e25b748aefbc}{SelectionList::setAdditionalRootsName}}(\textcolor{keyword}{const}\ std::string\&\ name)\ \{}
+\DoxyCodeLine{00684\ \ \ additional\_roots\_name\_\ =\ name;}
+\DoxyCodeLine{00685\ \ \ additional\_roots\_.clear();}
+\DoxyCodeLine{00686\ \ \ \textcolor{keywordflow}{if}\ (!name.empty())\ \{}
+\DoxyCodeLine{00687\ \ \ \ \ std::vector<std::string>\ roots\ =\ \mbox{\hyperlink{class_load_save_a57ee2e7e55cd804a392b65c222c19dee}{LoadSave::getAdditionalFolders}}(additional\_roots\_name\_);}
+\DoxyCodeLine{00688\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ std::string\&\ root\ :\ roots)\ \{}
+\DoxyCodeLine{00689\ \ \ \ \ \ \ File\ file(root);}
+\DoxyCodeLine{00690\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (file.exists())}
+\DoxyCodeLine{00691\ \ \ \ \ \ \ \ \ additional\_roots\_.add(file);}
+\DoxyCodeLine{00692\ \ \ \ \ \}}
+\DoxyCodeLine{00693\ \ \ \}}
+\DoxyCodeLine{00694\ \}}
+\DoxyCodeLine{00695\ }
+\DoxyCodeLine{00696\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a88921ece6eac0204efe009cc39e7b8b7}{SelectionList::filter}}(\textcolor{keyword}{const}\ String\&\ filter\_string)\ \{}
+\DoxyCodeLine{00697\ \ \ filter\_string\_\ =\ filter\_string.toLowerCase();}
+\DoxyCodeLine{00698\ \ \ StringArray\ tokens;}
+\DoxyCodeLine{00699\ \ \ tokens.addTokens(filter\_string\_,\ \textcolor{stringliteral}{"{}\ "{}},\ \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00700\ \ \ filtered\_selections\_.clear();}
+\DoxyCodeLine{00701\ \ \ \textcolor{keywordflow}{if}\ (favorites\_option\_)\ \{}
+\DoxyCodeLine{00702\ \ \ \ \ filtered\_selections\_.push\_back(\mbox{\hyperlink{class_selection_list_a2a645543d3a15ccb55b9f9d454848226}{getAllFile}}());}
+\DoxyCodeLine{00703\ \ \ \ \ filtered\_selections\_.push\_back(\mbox{\hyperlink{class_selection_list_abffee1acff61129711014bf8a8d10a4e}{getFavoritesFile}}());}
+\DoxyCodeLine{00704\ \ \ \}}
+\DoxyCodeLine{00705\ }
+\DoxyCodeLine{00706\ \ \ Array<File>\ all\_selections\ =\ selections\_;}
+\DoxyCodeLine{00707\ \ \ all\_selections.addArray(additional\_roots\_);}
+\DoxyCodeLine{00708\ }
+\DoxyCodeLine{00709\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ File\&\ selection\ :\ all\_selections)\ \{}
+\DoxyCodeLine{00710\ \ \ \ \ \textcolor{keywordtype}{bool}\ match\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00711\ \ \ \ \ \textcolor{keywordflow}{if}\ (tokens.size())\ \{}
+\DoxyCodeLine{00712\ \ \ \ \ \ \ String\ name\ =\ selection.getFileNameWithoutExtension().toLowerCase();}
+\DoxyCodeLine{00713\ }
+\DoxyCodeLine{00714\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ String\&\ token\ :\ tokens)\ \{}
+\DoxyCodeLine{00715\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!name.contains(token))}
+\DoxyCodeLine{00716\ \ \ \ \ \ \ \ \ \ \ match\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00717\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00718\ \ \ \ \ \}}
+\DoxyCodeLine{00719\ \ \ \ \ \textcolor{keywordflow}{if}\ (match)\ \{}
+\DoxyCodeLine{00720\ \ \ \ \ \ \ filtered\_selections\_.push\_back(selection);}
+\DoxyCodeLine{00721\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (open\_folders\_.count(selection.getFullPathName().toStdString()))}
+\DoxyCodeLine{00722\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_selection_list_a5e7a580ccad24904c16c939c2d9d9ce8}{addSubfolderSelections}}(selection,\ filtered\_selections\_);}
+\DoxyCodeLine{00723\ \ \ \ \ \}}
+\DoxyCodeLine{00724\ \ \ \}}
+\DoxyCodeLine{00725\ }
+\DoxyCodeLine{00726\ \ \ \textcolor{keywordflow}{if}\ (!additional\_roots\_name\_.empty())}
+\DoxyCodeLine{00727\ \ \ \ \ filtered\_selections\_.push\_back(File::getCurrentWorkingDirectory().getChildFile(\textcolor{stringliteral}{"{}\_"{}}).getChildFile(kAddFolderName));}
+\DoxyCodeLine{00728\ \ \ num\_view\_selections\_\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(filtered\_selections\_.size());}
+\DoxyCodeLine{00729\ }
+\DoxyCodeLine{00730\ \ \ \textcolor{keyword}{auto}\ found\ =\ std::find(filtered\_selections\_.begin(),\ filtered\_selections\_.end(),\ selected\_);}
+\DoxyCodeLine{00731\ \ \ \textcolor{keywordflow}{if}\ (found\ ==\ filtered\_selections\_.end())}
+\DoxyCodeLine{00732\ \ \ \ \ selected\_\ =\ File();}
+\DoxyCodeLine{00733\ \}}
+\DoxyCodeLine{00734\ }
+\DoxyCodeLine{00735\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_selection_list_ac1f61a5c9d8f6fb2a88166d362c95de4}{SelectionList::getSelectedIndex}}()\ \{}
+\DoxyCodeLine{00736\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ filtered\_selections\_.size();\ ++i)\ \{}
+\DoxyCodeLine{00737\ \ \ \ \ \textcolor{keywordflow}{if}\ (selected\_\ ==\ filtered\_selections\_[i])}
+\DoxyCodeLine{00738\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ i;}
+\DoxyCodeLine{00739\ \ \ \}}
+\DoxyCodeLine{00740\ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{00741\ \}}
+\DoxyCodeLine{00742\ }
+\DoxyCodeLine{00743\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_selection_list_aac53dd362def7d2f265199b3a5d02bdb}{SelectionList::getScrollableRange}}()\ \{}
+\DoxyCodeLine{00744\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_selection_list_afd6e0e4ed98c85f6e7df12a157b976b2}{getRowHeight}}();}
+\DoxyCodeLine{00745\ \ \ \textcolor{keywordtype}{int}\ presets\_height\ =\ row\_height\ *\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(filtered\_selections\_.size());}
+\DoxyCodeLine{00746\ \ \ \textcolor{keywordflow}{return}\ std::max(presets\_height,\ getHeight());}
+\DoxyCodeLine{00747\ \}}
+\DoxyCodeLine{00748\ }
+\DoxyCodeLine{00749\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_af068f395775d11c79b2a677509fc4db6}{SelectionList::selectNext}}()\ \{}
+\DoxyCodeLine{00750\ \ \ \textcolor{keywordflow}{if}\ (filtered\_selections\_.empty())}
+\DoxyCodeLine{00751\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00752\ }
+\DoxyCodeLine{00753\ \ \ \textcolor{keywordtype}{int}\ index\ =\ \mbox{\hyperlink{class_selection_list_ac1f61a5c9d8f6fb2a88166d362c95de4}{getSelectedIndex}}();}
+\DoxyCodeLine{00754\ \ \ index\ =\ (index\ +\ 1)\ \%\ filtered\_selections\_.size();}
+\DoxyCodeLine{00755\ \ \ \mbox{\hyperlink{class_selection_list_af15567c3cf34d9d11a5378642d2a8278}{select}}(filtered\_selections\_[index]);}
+\DoxyCodeLine{00756\ \}}
+\DoxyCodeLine{00757\ }
+\DoxyCodeLine{00758\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a2b6cde474bab6bef06e056adc339b60e}{SelectionList::selectPrev}}()\ \{}
+\DoxyCodeLine{00759\ \ \ \textcolor{keywordflow}{if}\ (filtered\_selections\_.empty())}
+\DoxyCodeLine{00760\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00761\ }
+\DoxyCodeLine{00762\ \ \ \textcolor{keywordtype}{int}\ index\ =\ std::max(0,\ \mbox{\hyperlink{class_selection_list_ac1f61a5c9d8f6fb2a88166d362c95de4}{getSelectedIndex}}());}
+\DoxyCodeLine{00763\ \ \ index\ =\ (index\ -\/\ 1\ +\ filtered\_selections\_.size())\ \%\ filtered\_selections\_.size();}
+\DoxyCodeLine{00764\ \ \ \mbox{\hyperlink{class_selection_list_af15567c3cf34d9d11a5378642d2a8278}{select}}(filtered\_selections\_[index]);}
+\DoxyCodeLine{00765\ \}}
+\DoxyCodeLine{00766\ }
+\DoxyCodeLine{00767\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_a47bed2cf1e58bf415bcb3b12b43c79cc}{SelectionList::initOpenGlComponents}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00768\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_open_gl_image}{OpenGlImage}}\&\ row\ :\ rows\_)\ \{}
+\DoxyCodeLine{00769\ \ \ \ \ row.setScissor(\textcolor{keyword}{true});}
+\DoxyCodeLine{00770\ \ \ \ \ row.init(open\_gl);}
+\DoxyCodeLine{00771\ \ \ \ \ row.setColor(Colours::white);}
+\DoxyCodeLine{00772\ \ \ \}}
+\DoxyCodeLine{00773\ }
+\DoxyCodeLine{00774\ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00775\ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a31f498198029a3ed8f8595dc470c2ba1}{init}}(open\_gl);}
+\DoxyCodeLine{00776\ \ \ remove\_additional\_x\_.\mbox{\hyperlink{class_open_gl_image_component_a2b6afe1d8176c6b8df5c88415a88ab44}{init}}(open\_gl);}
+\DoxyCodeLine{00777\ \ \ \mbox{\hyperlink{class_synth_section_aeb169e2a98d8132a836bbe2b211c68bd}{SynthSection::initOpenGlComponents}}(open\_gl);}
+\DoxyCodeLine{00778\ \}}
+\DoxyCodeLine{00779\ }
+\DoxyCodeLine{00780\ \textcolor{keywordtype}{void}\ SelectionList::viewPositionChanged()\ \{}
+\DoxyCodeLine{00781\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_selection_list_afd6e0e4ed98c85f6e7df12a157b976b2}{getRowHeight}}();}
+\DoxyCodeLine{00782\ }
+\DoxyCodeLine{00783\ \ \ \textcolor{keywordtype}{int}\ last\_cache\_position\ =\ cache\_position\_;}
+\DoxyCodeLine{00784\ \ \ cache\_position\_\ =\ getViewPosition()\ /\ row\_height;}
+\DoxyCodeLine{00785\ \ \ \textcolor{keywordtype}{int}\ max\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(filtered\_selections\_.size()\ -\/\ \mbox{\hyperlink{class_selection_list_afc8077874986cda303286dcb8932a579}{kNumCachedRows}});}
+\DoxyCodeLine{00786\ \ \ cache\_position\_\ =\ std::max(0,\ std::min<int>(cache\_position\_,\ max));}
+\DoxyCodeLine{00787\ }
+\DoxyCodeLine{00788\ \ \ \textcolor{keywordflow}{if}\ (std::abs(cache\_position\_\ -\/\ last\_cache\_position)\ >=\ \mbox{\hyperlink{class_selection_list_afc8077874986cda303286dcb8932a579}{kNumCachedRows}})}
+\DoxyCodeLine{00789\ \ \ \ \ \mbox{\hyperlink{class_selection_list_ac967d71fc50497c1cfa69f6d058fb38b}{redoCache}}();}
+\DoxyCodeLine{00790\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (last\_cache\_position\ <\ cache\_position\_)}
+\DoxyCodeLine{00791\ \ \ \ \ loadBrowserCache(last\_cache\_position\ +\ \mbox{\hyperlink{class_selection_list_afc8077874986cda303286dcb8932a579}{kNumCachedRows}},\ cache\_position\_\ +\ \mbox{\hyperlink{class_selection_list_afc8077874986cda303286dcb8932a579}{kNumCachedRows}});}
+\DoxyCodeLine{00792\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (last\_cache\_position\ >\ cache\_position\_)}
+\DoxyCodeLine{00793\ \ \ \ \ loadBrowserCache(cache\_position\_,\ last\_cache\_position);}
+\DoxyCodeLine{00794\ \}}
+\DoxyCodeLine{00795\ }
+\DoxyCodeLine{00796\ \textcolor{keywordtype}{void}\ SelectionList::loadBrowserCache(\textcolor{keywordtype}{int}\ start\_index,\ \textcolor{keywordtype}{int}\ end\_index)\ \{}
+\DoxyCodeLine{00797\ \ \ \textcolor{keywordtype}{int}\ mult\ =\ \mbox{\hyperlink{class_synth_section_a78dd0f15e5945a73e881ed882173358e}{getPixelMultiple}}();}
+\DoxyCodeLine{00798\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_selection_list_afd6e0e4ed98c85f6e7df12a157b976b2}{getRowHeight}}()\ *\ mult;}
+\DoxyCodeLine{00799\ \ \ \textcolor{keywordtype}{int}\ image\_width\ =\ getWidth()\ *\ mult;}
+\DoxyCodeLine{00800\ }
+\DoxyCodeLine{00801\ \ \ \textcolor{keywordtype}{int}\ padding\ =\ \mbox{\hyperlink{class_selection_list_acae1f77445229d51e1ed876da505fb85}{getIconPadding}}();}
+\DoxyCodeLine{00802\ \ \ \textcolor{keywordtype}{int}\ icon\_x\ =\ padding;}
+\DoxyCodeLine{00803\ \ \ \textcolor{keywordtype}{int}\ icon\_width\ =\ row\_height;}
+\DoxyCodeLine{00804\ \ \ \textcolor{keywordtype}{int}\ name\_x\ =\ icon\_x\ +\ icon\_width\ +\ padding;}
+\DoxyCodeLine{00805\ \ \ \textcolor{keywordtype}{int}\ name\_width\ =\ image\_width\ -\/\ name\_x;}
+\DoxyCodeLine{00806\ }
+\DoxyCodeLine{00807\ \ \ end\_index\ =\ std::min(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(filtered\_selections\_.size()),\ end\_index);}
+\DoxyCodeLine{00808\ \ \ Font\ font\ =\ \mbox{\hyperlink{class_fonts_ae7669a3eeb9db437c7d34feff9e99707}{Fonts::instance}}()-\/>\mbox{\hyperlink{class_fonts_ad3f42cf6c33957340cc7689bca94b90a}{proportional\_light}}().withPointHeight(row\_height\ *\ 0.55f);}
+\DoxyCodeLine{00809\ }
+\DoxyCodeLine{00810\ \ \ Path\ star\ =\ \mbox{\hyperlink{class_paths_a41c5322b6e8cb88b26e0e177078d9843}{Paths::star}}();}
+\DoxyCodeLine{00811\ \ \ Path\ folder\ =\ \mbox{\hyperlink{class_paths_abbffbc00fea66acc94f2acab0b608b1d}{Paths::folder}}();}
+\DoxyCodeLine{00812\ \ \ \textcolor{keywordtype}{float}\ star\_draw\_width\ =\ row\_height\ *\ 0.8f;}
+\DoxyCodeLine{00813\ \ \ \textcolor{keywordtype}{float}\ star\_y\ =\ (row\_height\ -\/\ star\_draw\_width)\ /\ 2.0f;}
+\DoxyCodeLine{00814\ \ \ Rectangle<float>\ star\_bounds(icon\_x\ +\ (icon\_width\ -\/\ star\_draw\_width)\ /\ 2.0f,\ star\_y,}
+\DoxyCodeLine{00815\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ star\_draw\_width,\ star\_draw\_width);}
+\DoxyCodeLine{00816\ \ \ star.applyTransform(star.getTransformToScaleToFit(star\_bounds,\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00817\ }
+\DoxyCodeLine{00818\ \ \ \textcolor{keywordtype}{float}\ folder\_draw\_width\ =\ row\_height\ *\ 0.6f;}
+\DoxyCodeLine{00819\ \ \ \textcolor{keywordtype}{float}\ folder\_y\ =\ (row\_height\ -\/\ folder\_draw\_width)\ /\ 2.0f;}
+\DoxyCodeLine{00820\ \ \ Rectangle<float>\ folder\_bounds(icon\_x\ +\ (icon\_width\ -\/\ folder\_draw\_width)\ /\ 2.0f,\ folder\_y,}
+\DoxyCodeLine{00821\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ folder\_draw\_width,\ folder\_draw\_width);}
+\DoxyCodeLine{00822\ \ \ folder.applyTransform(folder.getTransformToScaleToFit(folder\_bounds,\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00823\ \ \ PathStrokeType\ icon\_stroke(1.0f,\ PathStrokeType::curved);}
+\DoxyCodeLine{00824\ }
+\DoxyCodeLine{00825\ \ \ Colour\ text\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cadac6e8c347bdd796337e3ca3d7ca3457}{Skin::kTextComponentText}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00826\ \ \ Colour\ icon\_unselected\ =\ text\_color.withMultipliedAlpha(0.5f);}
+\DoxyCodeLine{00827\ \ \ Colour\ icon\_selected\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00828\ }
+\DoxyCodeLine{00829\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ start\_index;\ i\ <\ end\_index;\ ++i)\ \{}
+\DoxyCodeLine{00830\ \ \ \ \ Image\ row\_image(Image::ARGB,\ image\_width,\ row\_height,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00831\ \ \ \ \ Graphics\ g(row\_image);}
+\DoxyCodeLine{00832\ }
+\DoxyCodeLine{00833\ \ \ \ \ File\ selection\ =\ filtered\_selections\_[i];}
+\DoxyCodeLine{00834\ \ \ \ \ String\ name\ =\ selection.getFileNameWithoutExtension();}
+\DoxyCodeLine{00835\ \ \ \ \ \textcolor{keywordflow}{if}\ (selection.isDirectory())\ \{}
+\DoxyCodeLine{00836\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ parents\ =\ \mbox{\hyperlink{class_selection_list_a02b240d1387f05f1732063f62cf9b1cc}{getFolderDepth}}(selection);}
+\DoxyCodeLine{00837\ \ \ \ \ \ \ g.addTransform(AffineTransform::translation(Point<int>(parents\ *\ folder\_draw\_width,\ 0)));}
+\DoxyCodeLine{00838\ }
+\DoxyCodeLine{00839\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (name\ ==\ String(passthrough\_name\_))}
+\DoxyCodeLine{00840\ \ \ \ \ \ \ \ \ name\ =\ selection.getParentDirectory().getFileNameWithoutExtension();}
+\DoxyCodeLine{00841\ }
+\DoxyCodeLine{00842\ \ \ \ \ \ \ g.setColour(icon\_unselected);}
+\DoxyCodeLine{00843\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (open\_folders\_.count(selection.getFullPathName().toStdString()))}
+\DoxyCodeLine{00844\ \ \ \ \ \ \ \ \ g.fillPath(folder);}
+\DoxyCodeLine{00845\ }
+\DoxyCodeLine{00846\ \ \ \ \ \ \ g.strokePath(folder,\ icon\_stroke);}
+\DoxyCodeLine{00847\ \ \ \ \ \}}
+\DoxyCodeLine{00848\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (selection.getFileName()\ ==\ String(kAddFolderName))\ \{}
+\DoxyCodeLine{00849\ \ \ \ \ \ \ g.setColour(icon\_unselected);}
+\DoxyCodeLine{00850\ \ \ \ \ \ \ Path\ add\_folder\_path;}
+\DoxyCodeLine{00851\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ dashes[2]\ =\ \{\ 4.0f\ *\ \mbox{\hyperlink{class_synth_section_a966868a7e67306cc7ad36dab3ef22936}{size\_ratio\_}},\ 2.0f\ *\ \mbox{\hyperlink{class_synth_section_a966868a7e67306cc7ad36dab3ef22936}{size\_ratio\_}}\ \};}
+\DoxyCodeLine{00852\ \ \ \ \ \ \ icon\_stroke.createDashedStroke(add\_folder\_path,\ folder,\ dashes,\ 2);}
+\DoxyCodeLine{00853\ \ \ \ \ \ \ g.fillPath(add\_folder\_path);}
+\DoxyCodeLine{00854\ \ \ \ \ \}}
+\DoxyCodeLine{00855\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (selection.exists()\ ||\ selection.getFileName()\ ==\ \textcolor{stringliteral}{"{}Favorites"{}})\ \{}
+\DoxyCodeLine{00856\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (favorites\_.count(selection.getFullPathName().toStdString()))\ \{}
+\DoxyCodeLine{00857\ \ \ \ \ \ \ \ \ g.setColour(icon\_selected);}
+\DoxyCodeLine{00858\ \ \ \ \ \ \ \ \ g.fillPath(star);}
+\DoxyCodeLine{00859\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00860\ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00861\ \ \ \ \ \ \ \ \ g.setColour(icon\_unselected);}
+\DoxyCodeLine{00862\ }
+\DoxyCodeLine{00863\ \ \ \ \ \ \ g.strokePath(star,\ icon\_stroke);}
+\DoxyCodeLine{00864\ \ \ \ \ \}}
+\DoxyCodeLine{00865\ }
+\DoxyCodeLine{00866\ \ \ \ \ g.setColour(text\_color);}
+\DoxyCodeLine{00867\ \ \ \ \ g.setFont(font);}
+\DoxyCodeLine{00868\ \ \ \ \ g.drawText(name,\ name\_x,\ 0,\ name\_width\ -\/\ 2\ *\ padding,\ row\_height,\ Justification::centredLeft,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00869\ \ \ \ \ rows\_[i\ \%\ \mbox{\hyperlink{class_selection_list_afc8077874986cda303286dcb8932a579}{kNumCachedRows}}].\mbox{\hyperlink{class_open_gl_image_a512ce30b2a7e53635472f1c2c5a71599}{setOwnImage}}(row\_image);}
+\DoxyCodeLine{00870\ \ \ \ \ is\_additional\_[i\ \%\ \mbox{\hyperlink{class_selection_list_afc8077874986cda303286dcb8932a579}{kNumCachedRows}}]\ =\ additional\_roots\_.contains(selection);}
+\DoxyCodeLine{00871\ \ \ \}}
+\DoxyCodeLine{00872\ \}}
+\DoxyCodeLine{00873\ }
+\DoxyCodeLine{00874\ \textcolor{keywordtype}{void}\ SelectionList::moveQuadToRow(\mbox{\hyperlink{class_open_gl_quad}{OpenGlQuad}}\&\ quad,\ \textcolor{keywordtype}{int}\ row,\ \textcolor{keywordtype}{float}\ y\_offset)\ \{}
+\DoxyCodeLine{00875\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_selection_list_afd6e0e4ed98c85f6e7df12a157b976b2}{getRowHeight}}();}
+\DoxyCodeLine{00876\ \ \ \textcolor{keywordtype}{float}\ view\_height\ =\ getHeight();}
+\DoxyCodeLine{00877\ \ \ \textcolor{keywordtype}{float}\ open\_gl\_row\_height\ =\ 2.0f\ *\ row\_height\ /\ view\_height;}
+\DoxyCodeLine{00878\ \ \ \textcolor{keywordtype}{float}\ offset\ =\ row\ *\ open\_gl\_row\_height;}
+\DoxyCodeLine{00879\ }
+\DoxyCodeLine{00880\ \ \ \textcolor{keywordtype}{float}\ y\ =\ 1.0f\ +\ y\_offset\ -\/\ offset;}
+\DoxyCodeLine{00881\ \ \ quad.\mbox{\hyperlink{class_open_gl_multi_quad_a35c108ca44accfef5055ac8df84a579d}{setQuad}}(0,\ -\/1.0f,\ y\ -\/\ open\_gl\_row\_height,\ 2.0f,\ open\_gl\_row\_height);}
+\DoxyCodeLine{00882\ \}}
+\DoxyCodeLine{00883\ }
+\DoxyCodeLine{00884\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_acfd90254d11fd4cfe4bdd084ca37c564}{SelectionList::renderOpenGlComponents}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00885\ \ \ \textcolor{keywordtype}{float}\ view\_height\ =\ getHeight();}
+\DoxyCodeLine{00886\ \ \ \textcolor{keywordtype}{int}\ row\_height\ =\ \mbox{\hyperlink{class_selection_list_afd6e0e4ed98c85f6e7df12a157b976b2}{getRowHeight}}();}
+\DoxyCodeLine{00887\ \ \ \textcolor{keywordtype}{int}\ num\_presets\ =\ num\_view\_selections\_;}
+\DoxyCodeLine{00888\ }
+\DoxyCodeLine{00889\ \ \ \textcolor{keywordtype}{int}\ view\_position\ =\ getViewPosition();}
+\DoxyCodeLine{00890\ \ \ \textcolor{keywordtype}{float}\ y\_offset\ =\ 2.0f\ *\ view\_position\ /\ view\_height;}
+\DoxyCodeLine{00891\ }
+\DoxyCodeLine{00892\ \ \ Rectangle<int>\ view\_bounds(getLocalBounds());}
+\DoxyCodeLine{00893\ \ \ \mbox{\hyperlink{class_open_gl_component_a0641317fa0d502284c603188bb7da9a7}{OpenGlComponent::setViewPort}}(\textcolor{keyword}{this},\ view\_bounds,\ open\_gl);}
+\DoxyCodeLine{00894\ }
+\DoxyCodeLine{00895\ \ \ \textcolor{keywordtype}{float}\ image\_width\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5d3f0a1d10f1378cc23d7b7dc64138fb}{vital::utils::nextPowerOfTwo}}(getWidth());}
+\DoxyCodeLine{00896\ \ \ \textcolor{keywordtype}{float}\ image\_height\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5d3f0a1d10f1378cc23d7b7dc64138fb}{vital::utils::nextPowerOfTwo}}(row\_height);}
+\DoxyCodeLine{00897\ \ \ \textcolor{keywordtype}{float}\ width\_ratio\ =\ image\_width\ /\ getWidth();}
+\DoxyCodeLine{00898\ \ \ \textcolor{keywordtype}{float}\ height\_ratio\ =\ image\_height\ /\ row\_height;}
+\DoxyCodeLine{00899\ }
+\DoxyCodeLine{00900\ \ \ \textcolor{keywordtype}{float}\ open\_gl\_row\_height\ =\ height\_ratio\ *\ 2.0f\ *\ row\_height\ /\ view\_height;}
+\DoxyCodeLine{00901\ \ \ \textcolor{keywordtype}{int}\ cache\_position\ =\ std::max(0,\ std::min(cache\_position\_,\ num\_presets\ -\/\ \mbox{\hyperlink{class_selection_list_afc8077874986cda303286dcb8932a579}{kNumCachedRows}}));}
+\DoxyCodeLine{00902\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_selection_list_afc8077874986cda303286dcb8932a579}{kNumCachedRows}}\ \&\&\ i\ <\ num\_presets;\ ++i)\ \{}
+\DoxyCodeLine{00903\ \ \ \ \ \textcolor{keywordtype}{int}\ row\ =\ cache\_position\ +\ i;}
+\DoxyCodeLine{00904\ \ \ \ \ \textcolor{keywordtype}{int}\ cache\_index\ =\ row\ \%\ \mbox{\hyperlink{class_selection_list_afc8077874986cda303286dcb8932a579}{kNumCachedRows}};}
+\DoxyCodeLine{00905\ \ \ \ \ \textcolor{keywordtype}{float}\ offset\ =\ (2.0f\ *\ row\_height\ *\ row)\ /\ view\_height;}
+\DoxyCodeLine{00906\ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ 1.0f\ +\ y\_offset\ -\/\ offset;}
+\DoxyCodeLine{00907\ }
+\DoxyCodeLine{00908\ \ \ \ \ Rectangle<int>\ row\_bounds(0,\ row\_height\ *\ row\ -\/\ view\_position,\ getWidth(),\ row\_height);}
+\DoxyCodeLine{00909\ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_a64a2b9bbcd277580ca27aa3a4b1ff9df}{OpenGlComponent::setScissorBounds}}(\textcolor{keyword}{this},\ row\_bounds,\ open\_gl);}
+\DoxyCodeLine{00910\ }
+\DoxyCodeLine{00911\ \ \ \ \ rows\_[cache\_index].\mbox{\hyperlink{class_open_gl_image_ac17018844362f423c2450bf1058b0e7d}{setTopLeft}}(-\/1.0f,\ y);}
+\DoxyCodeLine{00912\ \ \ \ \ rows\_[cache\_index].\mbox{\hyperlink{class_open_gl_image_adf4e0bd9ada8eaa3655429c1ee8be41c}{setTopRight}}(-\/1.0f\ +\ 2.0f\ *\ width\_ratio,\ y);}
+\DoxyCodeLine{00913\ \ \ \ \ rows\_[cache\_index].\mbox{\hyperlink{class_open_gl_image_a73ebd6bfcf3bd7d578fed727db244078}{setBottomLeft}}(-\/1.0f,\ y\ -\/\ open\_gl\_row\_height);}
+\DoxyCodeLine{00914\ \ \ \ \ rows\_[cache\_index].\mbox{\hyperlink{class_open_gl_image_ab3af936ec021b71a61820718d8672969}{setBottomRight}}(-\/1.0f\ +\ 2.0f\ *\ width\_ratio,\ y\ -\/\ open\_gl\_row\_height);}
+\DoxyCodeLine{00915\ \ \ \ \ rows\_[cache\_index].\mbox{\hyperlink{class_open_gl_image_a7ce00e695b64c30cc996cffc3b28a6ae}{drawImage}}(open\_gl);}
+\DoxyCodeLine{00916\ \ \ \}}
+\DoxyCodeLine{00917\ }
+\DoxyCodeLine{00918\ \ \ \textcolor{keywordtype}{int}\ selected\_index\ =\ \mbox{\hyperlink{class_selection_list_ac1f61a5c9d8f6fb2a88166d362c95de4}{getSelectedIndex}}();}
+\DoxyCodeLine{00919\ \ \ \textcolor{keywordflow}{if}\ (selected\_index\ >=\ 0)\ \{}
+\DoxyCodeLine{00920\ \ \ \ \ moveQuadToRow(highlight\_,\ selected\_index,\ y\_offset);}
+\DoxyCodeLine{00921\ \ \ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true}).darker(0.8f));}
+\DoxyCodeLine{00922\ \ \ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ \mbox{\hyperlink{class_synth_section_a23ece0b1a7ac3a7a3ffb8623875d7220}{animate}});}
+\DoxyCodeLine{00923\ \ \ \}}
+\DoxyCodeLine{00924\ }
+\DoxyCodeLine{00925\ \ \ \textcolor{keywordflow}{if}\ (hovered\_\ >=\ 0)\ \{}
+\DoxyCodeLine{00926\ \ \ \ \ moveQuadToRow(hover\_,\ hovered\_,\ y\_offset);}
+\DoxyCodeLine{00927\ \ \ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00928\ \ \ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a4e30eb161abeeb1dbc07455fe390f8fa}{render}}(open\_gl,\ \mbox{\hyperlink{class_synth_section_a23ece0b1a7ac3a7a3ffb8623875d7220}{animate}});}
+\DoxyCodeLine{00929\ }
+\DoxyCodeLine{00930\ \ \ \ \ \textcolor{keywordtype}{int}\ cache\_index\ =\ hovered\_\ \%\ \mbox{\hyperlink{class_selection_list_afc8077874986cda303286dcb8932a579}{kNumCachedRows}};}
+\DoxyCodeLine{00931\ }
+\DoxyCodeLine{00932\ \ \ \ \ \textcolor{keywordtype}{int}\ scroll\_bar\_width\ =\ \mbox{\hyperlink{class_selection_list_a39d82df427ca342d129d95acf5f0e996}{kScrollBarWidth}}\ *\ \mbox{\hyperlink{class_synth_section_a966868a7e67306cc7ad36dab3ef22936}{size\_ratio\_}};}
+\DoxyCodeLine{00933\ \ \ \ \ Rectangle<int>\ bounds(getWidth()\ -\/\ row\_height\ -\/\ scroll\_bar\_width,\ row\_height\ *\ hovered\_\ -\/\ view\_position\_,}
+\DoxyCodeLine{00934\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ row\_height,\ row\_height);}
+\DoxyCodeLine{00935\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_open_gl_component_a0641317fa0d502284c603188bb7da9a7}{OpenGlComponent::setViewPort}}(\&browse\_area\_,\ bounds,\ open\_gl)\ \&\&\ is\_additional\_[cache\_index])\ \{}
+\DoxyCodeLine{00936\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (x\_area\_)}
+\DoxyCodeLine{00937\ \ \ \ \ \ \ \ \ remove\_additional\_x\_.\mbox{\hyperlink{class_open_gl_image_component_ac4a9062681f893c5b68fc404a0331905}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca58c296ac4e742eb41f3f13d439f2c816}{Skin::kIconButtonOffHover}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00938\ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00939\ \ \ \ \ \ \ \ \ remove\_additional\_x\_.\mbox{\hyperlink{class_open_gl_image_component_ac4a9062681f893c5b68fc404a0331905}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca0dad7b1ec93aeffd7b9098f05a065b99}{Skin::kIconButtonOff}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00940\ \ \ \ \ \ \ remove\_additional\_x\_.\mbox{\hyperlink{class_open_gl_image_component_ae21bf842486bdd642029e68f17ddd9d2}{image}}().\mbox{\hyperlink{class_open_gl_image_a7ce00e695b64c30cc996cffc3b28a6ae}{drawImage}}(open\_gl);}
+\DoxyCodeLine{00941\ \ \ \ \ \}}
+\DoxyCodeLine{00942\ \ \ \}}
+\DoxyCodeLine{00943\ }
+\DoxyCodeLine{00944\ \ \ \mbox{\hyperlink{class_synth_section_a0b94a0f0b660853bfb868c2ece290d33}{SynthSection::renderOpenGlComponents}}(open\_gl,\ \mbox{\hyperlink{class_synth_section_a23ece0b1a7ac3a7a3ffb8623875d7220}{animate}});}
+\DoxyCodeLine{00945\ \}}
+\DoxyCodeLine{00946\ }
+\DoxyCodeLine{00947\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_selection_list_aa0b3d586ad6b72ea564b7a47412414d2}{SelectionList::destroyOpenGlComponents}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00948\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_open_gl_image}{OpenGlImage}}\&\ row\ :\ rows\_)}
+\DoxyCodeLine{00949\ \ \ \ \ row.destroy(open\_gl);}
+\DoxyCodeLine{00950\ }
+\DoxyCodeLine{00951\ \ \ highlight\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00952\ \ \ hover\_.\mbox{\hyperlink{class_open_gl_multi_quad_a6146637d83f818c11ddef6af7853e77e}{destroy}}(open\_gl);}
+\DoxyCodeLine{00953\ \ \ remove\_additional\_x\_.\mbox{\hyperlink{class_open_gl_image_component_a6181d02c38e2eee9e7fd050e786b7d1b}{destroy}}(open\_gl);}
+\DoxyCodeLine{00954\ \ \ \mbox{\hyperlink{class_synth_section_a8a425cebdb8eff2ef9ea78c1c262b761}{SynthSection::destroyOpenGlComponents}}(open\_gl);}
+\DoxyCodeLine{00955\ \}}
+\DoxyCodeLine{00956\ }
+\DoxyCodeLine{00957\ \mbox{\hyperlink{class_single_popup_selector_ade5e776ddbf020b3b0fa461fd3f909cd}{SinglePopupSelector::SinglePopupSelector}}()\ :\ \mbox{\hyperlink{class_synth_section}{SynthSection}}(\textcolor{stringliteral}{"{}Popup\ Selector"{}}),}
+\DoxyCodeLine{00958\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ body\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kRoundedRectangleFragment),}
+\DoxyCodeLine{00959\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ border\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kRoundedRectangleBorderFragment)\ \{}
+\DoxyCodeLine{00960\ \ \ callback\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00961\ \ \ cancel\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00962\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&body\_);}
+\DoxyCodeLine{00963\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&border\_);}
+\DoxyCodeLine{00964\ }
+\DoxyCodeLine{00965\ \ \ popup\_list\_\ =\ std::make\_unique<PopupList>();}
+\DoxyCodeLine{00966\ \ \ popup\_list\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00967\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(popup\_list\_.get());}
+\DoxyCodeLine{00968\ \ \ popup\_list\_-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00969\ \ \ popup\_list\_-\/>setWantsKeyboardFocus(\textcolor{keyword}{false});}
+\DoxyCodeLine{00970\ }
+\DoxyCodeLine{00971\ \ \ \mbox{\hyperlink{class_synth_section_ae4b092420f64f8d195dd2fdb406bfccf}{setSkinOverride}}(\mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96af4e995bf573e4695962f65224eed4146}{Skin::kPopupBrowser}});}
+\DoxyCodeLine{00972\ \}}
+\DoxyCodeLine{00973\ }
+\DoxyCodeLine{00974\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_single_popup_selector_aa766fc2f875e7d6ff5274d464fc214fa}{SinglePopupSelector::resized}}()\ \{}
+\DoxyCodeLine{00975\ \ \ \mbox{\hyperlink{class_synth_section_a549f91a2b81b419368a578990cb2e6c2}{SynthSection::resized}}();}
+\DoxyCodeLine{00976\ }
+\DoxyCodeLine{00977\ \ \ Rectangle<int>\ bounds\ =\ getLocalBounds();}
+\DoxyCodeLine{00978\ \ \ \textcolor{keywordtype}{int}\ rounding\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}});}
+\DoxyCodeLine{00979\ \ \ popup\_list\_-\/>setBounds(1,\ rounding,\ getWidth()\ -\/\ 2,\ getHeight()\ -\/\ 2\ *\ rounding);}
+\DoxyCodeLine{00980\ }
+\DoxyCodeLine{00981\ \ \ body\_.setBounds(bounds);}
+\DoxyCodeLine{00982\ \ \ body\_.\mbox{\hyperlink{class_open_gl_multi_quad_aba2d4bbfa5b4c1e4b510bc5746a221b6}{setRounding}}(\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}}));}
+\DoxyCodeLine{00983\ \ \ body\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caffad88f44cd2bcaaf60dbe0032955def}{Skin::kBody}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00984\ }
+\DoxyCodeLine{00985\ \ \ border\_.setBounds(bounds);}
+\DoxyCodeLine{00986\ \ \ border\_.\mbox{\hyperlink{class_open_gl_multi_quad_aba2d4bbfa5b4c1e4b510bc5746a221b6}{setRounding}}(\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}}));}
+\DoxyCodeLine{00987\ \ \ border\_.\mbox{\hyperlink{class_open_gl_multi_quad_a0e0f55028083ff593df1457f746a173a}{setThickness}}(1.0f,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00988\ \ \ border\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4cb587bac7f55843677153a9eeb3a4f2}{Skin::kBorder}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00989\ \}}
+\DoxyCodeLine{00990\ }
+\DoxyCodeLine{00991\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_single_popup_selector_a7c80c18a5fe6c0ce4e936ce3cb54ce5f}{SinglePopupSelector::setPosition}}(Point<int>\ position,\ Rectangle<int>\ bounds)\ \{}
+\DoxyCodeLine{00992\ \ \ \textcolor{keywordtype}{int}\ rounding\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}});}
+\DoxyCodeLine{00993\ \ \ \textcolor{keywordtype}{int}\ width\ =\ popup\_list\_-\/>getBrowseWidth();}
+\DoxyCodeLine{00994\ \ \ \textcolor{keywordtype}{int}\ height\ =\ popup\_list\_-\/>getBrowseHeight()\ +\ 2\ *\ rounding;}
+\DoxyCodeLine{00995\ \ \ \textcolor{keywordtype}{int}\ x\ =\ position.x;}
+\DoxyCodeLine{00996\ \ \ \textcolor{keywordtype}{int}\ y\ =\ position.y;}
+\DoxyCodeLine{00997\ \ \ \textcolor{keywordflow}{if}\ (x\ +\ width\ >\ bounds.getRight())}
+\DoxyCodeLine{00998\ \ \ \ \ x\ -\/=\ width;}
+\DoxyCodeLine{00999\ \ \ \textcolor{keywordflow}{if}\ (y\ +\ height\ >\ bounds.getBottom())}
+\DoxyCodeLine{01000\ \ \ \ \ y\ =\ bounds.getBottom()\ -\/\ height;}
+\DoxyCodeLine{01001\ \ \ setBounds(x,\ y,\ width,\ height);}
+\DoxyCodeLine{01002\ \}}
+\DoxyCodeLine{01003\ }
+\DoxyCodeLine{01004\ \mbox{\hyperlink{class_dual_popup_selector_a7deb748d20439cf0ba845d75dcfd4d83}{DualPopupSelector::DualPopupSelector}}()\ :\ \mbox{\hyperlink{class_synth_section}{SynthSection}}(\textcolor{stringliteral}{"{}Dual\ Popup\ Selector"{}}),}
+\DoxyCodeLine{01005\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ body\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kRoundedRectangleFragment),}
+\DoxyCodeLine{01006\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ border\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kRoundedRectangleBorderFragment),}
+\DoxyCodeLine{01007\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ divider\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment)\ \{}
+\DoxyCodeLine{01008\ \ \ callback\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{01009\ }
+\DoxyCodeLine{01010\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&body\_);}
+\DoxyCodeLine{01011\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&border\_);}
+\DoxyCodeLine{01012\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&divider\_);}
+\DoxyCodeLine{01013\ }
+\DoxyCodeLine{01014\ \ \ left\_list\_\ =\ std::make\_unique<PopupList>();}
+\DoxyCodeLine{01015\ \ \ left\_list\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{01016\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(left\_list\_.get());}
+\DoxyCodeLine{01017\ \ \ left\_list\_-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{01018\ \ \ left\_list\_-\/>setWantsKeyboardFocus(\textcolor{keyword}{false});}
+\DoxyCodeLine{01019\ \ \ left\_list\_-\/>showSelected(\textcolor{keyword}{true});}
+\DoxyCodeLine{01020\ }
+\DoxyCodeLine{01021\ \ \ right\_list\_\ =\ std::make\_unique<PopupList>();}
+\DoxyCodeLine{01022\ \ \ right\_list\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{01023\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(right\_list\_.get());}
+\DoxyCodeLine{01024\ \ \ right\_list\_-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{01025\ \ \ right\_list\_-\/>setWantsKeyboardFocus(\textcolor{keyword}{false});}
+\DoxyCodeLine{01026\ \ \ right\_list\_-\/>showSelected(\textcolor{keyword}{true});}
+\DoxyCodeLine{01027\ }
+\DoxyCodeLine{01028\ \ \ \mbox{\hyperlink{class_synth_section_ae4b092420f64f8d195dd2fdb406bfccf}{setSkinOverride}}(\mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96af4e995bf573e4695962f65224eed4146}{Skin::kPopupBrowser}});}
+\DoxyCodeLine{01029\ \}}
+\DoxyCodeLine{01030\ }
+\DoxyCodeLine{01031\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_dual_popup_selector_ae49bdcab009205866c991f6dde002350}{DualPopupSelector::resized}}()\ \{}
+\DoxyCodeLine{01032\ \ \ \mbox{\hyperlink{class_synth_section_a549f91a2b81b419368a578990cb2e6c2}{SynthSection::resized}}();}
+\DoxyCodeLine{01033\ }
+\DoxyCodeLine{01034\ \ \ Rectangle<int>\ bounds\ =\ getLocalBounds();}
+\DoxyCodeLine{01035\ \ \ \textcolor{keywordtype}{int}\ rounding\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}});}
+\DoxyCodeLine{01036\ \ \ \textcolor{keywordtype}{int}\ height\ =\ getHeight()\ -\/\ 2\ *\ rounding;}
+\DoxyCodeLine{01037\ \ \ left\_list\_-\/>setBounds(1,\ rounding,\ getWidth()\ /\ 2\ -\/\ 2,\ height);}
+\DoxyCodeLine{01038\ \ \ \textcolor{keywordtype}{int}\ right\_x\ =\ left\_list\_-\/>getRight()\ +\ 1;}
+\DoxyCodeLine{01039\ \ \ right\_list\_-\/>setBounds(right\_x,\ rounding,\ getWidth()\ -\/\ right\_x\ -\/\ 1,\ height);}
+\DoxyCodeLine{01040\ }
+\DoxyCodeLine{01041\ \ \ body\_.setBounds(bounds);}
+\DoxyCodeLine{01042\ \ \ body\_.\mbox{\hyperlink{class_open_gl_multi_quad_aba2d4bbfa5b4c1e4b510bc5746a221b6}{setRounding}}(\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}}));}
+\DoxyCodeLine{01043\ \ \ body\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caffad88f44cd2bcaaf60dbe0032955def}{Skin::kBody}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{01044\ }
+\DoxyCodeLine{01045\ \ \ border\_.setBounds(bounds);}
+\DoxyCodeLine{01046\ \ \ border\_.\mbox{\hyperlink{class_open_gl_multi_quad_aba2d4bbfa5b4c1e4b510bc5746a221b6}{setRounding}}(\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}}));}
+\DoxyCodeLine{01047\ \ \ border\_.\mbox{\hyperlink{class_open_gl_multi_quad_a0e0f55028083ff593df1457f746a173a}{setThickness}}(1.0f,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{01048\ }
+\DoxyCodeLine{01049\ \ \ divider\_.setBounds(getWidth()\ /\ 2\ -\/\ 1,\ 1,\ 1,\ getHeight()\ -\/\ 2);}
+\DoxyCodeLine{01050\ }
+\DoxyCodeLine{01051\ \ \ Colour\ border\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4cb587bac7f55843677153a9eeb3a4f2}{Skin::kBorder}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{01052\ \ \ border\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(border);}
+\DoxyCodeLine{01053\ \ \ divider\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(border);}
+\DoxyCodeLine{01054\ \}}
+\DoxyCodeLine{01055\ }
+\DoxyCodeLine{01056\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_dual_popup_selector_af64ec0e775d7fba082f6a4c8a1e040a0}{DualPopupSelector::setPosition}}(Point<int>\ position,\ \textcolor{keywordtype}{int}\ width,\ Rectangle<int>\ bounds)\ \{}
+\DoxyCodeLine{01057\ \ \ \textcolor{keywordtype}{int}\ rounding\ =\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}});}
+\DoxyCodeLine{01058\ \ \ \textcolor{keywordtype}{int}\ height\ =\ left\_list\_-\/>getBrowseHeight()\ +\ 2\ *\ rounding;}
+\DoxyCodeLine{01059\ \ \ \textcolor{keywordtype}{int}\ x\ =\ position.x;}
+\DoxyCodeLine{01060\ \ \ \textcolor{keywordtype}{int}\ y\ =\ position.y;}
+\DoxyCodeLine{01061\ \ \ \textcolor{keywordflow}{if}\ (x\ +\ width\ >\ bounds.getRight())}
+\DoxyCodeLine{01062\ \ \ \ \ x\ -\/=\ width;}
+\DoxyCodeLine{01063\ \ \ \textcolor{keywordflow}{if}\ (y\ +\ height\ >\ bounds.getBottom())}
+\DoxyCodeLine{01064\ \ \ \ \ y\ =\ bounds.getBottom()\ -\/\ height;}
+\DoxyCodeLine{01065\ \ \ setBounds(x,\ y,\ width,\ height);}
+\DoxyCodeLine{01066\ \}}
+\DoxyCodeLine{01067\ }
+\DoxyCodeLine{01068\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_dual_popup_selector_ab3075bbed8f70c06299001d746103be6}{DualPopupSelector::newSelection}}(\mbox{\hyperlink{class_popup_list}{PopupList}}*\ list,\ \textcolor{keywordtype}{int}\ \textcolor{keywordtype}{id},\ \textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{01069\ \ \ \textcolor{keywordflow}{if}\ (list\ ==\ left\_list\_.get())\ \{}
+\DoxyCodeLine{01070\ \ \ \ \ \mbox{\hyperlink{struct_popup_items}{PopupItems}}\ right\_items\ =\ left\_list\_-\/>getSelectionItems(index);}
+\DoxyCodeLine{01071\ \ \ \ \ \textcolor{keywordflow}{if}\ (right\_items.\mbox{\hyperlink{struct_popup_items_aaf52ec13ebd6e21ead128b9e6b716787}{size}}()\ ==\ 0)\ \{}
+\DoxyCodeLine{01072\ \ \ \ \ \ \ callback\_(\textcolor{keywordtype}{id});}
+\DoxyCodeLine{01073\ \ \ \ \ \ \ right\_list\_-\/>setSelections(right\_items);}
+\DoxyCodeLine{01074\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{01075\ \ \ \ \ \}}
+\DoxyCodeLine{01076\ }
+\DoxyCodeLine{01077\ \ \ \ \ \textcolor{keywordtype}{int}\ right\_selection\ =\ right\_list\_-\/>getSelected();}
+\DoxyCodeLine{01078\ \ \ \ \ \textcolor{keywordflow}{if}\ (right\_selection\ <\ 0\ ||\ right\_selection\ >=\ right\_items.\mbox{\hyperlink{struct_popup_items_aaf52ec13ebd6e21ead128b9e6b716787}{size}}()\ ||}
+\DoxyCodeLine{01079\ \ \ \ \ \ \ right\_list\_-\/>getSelectionItems(right\_selection).name\ !=\ right\_items.\mbox{\hyperlink{struct_popup_items_a07fa02617fdc68c3ded5694bafbfc6a3}{items}}[right\_selection].name)\ \{}
+\DoxyCodeLine{01080\ \ \ \ \ \ \ right\_selection\ =\ 0;}
+\DoxyCodeLine{01081\ \ \ \ \ \}}
+\DoxyCodeLine{01082\ }
+\DoxyCodeLine{01083\ \ \ \ \ right\_list\_-\/>setSelections(right\_items);}
+\DoxyCodeLine{01084\ \ \ \ \ right\_list\_-\/>select(right\_selection);}
+\DoxyCodeLine{01085\ \ \ \}}
+\DoxyCodeLine{01086\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{01087\ \ \ \ \ callback\_(\textcolor{keywordtype}{id});}
+\DoxyCodeLine{01088\ \}}
+\DoxyCodeLine{01089\ }
+\DoxyCodeLine{01090\ \mbox{\hyperlink{class_popup_browser_a248b3caed404c41d273b05d0d9744bc8}{PopupBrowser::PopupBrowser}}()\ :\ \mbox{\hyperlink{class_synth_section}{SynthSection}}(\textcolor{stringliteral}{"{}Popup\ Browser"{}}),}
+\DoxyCodeLine{01091\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ body\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kRoundedRectangleFragment),}
+\DoxyCodeLine{01092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ border\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kRoundedRectangleBorderFragment),}
+\DoxyCodeLine{01093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ horizontal\_divider\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment),}
+\DoxyCodeLine{01094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vertical\_divider\_(\mbox{\hyperlink{class_shaders}{Shaders}}::kColorFragment),}
+\DoxyCodeLine{01095\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ owner\_(nullptr)\ \{}
+\DoxyCodeLine{01096\ \ \ addKeyListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{01097\ \ \ setInterceptsMouseClicks(\textcolor{keyword}{false},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{01098\ }
+\DoxyCodeLine{01099\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&body\_);}
+\DoxyCodeLine{01100\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&border\_);}
+\DoxyCodeLine{01101\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&horizontal\_divider\_);}
+\DoxyCodeLine{01102\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\&vertical\_divider\_);}
+\DoxyCodeLine{01103\ }
+\DoxyCodeLine{01104\ \ \ folder\_list\_\ =\ std::make\_unique<SelectionList>();}
+\DoxyCodeLine{01105\ \ \ folder\_list\_-\/>addFavoritesOption();}
+\DoxyCodeLine{01106\ \ \ folder\_list\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{01107\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(folder\_list\_.get());}
+\DoxyCodeLine{01108\ \ \ folder\_list\_-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{01109\ }
+\DoxyCodeLine{01110\ \ \ selection\_list\_\ =\ std::make\_unique<SelectionList>();}
+\DoxyCodeLine{01111\ \ \ selection\_list\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{01112\ \ \ \mbox{\hyperlink{class_synth_section_a2573d4aea8a5e984e674cf70a512ea15}{addSubSection}}(selection\_list\_.get());}
+\DoxyCodeLine{01113\ \ \ selection\_list\_-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{01114\ }
+\DoxyCodeLine{01115\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 4;\ ++i)\ \{}
+\DoxyCodeLine{01116\ \ \ \ \ addAndMakeVisible(closing\_areas\_[i]);}
+\DoxyCodeLine{01117\ \ \ \ \ closing\_areas\_[i].\mbox{\hyperlink{class_popup_closing_area_ac6d6698379224de1e70dbd465742f94a}{addListener}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{01118\ \ \ \}}
+\DoxyCodeLine{01119\ }
+\DoxyCodeLine{01120\ \ \ exit\_button\_\ =\ std::make\_unique<OpenGlShapeButton>(\textcolor{stringliteral}{"{}Exit"{}});}
+\DoxyCodeLine{01121\ \ \ addAndMakeVisible(exit\_button\_.get());}
+\DoxyCodeLine{01122\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(exit\_button\_-\/>getGlComponent());}
+\DoxyCodeLine{01123\ \ \ exit\_button\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{01124\ \ \ exit\_button\_-\/>setShape(\mbox{\hyperlink{class_paths_adfdbf159c483fe450190611d79fa2576}{Paths::exitX}}());}
+\DoxyCodeLine{01125\ }
+\DoxyCodeLine{01126\ \ \ store\_button\_\ =\ std::make\_unique<OpenGlToggleButton>(\textcolor{stringliteral}{"{}Store"{}});}
+\DoxyCodeLine{01127\ \ \ store\_button\_-\/>setUiButton(\textcolor{keyword}{true});}
+\DoxyCodeLine{01128\ \ \ \mbox{\hyperlink{class_synth_section_a98013478e89ec21a3e488d2d81594f24}{addButton}}(store\_button\_.get());}
+\DoxyCodeLine{01129\ \ \ store\_button\_-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{01130\ }
+\DoxyCodeLine{01131\ \ \ download\_button\_\ =\ std::make\_unique<OpenGlToggleButton>(\textcolor{stringliteral}{"{}Login"{}});}
+\DoxyCodeLine{01132\ \ \ download\_button\_-\/>setUiButton(\textcolor{keyword}{true});}
+\DoxyCodeLine{01133\ \ \ download\_button\_-\/>setText(\textcolor{stringliteral}{"{}Download\ content"{}});}
+\DoxyCodeLine{01134\ \ \ \mbox{\hyperlink{class_synth_section_a98013478e89ec21a3e488d2d81594f24}{addButton}}(download\_button\_.get());}
+\DoxyCodeLine{01135\ \ \ download\_button\_-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{01136\ }
+\DoxyCodeLine{01137\ \textcolor{preprocessor}{\#if\ !defined(NO\_TEXT\_ENTRY)}}
+\DoxyCodeLine{01138\ \ \ search\_box\_\ =\ std::make\_unique<OpenGlTextEditor>(\textcolor{stringliteral}{"{}Search"{}});}
+\DoxyCodeLine{01139\ \ \ search\_box\_-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{01140\ \ \ search\_box\_-\/>setSelectAllWhenFocused(\textcolor{keyword}{true});}
+\DoxyCodeLine{01141\ \ \ search\_box\_-\/>setMultiLine(\textcolor{keyword}{false},\ \textcolor{keyword}{false});}
+\DoxyCodeLine{01142\ \ \ search\_box\_-\/>setJustification(Justification::centredLeft);}
+\DoxyCodeLine{01143\ \ \ addAndMakeVisible(search\_box\_.get());}
+\DoxyCodeLine{01144\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(search\_box\_-\/>getImageComponent());}
+\DoxyCodeLine{01145\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01146\ }
+\DoxyCodeLine{01147\ \ \ setWantsKeyboardFocus(\textcolor{keyword}{true});}
+\DoxyCodeLine{01148\ \ \ setMouseClickGrabsKeyboardFocus(\textcolor{keyword}{true});}
+\DoxyCodeLine{01149\ \ \ \mbox{\hyperlink{class_synth_section_ae4b092420f64f8d195dd2fdb406bfccf}{setSkinOverride}}(\mbox{\hyperlink{class_skin_aad31f2acbd13c67945c35857d1627c96af4e995bf573e4695962f65224eed4146}{Skin::kPopupBrowser}});}
+\DoxyCodeLine{01150\ \}}
+\DoxyCodeLine{01151\ }
+\DoxyCodeLine{01152\ \mbox{\hyperlink{class_popup_browser_a6955b3d585e994831b7e6593ba25bdbe}{PopupBrowser::\string~PopupBrowser}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{01153\ }
+\DoxyCodeLine{01154\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_browser_afceaddc0f71ff7a37a0da4572810d3af}{PopupBrowser::resized}}()\ \{}
+\DoxyCodeLine{01155\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kBrowseWidthRatio\ =\ 0.5f;}
+\DoxyCodeLine{01156\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kTopHeight\ =\ 38.0f;}
+\DoxyCodeLine{01157\ }
+\DoxyCodeLine{01158\ \ \ \mbox{\hyperlink{class_synth_section_a549f91a2b81b419368a578990cb2e6c2}{SynthSection::resized}}();}
+\DoxyCodeLine{01159\ }
+\DoxyCodeLine{01160\ \ \ closing\_areas\_[0].setBounds(0,\ 0,\ passthrough\_bounds\_.getX(),\ getHeight());}
+\DoxyCodeLine{01161\ \ \ closing\_areas\_[1].setBounds(passthrough\_bounds\_.getRight(),\ 0,}
+\DoxyCodeLine{01162\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ getWidth()\ -\/\ passthrough\_bounds\_.getRight(),\ getHeight());}
+\DoxyCodeLine{01163\ \ \ closing\_areas\_[2].setBounds(0,\ 0,\ getWidth(),\ passthrough\_bounds\_.getY());}
+\DoxyCodeLine{01164\ \ \ closing\_areas\_[3].setBounds(0,\ passthrough\_bounds\_.getBottom(),}
+\DoxyCodeLine{01165\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ getWidth(),\ getHeight()\ -\/\ passthrough\_bounds\_.getBottom());}
+\DoxyCodeLine{01166\ }
+\DoxyCodeLine{01167\ \ \ body\_.setBounds(browser\_bounds\_);}
+\DoxyCodeLine{01168\ \ \ body\_.\mbox{\hyperlink{class_open_gl_multi_quad_aba2d4bbfa5b4c1e4b510bc5746a221b6}{setRounding}}(\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}}));}
+\DoxyCodeLine{01169\ \ \ body\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caffad88f44cd2bcaaf60dbe0032955def}{Skin::kBody}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{01170\ }
+\DoxyCodeLine{01171\ \ \ border\_.setBounds(browser\_bounds\_);}
+\DoxyCodeLine{01172\ \ \ border\_.\mbox{\hyperlink{class_open_gl_multi_quad_aba2d4bbfa5b4c1e4b510bc5746a221b6}{setRounding}}(\mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a3ace4f50f1270ae89a0bc95335de6973}{Skin::kBodyRounding}}));}
+\DoxyCodeLine{01173\ \ \ border\_.\mbox{\hyperlink{class_open_gl_multi_quad_a0e0f55028083ff593df1457f746a173a}{setThickness}}(1.0f,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{01174\ }
+\DoxyCodeLine{01175\ \ \ Colour\ border\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca4cb587bac7f55843677153a9eeb3a4f2}{Skin::kBorder}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{01176\ \ \ border\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(border);}
+\DoxyCodeLine{01177\ \ \ horizontal\_divider\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(border);}
+\DoxyCodeLine{01178\ \ \ vertical\_divider\_.\mbox{\hyperlink{class_open_gl_multi_quad_a706334ae3e0b28b38b729132dea195e2}{setColor}}(border);}
+\DoxyCodeLine{01179\ }
+\DoxyCodeLine{01180\ \ \ Colour\ empty\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{01181\ \ \ empty\_color\ =\ empty\_color.withAlpha(0.5f\ *\ empty\_color.getFloatAlpha());}
+\DoxyCodeLine{01182\ }
+\DoxyCodeLine{01183\ \ \ \textcolor{keywordflow}{if}\ (search\_box\_)\ \{}
+\DoxyCodeLine{01184\ \ \ \ \ search\_box\_-\/>setTextToShowWhenEmpty(TRANS(\textcolor{stringliteral}{"{}Search"{}}),\ empty\_color);}
+\DoxyCodeLine{01185\ \ \ \ \ search\_box\_-\/>setColour(CaretComponent::caretColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caf4bb4fdf63337ceb6bb167959fb9f919}{Skin::kTextEditorCaret}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{01186\ \ \ \ \ search\_box\_-\/>setColour(TextEditor::textColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{01187\ \ \ \ \ search\_box\_-\/>setColour(TextEditor::highlightedTextColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca5d5c4928f6b3eebfc770c24400efb04e}{Skin::kBodyText}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{01188\ \ \ \ \ search\_box\_-\/>setColour(TextEditor::highlightColourId,\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cac5ef4508573fe6dae078edd51c88b04e}{Skin::kTextEditorSelection}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{01189\ \ \ \}}
+\DoxyCodeLine{01190\ }
+\DoxyCodeLine{01191\ \ \ \textcolor{keywordtype}{int}\ selection\_list\_width\ =\ browser\_bounds\_.getWidth()\ *\ kBrowseWidthRatio;}
+\DoxyCodeLine{01192\ \ \ \textcolor{keywordtype}{int}\ top\_height\ =\ kTopHeight\ *\ \mbox{\hyperlink{class_synth_section_a966868a7e67306cc7ad36dab3ef22936}{size\_ratio\_}};}
+\DoxyCodeLine{01193\ \ \ \textcolor{keywordtype}{int}\ folder\_list\_width\ =\ browser\_bounds\_.getWidth()\ -\/\ selection\_list\_width;}
+\DoxyCodeLine{01194\ \ \ \textcolor{keywordtype}{int}\ list\_height\ =\ browser\_bounds\_.getHeight()\ -\/\ top\_height\ -\/\ 2;}
+\DoxyCodeLine{01195\ \ \ \textcolor{keywordtype}{int}\ x\ =\ browser\_bounds\_.getX();}
+\DoxyCodeLine{01196\ \ \ \textcolor{keywordtype}{int}\ y\ =\ browser\_bounds\_.getY();}
+\DoxyCodeLine{01197\ }
+\DoxyCodeLine{01198\ \ \ folder\_list\_-\/>setBounds(x,\ y\ +\ top\_height\ +\ 1,\ folder\_list\_width\ -\/\ 1,\ list\_height);}
+\DoxyCodeLine{01199\ \ \ selection\_list\_-\/>setBounds(x\ +\ folder\_list\_width,\ y\ +\ top\_height\ +\ 1,\ selection\_list\_width\ -\/\ 3,\ list\_height);}
+\DoxyCodeLine{01200\ \ \ horizontal\_divider\_.setBounds(x\ +\ 1,\ y\ +\ top\_height\ -\/\ 1,\ browser\_bounds\_.getWidth()\ -\/\ 2,\ 1);}
+\DoxyCodeLine{01201\ \ \ vertical\_divider\_.setBounds(x\ +\ folder\_list\_width,\ y\ +\ top\_height,\ 1,\ list\_height);}
+\DoxyCodeLine{01202\ }
+\DoxyCodeLine{01203\ \ \ \textcolor{keywordtype}{int}\ padding\ =\ \mbox{\hyperlink{class_synth_section_a0c688d2a15f8849c09912f4bd1f92c9f}{getPadding}}();}
+\DoxyCodeLine{01204\ \ \ \textcolor{keywordtype}{int}\ text\_height\ =\ top\_height\ -\/\ 2\ *\ padding;}
+\DoxyCodeLine{01205\ \ \ download\_button\_-\/>setBounds(x\ +\ padding,\ y\ +\ padding,\ selection\_list\_width\ -\/\ 2\ *\ padding,\ text\_height);}
+\DoxyCodeLine{01206\ \ \ \textcolor{keywordflow}{if}\ (search\_box\_)\ \{}
+\DoxyCodeLine{01207\ \ \ \ \ search\_box\_-\/>setBounds(download\_button\_-\/>getBounds());}
+\DoxyCodeLine{01208\ \ \ \ \ search\_box\_-\/>resized();}
+\DoxyCodeLine{01209\ \ \ \}}
+\DoxyCodeLine{01210\ }
+\DoxyCodeLine{01211\ \ \ \textcolor{keywordtype}{int}\ store\_x\ =\ x\ +\ padding\ +\ selection\_list\_width;}
+\DoxyCodeLine{01212\ \ \ store\_button\_-\/>setBounds(store\_x,\ y\ +\ padding,\ browser\_bounds\_.getRight()\ -\/\ store\_x\ -\/\ top\_height,\ text\_height);}
+\DoxyCodeLine{01213\ \ \ exit\_button\_-\/>setBounds(x\ +\ browser\_bounds\_.getWidth()\ -\/\ top\_height,\ y,\ top\_height,\ top\_height);}
+\DoxyCodeLine{01214\ }
+\DoxyCodeLine{01215\ \ \ Image\ image(Image::ARGB,\ 1,\ 1,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{01216\ \ \ Graphics\ g(image);}
+\DoxyCodeLine{01217\ \ \ \mbox{\hyperlink{class_synth_section_a2744ac0e3ccb692bfe657238cdcafe30}{paintOpenGlChildrenBackgrounds}}(g);}
+\DoxyCodeLine{01218\ \}}
+\DoxyCodeLine{01219\ }
+\DoxyCodeLine{01220\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_browser_a4ee5cfa44f243d9af62b014116885126}{PopupBrowser::visibilityChanged}}()\ \{}
+\DoxyCodeLine{01221\ \ \ \mbox{\hyperlink{class_popup_browser_afc91772dd46fcdc1b85974ba5345d8b1}{checkNoContent}}();}
+\DoxyCodeLine{01222\ \ \ \mbox{\hyperlink{class_popup_browser_aec6f80b3224deefd61ed3a808ebb3acd}{checkStoreButton}}();}
+\DoxyCodeLine{01223\ \ \ SynthSection::visibilityChanged();}
+\DoxyCodeLine{01224\ \ \ \textcolor{keywordflow}{if}\ (search\_box\_)}
+\DoxyCodeLine{01225\ \ \ \ \ search\_box\_-\/>setText(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{01226\ }
+\DoxyCodeLine{01227\ \ \ File\ selected\ =\ folder\_list\_-\/>selected();}
+\DoxyCodeLine{01228\ \ \ \textcolor{keywordflow}{if}\ (selected.exists())}
+\DoxyCodeLine{01229\ \ \ \ \ \mbox{\hyperlink{class_popup_browser_a6d387d7fe88c46ff7910fb1f81f646fd}{newSelection}}(selected);}
+\DoxyCodeLine{01230\ \}}
+\DoxyCodeLine{01231\ }
+\DoxyCodeLine{01232\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_browser_a6d387d7fe88c46ff7910fb1f81f646fd}{PopupBrowser::newSelection}}(File\ selection)\ \{}
+\DoxyCodeLine{01233\ \ \ \textcolor{keywordflow}{if}\ (selection.exists()\ \&\&\ selection.isDirectory())\ \{}
+\DoxyCodeLine{01234\ \ \ \ \ Array<File>\ files;}
+\DoxyCodeLine{01235\ \ \ \ \ selection.findChildFiles(files,\ File::findFiles,\ \textcolor{keyword}{true},\ extensions\_);}
+\DoxyCodeLine{01236\ \ \ \ \ selection\_list\_-\/>setSelections(files);}
+\DoxyCodeLine{01237\ \ \ \ \ selection\_list\_-\/>resetScrollPosition();}
+\DoxyCodeLine{01238\ \ \ \}}
+\DoxyCodeLine{01239\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{01240\ \ \ \ \ \textcolor{keywordflow}{if}\ (owner\_)\ \{}
+\DoxyCodeLine{01241\ \ \ \ \ \ \ owner\_-\/>\mbox{\hyperlink{class_synth_section_aa1572f97d21c860944fd70bcd9541a96}{loadFile}}(selection);}
+\DoxyCodeLine{01242\ \ \ \ \ \ \ \mbox{\hyperlink{class_popup_browser_aec6f80b3224deefd61ed3a808ebb3acd}{checkStoreButton}}();}
+\DoxyCodeLine{01243\ \ \ \ \ \}}
+\DoxyCodeLine{01244\ \ \ \}}
+\DoxyCodeLine{01245\ \}}
+\DoxyCodeLine{01246\ }
+\DoxyCodeLine{01247\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_browser_ac110183d22e51abb5a7fd9ba66c2efd6}{PopupBrowser::allSelected}}()\ \{}
+\DoxyCodeLine{01248\ \ \ Array<File>\ files;}
+\DoxyCodeLine{01249\ \ \ Array<File>\ folders\ =\ folder\_list\_-\/>getSelections();}
+\DoxyCodeLine{01250\ \ \ folders.addArray(folder\_list\_-\/>getAdditionalFolders());}
+\DoxyCodeLine{01251\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ File\&\ folder\ :\ folders)\ \{}
+\DoxyCodeLine{01252\ \ \ \ \ \textcolor{keywordflow}{if}\ (folder.exists()\ \&\&\ folder.isDirectory())}
+\DoxyCodeLine{01253\ \ \ \ \ \ \ folder.findChildFiles(files,\ File::findFiles,\ \textcolor{keyword}{true},\ extensions\_);}
+\DoxyCodeLine{01254\ \ \ \}}
+\DoxyCodeLine{01255\ }
+\DoxyCodeLine{01256\ \ \ selection\_list\_-\/>setSelections(files);}
+\DoxyCodeLine{01257\ \ \ selection\_list\_-\/>resetScrollPosition();}
+\DoxyCodeLine{01258\ \}}
+\DoxyCodeLine{01259\ }
+\DoxyCodeLine{01260\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_browser_a72929821ec5a05b1c16c7cb2649e0765}{PopupBrowser::favoritesSelected}}()\ \{}
+\DoxyCodeLine{01261\ \ \ Array<File>\ files;}
+\DoxyCodeLine{01262\ \ \ Array<File>\ folders\ =\ folder\_list\_-\/>getSelections();}
+\DoxyCodeLine{01263\ \ \ folders.addArray(folder\_list\_-\/>getAdditionalFolders());}
+\DoxyCodeLine{01264\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ File\&\ folder\ :\ folders)\ \{}
+\DoxyCodeLine{01265\ \ \ \ \ \textcolor{keywordflow}{if}\ (folder.exists()\ \&\&\ folder.isDirectory())}
+\DoxyCodeLine{01266\ \ \ \ \ \ \ folder.findChildFiles(files,\ File::findFiles,\ \textcolor{keyword}{true},\ extensions\_);}
+\DoxyCodeLine{01267\ \ \ \}}
+\DoxyCodeLine{01268\ \ \ Array<File>\ favorites;}
+\DoxyCodeLine{01269\ \ \ std::set<std::string>\ favorite\_lookup\ =\ \mbox{\hyperlink{class_load_save_affbbb33ac112da6c49d8328ad04e7625}{LoadSave::getFavorites}}();}
+\DoxyCodeLine{01270\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ File\&\ file\ :\ files)\ \{}
+\DoxyCodeLine{01271\ \ \ \ \ \textcolor{keywordflow}{if}\ (favorite\_lookup.count(file.getFullPathName().toStdString()))}
+\DoxyCodeLine{01272\ \ \ \ \ \ \ favorites.add(file);}
+\DoxyCodeLine{01273\ \ \ \}}
+\DoxyCodeLine{01274\ \ \ selection\_list\_-\/>setSelections(favorites);}
+\DoxyCodeLine{01275\ \ \ selection\_list\_-\/>resetScrollPosition();}
+\DoxyCodeLine{01276\ \}}
+\DoxyCodeLine{01277\ }
+\DoxyCodeLine{01278\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_browser_a0b38f3961ef4621287aac4005c3575c4}{PopupBrowser::doubleClickedSelected}}(File\ selection)\ \{}
+\DoxyCodeLine{01279\ \ \ \textcolor{keywordflow}{if}\ (selection.exists()\ \&\&\ !selection.isDirectory())}
+\DoxyCodeLine{01280\ \ \ \ \ setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{01281\ \}}
+\DoxyCodeLine{01282\ }
+\DoxyCodeLine{01283\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_popup_browser_ade9e9e0ebcf1c4b55a175585f3c2db1d}{PopupBrowser::keyPressed}}(\textcolor{keyword}{const}\ KeyPress\ \&key,\ Component\ *origin)\ \{}
+\DoxyCodeLine{01284\ \ \ \textcolor{keywordflow}{if}\ (!isVisible())}
+\DoxyCodeLine{01285\ \ \ \ \ \textcolor{keywordflow}{return}\ search\_box\_-\/>hasKeyboardFocus(\textcolor{keyword}{true});}
+\DoxyCodeLine{01286\ }
+\DoxyCodeLine{01287\ \ \ \textcolor{keywordflow}{if}\ (key.getKeyCode()\ ==\ KeyPress::escapeKey)\ \{}
+\DoxyCodeLine{01288\ \ \ \ \ setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{01289\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{01290\ \ \ \}}
+\DoxyCodeLine{01291\ \ \ \textcolor{keywordflow}{if}\ (key.getKeyCode()\ ==\ KeyPress::upKey\ ||\ key.getKeyCode()\ ==\ KeyPress::leftKey)\ \{}
+\DoxyCodeLine{01292\ \ \ \ \ selection\_list\_-\/>selectPrev();}
+\DoxyCodeLine{01293\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{01294\ \ \ \}}
+\DoxyCodeLine{01295\ \ \ \textcolor{keywordflow}{if}\ (key.getKeyCode()\ ==\ KeyPress::downKey\ ||\ key.getKeyCode()\ ==\ KeyPress::rightKey)\ \{}
+\DoxyCodeLine{01296\ \ \ \ \ selection\_list\_-\/>selectNext();}
+\DoxyCodeLine{01297\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{01298\ \ \ \}}
+\DoxyCodeLine{01299\ \ \ \textcolor{keywordflow}{return}\ search\_box\_-\/>hasKeyboardFocus(\textcolor{keyword}{true});}
+\DoxyCodeLine{01300\ \}}
+\DoxyCodeLine{01301\ }
+\DoxyCodeLine{01302\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_popup_browser_a41f260ccb60325b180e2d1dc90f1c56e}{PopupBrowser::keyStateChanged}}(\textcolor{keywordtype}{bool}\ is\_key\_down,\ Component\ *origin)\ \{}
+\DoxyCodeLine{01303\ \ \ \textcolor{keywordflow}{if}\ (is\_key\_down)}
+\DoxyCodeLine{01304\ \ \ \ \ \textcolor{keywordflow}{return}\ search\_box\_-\/>hasKeyboardFocus(\textcolor{keyword}{true});}
+\DoxyCodeLine{01305\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01306\ \}}
+\DoxyCodeLine{01307\ }
+\DoxyCodeLine{01308\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_browser_a6ad850bbbf65ccfcfc69d39036a7001e}{PopupBrowser::closingAreaClicked}}(\mbox{\hyperlink{class_popup_closing_area}{PopupClosingArea}}*\ closing\_area,\ \textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{01309\ \ \ \textcolor{keywordflow}{if}\ (!browser\_bounds\_.contains(e.getPosition()\ +\ closing\_area-\/>getPosition()))}
+\DoxyCodeLine{01310\ \ \ \ \ setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{01311\ \}}
+\DoxyCodeLine{01312\ }
+\DoxyCodeLine{01313\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_browser_afc91772dd46fcdc1b85974ba5345d8b1}{PopupBrowser::checkNoContent}}()\ \{}
+\DoxyCodeLine{01314\ \ \ \textcolor{keywordtype}{bool}\ has\_content\ =\ \mbox{\hyperlink{class_load_save_adf0fc55f742d745dc1f035256eb5fac9}{LoadSave::hasDataDirectory}}();}
+\DoxyCodeLine{01315\ \ \ \textcolor{keywordflow}{if}\ (search\_box\_)}
+\DoxyCodeLine{01316\ \ \ \ \ search\_box\_-\/>setVisible(has\_content);}
+\DoxyCodeLine{01317\ \ \ download\_button\_-\/>setVisible(!has\_content);}
+\DoxyCodeLine{01318\ \}}
+\DoxyCodeLine{01319\ }
+\DoxyCodeLine{01320\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_browser_aec6f80b3224deefd61ed3a808ebb3acd}{PopupBrowser::checkStoreButton}}()\ \{}
+\DoxyCodeLine{01321\ \ \ \textcolor{keywordflow}{if}\ (owner\_)\ \{}
+\DoxyCodeLine{01322\ \ \ \ \ std::string\ author\ =\ owner\_-\/>\mbox{\hyperlink{class_synth_section_a91fd67242c68ffa7bf898f1fad9b36c3}{getFileAuthor}}();}
+\DoxyCodeLine{01323\ \ \ \ \ String\ type\ =\ folder\_list\_-\/>getPassthroughFolderName();}
+\DoxyCodeLine{01324\ \ \ \ \ store\_button\_-\/>setText(\textcolor{stringliteral}{"{}Get\ more\ "{}}\ +\ type.toLowerCase().toStdString()\ +\ \textcolor{stringliteral}{"{}\ by\ "{}}\ +\ author);}
+\DoxyCodeLine{01325\ \ \ \ \ String\ cleaned\ =\ String(author).removeCharacters(\textcolor{stringliteral}{"{}\ \_."{}}).toLowerCase();}
+\DoxyCodeLine{01326\ \ \ \ \ store\_button\_-\/>setVisible(more\_author\_presets\_.count(cleaned.toStdString()));}
+\DoxyCodeLine{01327\ \ \ \}}
+\DoxyCodeLine{01328\ \}}
+\DoxyCodeLine{01329\ }
+\DoxyCodeLine{01330\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_browser_a2a9fa480073cd1a0969651008df50857}{PopupBrowser::loadPresets}}(std::vector<File>\ directories,\ \textcolor{keyword}{const}\ String\&\ extensions,}
+\DoxyCodeLine{01331\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\&\ passthrough\_name,\ \textcolor{keyword}{const}\ std::string\&\ additional\_folders\_name)\ \{}
+\DoxyCodeLine{01332\ \ \ extensions\_\ =\ extensions;}
+\DoxyCodeLine{01333\ \ \ \textcolor{keywordflow}{if}\ (search\_box\_)}
+\DoxyCodeLine{01334\ \ \ \ \ search\_box\_-\/>setText(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{01335\ }
+\DoxyCodeLine{01336\ \ \ Array<File>\ folders;}
+\DoxyCodeLine{01337\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ File\&\ directory\ :\ directories)}
+\DoxyCodeLine{01338\ \ \ \ \ folders.add(directory);}
+\DoxyCodeLine{01339\ }
+\DoxyCodeLine{01340\ \ \ folder\_list\_-\/>setPassthroughFolderName(passthrough\_name);}
+\DoxyCodeLine{01341\ \ \ folder\_list\_-\/>setAdditionalRootsName(additional\_folders\_name);}
+\DoxyCodeLine{01342\ \ \ folder\_list\_-\/>setSelections(folders);}
+\DoxyCodeLine{01343\ }
+\DoxyCodeLine{01344\ \ \ \textcolor{keywordflow}{if}\ (!additional\_folders\_name.empty())\ \{}
+\DoxyCodeLine{01345\ \ \ \ \ std::vector<std::string>\ additional\ =\ \mbox{\hyperlink{class_load_save_a57ee2e7e55cd804a392b65c222c19dee}{LoadSave::getAdditionalFolders}}(additional\_folders\_name);}
+\DoxyCodeLine{01346\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ std::string\&\ path\ :\ additional)}
+\DoxyCodeLine{01347\ \ \ \ \ \ \ directories.emplace\_back(File(path));}
+\DoxyCodeLine{01348\ \ \ \}}
+\DoxyCodeLine{01349\ }
+\DoxyCodeLine{01350\ \ \ Array<File>\ presets;}
+\DoxyCodeLine{01351\ \ \ selection\_list\_-\/>setSelected(File());}
+\DoxyCodeLine{01352\ \ \ folder\_list\_-\/>filter(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{01353\ \ \ \textcolor{keywordflow}{if}\ (!folder\_list\_-\/>selected().exists())\ \{}
+\DoxyCodeLine{01354\ \ \ \ \ \mbox{\hyperlink{class_load_save_a4920a34938f27eb01a9391c28e73bc47}{LoadSave::getAllFilesOfTypeInDirectories}}(presets,\ extensions\_,\ directories);}
+\DoxyCodeLine{01355\ \ \ \ \ selection\_list\_-\/>setSelections(presets);}
+\DoxyCodeLine{01356\ \ \ \}}
+\DoxyCodeLine{01357\ \ \ selection\_list\_-\/>filter(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{01358\ \ \ \textcolor{keywordflow}{if}\ (owner\_)}
+\DoxyCodeLine{01359\ \ \ \ \ selection\_list\_-\/>setSelected(owner\_-\/>\mbox{\hyperlink{class_synth_section_a46dc752db00d7ecf2419153e6234a3b0}{getCurrentFile}}());}
+\DoxyCodeLine{01360\ }
+\DoxyCodeLine{01361\ \ \ more\_author\_presets\_.clear();}
+\DoxyCodeLine{01362\ \ \ \textcolor{keywordflow}{try}\ \{}
+\DoxyCodeLine{01363\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ available\ =\ \mbox{\hyperlink{class_load_save_a9b56f95e556c497355ad6419b4d0ab41}{LoadSave::getAvailablePacks}}();}
+\DoxyCodeLine{01364\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ available\_packs\ =\ available[\textcolor{stringliteral}{"{}packs"{}}];}
+\DoxyCodeLine{01365\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ pack\ :\ available\_packs)\ \{}
+\DoxyCodeLine{01366\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (pack.count(folder\_list\_-\/>getPassthroughFolderName())\ ==\ 0)}
+\DoxyCodeLine{01367\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{01368\ }
+\DoxyCodeLine{01369\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ contains\_files\ =\ pack[folder\_list\_-\/>getPassthroughFolderName()];}
+\DoxyCodeLine{01370\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!contains\_files)}
+\DoxyCodeLine{01371\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{01372\ }
+\DoxyCodeLine{01373\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ purchased\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01374\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (pack.count(\textcolor{stringliteral}{"{}Purchased"{}}))}
+\DoxyCodeLine{01375\ \ \ \ \ \ \ \ \ purchased\ =\ pack[\textcolor{stringliteral}{"{}Purchased"{}}];}
+\DoxyCodeLine{01376\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (purchased)}
+\DoxyCodeLine{01377\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{01378\ }
+\DoxyCodeLine{01379\ \ \ \ \ \ \ std::string\ author\_data\ =\ pack[\textcolor{stringliteral}{"{}Author"{}}];}
+\DoxyCodeLine{01380\ \ \ \ \ \ \ StringArray\ authors;}
+\DoxyCodeLine{01381\ \ \ \ \ \ \ authors.addTokens(author\_data,\ \textcolor{stringliteral}{"{},"{}},\ \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{01382\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ String\&\ author\ :\ authors)}
+\DoxyCodeLine{01383\ \ \ \ \ \ \ \ \ more\_author\_presets\_.insert(author.removeCharacters(\textcolor{stringliteral}{"{}\ .\_"{}}).toLowerCase().toStdString());}
+\DoxyCodeLine{01384\ \ \ \ \ \}}
+\DoxyCodeLine{01385\ \ \ \}}
+\DoxyCodeLine{01386\ \ \ \textcolor{keywordflow}{catch}\ (\textcolor{keyword}{const}\ json::exception\&\ e)\ \{}
+\DoxyCodeLine{01387\ \ \ \}}
+\DoxyCodeLine{01388\ \ \ \mbox{\hyperlink{class_popup_browser_afc91772dd46fcdc1b85974ba5345d8b1}{checkNoContent}}();}
+\DoxyCodeLine{01389\ \ \ \mbox{\hyperlink{class_popup_browser_aec6f80b3224deefd61ed3a808ebb3acd}{checkStoreButton}}();}
+\DoxyCodeLine{01390\ \}}
+\DoxyCodeLine{01391\ }
+\DoxyCodeLine{01392\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_browser_a57bb199945068aa9569135ad7e3d19e1}{PopupBrowser::filterPresets}}()\ \{}
+\DoxyCodeLine{01393\ \ \ selection\_list\_-\/>filter(search\_box\_-\/>getText());}
+\DoxyCodeLine{01394\ \ \ selection\_list\_-\/>redoCache();}
+\DoxyCodeLine{01395\ \}}
+\DoxyCodeLine{01396\ }
+\DoxyCodeLine{01397\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_browser_ae326c7a4b0a189ca2822d0131d232fe3}{PopupBrowser::textEditorTextChanged}}(TextEditor\&\ editor)\ \{}
+\DoxyCodeLine{01398\ \ \ \mbox{\hyperlink{class_popup_browser_a57bb199945068aa9569135ad7e3d19e1}{filterPresets}}();}
+\DoxyCodeLine{01399\ \}}
+\DoxyCodeLine{01400\ }
+\DoxyCodeLine{01401\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_browser_aa167737960722315671ea2d3e7852260}{PopupBrowser::textEditorEscapeKeyPressed}}(TextEditor\&\ editor)\ \{}
+\DoxyCodeLine{01402\ \ \ editor.setText(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{01403\ \}}
+\DoxyCodeLine{01404\ }
+\DoxyCodeLine{01405\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_popup_browser_af1f89713aaece3d3c00ec05d35b37e81}{PopupBrowser::buttonClicked}}(Button*\ clicked\_button)\ \{}
+\DoxyCodeLine{01406\ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ exit\_button\_.get())}
+\DoxyCodeLine{01407\ \ \ \ \ setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{01408\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ download\_button\_.get())\ \{}
+\DoxyCodeLine{01409\ \ \ \ \ \mbox{\hyperlink{class_full_interface}{FullInterface}}*\ parent\ =\ findParentComponentOfClass<FullInterface>();}
+\DoxyCodeLine{01410\ \ \ \ \ \textcolor{keywordflow}{if}\ (parent)\ \{}
+\DoxyCodeLine{01411\ \ \ \ \ \ \ setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{01412\ \ \ \ \ \ \ parent-\/>\mbox{\hyperlink{class_full_interface_a940d6cb906133b6a2d895ad7f2215c06}{startDownload}}();}
+\DoxyCodeLine{01413\ \ \ \ \ \}}
+\DoxyCodeLine{01414\ \ \ \}}
+\DoxyCodeLine{01415\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ store\_button\_.get()\ \&\&\ owner\_)\ \{}
+\DoxyCodeLine{01416\ \ \ \ \ String\ encoded\_author\ =\ URL::addEscapeChars(owner\_-\/>\mbox{\hyperlink{class_synth_section_a91fd67242c68ffa7bf898f1fad9b36c3}{getFileAuthor}}(),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{01417\ \ \ \ \ encoded\_author\ =\ encoded\_author.replace(\textcolor{stringliteral}{"{}+"{}},\ \textcolor{stringliteral}{"{}\%2B"{}});}
+\DoxyCodeLine{01418\ }
+\DoxyCodeLine{01419\ \ \ \ \ URL\ url(String(kStoreUrl)\ +\ encoded\_author);}
+\DoxyCodeLine{01420\ \ \ \ \ url.launchInDefaultBrowser();}
+\DoxyCodeLine{01421\ \ \ \}}
+\DoxyCodeLine{01422\ \}}
+
+\end{DoxyCode}

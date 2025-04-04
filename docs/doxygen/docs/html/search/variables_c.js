@@ -1,0 +1,23 @@
+var searchData=
+[
+  ['name_0',['name',['../structvital_1_1_value_details.html#ac39fe3261f5686d17e8208a8199cd278',1,'vital::ValueDetails::name'],['../struct_download_section_1_1_download_pack.html#a5942a35a1d231553f8eca5bf3706a452',1,'DownloadSection::DownloadPack::name'],['../struct_popup_items.html#a2a2b775f366c480fdf36a229c9d863eb',1,'PopupItems::name']]],
+  ['name_5f_1',['name_',['../class_line_generator.html#a0a08809ce37639418d07b0ac49215b81',1,'LineGenerator::name_'],['../classvital_1_1_wavetable.html#a5320c34cfc1cc890adbea6bfd6edf40a',1,'vital::Wavetable::name_'],['../classvital_1_1_sample.html#ae7a50a990f7a3967e87b63233311f960',1,'vital::Sample::name_']]],
+  ['names_5f_2',['names_',['../class_wavetable_component_list.html#a66ad60c33d07cd9d9da6770c0128e7d6',1,'WavetableComponentList']]],
+  ['next_5frandom_5fvalue_3',['next_random_value',['../structvital_1_1_random_lfo_1_1_random_state.html#a9d8f78a1396f0266aa6102b521cd0f56',1,'vital::RandomLfo::RandomState']]],
+  ['next_5fseed_5f_4',['next_seed_',['../classvital_1_1utils_1_1_random_generator.html#a19aafcca5b540ea879f8e54532cfc6c8',1,'vital::utils::RandomGenerator']]],
+  ['normalize_5f_5',['normalize_',['../class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe.html#a61cab95653d66e8be98459162d341e88',1,'FrequencyFilterModifier::FrequencyFilterModifierKeyframe::normalize_'],['../class_frequency_filter_modifier.html#abaef9dfe30ff04f894428173e1513419',1,'FrequencyFilterModifier::normalize_'],['../class_frequency_filter_overlay.html#a4570408c6e2466320c576b15fc619736',1,'FrequencyFilterOverlay::normalize_']]],
+  ['normalize_5fgain_5f_6',['normalize_gain_',['../class_file_source.html#a6f6b43059c885f6dc844d1bfaeb8501a',1,'FileSource::normalize_gain_'],['../class_file_source_overlay.html#ab689c7fe200a6c19262666846f3ea6a9',1,'FileSourceOverlay::normalize_gain_']]],
+  ['normalize_5fmult_5f_7',['normalize_mult_',['../class_file_source.html#a546f158e98cf97a1975e5461934fa803',1,'FileSource']]],
+  ['normalized_5ffrequencies_8',['normalized_frequencies',['../structvital_1_1_wavetable_1_1_wavetable_data.html#af626aa871fa7e9fb80ae40cab7b31e27',1,'vital::Wavetable::WavetableData']]],
+  ['notch_5f_9',['notch_',['../classvital_1_1_equalizer_module.html#aadf0dab76b0c50c77a5c4b6d08b21ae7',1,'vital::EqualizerModule']]],
+  ['note_5fcount_10',['note_count',['../structvital_1_1_voice_state.html#a26fe21e76e8e9b0af563de993f0e16b3',1,'vital::VoiceState']]],
+  ['note_5fpressed_11',['note_pressed',['../structvital_1_1_voice_state.html#a5fbdbbc1ecea25ea4b97fb7dd03a572c',1,'vital::VoiceState']]],
+  ['null_5fsource_5f_12',['null_source_',['../classvital_1_1_processor.html#a813191fdb6729bffcf2bb1cab0b028fe',1,'vital::Processor']]],
+  ['num_5faudio_5frate_13',['num_audio_rate',['../structvital_1_1modulation__change.html#a8756df531d89a104625013f1ece96ab7',1,'vital::modulation_change']]],
+  ['num_5fbuffer_5fsamples_14',['num_buffer_samples',['../structvital_1_1_synth_oscillator_1_1_voice_block.html#aabbaf4f0006eb8e6bde26c52f4fb6b00',1,'vital::SynthOscillator::VoiceBlock']]],
+  ['num_5fframes_15',['num_frames',['../structvital_1_1_wavetable_1_1_wavetable_data.html#a5e48342510777230944d2a4582058b5d',1,'vital::Wavetable::WavetableData']]],
+  ['num_5fpoints_5f_16',['num_points_',['../class_line_generator.html#a8d44734d2de4a571a7fa5a3de2391872',1,'LineGenerator::num_points_'],['../class_wave_line_source.html#a3acfb3f1a008423e45a7bfccbdf0981a',1,'WaveLineSource::num_points_'],['../class_bar_renderer.html#ac7deb66b7aaddba29d02914a4c57e3a3',1,'BarRenderer::num_points_']]],
+  ['num_5fpositions_5f_17',['num_positions_',['../class_wavetable_playhead.html#a60592588db792903fec42c9cfa581b61',1,'WavetablePlayhead']]],
+  ['num_5fquads_5f_18',['num_quads_',['../class_open_gl_multi_quad.html#aeb5e88d7562d6f071f61e25d230e7147',1,'OpenGlMultiQuad']]],
+  ['num_5fvoices_5freadout_5f_19',['num_voices_readout_',['../class_open_gl_component.html#a44a5cd3900ef8c8205c986d0040e457f',1,'OpenGlComponent']]]
+];

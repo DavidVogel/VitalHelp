@@ -1,0 +1,528 @@
+\doxysection{wavetable\+\_\+creator.\+cpp}
+\hypertarget{wavetable__creator_8cpp_source}{}\label{wavetable__creator_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/wavetable\_creator.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/wavetable\_creator.cpp}}
+\mbox{\hyperlink{wavetable__creator_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable__creator_8h}{wavetable\_creator.h}}"{}}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{line__generator_8h}{line\_generator.h}}"{}}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{load__save_8h}{load\_save.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__frame_8h}{wave\_frame.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__line__source_8h}{wave\_line\_source.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__source_8h}{wave\_source.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable_8h}{wavetable.h}}"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00020\ \ \ \textcolor{keywordtype}{int}\ getFirstNonZeroSample(\textcolor{keyword}{const}\ \textcolor{keywordtype}{float}*\ audio\_buffer,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (audio\_buffer[i])}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ i;}
+\DoxyCodeLine{00024\ \ \ \ \ \}}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00026\ \ \ \}}
+\DoxyCodeLine{00027\ \}}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_wavetable_creator_a9f671750397debf65be6a4f199bc6af0}{WavetableCreator::getGroupIndex}}(\mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}*\ group)\ \{}
+\DoxyCodeLine{00030\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}}.size();\ ++i)\ \{}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}}[i].get()\ ==\ group)}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ i;}
+\DoxyCodeLine{00033\ \ \ \}}
+\DoxyCodeLine{00034\ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{00035\ \}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_a4fa29545f2217452779d588cfc722d94}{WavetableCreator::moveUp}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00038\ \ \ \textcolor{keywordflow}{if}\ (index\ <=\ 0)}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}}[index].swap(\mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}}[index\ -\/\ 1]);}
+\DoxyCodeLine{00042\ \}}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_ac1d1a6d14f8790d109e5f1d19a63af64}{WavetableCreator::moveDown}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00045\ \ \ \textcolor{keywordflow}{if}\ (index\ <\ 0\ ||\ index\ >=\ \mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}}.size()\ -\/\ 1)}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}}[index].swap(\mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}}[index\ +\ 1]);}
+\DoxyCodeLine{00049\ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_a23afebf0e068b36ea22aa6190469e58f}{WavetableCreator::removeGroup}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00052\ \ \ \textcolor{keywordflow}{if}\ (index\ <\ 0\ ||\ index\ >=\ \mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}}.size())}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ std::unique\_ptr<WavetableGroup>\ group\ =\ std::move(\mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}}[index]);}
+\DoxyCodeLine{00056\ \ \ \mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}}.erase(\mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}}.begin()\ +\ index);}
+\DoxyCodeLine{00057\ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_wavetable_creator_ac26ffb7cc21ddb29fcb074f50b2b46e5}{WavetableCreator::render}}(\textcolor{keywordtype}{int}\ position)\ \{}
+\DoxyCodeLine{00060\ \ \ \mbox{\hyperlink{class_wavetable_creator_a484bd83789698b3eafe04a8b6a2ba4f3}{compute\_frame\_combine\_}}.\mbox{\hyperlink{classvital_1_1_wave_frame_af5df7463ff2e4e345f075a592298a2f3}{clear}}();}
+\DoxyCodeLine{00061\ \ \ \mbox{\hyperlink{class_wavetable_creator_a484bd83789698b3eafe04a8b6a2ba4f3}{compute\_frame\_combine\_}}.\mbox{\hyperlink{classvital_1_1_wave_frame_a997e3cb5e3619931c2f147d30f28588c}{index}}\ =\ position;}
+\DoxyCodeLine{00062\ \ \ \mbox{\hyperlink{class_wavetable_creator_adb4e765c8c42dfb31fae711eaeba61aa}{compute\_frame\_}}.\mbox{\hyperlink{classvital_1_1_wave_frame_a997e3cb5e3619931c2f147d30f28588c}{index}}\ =\ position;}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \ \textcolor{comment}{//\ Render\ each\ group\ and\ combine\ their\ results.}}
+\DoxyCodeLine{00065\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ group\ :\ \mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}})\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ group-\/>render(\&\mbox{\hyperlink{class_wavetable_creator_adb4e765c8c42dfb31fae711eaeba61aa}{compute\_frame\_}},\ position);}
+\DoxyCodeLine{00067\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_a484bd83789698b3eafe04a8b6a2ba4f3}{compute\_frame\_combine\_}}.\mbox{\hyperlink{classvital_1_1_wave_frame_a3855db85275c68289b49d6588df2f6bd}{addFrom}}(\&\mbox{\hyperlink{class_wavetable_creator_adb4e765c8c42dfb31fae711eaeba61aa}{compute\_frame\_}});}
+\DoxyCodeLine{00068\ \ \ \}}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \textcolor{comment}{//\ If\ multiple\ groups,\ average\ their\ output.}}
+\DoxyCodeLine{00071\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}}.size()\ >\ 1)}
+\DoxyCodeLine{00072\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_a484bd83789698b3eafe04a8b6a2ba4f3}{compute\_frame\_combine\_}}.\mbox{\hyperlink{classvital_1_1_wave_frame_aef352e6d1929210d06633fbb989fb9aa}{multiply}}(1.0f\ /\ \mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}}.size());}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \textcolor{comment}{//\ Optionally\ remove\ DC\ offset\ from\ the\ combined\ frame.}}
+\DoxyCodeLine{00075\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wavetable_creator_aba391b8d98a78f4705ac6c75aab5d694}{remove\_all\_dc\_}})}
+\DoxyCodeLine{00076\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_a484bd83789698b3eafe04a8b6a2ba4f3}{compute\_frame\_combine\_}}.\mbox{\hyperlink{classvital_1_1_wave_frame_aca4243c3634fdbe989ed1340684134f0}{removedDc}}();}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \textcolor{keywordtype}{float}\ max\_value\ =\ 0.0f;}
+\DoxyCodeLine{00079\ \ \ \textcolor{keywordtype}{float}\ min\_value\ =\ 0.0f;}
+\DoxyCodeLine{00080\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};\ ++i)\ \{}
+\DoxyCodeLine{00081\ \ \ \ \ max\_value\ =\ std::max(\mbox{\hyperlink{class_wavetable_creator_a484bd83789698b3eafe04a8b6a2ba4f3}{compute\_frame\_combine\_}}.\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i],\ max\_value);}
+\DoxyCodeLine{00082\ \ \ \ \ min\_value\ =\ std::min(\mbox{\hyperlink{class_wavetable_creator_a484bd83789698b3eafe04a8b6a2ba4f3}{compute\_frame\_combine\_}}.\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i],\ min\_value);}
+\DoxyCodeLine{00083\ \ \ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \mbox{\hyperlink{class_wavetable_creator_aba628794ccbfbf1cc02e0ba4b1831db2}{wavetable\_}}-\/>\mbox{\hyperlink{classvital_1_1_wavetable_a0874bb4bf5bacdc4f4d1a62a6bff3c89}{loadWaveFrame}}(\&\mbox{\hyperlink{class_wavetable_creator_a484bd83789698b3eafe04a8b6a2ba4f3}{compute\_frame\_combine\_}});}
+\DoxyCodeLine{00086\ \ \ \textcolor{keywordflow}{return}\ max\_value\ -\/\ min\_value;}
+\DoxyCodeLine{00087\ \}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_ac26ffb7cc21ddb29fcb074f50b2b46e5}{WavetableCreator::render}}()\ \{}
+\DoxyCodeLine{00090\ \ \ \textcolor{keywordtype}{int}\ last\_waveframe\ =\ 0;}
+\DoxyCodeLine{00091\ \ \ \textcolor{keywordtype}{bool}\ shepard\ =\ \mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}}.size()\ >\ 0;}
+\DoxyCodeLine{00092\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ group\ :\ \mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}})\ \{}
+\DoxyCodeLine{00093\ \ \ \ \ group-\/>prerender();}
+\DoxyCodeLine{00094\ \ \ \ \ last\_waveframe\ =\ std::max(last\_waveframe,\ group-\/>getLastKeyframePosition());}
+\DoxyCodeLine{00095\ \ \ \ \ shepard\ =\ shepard\ \&\&\ group-\/>isShepardTone();}
+\DoxyCodeLine{00096\ \ \ \}}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \ \ \mbox{\hyperlink{class_wavetable_creator_aba628794ccbfbf1cc02e0ba4b1831db2}{wavetable\_}}-\/>\mbox{\hyperlink{classvital_1_1_wavetable_a775f412c03d7919dfb74366cf886f2b5}{setNumFrames}}(last\_waveframe\ +\ 1);}
+\DoxyCodeLine{00099\ \ \ \mbox{\hyperlink{class_wavetable_creator_aba628794ccbfbf1cc02e0ba4b1831db2}{wavetable\_}}-\/>\mbox{\hyperlink{classvital_1_1_wavetable_a112aec54fadc14e510436f2abf4a9e7f}{setShepardTable}}(shepard);}
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordtype}{float}\ max\_span\ =\ 0.0f;}
+\DoxyCodeLine{00101\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ last\_waveframe\ +\ 1;\ ++i)}
+\DoxyCodeLine{00102\ \ \ \ \ max\_span\ =\ std::max(\mbox{\hyperlink{class_wavetable_creator_ac26ffb7cc21ddb29fcb074f50b2b46e5}{render}}(i),\ max\_span);}
+\DoxyCodeLine{00103\ \ \ \mbox{\hyperlink{class_wavetable_creator_aba628794ccbfbf1cc02e0ba4b1831db2}{wavetable\_}}-\/>\mbox{\hyperlink{classvital_1_1_wavetable_a48114de1e086ed1ac3a66fe69c9fa573}{setFrequencyRatio}}(\mbox{\hyperlink{class_wavetable_creator_adb4e765c8c42dfb31fae711eaeba61aa}{compute\_frame\_}}.\mbox{\hyperlink{classvital_1_1_wave_frame_a38e46073fa2e54e7a754cf7917caabaf}{frequency\_ratio}});}
+\DoxyCodeLine{00104\ \ \ \mbox{\hyperlink{class_wavetable_creator_aba628794ccbfbf1cc02e0ba4b1831db2}{wavetable\_}}-\/>\mbox{\hyperlink{classvital_1_1_wavetable_a6d5497e4b9ad4a03ccb1a583353a65d9}{setSampleRate}}(\mbox{\hyperlink{class_wavetable_creator_adb4e765c8c42dfb31fae711eaeba61aa}{compute\_frame\_}}.\mbox{\hyperlink{classvital_1_1_wave_frame_a28751821a42e83fa48f1635a3cc1f39f}{sample\_rate}});}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \mbox{\hyperlink{class_wavetable_creator_ae393b75957f100a5c8b78030430cfd09}{postRender}}(max\_span);}
+\DoxyCodeLine{00107\ \}}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_ae393b75957f100a5c8b78030430cfd09}{WavetableCreator::postRender}}(\textcolor{keywordtype}{float}\ max\_span)\ \{}
+\DoxyCodeLine{00110\ \ \ \textcolor{comment}{//\ After\ rendering\ the\ entire\ table,\ apply\ normalization\ if\ requested.}}
+\DoxyCodeLine{00111\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wavetable_creator_a0aed4cd06053127ee3b00db5d68953bd}{full\_normalize\_}})}
+\DoxyCodeLine{00112\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_aba628794ccbfbf1cc02e0ba4b1831db2}{wavetable\_}}-\/>\mbox{\hyperlink{classvital_1_1_wavetable_afb9e3aaf1d7983137ef423e289e46a04}{postProcess}}(max\_span);}
+\DoxyCodeLine{00113\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00114\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_aba628794ccbfbf1cc02e0ba4b1831db2}{wavetable\_}}-\/>\mbox{\hyperlink{classvital_1_1_wavetable_afb9e3aaf1d7983137ef423e289e46a04}{postProcess}}(0.0f);}
+\DoxyCodeLine{00115\ \}}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_adbfd5f4269a475fc4a8ed59c9939d9c9}{WavetableCreator::renderToBuffer}}(\textcolor{keywordtype}{float}*\ buffer,\ \textcolor{keywordtype}{int}\ num\_frames,\ \textcolor{keywordtype}{int}\ frame\_size)\ \{}
+\DoxyCodeLine{00118\ \ \ \textcolor{comment}{//\ Render\ multiple\ frames\ into\ a\ given\ buffer.\ Not\ fully\ implemented\ for\ different\ frame\ sizes.}}
+\DoxyCodeLine{00119\ \ \ \textcolor{keywordtype}{int}\ total\_samples\ =\ num\_frames\ *\ frame\_size;}
+\DoxyCodeLine{00120\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_frames;\ ++i)\ \{}
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keywordtype}{float}\ position\ =\ (1.0f\ *\ i\ *\ \mbox{\hyperlink{namespacevital_aa72aa67cd199ba84e12ec933d74ba400}{vital::kNumOscillatorWaveFrames}})\ /\ num\_frames;}
+\DoxyCodeLine{00122\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_a484bd83789698b3eafe04a8b6a2ba4f3}{compute\_frame\_combine\_}}.\mbox{\hyperlink{classvital_1_1_wave_frame_af5df7463ff2e4e345f075a592298a2f3}{clear}}();}
+\DoxyCodeLine{00123\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_a484bd83789698b3eafe04a8b6a2ba4f3}{compute\_frame\_combine\_}}.\mbox{\hyperlink{classvital_1_1_wave_frame_a997e3cb5e3619931c2f147d30f28588c}{index}}\ =\ position;}
+\DoxyCodeLine{00124\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_adb4e765c8c42dfb31fae711eaeba61aa}{compute\_frame\_}}.\mbox{\hyperlink{classvital_1_1_wave_frame_a997e3cb5e3619931c2f147d30f28588c}{index}}\ =\ position;}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ group\ :\ \mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}})\ \{}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ group-\/>render(\&\mbox{\hyperlink{class_wavetable_creator_adb4e765c8c42dfb31fae711eaeba61aa}{compute\_frame\_}},\ position);}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_a484bd83789698b3eafe04a8b6a2ba4f3}{compute\_frame\_combine\_}}.\mbox{\hyperlink{classvital_1_1_wave_frame_a3855db85275c68289b49d6588df2f6bd}{addFrom}}(\&\mbox{\hyperlink{class_wavetable_creator_adb4e765c8c42dfb31fae711eaeba61aa}{compute\_frame\_}});}
+\DoxyCodeLine{00129\ \ \ \ \ \}}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keywordtype}{float}*\ output\_buffer\ =\ buffer\ +\ (i\ *\ frame\_size);}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keywordflow}{if}\ (frame\_size\ !=\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}})}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\textcolor{keyword}{false});\ \textcolor{comment}{//\ TODO:\ support\ different\ waveframe\ size.}}
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ s\ =\ 0;\ s\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};\ ++s)}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ output\_buffer[s]\ =\ \mbox{\hyperlink{class_wavetable_creator_a484bd83789698b3eafe04a8b6a2ba4f3}{compute\_frame\_combine\_}}.\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[s];}
+\DoxyCodeLine{00138\ \ \ \ \ \}}
+\DoxyCodeLine{00139\ \ \ \}}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ \textcolor{comment}{//\ Normalize\ the\ output\ buffer.}}
+\DoxyCodeLine{00142\ \ \ \textcolor{keywordtype}{float}\ max\_value\ =\ 1.0f;}
+\DoxyCodeLine{00143\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ total\_samples;\ ++i)}
+\DoxyCodeLine{00144\ \ \ \ \ max\_value\ =\ std::max(max\_value,\ fabsf(buffer[i]));}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \ \ \textcolor{keywordtype}{float}\ scale\ =\ 1.0f\ /\ max\_value;}
+\DoxyCodeLine{00147\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ total\_samples;\ ++i)}
+\DoxyCodeLine{00148\ \ \ \ \ buffer[i]\ *=\ scale;}
+\DoxyCodeLine{00149\ \}}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_a7dff31cad8a90e421ce1b60f21a1b6c3}{WavetableCreator::init}}()\ \{}
+\DoxyCodeLine{00152\ \ \ \mbox{\hyperlink{class_wavetable_creator_a7f7a9e9f505bd0d59bf17f7c7acf2852}{clear}}();}
+\DoxyCodeLine{00153\ \ \ \mbox{\hyperlink{class_wavetable_creator_a7c35c5e5b8470b53b217ddf5289b8a4f}{loadDefaultCreator}}();}
+\DoxyCodeLine{00154\ \ \ \mbox{\hyperlink{class_wavetable_creator_ac26ffb7cc21ddb29fcb074f50b2b46e5}{render}}();}
+\DoxyCodeLine{00155\ \}}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00157\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_a7f7a9e9f505bd0d59bf17f7c7acf2852}{WavetableCreator::clear}}()\ \{}
+\DoxyCodeLine{00158\ \ \ \mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}}.clear();}
+\DoxyCodeLine{00159\ \ \ \mbox{\hyperlink{class_wavetable_creator_aba391b8d98a78f4705ac6c75aab5d694}{remove\_all\_dc\_}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00160\ \ \ \mbox{\hyperlink{class_wavetable_creator_a0aed4cd06053127ee3b00db5d68953bd}{full\_normalize\_}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00161\ \}}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_a7c35c5e5b8470b53b217ddf5289b8a4f}{WavetableCreator::loadDefaultCreator}}()\ \{}
+\DoxyCodeLine{00164\ \ \ \textcolor{comment}{//\ Create\ a\ default\ "{}Init"{}\ wavetable\ with\ a\ default\ group\ and\ render\ it.}}
+\DoxyCodeLine{00165\ \ \ \mbox{\hyperlink{class_wavetable_creator_aba628794ccbfbf1cc02e0ba4b1831db2}{wavetable\_}}-\/>\mbox{\hyperlink{classvital_1_1_wavetable_a31ed42a87addeb2f35c97448f0453621}{setName}}(\textcolor{stringliteral}{"{}Init"{}});}
+\DoxyCodeLine{00166\ \ \ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}*\ new\_group\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}();}
+\DoxyCodeLine{00167\ \ \ new\_group-\/>\mbox{\hyperlink{class_wavetable_group_aea25a4fe64fa5f6464a11cc595afe77d}{loadDefaultGroup}}();}
+\DoxyCodeLine{00168\ \ \ \mbox{\hyperlink{class_wavetable_creator_a6814c039fd1a39ffa2035e80045832ad}{addGroup}}(new\_group);}
+\DoxyCodeLine{00169\ \}}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_a00773b06189fbc71f60db7ebfe7d38e0}{WavetableCreator::initPredefinedWaves}}()\ \{}
+\DoxyCodeLine{00172\ \ \ \textcolor{comment}{//\ Load\ predefined\ wave\ shapes\ from\ a\ fixed\ set\ of\ waveforms.}}
+\DoxyCodeLine{00173\ \ \ \mbox{\hyperlink{class_wavetable_creator_a7f7a9e9f505bd0d59bf17f7c7acf2852}{clear}}();}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ \ \ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}*\ new\_group\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}();}
+\DoxyCodeLine{00176\ \ \ \mbox{\hyperlink{class_wave_source}{WaveSource}}*\ wave\_source\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_wave_source}{WaveSource}}();}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \ \ \textcolor{keywordtype}{int}\ num\_shapes\ =\ \mbox{\hyperlink{classvital_1_1_predefined_wave_frames_aeb836a0e08aac81d73ad841ca1ec44d1ad30d75bee16c54792f14ec398bb2bac0}{vital::PredefinedWaveFrames::kNumShapes}};}
+\DoxyCodeLine{00179\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_shapes;\ ++i)\ \{}
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{keywordtype}{int}\ position\ =\ (\mbox{\hyperlink{namespacevital_aa72aa67cd199ba84e12ec933d74ba400}{vital::kNumOscillatorWaveFrames}}\ *\ i)\ /\ num\_shapes;}
+\DoxyCodeLine{00181\ \ \ \ \ wave\_source-\/>\mbox{\hyperlink{class_wavetable_component_a6311d3537ca55c3399a8dce144600bf0}{insertNewKeyframe}}(position);}
+\DoxyCodeLine{00182\ \ \ \ \ \mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}*\ keyframe\ =\ wave\_source-\/>\mbox{\hyperlink{class_wave_source_a715a55593b9018c4a380be67c5b948f9}{getKeyframe}}(i);}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_predefined_wave_frames_aeb836a0e08aac81d73ad841ca1ec44d1}{vital::PredefinedWaveFrames::Shape}}\ shape\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{classvital_1_1_predefined_wave_frames_aeb836a0e08aac81d73ad841ca1ec44d1}{vital::PredefinedWaveFrames::Shape}}\textcolor{keyword}{>}(i);}
+\DoxyCodeLine{00185\ \ \ \ \ keyframe-\/>\mbox{\hyperlink{class_wave_source_keyframe_ac2f19ba59f1866a789cdeb38fef24e12}{wave\_frame}}()-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a097b35df7e1e30b50991550a21d4927b}{copy}}(\mbox{\hyperlink{classvital_1_1_predefined_wave_frames_a686a8c70f1a9e50b27c073fa4454a7e1}{vital::PredefinedWaveFrames::getWaveFrame}}(shape));}
+\DoxyCodeLine{00186\ \ \ \}}
+\DoxyCodeLine{00187\ \ \ wave\_source-\/>\mbox{\hyperlink{class_wavetable_component_a8aecf9b5029633a8cc9d62248d104c71}{setInterpolationStyle}}(\mbox{\hyperlink{class_wavetable_component_a188637e36deb4834ab05056b054f2e0fa4f56ea195909304581c33e172d87aa11}{WaveSource::kNone}});}
+\DoxyCodeLine{00188\ \ \ \mbox{\hyperlink{class_wavetable_creator_a0aed4cd06053127ee3b00db5d68953bd}{full\_normalize\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00189\ \ \ \mbox{\hyperlink{class_wavetable_creator_aba391b8d98a78f4705ac6c75aab5d694}{remove\_all\_dc\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00190\ }
+\DoxyCodeLine{00191\ \ \ new\_group-\/>\mbox{\hyperlink{class_wavetable_group_a11dd5a36493efc5792d340495be1f9eb}{addComponent}}(wave\_source);}
+\DoxyCodeLine{00192\ \ \ \mbox{\hyperlink{class_wavetable_creator_a6814c039fd1a39ffa2035e80045832ad}{addGroup}}(new\_group);}
+\DoxyCodeLine{00193\ \ \ \mbox{\hyperlink{class_wavetable_creator_ac26ffb7cc21ddb29fcb074f50b2b46e5}{render}}();}
+\DoxyCodeLine{00194\ \}}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00196\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_aab10bf4c219231f452aee862a3f860e0}{WavetableCreator::initFromAudioFile}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{float}*\ audio\_buffer,\ \textcolor{keywordtype}{int}\ num\_samples,\ \textcolor{keywordtype}{int}\ sample\_rate,}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_a8b6bb6fe9169f80c41a940577dc978a3}{AudioFileLoadStyle}}\ load\_style,\ \mbox{\hyperlink{class_file_source_a591f45c07477e877e5c7af5d835f670b}{FileSource::FadeStyle}}\ fade\_style)\ \{}
+\DoxyCodeLine{00198\ \ \ \textcolor{keywordtype}{int}\ beginning\_sample\ =\ getFirstNonZeroSample(audio\_buffer,\ num\_samples);}
+\DoxyCodeLine{00199\ \ \ \textcolor{keywordtype}{int}\ shortened\_num\_samples\ =\ num\_samples\ -\/\ beginning\_sample;}
+\DoxyCodeLine{00200\ \ \ \textcolor{keywordflow}{if}\ (load\_style\ ==\ \mbox{\hyperlink{class_wavetable_creator_a8b6bb6fe9169f80c41a940577dc978a3ac38852d92f6224a59c97e11bfd02859d}{kVocoded}})}
+\DoxyCodeLine{00201\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_ac5a68cf9d214c3d187aed1ac69a4dd3b}{initFromVocodedAudioFile}}(audio\_buffer\ +\ beginning\_sample,\ shortened\_num\_samples,\ sample\_rate,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00202\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (load\_style\ ==\ \mbox{\hyperlink{class_wavetable_creator_a8b6bb6fe9169f80c41a940577dc978a3a501aa58e5fa0a926281706072830bbea}{kTtwt}})}
+\DoxyCodeLine{00203\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_ac5a68cf9d214c3d187aed1ac69a4dd3b}{initFromVocodedAudioFile}}(audio\_buffer\ +\ beginning\_sample,\ shortened\_num\_samples,\ sample\_rate,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00204\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (load\_style\ ==\ \mbox{\hyperlink{class_wavetable_creator_a8b6bb6fe9169f80c41a940577dc978a3ad0767a1fdaefcfe0fc77b9bda3b5f5a1}{kPitched}})}
+\DoxyCodeLine{00205\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_a6651b2e49c053f5bf216c026999cb03b}{initFromPitchedAudioFile}}(audio\_buffer\ +\ beginning\_sample,\ shortened\_num\_samples,\ sample\_rate);}
+\DoxyCodeLine{00206\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00207\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_af4c830fa4c45dbc938e8f9d68bd834a9}{initFromSplicedAudioFile}}(audio\_buffer,\ num\_samples,\ sample\_rate,\ fade\_style);}
+\DoxyCodeLine{00208\ \}}
+\DoxyCodeLine{00209\ }
+\DoxyCodeLine{00210\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_af4c830fa4c45dbc938e8f9d68bd834a9}{WavetableCreator::initFromSplicedAudioFile}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{float}*\ audio\_buffer,\ \textcolor{keywordtype}{int}\ num\_samples,\ \textcolor{keywordtype}{int}\ sample\_rate,}
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_file_source_a591f45c07477e877e5c7af5d835f670b}{FileSource::FadeStyle}}\ fade\_style)\ \{}
+\DoxyCodeLine{00212\ \ \ \textcolor{comment}{//\ Load\ audio\ file\ as\ a\ spliced\ wavetable,\ dividing\ it\ into\ segments\ that\ map\ across\ the\ wavetable\ frames.}}
+\DoxyCodeLine{00213\ \ \ \mbox{\hyperlink{class_wavetable_creator_a7f7a9e9f505bd0d59bf17f7c7acf2852}{clear}}();}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00215\ \ \ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}*\ new\_group\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}();}
+\DoxyCodeLine{00216\ \ \ \mbox{\hyperlink{class_file_source}{FileSource}}*\ file\_source\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_file_source}{FileSource}}();}
+\DoxyCodeLine{00217\ }
+\DoxyCodeLine{00218\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_a24ac438fb14a0c5fb87efc0e5b903a38}{loadBuffer}}(audio\_buffer,\ num\_samples,\ sample\_rate);}
+\DoxyCodeLine{00219\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_a9e523aec5c9952f4667c2065559dff49}{setFadeStyle}}(fade\_style);}
+\DoxyCodeLine{00220\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_a9faf3184fcd9e2db4e5715b061619101}{setPhaseStyle}}(\mbox{\hyperlink{class_file_source_af08ef1b0e1cb5ebe1a60258ab71d99aca0d571d781367b59f973ed515b6c624c2}{FileSource::PhaseStyle::kNone}});}
+\DoxyCodeLine{00221\ \ \ file\_source-\/>\mbox{\hyperlink{class_wavetable_component_a6311d3537ca55c3399a8dce144600bf0}{insertNewKeyframe}}(0);}
+\DoxyCodeLine{00222\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_aa78b96d54d4175fc27ca3d5098298b88}{detectWaveEditTable}}();}
+\DoxyCodeLine{00223\ }
+\DoxyCodeLine{00224\ \ \ \textcolor{keywordtype}{double}\ window\_size\ =\ file\_source-\/>\mbox{\hyperlink{class_file_source_a4f42092aad44fe79ac771b2776bfb83c}{getWindowSize}}();}
+\DoxyCodeLine{00225\ \ \ \textcolor{keywordflow}{if}\ (fade\_style\ ==\ \mbox{\hyperlink{class_file_source_a591f45c07477e877e5c7af5d835f670ba8789e355ae5b9520e67985d266632252}{FileSource::kNoInterpolate}})\ \{}
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_cycles\ =\ std::max<int>(1,\ num\_samples\ /\ window\_size);}
+\DoxyCodeLine{00227\ \ \ \ \ \textcolor{keywordtype}{int}\ buffer\_frames\ =\ \mbox{\hyperlink{namespacevital_aa72aa67cd199ba84e12ec933d74ba400}{vital::kNumOscillatorWaveFrames}}\ /\ num\_cycles;}
+\DoxyCodeLine{00228\ \ \ \ \ file\_source-\/>\mbox{\hyperlink{class_wavetable_component_a6311d3537ca55c3399a8dce144600bf0}{insertNewKeyframe}}(std::max(0,\ \mbox{\hyperlink{namespacevital_aa72aa67cd199ba84e12ec933d74ba400}{vital::kNumOscillatorWaveFrames}}\ -\/\ 1\ -\/\ buffer\_frames));}
+\DoxyCodeLine{00229\ \ \ \}}
+\DoxyCodeLine{00230\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00231\ \ \ \ \ file\_source-\/>\mbox{\hyperlink{class_wavetable_component_a6311d3537ca55c3399a8dce144600bf0}{insertNewKeyframe}}(\mbox{\hyperlink{namespacevital_aa72aa67cd199ba84e12ec933d74ba400}{vital::kNumOscillatorWaveFrames}}\ -\/\ 1);}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00233\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_addd1babe9f8e4f58472684cde497c2da}{getKeyframe}}(0)-\/>\mbox{\hyperlink{class_file_source_1_1_file_source_keyframe_aedc8e911f98205df3d25bd34a6d70e5b}{setStartPosition}}(0);}
+\DoxyCodeLine{00234\ \ \ \textcolor{keywordtype}{int}\ last\_sample\_position\ =\ num\_samples\ -\/\ window\_size;}
+\DoxyCodeLine{00235\ \ \ last\_sample\_position\ =\ std::min<int>(file\_source-\/>\mbox{\hyperlink{class_file_source_addd1babe9f8e4f58472684cde497c2da}{getKeyframe}}(1)-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}()\ *\ window\_size,\ last\_sample\_position);}
+\DoxyCodeLine{00236\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_addd1babe9f8e4f58472684cde497c2da}{getKeyframe}}(1)-\/>\mbox{\hyperlink{class_file_source_1_1_file_source_keyframe_aedc8e911f98205df3d25bd34a6d70e5b}{setStartPosition}}(std::max(0,\ last\_sample\_position));}
+\DoxyCodeLine{00237\ }
+\DoxyCodeLine{00238\ \ \ new\_group-\/>\mbox{\hyperlink{class_wavetable_group_a11dd5a36493efc5792d340495be1f9eb}{addComponent}}(file\_source);}
+\DoxyCodeLine{00239\ \ \ \mbox{\hyperlink{class_wavetable_creator_a6814c039fd1a39ffa2035e80045832ad}{addGroup}}(new\_group);}
+\DoxyCodeLine{00240\ \ \ \mbox{\hyperlink{class_wavetable_creator_ac26ffb7cc21ddb29fcb074f50b2b46e5}{render}}();}
+\DoxyCodeLine{00241\ \}}
+\DoxyCodeLine{00242\ }
+\DoxyCodeLine{00243\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_ac5a68cf9d214c3d187aed1ac69a4dd3b}{WavetableCreator::initFromVocodedAudioFile}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{float}*\ audio\_buffer,\ \textcolor{keywordtype}{int}\ num\_samples,}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ sample\_rate,\ \textcolor{keywordtype}{bool}\ ttwt)\ \{}
+\DoxyCodeLine{00245\ \ \ \textcolor{comment}{//\ Vocoding\ approach\ attempts\ to\ detect\ a\ stable\ period\ and\ vocode\ a\ single\ cycle.}}
+\DoxyCodeLine{00246\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMaxTTWTPeriod\ =\ .02f;}
+\DoxyCodeLine{00247\ \ \ \mbox{\hyperlink{class_wavetable_creator_a7f7a9e9f505bd0d59bf17f7c7acf2852}{clear}}();}
+\DoxyCodeLine{00248\ }
+\DoxyCodeLine{00249\ \ \ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}*\ new\_group\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}();}
+\DoxyCodeLine{00250\ \ \ \mbox{\hyperlink{class_file_source}{FileSource}}*\ file\_source\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_file_source}{FileSource}}();}
+\DoxyCodeLine{00251\ }
+\DoxyCodeLine{00252\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_a24ac438fb14a0c5fb87efc0e5b903a38}{loadBuffer}}(audio\_buffer,\ num\_samples,\ sample\_rate);}
+\DoxyCodeLine{00253\ \ \ \textcolor{keywordflow}{if}\ (ttwt)}
+\DoxyCodeLine{00254\ \ \ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_a501d5e3f806bd1646632198ea5dd447d}{detectPitch}}(kMaxTTWTPeriod\ *\ sample\_rate);}
+\DoxyCodeLine{00255\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00256\ \ \ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_a501d5e3f806bd1646632198ea5dd447d}{detectPitch}}();}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00258\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_a9e523aec5c9952f4667c2065559dff49}{setFadeStyle}}(\mbox{\hyperlink{class_file_source_a591f45c07477e877e5c7af5d835f670ba6a32acdb7302dd33b9c5f9c4e353d077}{FileSource::FadeStyle::kWaveBlend}});}
+\DoxyCodeLine{00259\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_a9faf3184fcd9e2db4e5715b061619101}{setPhaseStyle}}(\mbox{\hyperlink{class_file_source_af08ef1b0e1cb5ebe1a60258ab71d99aca888376bb48528ffe774ad7323a806285}{FileSource::PhaseStyle::kVocode}});}
+\DoxyCodeLine{00260\ \ \ file\_source-\/>\mbox{\hyperlink{class_wavetable_component_a6311d3537ca55c3399a8dce144600bf0}{insertNewKeyframe}}(0);}
+\DoxyCodeLine{00261\ \ \ file\_source-\/>\mbox{\hyperlink{class_wavetable_component_a6311d3537ca55c3399a8dce144600bf0}{insertNewKeyframe}}(\mbox{\hyperlink{namespacevital_aa72aa67cd199ba84e12ec933d74ba400}{vital::kNumOscillatorWaveFrames}}\ -\/\ 1);}
+\DoxyCodeLine{00262\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_addd1babe9f8e4f58472684cde497c2da}{getKeyframe}}(0)-\/>\mbox{\hyperlink{class_file_source_1_1_file_source_keyframe_aedc8e911f98205df3d25bd34a6d70e5b}{setStartPosition}}(0);}
+\DoxyCodeLine{00263\ \ \ \textcolor{keywordtype}{int}\ samples\_needed\ =\ file\_source-\/>\mbox{\hyperlink{class_file_source_addd1babe9f8e4f58472684cde497c2da}{getKeyframe}}(1)-\/>\mbox{\hyperlink{class_file_source_1_1_file_source_keyframe_a638061ff8e2f2f8602729355fbc70dc4}{getSamplesNeeded}}();}
+\DoxyCodeLine{00264\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_addd1babe9f8e4f58472684cde497c2da}{getKeyframe}}(1)-\/>\mbox{\hyperlink{class_file_source_1_1_file_source_keyframe_aedc8e911f98205df3d25bd34a6d70e5b}{setStartPosition}}(num\_samples\ -\/\ samples\_needed);}
+\DoxyCodeLine{00265\ }
+\DoxyCodeLine{00266\ \ \ new\_group-\/>\mbox{\hyperlink{class_wavetable_group_a11dd5a36493efc5792d340495be1f9eb}{addComponent}}(file\_source);}
+\DoxyCodeLine{00267\ \ \ \mbox{\hyperlink{class_wavetable_creator_a6814c039fd1a39ffa2035e80045832ad}{addGroup}}(new\_group);}
+\DoxyCodeLine{00268\ \ \ \mbox{\hyperlink{class_wavetable_creator_ac26ffb7cc21ddb29fcb074f50b2b46e5}{render}}();}
+\DoxyCodeLine{00269\ \}}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00271\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_a6651b2e49c053f5bf216c026999cb03b}{WavetableCreator::initFromPitchedAudioFile}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{float}*\ audio\_buffer,\ \textcolor{keywordtype}{int}\ num\_samples,\ \textcolor{keywordtype}{int}\ sample\_rate)\ \{}
+\DoxyCodeLine{00272\ \ \ \textcolor{comment}{//\ Tries\ to\ detect\ a\ pitched\ period\ and\ map\ it\ across\ the\ wavetable\ frames.}}
+\DoxyCodeLine{00273\ \ \ \mbox{\hyperlink{class_wavetable_creator_a7f7a9e9f505bd0d59bf17f7c7acf2852}{clear}}();}
+\DoxyCodeLine{00274\ }
+\DoxyCodeLine{00275\ \ \ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}*\ new\_group\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}();}
+\DoxyCodeLine{00276\ \ \ \mbox{\hyperlink{class_file_source}{FileSource}}*\ file\_source\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_file_source}{FileSource}}();}
+\DoxyCodeLine{00277\ }
+\DoxyCodeLine{00278\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_a24ac438fb14a0c5fb87efc0e5b903a38}{loadBuffer}}(audio\_buffer,\ num\_samples,\ sample\_rate);}
+\DoxyCodeLine{00279\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_a501d5e3f806bd1646632198ea5dd447d}{detectPitch}}();}
+\DoxyCodeLine{00280\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_a9e523aec5c9952f4667c2065559dff49}{setFadeStyle}}(\mbox{\hyperlink{class_file_source_a591f45c07477e877e5c7af5d835f670ba6a32acdb7302dd33b9c5f9c4e353d077}{FileSource::FadeStyle::kWaveBlend}});}
+\DoxyCodeLine{00281\ \ \ file\_source-\/>\mbox{\hyperlink{class_wavetable_component_a6311d3537ca55c3399a8dce144600bf0}{insertNewKeyframe}}(0);}
+\DoxyCodeLine{00282\ \ \ file\_source-\/>\mbox{\hyperlink{class_wavetable_component_a6311d3537ca55c3399a8dce144600bf0}{insertNewKeyframe}}(\mbox{\hyperlink{namespacevital_aa72aa67cd199ba84e12ec933d74ba400}{vital::kNumOscillatorWaveFrames}}\ -\/\ 1);}
+\DoxyCodeLine{00283\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_addd1babe9f8e4f58472684cde497c2da}{getKeyframe}}(0)-\/>\mbox{\hyperlink{class_file_source_1_1_file_source_keyframe_aedc8e911f98205df3d25bd34a6d70e5b}{setStartPosition}}(0);}
+\DoxyCodeLine{00284\ \ \ \textcolor{keywordtype}{int}\ samples\_needed\ =\ file\_source-\/>\mbox{\hyperlink{class_file_source_addd1babe9f8e4f58472684cde497c2da}{getKeyframe}}(1)-\/>\mbox{\hyperlink{class_file_source_1_1_file_source_keyframe_a638061ff8e2f2f8602729355fbc70dc4}{getSamplesNeeded}}();}
+\DoxyCodeLine{00285\ \ \ file\_source-\/>\mbox{\hyperlink{class_file_source_addd1babe9f8e4f58472684cde497c2da}{getKeyframe}}(1)-\/>\mbox{\hyperlink{class_file_source_1_1_file_source_keyframe_aedc8e911f98205df3d25bd34a6d70e5b}{setStartPosition}}(num\_samples\ -\/\ samples\_needed);}
+\DoxyCodeLine{00286\ }
+\DoxyCodeLine{00287\ \ \ new\_group-\/>\mbox{\hyperlink{class_wavetable_group_a11dd5a36493efc5792d340495be1f9eb}{addComponent}}(file\_source);}
+\DoxyCodeLine{00288\ \ \ \mbox{\hyperlink{class_wavetable_creator_a6814c039fd1a39ffa2035e80045832ad}{addGroup}}(new\_group);}
+\DoxyCodeLine{00289\ \ \ \mbox{\hyperlink{class_wavetable_creator_ac26ffb7cc21ddb29fcb074f50b2b46e5}{render}}();}
+\DoxyCodeLine{00290\ \}}
+\DoxyCodeLine{00291\ }
+\DoxyCodeLine{00292\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_a0846414d788f00932e8f8c97379c56e5}{WavetableCreator::initFromLineGenerator}}(\mbox{\hyperlink{class_line_generator}{LineGenerator}}*\ line\_generator)\ \{}
+\DoxyCodeLine{00293\ \ \ \textcolor{comment}{//\ Loads\ a\ line-\/based\ wave\ definition\ from\ a\ LineGenerator.}}
+\DoxyCodeLine{00294\ \ \ \mbox{\hyperlink{class_wavetable_creator_a7f7a9e9f505bd0d59bf17f7c7acf2852}{clear}}();}
+\DoxyCodeLine{00295\ }
+\DoxyCodeLine{00296\ \ \ \mbox{\hyperlink{class_wavetable_creator_aba628794ccbfbf1cc02e0ba4b1831db2}{wavetable\_}}-\/>\mbox{\hyperlink{classvital_1_1_wavetable_a31ed42a87addeb2f35c97448f0453621}{setName}}(line\_generator-\/>\mbox{\hyperlink{class_line_generator_a5835b5d8f42bf0d71d6cfa8809bc1d08}{getName}}());}
+\DoxyCodeLine{00297\ \ \ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}*\ new\_group\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}();}
+\DoxyCodeLine{00298\ }
+\DoxyCodeLine{00299\ \ \ \mbox{\hyperlink{class_wave_line_source}{WaveLineSource}}*\ line\_source\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_wave_line_source}{WaveLineSource}}();}
+\DoxyCodeLine{00300\ \ \ line\_source-\/>\mbox{\hyperlink{class_wavetable_component_a6311d3537ca55c3399a8dce144600bf0}{insertNewKeyframe}}(0);}
+\DoxyCodeLine{00301\ \ \ \mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe}{WaveLineSource::WaveLineSourceKeyframe}}*\ keyframe\ =\ line\_source-\/>\mbox{\hyperlink{class_wave_line_source_a066b415c30d478e8bf90f2783f4ba1da}{getKeyframe}}(0);}
+\DoxyCodeLine{00302\ \ \ keyframe-\/>\mbox{\hyperlink{class_wave_line_source_1_1_wave_line_source_keyframe_a64d826f56d5bb88388e1a1f0d7609078}{getLineGenerator}}()-\/>\mbox{\hyperlink{class_line_generator_acaa5e05d5e1210bf3433fb9456895fed}{jsonToState}}(line\_generator-\/>\mbox{\hyperlink{class_line_generator_ad89103d3ef0b3f99dee5075f114decd2}{stateToJson}}());}
+\DoxyCodeLine{00303\ }
+\DoxyCodeLine{00304\ \ \ new\_group-\/>\mbox{\hyperlink{class_wavetable_group_a11dd5a36493efc5792d340495be1f9eb}{addComponent}}(line\_source);}
+\DoxyCodeLine{00305\ \ \ \mbox{\hyperlink{class_wavetable_creator_a6814c039fd1a39ffa2035e80045832ad}{addGroup}}(new\_group);}
+\DoxyCodeLine{00306\ \ \ \mbox{\hyperlink{class_wavetable_creator_ac26ffb7cc21ddb29fcb074f50b2b46e5}{render}}();}
+\DoxyCodeLine{00307\ \}}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00309\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_wavetable_creator_a40f8033fa48035eb4c160a1e60906429}{WavetableCreator::isValidJson}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00310\ \ \ \textcolor{comment}{//\ Checks\ if\ data\ matches\ either\ a\ LineGenerator\ or\ a\ full\ wavetable\ creator\ state.}}
+\DoxyCodeLine{00311\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_generator_a920cb1d666de445e22d0875bdeb7a107}{LineGenerator::isValidJson}}(data))}
+\DoxyCodeLine{00312\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00313\ }
+\DoxyCodeLine{00314\ \ \ \textcolor{keywordflow}{if}\ (!data.count(\textcolor{stringliteral}{"{}version"{}})\ ||\ !data.count(\textcolor{stringliteral}{"{}groups"{}})\ ||\ !data.count(\textcolor{stringliteral}{"{}name"{}}))}
+\DoxyCodeLine{00315\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00316\ }
+\DoxyCodeLine{00317\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ groups\_data\ =\ data[\textcolor{stringliteral}{"{}groups"{}}];}
+\DoxyCodeLine{00318\ \ \ \textcolor{keywordflow}{return}\ groups\_data.is\_array();}
+\DoxyCodeLine{00319\ \}}
+\DoxyCodeLine{00320\ }
+\DoxyCodeLine{00321\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_wavetable_creator_a34c636d7306f79407d85b0a77628d49a}{WavetableCreator::updateJson}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00322\ \ \ \textcolor{comment}{//\ Update\ older\ versioned\ states\ to\ newer\ formats,\ ensuring\ backward\ compatibility.}}
+\DoxyCodeLine{00323\ \ \ \textcolor{comment}{//\ Contains\ a\ series\ of\ conditional\ conversions\ based\ on\ version\ comparisons.}}
+\DoxyCodeLine{00324\ \ \ std::string\ version\ =\ \textcolor{stringliteral}{"{}0.0.0"{}};}
+\DoxyCodeLine{00325\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}version"{}}))\ \{}
+\DoxyCodeLine{00326\ \ \ \ \ std::string\ ver\ =\ data[\textcolor{stringliteral}{"{}version"{}}];}
+\DoxyCodeLine{00327\ \ \ \ \ version\ =\ ver;}
+\DoxyCodeLine{00328\ \ \ \}}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00330\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{LoadSave::compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.3.3"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00331\ \ \ \ \ \textcolor{comment}{//\ Convert\ old\ component\ type\ ints\ to\ strings}}
+\DoxyCodeLine{00332\ \ \ \ \ \textcolor{keyword}{const}\ std::string\ kOldOrder[]\ =\ \{}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Wave\ Source"{}},\ \textcolor{stringliteral}{"{}Line\ Source"{}},\ \textcolor{stringliteral}{"{}Audio\ File\ Source"{}},\ \textcolor{stringliteral}{"{}Phase\ Shift"{}},\ \textcolor{stringliteral}{"{}Wave\ Window"{}},}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Frequency\ Filter"{}},\ \textcolor{stringliteral}{"{}Slew\ Limiter"{}},\ \textcolor{stringliteral}{"{}Wave\ Folder"{}},\ \textcolor{stringliteral}{"{}Wave\ Warp"{}}}
+\DoxyCodeLine{00335\ \ \ \ \ \};}
+\DoxyCodeLine{00336\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_groups\ =\ data[\textcolor{stringliteral}{"{}groups"{}}];}
+\DoxyCodeLine{00337\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_groups;}
+\DoxyCodeLine{00338\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_group\ :\ json\_groups)\ \{}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_components\ =\ json\_group[\textcolor{stringliteral}{"{}components"{}}];}
+\DoxyCodeLine{00340\ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_components;}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_component\ :\ json\_components)\ \{}
+\DoxyCodeLine{00342\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ int\_type\ =\ json\_component[\textcolor{stringliteral}{"{}type"{}}];}
+\DoxyCodeLine{00343\ \ \ \ \ \ \ \ \ json\_component[\textcolor{stringliteral}{"{}type"{}}]\ =\ kOldOrder[int\_type];}
+\DoxyCodeLine{00344\ }
+\DoxyCodeLine{00345\ \ \ \ \ \ \ \ \ new\_components.push\_back(json\_component);}
+\DoxyCodeLine{00346\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00347\ \ \ \ \ \ \ json\_group[\textcolor{stringliteral}{"{}components"{}}]\ =\ new\_components;}
+\DoxyCodeLine{00348\ \ \ \ \ \ \ new\_groups.push\_back(json\_group);}
+\DoxyCodeLine{00349\ \ \ \ \ \}}
+\DoxyCodeLine{00350\ \ \ \ \ data[\textcolor{stringliteral}{"{}groups"{}}]\ =\ new\_groups;}
+\DoxyCodeLine{00351\ \ \ \}}
+\DoxyCodeLine{00352\ }
+\DoxyCodeLine{00353\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{LoadSave::compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.3.7"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00354\ \ \ \ \ \textcolor{comment}{//\ Convert\ PCM\ data\ to\ float\ buffers\ in\ components\ that\ use\ audio\_file\ fields.}}
+\DoxyCodeLine{00355\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_groups\ =\ data[\textcolor{stringliteral}{"{}groups"{}}];}
+\DoxyCodeLine{00356\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_groups;}
+\DoxyCodeLine{00357\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_group\ :\ json\_groups)\ \{}
+\DoxyCodeLine{00358\ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_components\ =\ json\_group[\textcolor{stringliteral}{"{}components"{}}];}
+\DoxyCodeLine{00359\ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_components;}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_component\ :\ json\_components)\ \{}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ \ \ std::string\ type\ =\ json\_component[\textcolor{stringliteral}{"{}type"{}}];}
+\DoxyCodeLine{00362\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (type\ ==\ \textcolor{stringliteral}{"{}Audio\ File\ Source"{}})}
+\DoxyCodeLine{00363\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_load_save_abf554633f1b6c0a69115bbe3d25060fc}{LoadSave::convertBufferToPcm}}(json\_component,\ \textcolor{stringliteral}{"{}audio\_file"{}});}
+\DoxyCodeLine{00364\ }
+\DoxyCodeLine{00365\ \ \ \ \ \ \ \ \ new\_components.push\_back(json\_component);}
+\DoxyCodeLine{00366\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00367\ }
+\DoxyCodeLine{00368\ \ \ \ \ \ \ json\_group[\textcolor{stringliteral}{"{}components"{}}]\ =\ new\_components;}
+\DoxyCodeLine{00369\ \ \ \ \ \ \ new\_groups.push\_back(json\_group);}
+\DoxyCodeLine{00370\ \ \ \ \ \}}
+\DoxyCodeLine{00371\ }
+\DoxyCodeLine{00372\ \ \ \ \ data[\textcolor{stringliteral}{"{}groups"{}}]\ =\ new\_groups;}
+\DoxyCodeLine{00373\ \ \ \}}
+\DoxyCodeLine{00374\ }
+\DoxyCodeLine{00375\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{LoadSave::compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.3.8"{}})\ <\ 0)}
+\DoxyCodeLine{00376\ \ \ \ \ data[\textcolor{stringliteral}{"{}remove\_all\_dc"{}}]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00377\ }
+\DoxyCodeLine{00378\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{LoadSave::compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.3.9"{}})\ <\ 0\ \&\&\ \mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{LoadSave::compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.3.7"{}})\ >=\ 0)\ \{}
+\DoxyCodeLine{00379\ \ \ \ \ \textcolor{comment}{//\ Convert\ PCM\ data\ to\ float\ data\ in\ wave\_data\ fields\ for\ certain\ components.}}
+\DoxyCodeLine{00380\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_groups\ =\ data[\textcolor{stringliteral}{"{}groups"{}}];}
+\DoxyCodeLine{00381\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_groups;}
+\DoxyCodeLine{00382\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_group\ :\ json\_groups)\ \{}
+\DoxyCodeLine{00383\ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_components\ =\ json\_group[\textcolor{stringliteral}{"{}components"{}}];}
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_components;}
+\DoxyCodeLine{00385\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_component\ :\ json\_components)\ \{}
+\DoxyCodeLine{00386\ \ \ \ \ \ \ \ \ std::string\ type\ =\ json\_component[\textcolor{stringliteral}{"{}type"{}}];}
+\DoxyCodeLine{00387\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (type\ ==\ \textcolor{stringliteral}{"{}Wave\ Source"{}}\ ||\ type\ ==\ \textcolor{stringliteral}{"{}Shepard\ Tone\ Source"{}})\ \{}
+\DoxyCodeLine{00388\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ old\_keyframes\ =\ json\_component[\textcolor{stringliteral}{"{}keyframes"{}}];}
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_keyframes;}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_keyframe\ :\ old\_keyframes)\ \{}
+\DoxyCodeLine{00391\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_load_save_a5b4487098cee706ce70c523814d0967d}{LoadSave::convertPcmToFloatBuffer}}(json\_keyframe,\ \textcolor{stringliteral}{"{}wave\_data"{}});}
+\DoxyCodeLine{00392\ \ \ \ \ \ \ \ \ \ \ \ \ new\_keyframes.push\_back(json\_keyframe);}
+\DoxyCodeLine{00393\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00394\ }
+\DoxyCodeLine{00395\ \ \ \ \ \ \ \ \ \ \ json\_component[\textcolor{stringliteral}{"{}keyframes"{}}]\ =\ new\_keyframes;}
+\DoxyCodeLine{00396\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00397\ }
+\DoxyCodeLine{00398\ \ \ \ \ \ \ \ \ new\_components.push\_back(json\_component);}
+\DoxyCodeLine{00399\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00400\ }
+\DoxyCodeLine{00401\ \ \ \ \ \ \ json\_group[\textcolor{stringliteral}{"{}components"{}}]\ =\ new\_components;}
+\DoxyCodeLine{00402\ \ \ \ \ \ \ new\_groups.push\_back(json\_group);}
+\DoxyCodeLine{00403\ \ \ \ \ \}}
+\DoxyCodeLine{00404\ }
+\DoxyCodeLine{00405\ \ \ \ \ data[\textcolor{stringliteral}{"{}groups"{}}]\ =\ new\_groups;}
+\DoxyCodeLine{00406\ \ \ \}}
+\DoxyCodeLine{00407\ }
+\DoxyCodeLine{00408\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{LoadSave::compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.4.7"{}})\ <\ 0)}
+\DoxyCodeLine{00409\ \ \ \ \ data[\textcolor{stringliteral}{"{}full\_normalize"{}}]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00410\ }
+\DoxyCodeLine{00411\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_save_ab18faf7914e8545e34b394083c5a36ae}{LoadSave::compareVersionStrings}}(version,\ \textcolor{stringliteral}{"{}0.7.7"{}})\ <\ 0)\ \{}
+\DoxyCodeLine{00412\ \ \ \ \ \textcolor{comment}{//\ Update\ old\ line\ source\ data\ to\ new\ line\ style\ including\ extra\ boundary\ points.}}
+\DoxyCodeLine{00413\ \ \ \ \ \mbox{\hyperlink{class_line_generator}{LineGenerator}}\ line\_converter;}
+\DoxyCodeLine{00414\ }
+\DoxyCodeLine{00415\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_groups\ =\ data[\textcolor{stringliteral}{"{}groups"{}}];}
+\DoxyCodeLine{00416\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_groups;}
+\DoxyCodeLine{00417\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_group\ :\ json\_groups)\ \{}
+\DoxyCodeLine{00418\ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_components\ =\ json\_group[\textcolor{stringliteral}{"{}components"{}}];}
+\DoxyCodeLine{00419\ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_components;}
+\DoxyCodeLine{00420\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_component\ :\ json\_components)\ \{}
+\DoxyCodeLine{00421\ \ \ \ \ \ \ \ \ std::string\ type\ =\ json\_component[\textcolor{stringliteral}{"{}type"{}}];}
+\DoxyCodeLine{00422\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (type\ ==\ \textcolor{stringliteral}{"{}Line\ Source"{}})\ \{}
+\DoxyCodeLine{00423\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ old\_keyframes\ =\ json\_component[\textcolor{stringliteral}{"{}keyframes"{}}];}
+\DoxyCodeLine{00424\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_points\ =\ json\_component[\textcolor{stringliteral}{"{}num\_points"{}}];}
+\DoxyCodeLine{00425\ \ \ \ \ \ \ \ \ \ \ json\_component[\textcolor{stringliteral}{"{}num\_points"{}}]\ =\ num\_points\ +\ 2;}
+\DoxyCodeLine{00426\ \ \ \ \ \ \ \ \ \ \ line\_converter.\mbox{\hyperlink{class_line_generator_acdb39dc84482a37f744bbf60dc1a9a87}{setNumPoints}}(num\_points\ +\ 2);}
+\DoxyCodeLine{00427\ }
+\DoxyCodeLine{00428\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ new\_keyframes;}
+\DoxyCodeLine{00429\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_keyframe\ :\ old\_keyframes)\ \{}
+\DoxyCodeLine{00430\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ point\_data\ =\ json\_keyframe[\textcolor{stringliteral}{"{}points"{}}];}
+\DoxyCodeLine{00431\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ power\_data\ =\ json\_keyframe[\textcolor{stringliteral}{"{}powers"{}}];}
+\DoxyCodeLine{00432\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_points;\ ++i)\ \{}
+\DoxyCodeLine{00433\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ x\ =\ point\_data[2\ *\ i];}
+\DoxyCodeLine{00434\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ point\_data[2\ *\ i\ +\ 1];}
+\DoxyCodeLine{00435\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ line\_converter.\mbox{\hyperlink{class_line_generator_a7b5ca1308544d3b4efd41f3dcf993f93}{setPoint}}(i\ +\ 1,\ \{\ x,\ y\ *\ 0.5f\ +\ 0.5f\ \});}
+\DoxyCodeLine{00436\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ line\_converter.\mbox{\hyperlink{class_line_generator_a6cb53b6d40e2f313dc0fe149b4d55e30}{setPower}}(i\ +\ 1,\ power\_data[i]);}
+\DoxyCodeLine{00437\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00438\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ start\_x\ =\ point\_data[0];}
+\DoxyCodeLine{00439\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ start\_y\ =\ point\_data[1];}
+\DoxyCodeLine{00440\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ end\_x\ =\ point\_data[2\ *\ (num\_points\ -\/\ 1)];}
+\DoxyCodeLine{00441\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ end\_y\ =\ point\_data[2\ *\ (num\_points\ -\/\ 1)\ +\ 1];}
+\DoxyCodeLine{00442\ }
+\DoxyCodeLine{00443\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ range\_x\ =\ start\_x\ -\/\ end\_x\ +\ 1.0f;}
+\DoxyCodeLine{00444\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ end\_y;}
+\DoxyCodeLine{00445\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (range\_x\ <\ 0.001f)}
+\DoxyCodeLine{00446\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ y\ =\ 0.5f\ *\ (start\_y\ +\ end\_y);}
+\DoxyCodeLine{00447\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00448\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ (1.0f\ -\/\ end\_x)\ /\ range\_x;}
+\DoxyCodeLine{00449\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ y\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(end\_y,\ start\_y,\ t);}
+\DoxyCodeLine{00450\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00451\ }
+\DoxyCodeLine{00452\ \ \ \ \ \ \ \ \ \ \ \ \ line\_converter.\mbox{\hyperlink{class_line_generator_a7b5ca1308544d3b4efd41f3dcf993f93}{setPoint}}(0,\ \{\ 0.0f,\ y\ *\ 0.5f\ +\ 0.5f\ \});}
+\DoxyCodeLine{00453\ \ \ \ \ \ \ \ \ \ \ \ \ line\_converter.\mbox{\hyperlink{class_line_generator_a7b5ca1308544d3b4efd41f3dcf993f93}{setPoint}}(num\_points\ +\ 1,\ \{\ 1.0f,\ y\ *\ 0.5f\ +\ 0.5f\ \});}
+\DoxyCodeLine{00454\ \ \ \ \ \ \ \ \ \ \ \ \ line\_converter.\mbox{\hyperlink{class_line_generator_a6cb53b6d40e2f313dc0fe149b4d55e30}{setPower}}(0,\ 0.0f);}
+\DoxyCodeLine{00455\ \ \ \ \ \ \ \ \ \ \ \ \ line\_converter.\mbox{\hyperlink{class_line_generator_a6cb53b6d40e2f313dc0fe149b4d55e30}{setPower}}(num\_points\ +\ 1,\ 0.0f);}
+\DoxyCodeLine{00456\ }
+\DoxyCodeLine{00457\ \ \ \ \ \ \ \ \ \ \ \ \ json\_keyframe[\textcolor{stringliteral}{"{}line"{}}]\ =\ line\_converter.\mbox{\hyperlink{class_line_generator_ad89103d3ef0b3f99dee5075f114decd2}{stateToJson}}();}
+\DoxyCodeLine{00458\ \ \ \ \ \ \ \ \ \ \ \ \ new\_keyframes.push\_back(json\_keyframe);}
+\DoxyCodeLine{00459\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00460\ }
+\DoxyCodeLine{00461\ \ \ \ \ \ \ \ \ \ \ json\_component[\textcolor{stringliteral}{"{}keyframes"{}}]\ =\ new\_keyframes;}
+\DoxyCodeLine{00462\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00463\ }
+\DoxyCodeLine{00464\ \ \ \ \ \ \ \ \ new\_components.push\_back(json\_component);}
+\DoxyCodeLine{00465\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00466\ }
+\DoxyCodeLine{00467\ \ \ \ \ \ \ json\_group[\textcolor{stringliteral}{"{}components"{}}]\ =\ new\_components;}
+\DoxyCodeLine{00468\ \ \ \ \ \ \ new\_groups.push\_back(json\_group);}
+\DoxyCodeLine{00469\ \ \ \ \ \}}
+\DoxyCodeLine{00470\ }
+\DoxyCodeLine{00471\ \ \ \ \ data[\textcolor{stringliteral}{"{}groups"{}}]\ =\ new\_groups;}
+\DoxyCodeLine{00472\ \ \ \}}
+\DoxyCodeLine{00473\ }
+\DoxyCodeLine{00474\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00475\ \}}
+\DoxyCodeLine{00476\ }
+\DoxyCodeLine{00477\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_wavetable_creator_a9735b94572c82cc9ca34f27f38e67e31}{WavetableCreator::stateToJson}}()\ \{}
+\DoxyCodeLine{00478\ \ \ \textcolor{comment}{//\ Serialize\ the\ current\ wavetable\ creator\ state,\ including\ all\ groups\ and\ parameters.}}
+\DoxyCodeLine{00479\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_groups;}
+\DoxyCodeLine{00480\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ group\ :\ \mbox{\hyperlink{class_wavetable_creator_ad0c630b3386ee7297a8cffb72530bffc}{groups\_}})}
+\DoxyCodeLine{00481\ \ \ \ \ json\_groups.push\_back(group-\/>stateToJson());}
+\DoxyCodeLine{00482\ }
+\DoxyCodeLine{00483\ \ \ \textcolor{keywordflow}{return}\ \{}
+\DoxyCodeLine{00484\ \ \ \ \ \{\ \textcolor{stringliteral}{"{}groups"{}},\ json\_groups\ \},}
+\DoxyCodeLine{00485\ \ \ \ \ \{\ \textcolor{stringliteral}{"{}name"{}},\ \mbox{\hyperlink{class_wavetable_creator_aba628794ccbfbf1cc02e0ba4b1831db2}{wavetable\_}}-\/>\mbox{\hyperlink{classvital_1_1_wavetable_a1da601f5e51be909446cc05a47a23a63}{getName}}()\ \},}
+\DoxyCodeLine{00486\ \ \ \ \ \{\ \textcolor{stringliteral}{"{}author"{}},\ \mbox{\hyperlink{class_wavetable_creator_aba628794ccbfbf1cc02e0ba4b1831db2}{wavetable\_}}-\/>\mbox{\hyperlink{classvital_1_1_wavetable_a0ee0b335b6366773db36b010dc42d8c7}{getAuthor}}()\ \},}
+\DoxyCodeLine{00487\ \ \ \ \ \{\ \textcolor{stringliteral}{"{}version"{}},\ ProjectInfo::versionString\ \},}
+\DoxyCodeLine{00488\ \ \ \ \ \{\ \textcolor{stringliteral}{"{}remove\_all\_dc"{}},\ \mbox{\hyperlink{class_wavetable_creator_aba391b8d98a78f4705ac6c75aab5d694}{remove\_all\_dc\_}}\ \},}
+\DoxyCodeLine{00489\ \ \ \ \ \{\ \textcolor{stringliteral}{"{}full\_normalize"{}},\ \mbox{\hyperlink{class_wavetable_creator_a0aed4cd06053127ee3b00db5d68953bd}{full\_normalize\_}}\ \},}
+\DoxyCodeLine{00490\ \ \ \};}
+\DoxyCodeLine{00491\ \}}
+\DoxyCodeLine{00492\ }
+\DoxyCodeLine{00493\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_creator_a97b511ce218af4b3667707ee1ae87daf}{WavetableCreator::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00494\ \ \ \textcolor{comment}{//\ If\ data\ matches\ a\ single\ LineGenerator,\ treat\ this\ as\ a\ line-\/based\ initialization.}}
+\DoxyCodeLine{00495\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_generator_a920cb1d666de445e22d0875bdeb7a107}{LineGenerator::isValidJson}}(data))\ \{}
+\DoxyCodeLine{00496\ \ \ \ \ \mbox{\hyperlink{class_line_generator}{LineGenerator}}\ generator(\mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}});}
+\DoxyCodeLine{00497\ \ \ \ \ generator.\mbox{\hyperlink{class_line_generator_acaa5e05d5e1210bf3433fb9456895fed}{jsonToState}}(data);}
+\DoxyCodeLine{00498\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_a0846414d788f00932e8f8c97379c56e5}{initFromLineGenerator}}(\&generator);}
+\DoxyCodeLine{00499\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00500\ \ \ \}}
+\DoxyCodeLine{00501\ }
+\DoxyCodeLine{00502\ \ \ \textcolor{comment}{//\ Otherwise,\ treat\ data\ as\ full\ wavetable\ creator\ state.}}
+\DoxyCodeLine{00503\ \ \ \mbox{\hyperlink{class_wavetable_creator_a7f7a9e9f505bd0d59bf17f7c7acf2852}{clear}}();}
+\DoxyCodeLine{00504\ \ \ data\ =\ \mbox{\hyperlink{class_wavetable_creator_a34c636d7306f79407d85b0a77628d49a}{updateJson}}(data);}
+\DoxyCodeLine{00505\ }
+\DoxyCodeLine{00506\ \ \ std::string\ name\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00507\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}name"{}}))}
+\DoxyCodeLine{00508\ \ \ \ \ name\ =\ data[\textcolor{stringliteral}{"{}name"{}}].get<std::string>();}
+\DoxyCodeLine{00509\ \ \ \mbox{\hyperlink{class_wavetable_creator_aba628794ccbfbf1cc02e0ba4b1831db2}{wavetable\_}}-\/>\mbox{\hyperlink{classvital_1_1_wavetable_a31ed42a87addeb2f35c97448f0453621}{setName}}(name);}
+\DoxyCodeLine{00510\ }
+\DoxyCodeLine{00511\ \ \ std::string\ author\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00512\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}author"{}}))}
+\DoxyCodeLine{00513\ \ \ \ \ author\ =\ data[\textcolor{stringliteral}{"{}author"{}}].get<std::string>();}
+\DoxyCodeLine{00514\ \ \ \mbox{\hyperlink{class_wavetable_creator_aba628794ccbfbf1cc02e0ba4b1831db2}{wavetable\_}}-\/>\mbox{\hyperlink{classvital_1_1_wavetable_a38d9c63f45ef7e47b31dbfdc6094d3a8}{setAuthor}}(author);}
+\DoxyCodeLine{00515\ }
+\DoxyCodeLine{00516\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}remove\_all\_dc"{}}))}
+\DoxyCodeLine{00517\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_aba391b8d98a78f4705ac6c75aab5d694}{remove\_all\_dc\_}}\ =\ data[\textcolor{stringliteral}{"{}remove\_all\_dc"{}}];}
+\DoxyCodeLine{00518\ \ \ \textcolor{keywordflow}{if}\ (data.count(\textcolor{stringliteral}{"{}full\_normalize"{}}))}
+\DoxyCodeLine{00519\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_a0aed4cd06053127ee3b00db5d68953bd}{full\_normalize\_}}\ =\ data[\textcolor{stringliteral}{"{}full\_normalize"{}}];}
+\DoxyCodeLine{00520\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00521\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_a0aed4cd06053127ee3b00db5d68953bd}{full\_normalize\_}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00522\ }
+\DoxyCodeLine{00523\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_groups\ =\ data[\textcolor{stringliteral}{"{}groups"{}}];}
+\DoxyCodeLine{00524\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\&\ json\_group\ :\ json\_groups)\ \{}
+\DoxyCodeLine{00525\ \ \ \ \ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}*\ new\_group\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_wavetable_group}{WavetableGroup}}();}
+\DoxyCodeLine{00526\ \ \ \ \ new\_group-\/>\mbox{\hyperlink{class_wavetable_group_a0bf54c17593eba9def0860b740360716}{jsonToState}}(json\_group);}
+\DoxyCodeLine{00527\ \ \ \ \ \mbox{\hyperlink{class_wavetable_creator_a6814c039fd1a39ffa2035e80045832ad}{addGroup}}(new\_group);}
+\DoxyCodeLine{00528\ \ \ \}}
+\DoxyCodeLine{00529\ }
+\DoxyCodeLine{00530\ \ \ \mbox{\hyperlink{class_wavetable_creator_ac26ffb7cc21ddb29fcb074f50b2b46e5}{render}}();}
+\DoxyCodeLine{00531\ \}}
+
+\end{DoxyCode}

@@ -1,0 +1,129 @@
+\doxysection{phase\+\_\+modifier.\+cpp}
+\hypertarget{phase__modifier_8cpp_source}{}\label{phase__modifier_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/phase\_modifier.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/phase\_modifier.cpp}}
+\mbox{\hyperlink{phase__modifier_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{PhaseModifier\ manipulates\ the\ phase\ relationships\ among\ a\ wavetable’s\ harmonic\ components\ to\ achieve\ various\ timbral\ effects.\ By\ selecting\ a\ PhaseStyle\ and\ controlling\ parameters\ like\ phase\ offset\ and\ mix,\ it\ can\ produce\ harmonic\ shifts,\ alternate\ even/odd\ phase\ patterns,\ or\ clear\ all\ phase\ differences.\ Interpolating\ between\ keyframes\ allows\ for\ dynamic\ phase\ evolutions\ across\ the\ wavetable’s\ dimension.}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{phase__modifier_8h}{phase\_modifier.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__frame_8h}{wave\_frame.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable__component__factory_8h}{wavetable\_component\_factory.h}}"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00019\ \ \ std::complex<float>\ multiplyAndMix(std::complex<float>\ value,\ std::complex<float>\ mult,\ \textcolor{keywordtype}{float}\ mix)\ \{}
+\DoxyCodeLine{00020\ \ \ \ \ std::complex<float>\ result\ =\ value\ *\ mult;}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keywordflow}{return}\ mix\ *\ result\ +\ (1.0f\ -\/\ mix)\ *\ value;}
+\DoxyCodeLine{00022\ \ \ \}}
+\DoxyCodeLine{00023\ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_a653e4687d7e4b5cb117a6d31d442c5bf}{PhaseModifier::PhaseModifierKeyframe::PhaseModifierKeyframe}}()\ :\ phase\_(0.0f),\ mix\_(1.0f),\ phase\_style\_(kNormal)\ \{\ \}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_a5dd9507a464829c188d260bb69bdb63c}{PhaseModifier::PhaseModifierKeyframe::copy}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00028\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe}{PhaseModifierKeyframe}}*\ source\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe}{PhaseModifierKeyframe}}*\textcolor{keyword}{>}(keyframe);}
+\DoxyCodeLine{00029\ \ \ phase\_\ =\ source-\/>\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_af6baffd9918d31a675a43e01df7e7776}{phase\_}};}
+\DoxyCodeLine{00030\ \ \ mix\_\ =\ source-\/>\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_af6c9a9644b47445aa9d99adad2afe54e}{mix\_}};}
+\DoxyCodeLine{00031\ \}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_ab3cbaa9ecadef6f437451de4db62c043}{PhaseModifier::PhaseModifierKeyframe::interpolate}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ from\_keyframe,}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ to\_keyframe,}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t)\ \{}
+\DoxyCodeLine{00036\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe}{PhaseModifierKeyframe}}*\ from\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe}{PhaseModifierKeyframe}}*\textcolor{keyword}{>}(from\_keyframe);}
+\DoxyCodeLine{00037\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe}{PhaseModifierKeyframe}}*\ to\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe}{PhaseModifierKeyframe}}*\textcolor{keyword}{>}(to\_keyframe);}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ phase\_\ =\ linearTween(from-\/>\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_af6baffd9918d31a675a43e01df7e7776}{phase\_}},\ to-\/>\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_af6baffd9918d31a675a43e01df7e7776}{phase\_}},\ t);}
+\DoxyCodeLine{00040\ \ \ mix\_\ =\ linearTween(from-\/>\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_af6c9a9644b47445aa9d99adad2afe54e}{mix\_}},\ to-\/>\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_af6c9a9644b47445aa9d99adad2afe54e}{mix\_}},\ t);}
+\DoxyCodeLine{00041\ \}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_af3850f8d08ffd758b5e412c5c379a3ac}{PhaseModifier::PhaseModifierKeyframe::render}}(\mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ wave\_frame)\ \{}
+\DoxyCodeLine{00044\ \ \ \textcolor{comment}{//\ Depending\ on\ phase\_style\_,\ apply\ different\ phase\ transformations\ to\ the\ frequency\ domain.}}
+\DoxyCodeLine{00045\ \ \ std::complex<float>\ phase\_shift\ =\ std::polar(1.0f,\ -\/phase\_);}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_phase_modifier_a192b36bd4add4fda6d257b4eb61cca56}{phase\_style\_}}\ ==\ \mbox{\hyperlink{class_phase_modifier_ad067e113c3803bf8ba0eddb9316d0e91af1410abce5429b7bf6818e77c7273198}{kHarmonic}})\ \{}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{comment}{//\ Uniform\ phase\ shift\ to\ all\ harmonics.}}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};\ ++i)}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]\ =\ multiplyAndMix(wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i],\ phase\_shift,\ mix\_);}
+\DoxyCodeLine{00051\ \ \ \}}
+\DoxyCodeLine{00052\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_phase_modifier_a192b36bd4add4fda6d257b4eb61cca56}{phase\_style\_}}\ ==\ \mbox{\hyperlink{class_phase_modifier_ad067e113c3803bf8ba0eddb9316d0e91a4437aa620ecbf5f6e77d7844e3a32b83}{kHarmonicEvenOdd}})\ \{}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{comment}{//\ Even\ and\ odd\ harmonics\ get\ different\ phase\ shifts.}}
+\DoxyCodeLine{00054\ \ \ \ \ std::complex<float>\ odd\_shift\ =\ 1.0f\ /\ phase\_shift;}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};\ i\ +=\ 2)\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]\ =\ multiplyAndMix(wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i],\ phase\_shift,\ mix\_);}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i\ +\ 1]\ =\ multiplyAndMix(wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i\ +\ 1],\ odd\_shift,\ mix\_);}
+\DoxyCodeLine{00058\ \ \ \ \ \}}
+\DoxyCodeLine{00059\ \ \ \}}
+\DoxyCodeLine{00060\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_phase_modifier_a192b36bd4add4fda6d257b4eb61cca56}{phase\_style\_}}\ ==\ \mbox{\hyperlink{class_phase_modifier_ad067e113c3803bf8ba0eddb9316d0e91a77f26d6ce2437da7972c5aba352cdaa7}{kNormal}})\ \{}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{comment}{//\ Iteratively\ rotate\ phases\ through\ the\ harmonic\ series.}}
+\DoxyCodeLine{00062\ \ \ \ \ std::complex<float>\ current\_phase\_shift\ =\ 1.0f;}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};\ ++i)\ \{}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]\ =\ multiplyAndMix(wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i],\ current\_phase\_shift,\ mix\_);}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ current\_phase\_shift\ *=\ phase\_shift;}
+\DoxyCodeLine{00067\ \ \ \ \ \}}
+\DoxyCodeLine{00068\ \ \ \}}
+\DoxyCodeLine{00069\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_phase_modifier_a192b36bd4add4fda6d257b4eb61cca56}{phase\_style\_}}\ ==\ \mbox{\hyperlink{class_phase_modifier_ad067e113c3803bf8ba0eddb9316d0e91a939ba9bc4d2e943d9d2aab5a2e35b1a7}{kEvenOdd}})\ \{}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{comment}{//\ Assign\ different\ phase\ shifts\ for\ even\ and\ odd\ harmonics\ based\ on\ successive\ multiplications.}}
+\DoxyCodeLine{00071\ \ \ \ \ std::complex<float>\ current\_phase\_shift\ =\ 1.0f;}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};\ i\ +=\ 2)\ \{}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]\ =\ multiplyAndMix(wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i],\ current\_phase\_shift,\ mix\_);}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ std::complex<float>\ odd\_shift\ =\ 1.0f\ /\ (current\_phase\_shift\ *\ phase\_shift);}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i\ +\ 1]\ =\ multiplyAndMix(wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i\ +\ 1],\ odd\_shift,\ mix\_);}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ current\_phase\_shift\ *=\ phase\_shift\ *\ phase\_shift;}
+\DoxyCodeLine{00078\ \ \ \ \ \}}
+\DoxyCodeLine{00079\ \ \ \}}
+\DoxyCodeLine{00080\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_phase_modifier_a192b36bd4add4fda6d257b4eb61cca56}{phase\_style\_}}\ ==\ \mbox{\hyperlink{class_phase_modifier_ad067e113c3803bf8ba0eddb9316d0e91a26aaf7e1ef48bd951e0899a9bf82b5e1}{kClear}})\ \{}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{comment}{//\ Remove\ phase\ differences,\ leaving\ only\ magnitude.}}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};\ ++i)}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]\ =\ std::abs(wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]);}
+\DoxyCodeLine{00084\ \ \ \}}
+\DoxyCodeLine{00085\ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_ab5daac5c0f9262624ec0ffd913585432}{toTimeDomain}}();}
+\DoxyCodeLine{00086\ \}}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_a8072d440277d9ebdf4d2deec021ced82}{PhaseModifier::PhaseModifierKeyframe::stateToJson}}()\ \{}
+\DoxyCodeLine{00089\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_wavetable_keyframe_ab12d53e98f7188d011cd3c69e86d2bda}{WavetableKeyframe::stateToJson}}();}
+\DoxyCodeLine{00090\ \ \ data[\textcolor{stringliteral}{"{}phase"{}}]\ =\ phase\_;}
+\DoxyCodeLine{00091\ \ \ data[\textcolor{stringliteral}{"{}mix"{}}]\ =\ mix\_;}
+\DoxyCodeLine{00092\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00093\ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_a46a8c57bcc5f634e580477f853ad08d2}{PhaseModifier::PhaseModifierKeyframe::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00096\ \ \ \mbox{\hyperlink{class_wavetable_keyframe_ad0e81b3bdc5fe9a3d901dec69d9b7b5b}{WavetableKeyframe::jsonToState}}(data);}
+\DoxyCodeLine{00097\ \ \ phase\_\ =\ data[\textcolor{stringliteral}{"{}phase"{}}];}
+\DoxyCodeLine{00098\ \ \ mix\_\ =\ data[\textcolor{stringliteral}{"{}mix"{}}];}
+\DoxyCodeLine{00099\ \}}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ \mbox{\hyperlink{class_phase_modifier_a312b34ea59582df52363796420bce31c}{PhaseModifier::createKeyframe}}(\textcolor{keywordtype}{int}\ position)\ \{}
+\DoxyCodeLine{00102\ \ \ \mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe}{PhaseModifierKeyframe}}*\ keyframe\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe}{PhaseModifierKeyframe}}();}
+\DoxyCodeLine{00103\ \ \ \mbox{\hyperlink{class_wavetable_component_a59b735ee67cc2281379418304de76b6d}{interpolate}}(keyframe,\ position);}
+\DoxyCodeLine{00104\ \ \ \textcolor{keywordflow}{return}\ keyframe;}
+\DoxyCodeLine{00105\ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_modifier_a8eacacb4c67eecb30555e4e2ad349642}{PhaseModifier::render}}(\mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ wave\_frame,\ \textcolor{keywordtype}{float}\ position)\ \{}
+\DoxyCodeLine{00108\ \ \ \mbox{\hyperlink{class_phase_modifier_a73fb7eda05116203b72c2ced410e4381}{compute\_frame\_}}.\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_ab84c9bf83b2228fe6b5310f359b62277}{setPhaseStyle}}(\mbox{\hyperlink{class_phase_modifier_a192b36bd4add4fda6d257b4eb61cca56}{phase\_style\_}});}
+\DoxyCodeLine{00109\ \ \ \mbox{\hyperlink{class_wavetable_component_a59b735ee67cc2281379418304de76b6d}{interpolate}}(\&\mbox{\hyperlink{class_phase_modifier_a73fb7eda05116203b72c2ced410e4381}{compute\_frame\_}},\ position);}
+\DoxyCodeLine{00110\ \ \ \mbox{\hyperlink{class_phase_modifier_a73fb7eda05116203b72c2ced410e4381}{compute\_frame\_}}.\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_af3850f8d08ffd758b5e412c5c379a3ac}{render}}(wave\_frame);}
+\DoxyCodeLine{00111\ \}}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bd}{WavetableComponentFactory::ComponentType}}\ \mbox{\hyperlink{class_phase_modifier_a4766bddbabcbf28b0283b69d96f37cec}{PhaseModifier::getType}}()\ \{}
+\DoxyCodeLine{00114\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bda66661e876a28683bfb79fcbd3a698438}{WavetableComponentFactory::kPhaseModifier}};}
+\DoxyCodeLine{00115\ \}}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_phase_modifier_aa5a17c7f0d24001c4eefa71a06dc6b5a}{PhaseModifier::stateToJson}}()\ \{}
+\DoxyCodeLine{00118\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_wavetable_component_a1c7bd3ba09cf3093d5aea225ee876b02}{WavetableComponent::stateToJson}}();}
+\DoxyCodeLine{00119\ \ \ data[\textcolor{stringliteral}{"{}style"{}}]\ =\ \mbox{\hyperlink{class_phase_modifier_a192b36bd4add4fda6d257b4eb61cca56}{phase\_style\_}};}
+\DoxyCodeLine{00120\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00121\ \}}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_modifier_ad40ab8f623fb9aab93d1fb222e25b7e5}{PhaseModifier::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00124\ \ \ \mbox{\hyperlink{class_wavetable_component_a656616fbc4a9d37b7e76c4179f496196}{WavetableComponent::jsonToState}}(data);}
+\DoxyCodeLine{00125\ \ \ \mbox{\hyperlink{class_phase_modifier_a192b36bd4add4fda6d257b4eb61cca56}{phase\_style\_}}\ =\ data[\textcolor{stringliteral}{"{}style"{}}];}
+\DoxyCodeLine{00126\ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe}{PhaseModifier::PhaseModifierKeyframe}}*\ \mbox{\hyperlink{class_phase_modifier_a71504c79672f2eb0cd99dcbcd8ba5c11}{PhaseModifier::getKeyframe}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00129\ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ wavetable\_keyframe\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[index].get();}
+\DoxyCodeLine{00130\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe}{PhaseModifier::PhaseModifierKeyframe}}*\textcolor{keyword}{>}(wavetable\_keyframe);}
+\DoxyCodeLine{00131\ \}}
+
+\end{DoxyCode}

@@ -1,0 +1,181 @@
+\doxysection{phase\+\_\+modifier\+\_\+overlay.\+cpp}
+\hypertarget{phase__modifier__overlay_8cpp_source}{}\label{phase__modifier__overlay_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/overlays/phase\_modifier\_overlay.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/overlays/phase\_modifier\_overlay.cpp}}
+\mbox{\hyperlink{phase__modifier__overlay_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{phase__modifier__overlay_8h}{phase\_modifier\_overlay.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__frame_8h}{wave\_frame.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__look__and__feel_8h}{text\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00008\ \ \ \textcolor{comment}{//\ Lookup\ names\ for\ different\ phase\ styles.}}
+\DoxyCodeLine{00009\ \ \ \textcolor{keyword}{const}\ std::string\ phase\_style\_lookup[\mbox{\hyperlink{class_phase_modifier_ad067e113c3803bf8ba0eddb9316d0e91a3845fd47bb35e636d7116917b541a429}{PhaseModifier::kNumPhaseStyles}}]\ =\ \{}
+\DoxyCodeLine{00010\ \ \ \ \ \textcolor{stringliteral}{"{}Normal"{}},}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{stringliteral}{"{}+Even/-\/Odd"{}},}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{stringliteral}{"{}Harmonic"{}},}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{stringliteral}{"{}Harm\ +Even/-\/Odd"{}},}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{stringliteral}{"{}Clear"{}}}
+\DoxyCodeLine{00015\ \ \ \};}
+\DoxyCodeLine{00016\ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \mbox{\hyperlink{class_phase_modifier_overlay_afd309d9e7587f24d7726dcf97d15ff78}{PhaseModifierOverlay::PhaseModifierOverlay}}()\ :\ \mbox{\hyperlink{class_wavetable_component_overlay}{WavetableComponentOverlay}}(\textcolor{stringliteral}{"{}PHASE\ SHIFTER"{}}),\ phase\_modifier\_(nullptr)\ \{}
+\DoxyCodeLine{00019\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a6f407f4b7407533d01f43a899c2dbef5}{current\_frame\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \textcolor{comment}{//\ Create\ and\ set\ up\ editors\ and\ controls.}}
+\DoxyCodeLine{00022\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_ad354eb75b7292795c550d7b081b4ba82}{editor\_}}\ =\ std::make\_unique<PhaseEditor>();}
+\DoxyCodeLine{00023\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\mbox{\hyperlink{class_phase_modifier_overlay_ad354eb75b7292795c550d7b081b4ba82}{editor\_}}.get());}
+\DoxyCodeLine{00024\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_ad354eb75b7292795c550d7b081b4ba82}{editor\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00025\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_ad354eb75b7292795c550d7b081b4ba82}{editor\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_af3ef78193aa98281bd69463e6f5471b5}{slider\_}}\ =\ std::make\_unique<PhaseEditor>();}
+\DoxyCodeLine{00028\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\mbox{\hyperlink{class_phase_modifier_overlay_af3ef78193aa98281bd69463e6f5471b5}{slider\_}}.get());}
+\DoxyCodeLine{00029\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_af3ef78193aa98281bd69463e6f5471b5}{slider\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00030\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_af3ef78193aa98281bd69463e6f5471b5}{slider\_}}-\/>setMaxTickHeight(1.0f);}
+\DoxyCodeLine{00031\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_af3ef78193aa98281bd69463e6f5471b5}{slider\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a88115c15fdfc2cdee7ece44ac58ac5ac}{phase\_text\_}}\ =\ std::make\_unique<TextEditor>();}
+\DoxyCodeLine{00034\ \ \ addChildComponent(\mbox{\hyperlink{class_phase_modifier_overlay_a88115c15fdfc2cdee7ece44ac58ac5ac}{phase\_text\_}}.get());}
+\DoxyCodeLine{00035\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a88115c15fdfc2cdee7ece44ac58ac5ac}{phase\_text\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00036\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a88115c15fdfc2cdee7ece44ac58ac5ac}{phase\_text\_}}-\/>setSelectAllWhenFocused(\textcolor{keyword}{true});}
+\DoxyCodeLine{00037\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a88115c15fdfc2cdee7ece44ac58ac5ac}{phase\_text\_}}-\/>setMouseClickGrabsKeyboardFocus(\textcolor{keyword}{true});}
+\DoxyCodeLine{00038\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a88115c15fdfc2cdee7ece44ac58ac5ac}{phase\_text\_}}-\/>setText(\textcolor{stringliteral}{"{}0"{}});}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}\ =\ std::make\_unique<TextSelector>(\textcolor{stringliteral}{"{}Harmonic\ Phase"{}});}
+\DoxyCodeLine{00041\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}.get());}
+\DoxyCodeLine{00042\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00043\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00044\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00045\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00046\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}-\/>setRange(0,\ \mbox{\hyperlink{class_phase_modifier_ad067e113c3803bf8ba0eddb9316d0e91a3845fd47bb35e636d7116917b541a429}{PhaseModifier::kNumPhaseStyles}}\ -\/\ 1);}
+\DoxyCodeLine{00047\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}-\/>setLongStringLookup(phase\_style\_lookup);}
+\DoxyCodeLine{00048\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}-\/>setStringLookup(phase\_style\_lookup);}
+\DoxyCodeLine{00049\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a46ce03bb80aa484cb94c815d53c1f398}{mix\_}}\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}Phase\ Mix"{}});}
+\DoxyCodeLine{00052\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_phase_modifier_overlay_a46ce03bb80aa484cb94c815d53c1f398}{mix\_}}.get());}
+\DoxyCodeLine{00053\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a46ce03bb80aa484cb94c815d53c1f398}{mix\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00054\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a46ce03bb80aa484cb94c815d53c1f398}{mix\_}}-\/>getQuadComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00055\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a46ce03bb80aa484cb94c815d53c1f398}{mix\_}}-\/>setRange(0.0,\ 1.0);}
+\DoxyCodeLine{00056\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a46ce03bb80aa484cb94c815d53c1f398}{mix\_}}-\/>setDoubleClickReturnValue(\textcolor{keyword}{true},\ 1.0);}
+\DoxyCodeLine{00057\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a46ce03bb80aa484cb94c815d53c1f398}{mix\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00058\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a46ce03bb80aa484cb94c815d53c1f398}{mix\_}}-\/>setSliderStyle(Slider::LinearBar);}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_aa2fc0516ff532630f3bfcf5910e453b1}{clearTitles}}();}
+\DoxyCodeLine{00061\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}STYLE"{}});}
+\DoxyCodeLine{00062\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00063\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}MIX"{}});}
+\DoxyCodeLine{00064\ \}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_modifier_overlay_a3ac1db082413517cdca664dda623a5b6}{PhaseModifierOverlay::frameSelected}}(\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00067\ \ \ \textcolor{keywordflow}{if}\ (keyframe\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00068\ \ \ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_ad354eb75b7292795c550d7b081b4ba82}{editor\_}}-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00069\ \ \ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a6f407f4b7407533d01f43a899c2dbef5}{current\_frame\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00070\ \ \ \}}
+\DoxyCodeLine{00071\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a568088f16dde91e6f8ae8d0f3fa5b755}{owner}}()\ ==\ \mbox{\hyperlink{class_phase_modifier_overlay_a1a02eb3d816f8d3b822e8bfb45ba0690}{phase\_modifier\_}})\ \{}
+\DoxyCodeLine{00072\ \ \ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_ad354eb75b7292795c550d7b081b4ba82}{editor\_}}-\/>setVisible(\textcolor{keyword}{true});}
+\DoxyCodeLine{00073\ \ \ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a6f407f4b7407533d01f43a899c2dbef5}{current\_frame\_}}\ =\ \mbox{\hyperlink{class_phase_modifier_overlay_a1a02eb3d816f8d3b822e8bfb45ba0690}{phase\_modifier\_}}-\/>\mbox{\hyperlink{class_phase_modifier_a71504c79672f2eb0cd99dcbcd8ba5c11}{getKeyframe}}(keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a1faf74be7dd4b7f3f4ea0e83fa75ce8d}{index}}());}
+\DoxyCodeLine{00074\ \ \ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_ad354eb75b7292795c550d7b081b4ba82}{editor\_}}-\/>\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_aa8ff4ab1871bd9d0eac6ab84e59b3b68}{setPhase}}(\mbox{\hyperlink{class_phase_modifier_overlay_a6f407f4b7407533d01f43a899c2dbef5}{current\_frame\_}}-\/>\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_a254bcf8c051369ab0725ce598aab3428}{getPhase}}());}
+\DoxyCodeLine{00075\ \ \ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_af3ef78193aa98281bd69463e6f5471b5}{slider\_}}-\/>setPhase(\mbox{\hyperlink{class_phase_modifier_overlay_a6f407f4b7407533d01f43a899c2dbef5}{current\_frame\_}}-\/>\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_a254bcf8c051369ab0725ce598aab3428}{getPhase}}());}
+\DoxyCodeLine{00076\ \ \ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a46ce03bb80aa484cb94c815d53c1f398}{mix\_}}-\/>setValue(\mbox{\hyperlink{class_phase_modifier_overlay_a6f407f4b7407533d01f43a899c2dbef5}{current\_frame\_}}-\/>\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_a0514236546e816c80b0fb8c01b2de11d}{getMix}}(),\ dontSendNotification);}
+\DoxyCodeLine{00077\ \ \ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a46ce03bb80aa484cb94c815d53c1f398}{mix\_}}-\/>redoImage();}
+\DoxyCodeLine{00078\ \ \ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}-\/>setValue(\mbox{\hyperlink{class_phase_modifier_overlay_a1a02eb3d816f8d3b822e8bfb45ba0690}{phase\_modifier\_}}-\/>\mbox{\hyperlink{class_phase_modifier_a6a555cc70404078693a785c4f365132f}{getPhaseStyle}}());}
+\DoxyCodeLine{00079\ \ \ \}}
+\DoxyCodeLine{00080\ \}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_modifier_overlay_af12016c23f689e77208554cff2010eca}{PhaseModifierOverlay::setEditBounds}}(Rectangle<int>\ bounds)\ \{}
+\DoxyCodeLine{00083\ \ \ \textcolor{comment}{//\ Arrange\ controls\ horizontally:}}
+\DoxyCodeLine{00084\ \ \ \textcolor{comment}{//\ [STYLE][PHASE\ EDITORS][MIX\ SLIDER]}}
+\DoxyCodeLine{00085\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kPhaseStyleWidthHeightRatio\ =\ 4.0f;}
+\DoxyCodeLine{00086\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kPhaseWidthHeightRatio\ =\ 8.0f;}
+\DoxyCodeLine{00087\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMixWidthHeightRatio\ =\ 5.0f;}
+\DoxyCodeLine{00088\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMixPaddingRatio\ =\ 0.5f;}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \textcolor{keywordtype}{int}\ padding\ =\ \mbox{\hyperlink{class_wavetable_component_overlay_a6247819afe1ddce8d34ad500917e3460}{getPadding}}();}
+\DoxyCodeLine{00091\ \ \ \textcolor{keywordtype}{int}\ phase\_style\_width\ =\ bounds.getHeight()\ *\ kPhaseStyleWidthHeightRatio;}
+\DoxyCodeLine{00092\ \ \ \textcolor{keywordtype}{int}\ phase\_width\ =\ bounds.getHeight()\ *\ kPhaseWidthHeightRatio;}
+\DoxyCodeLine{00093\ \ \ \textcolor{keywordtype}{int}\ mix\_width\ =\ bounds.getHeight()\ *\ kMixWidthHeightRatio;}
+\DoxyCodeLine{00094\ \ \ \textcolor{keywordtype}{int}\ mix\_padding\ =\ bounds.getHeight()\ *\ kMixPaddingRatio;}
+\DoxyCodeLine{00095\ \ \ \textcolor{keywordtype}{int}\ total\_width\ =\ phase\_style\_width\ +\ phase\_width\ +\ mix\_width\ +\ 2\ *\ padding;}
+\DoxyCodeLine{00096\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a16ea421b63ea56ec8a453dde9b45c7a7}{setControlsWidth}}(total\_width);}
+\DoxyCodeLine{00097\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2b9025728b8627dae45261e3d72814db}{WavetableComponentOverlay::setEditBounds}}(bounds);}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \textcolor{keywordtype}{int}\ x\ =\ bounds.getX()\ +\ (bounds.getWidth()\ -\/\ total\_width)\ /\ 2;}
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordtype}{int}\ title\_height\ =\ \mbox{\hyperlink{class_wavetable_component_overlay_a54c6e22bd9b774c88c6246d849ce8c56}{WavetableComponentOverlay::kTitleHeightRatio}}\ *\ bounds.getHeight();}
+\DoxyCodeLine{00101\ \ \ \textcolor{keywordtype}{int}\ y\ =\ bounds.getY();}
+\DoxyCodeLine{00102\ \ \ \textcolor{keywordtype}{int}\ y\_title\ =\ y\ +\ title\_height;}
+\DoxyCodeLine{00103\ \ \ \textcolor{keywordtype}{int}\ height\ =\ bounds.getHeight();}
+\DoxyCodeLine{00104\ \ \ \textcolor{keywordtype}{int}\ height\_title\ =\ height\ -\/\ title\_height;}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}-\/>setTextHeightPercentage(0.4f);}
+\DoxyCodeLine{00107\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}-\/>setBounds(x,\ y\_title,\ phase\_style\_width,\ height\_title);}
+\DoxyCodeLine{00108\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_af3ef78193aa98281bd69463e6f5471b5}{slider\_}}-\/>setBounds(\mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}-\/>getRight()\ +\ padding,\ y,\ phase\_width,\ height);}
+\DoxyCodeLine{00109\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a46ce03bb80aa484cb94c815d53c1f398}{mix\_}}-\/>setBounds(\mbox{\hyperlink{class_phase_modifier_overlay_af3ef78193aa98281bd69463e6f5471b5}{slider\_}}-\/>getRight()\ +\ padding\ +\ mix\_padding,\ y\_title,\ mix\_width\ -\/\ 2\ *\ mix\_padding,\ height\_title);}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}-\/>redoImage();}
+\DoxyCodeLine{00112\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a46ce03bb80aa484cb94c815d53c1f398}{mix\_}}-\/>redoImage();}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_af5926c7c594c424bc5f4e62574e85c39}{clearLines}}();}
+\DoxyCodeLine{00115\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(phase\_style\_width);}
+\DoxyCodeLine{00116\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(phase\_style\_width\ +\ phase\_width\ +\ padding);}
+\DoxyCodeLine{00117\ \}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_phase_modifier_overlay_a6cf69f2c6c5672be9d76bbaf148a7552}{PhaseModifierOverlay::setTimeDomainBounds}}(Rectangle<int>\ bounds)\ \{}
+\DoxyCodeLine{00120\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_ad354eb75b7292795c550d7b081b4ba82}{editor\_}}-\/>setBounds(bounds);}
+\DoxyCodeLine{00121\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_ad354eb75b7292795c550d7b081b4ba82}{editor\_}}-\/>setColor(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00122\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_af3ef78193aa98281bd69463e6f5471b5}{slider\_}}-\/>setColor(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca77726fb0fd1587bfcc4b4b51e51ca61a}{Skin::kLightenScreen}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00123\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00124\ \}}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_modifier_overlay_aefe7f0a5d188458f6fed4eeb8603ee5c}{PhaseModifierOverlay::textEditorReturnKeyPressed}}(TextEditor\&\ text\_editor)\ \{}
+\DoxyCodeLine{00127\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_ab7620d055b52347df76c7caf845fc224}{setPhase}}(text\_editor.getText());}
+\DoxyCodeLine{00128\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00129\ \}}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_modifier_overlay_a9b349a13a5f3eb499071671ebba82ff8}{PhaseModifierOverlay::textEditorFocusLost}}(TextEditor\&\ text\_editor)\ \{}
+\DoxyCodeLine{00132\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_ab7620d055b52347df76c7caf845fc224}{setPhase}}(text\_editor.getText());}
+\DoxyCodeLine{00133\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00134\ \}}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_modifier_overlay_a4d710c9b88f07c83ecd1dcdab42a002c}{PhaseModifierOverlay::phaseChanged}}(\textcolor{keywordtype}{float}\ phase,\ \textcolor{keywordtype}{bool}\ mouse\_up)\ \{}
+\DoxyCodeLine{00137\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_phase_modifier_overlay_a6f407f4b7407533d01f43a899c2dbef5}{current\_frame\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00138\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a88115c15fdfc2cdee7ece44ac58ac5ac}{phase\_text\_}}-\/>setText(String(phase\ *\ \mbox{\hyperlink{namespacevital_a6aa3e5a32df2b2f1f36f6ab655f4c18a}{vital::kDegreesPerCycle}}\ /\ (2.0f\ *\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{vital::kPi}})));}
+\DoxyCodeLine{00141\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_af3ef78193aa98281bd69463e6f5471b5}{slider\_}}-\/>setPhase(phase);}
+\DoxyCodeLine{00142\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_ad354eb75b7292795c550d7b081b4ba82}{editor\_}}-\/>setPhase(phase);}
+\DoxyCodeLine{00143\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a6f407f4b7407533d01f43a899c2dbef5}{current\_frame\_}}-\/>\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_aa8ff4ab1871bd9d0eac6ab84e59b3b68}{setPhase}}(phase);}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(mouse\_up);}
+\DoxyCodeLine{00146\ \}}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_modifier_overlay_a90240f161292fe367bd6d9d36863d850}{PhaseModifierOverlay::sliderValueChanged}}(Slider*\ moved\_slider)\ \{}
+\DoxyCodeLine{00149\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_phase_modifier_overlay_a1a02eb3d816f8d3b822e8bfb45ba0690}{phase\_modifier\_}}\ ==\ \textcolor{keyword}{nullptr}\ ||\ \mbox{\hyperlink{class_phase_modifier_overlay_a6f407f4b7407533d01f43a899c2dbef5}{current\_frame\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \textcolor{keywordflow}{if}\ (moved\_slider\ ==\ \mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}.get())\ \{}
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{keywordtype}{int}\ value\ =\ \mbox{\hyperlink{class_phase_modifier_overlay_a3741337a1f6815f9d850dc0f7bc225fd}{phase\_style\_}}-\/>getValue();}
+\DoxyCodeLine{00154\ \ \ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a1a02eb3d816f8d3b822e8bfb45ba0690}{phase\_modifier\_}}-\/>\mbox{\hyperlink{class_phase_modifier_abd2a61d54dc37146c5324956d2d11ed5}{setPhaseStyle}}(\textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_phase_modifier_ad067e113c3803bf8ba0eddb9316d0e91}{PhaseModifier::PhaseStyle}}\textcolor{keyword}{>}(value));}
+\DoxyCodeLine{00155\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00156\ \ \ \}}
+\DoxyCodeLine{00157\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (moved\_slider\ ==\ \mbox{\hyperlink{class_phase_modifier_overlay_a46ce03bb80aa484cb94c815d53c1f398}{mix\_}}.get())\ \{}
+\DoxyCodeLine{00158\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_phase_modifier_overlay_a6f407f4b7407533d01f43a899c2dbef5}{current\_frame\_}})}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a6f407f4b7407533d01f43a899c2dbef5}{current\_frame\_}}-\/>\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_a1acf5f65b53b3e6c2e7e4f18eaf9998f}{setMix}}(\mbox{\hyperlink{class_phase_modifier_overlay_a46ce03bb80aa484cb94c815d53c1f398}{mix\_}}-\/>getValue());}
+\DoxyCodeLine{00160\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00161\ \ \ \}}
+\DoxyCodeLine{00162\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00163\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00164\ \}}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_modifier_overlay_a348a4a086af81602921612deb7a42b3e}{PhaseModifierOverlay::sliderDragEnded}}(Slider*\ moved\_slider)\ \{}
+\DoxyCodeLine{00167\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00168\ \}}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_phase_modifier_overlay_ab7620d055b52347df76c7caf845fc224}{PhaseModifierOverlay::setPhase}}(String\ phase\_string)\ \{}
+\DoxyCodeLine{00171\ \ \ \textcolor{keywordtype}{float}\ phase\ =\ 2.0f\ *\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{vital::kPi}}\ /\ \mbox{\hyperlink{namespacevital_a6aa3e5a32df2b2f1f36f6ab655f4c18a}{vital::kDegreesPerCycle}}\ *\ phase\_string.getFloatValue();}
+\DoxyCodeLine{00172\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_phase_modifier_overlay_a6f407f4b7407533d01f43a899c2dbef5}{current\_frame\_}})}
+\DoxyCodeLine{00173\ \ \ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_a6f407f4b7407533d01f43a899c2dbef5}{current\_frame\_}}-\/>\mbox{\hyperlink{class_phase_modifier_1_1_phase_modifier_keyframe_aa8ff4ab1871bd9d0eac6ab84e59b3b68}{setPhase}}(phase);}
+\DoxyCodeLine{00174\ \ \ \mbox{\hyperlink{class_phase_modifier_overlay_ad354eb75b7292795c550d7b081b4ba82}{editor\_}}-\/>setPhase(phase);}
+\DoxyCodeLine{00175\ \}}
+
+\end{DoxyCode}

@@ -1,0 +1,25 @@
+var class_sample_section =
+[
+    [ "Listener", "class_sample_section_1_1_listener.html", "class_sample_section_1_1_listener" ],
+    [ "SampleSection", "class_sample_section.html#ac6dc2990ea8bdc0fc69524866068ddfb", null ],
+    [ "~SampleSection", "class_sample_section.html#a7344b99bee8f2846d2c23d6231ce74b4", null ],
+    [ "addListener", "class_sample_section.html#ae2f970ace39d38de9efffdab5316eccd", null ],
+    [ "buttonClicked", "class_sample_section.html#a195359fceb90cc2f377fe16041383375", null ],
+    [ "getCurrentFile", "class_sample_section.html#a9bf675a5ce792af29dc6d71faaeb3066", null ],
+    [ "loadFile", "class_sample_section.html#a4eed78973a6c0bd54d7f1d97ee45eee9", null ],
+    [ "nextClicked", "class_sample_section.html#a016929ef38d7339c14caeb37b4a1bc5e", null ],
+    [ "paintBackground", "class_sample_section.html#a4dd25b2fc8f1a6ac7edab366990bdff2", null ],
+    [ "paintBackgroundShadow", "class_sample_section.html#a5c35234f33aa3824134dc8471744e80f", null ],
+    [ "parentHierarchyChanged", "class_sample_section.html#a36d7ee8f215b641d9adeed06ba24da10", null ],
+    [ "prevClicked", "class_sample_section.html#a6031cbd7ae5c217433359783cbf641d1", null ],
+    [ "quantizeUpdated", "class_sample_section.html#a365db542ff118f042798159fec490bd8", null ],
+    [ "reset", "class_sample_section.html#a76e8aa73b058b17657c1b54e1f3b9411", null ],
+    [ "resized", "class_sample_section.html#a9ee1d950a4a1397ba834f26c2473677e", null ],
+    [ "sampleLoaded", "class_sample_section.html#a1b4cc65402aca882d2645fd009f58da2", null ],
+    [ "setActive", "class_sample_section.html#a7a8c05310879024f062f6ed0d07ff2a3", null ],
+    [ "setAllValues", "class_sample_section.html#abe4e9120762a6ab10e877b41e096ed99", null ],
+    [ "setDestinationSelected", "class_sample_section.html#aeeabf86cfbedd2fe8958111acd80fc37", null ],
+    [ "setupDestination", "class_sample_section.html#a05d514ed24e926586a0fb3d44f55c9c3", null ],
+    [ "textMouseDown", "class_sample_section.html#a7b0aa70d1a8515ceabb93bd002661212", null ],
+    [ "toggleFilterInput", "class_sample_section.html#a90566ae59ac9121a0d1f7295e604d16b", null ]
+];

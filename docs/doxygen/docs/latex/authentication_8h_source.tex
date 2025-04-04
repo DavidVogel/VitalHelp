@@ -1,0 +1,99 @@
+\doxysection{authentication.\+h}
+\hypertarget{authentication_8h_source}{}\label{authentication_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/authentication.h@{/Users/davidvogel/repos/VitalHelp/src/common/authentication.h}}
+\mbox{\hyperlink{authentication_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#if\ NDEBUG\ \&\&\ !NO\_AUTH}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}JuceHeader.h"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{load__save_8h}{load\_save.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#if\ defined(\_\_APPLE\_\_)}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <firebase/app.h>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <firebase/auth.h>}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ "{}firebase/app.h"{}}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#include\ "{}firebase/auth.h"{}}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00032\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_authentication}{Authentication}}\ \{}
+\DoxyCodeLine{00033\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ onTokenRefreshResult(\textcolor{keyword}{const}\ firebase::Future<std::string>\&\ completed\_future,\ \textcolor{keywordtype}{void}*\ ref\_data)\ \{}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \textcolor{keyword}{const}\ MessageManagerLock\ lock(Thread::getCurrentThread());}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!lock.lockWasGained())}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (completed\_future.status()\ !=\ firebase::kFutureStatusComplete)\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_load_save_ad54bf5e7546d109b5f7800512becc849}{LoadSave::writeErrorLog}}(\textcolor{stringliteral}{"{}Firebase\ getting\ token\ error:\ not\ complete"{}});}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (completed\_future.error())\ \{}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ std::string\ error\ =\ \textcolor{stringliteral}{"{}Firebase\ getting\ token\ error:\ error\ code\ "{}};}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_load_save_ad54bf5e7546d109b5f7800512becc849}{LoadSave::writeErrorLog}}(error\ +\ std::to\_string(completed\_future.error()));}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \mbox{\hyperlink{class_authentication}{Authentication}}*\ reference\ =\ (\mbox{\hyperlink{class_authentication}{Authentication}}*)ref\_data;}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ reference-\/>setToken(*completed\_future.result());}
+\DoxyCodeLine{00061\ \ \ \ \ \}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_authentication_a4184ba90ded7003c0809b2ce0d2bbbb2}{create}}()\ \{}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (firebase::App::GetInstance()\ !=\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ \ \ firebase::AppOptions\ auth\_app\_options\ =\ firebase::AppOptions();}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ auth\_app\_options.set\_app\_id(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ auth\_app\_options.set\_api\_key(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ auth\_app\_options.set\_project\_id(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \ \ \ \ firebase::App::Create(auth\_app\_options);}
+\DoxyCodeLine{00079\ \ \ \ \ \}}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00087\ \ \ \ \ \mbox{\hyperlink{class_authentication}{Authentication}}()\ :\ auth\_(nullptr)\ \{\ \}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordtype}{void}\ init()\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (auth\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ auth\_\ =\ firebase::auth::Auth::GetAuth(firebase::App::GetInstance());}
+\DoxyCodeLine{00098\ \ \ \ \ \}}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keywordtype}{bool}\ hasAuth()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ auth\_\ !=\ \textcolor{keyword}{nullptr};\ \}}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00110\ \ \ \ \ firebase::auth::Auth*\ auth()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ auth\_;\ \}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keywordtype}{void}\ setToken(\textcolor{keyword}{const}\ std::string\&\ \mbox{\hyperlink{class_authentication_ae42c64f26261ec3fcf5684104df12b5c}{token}})\ \{\ token\_\ =\ \mbox{\hyperlink{class_authentication_ae42c64f26261ec3fcf5684104df12b5c}{token}};\ \}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00126\ \ \ \ \ std::string\ \mbox{\hyperlink{class_authentication_ae42c64f26261ec3fcf5684104df12b5c}{token}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ token\_;\ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00132\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_authentication_aa3564fb3be530b449f316541797077bf}{loggedIn}}()\ \{\ \textcolor{keywordflow}{return}\ auth\_\ \&\&\ auth\_-\/>current\_user()\ !=\ \textcolor{keyword}{nullptr};\ \}}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_authentication_abb1fa7b2ad19c5613127251463efcb70}{refreshToken}}()\ \{}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (auth\_\ ==\ \textcolor{keyword}{nullptr}\ ||\ auth\_-\/>current\_user()\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ \ \ \ \ firebase::Future<std::string>\ future\ =\ auth\_-\/>current\_user()-\/>GetToken(\textcolor{keyword}{false});}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ future.OnCompletion(onTokenRefreshResult,\ \textcolor{keyword}{this});}
+\DoxyCodeLine{00147\ \ \ \ \ \}}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00150\ \ \ \ \ firebase::auth::Auth*\ auth\_;\ \ }
+\DoxyCodeLine{00151\ \ \ \ \ std::string\ token\_;\ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00152\ \};}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00163\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_authentication}{Authentication}}\ \{}
+\DoxyCodeLine{00164\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_authentication_a4184ba90ded7003c0809b2ce0d2bbbb2}{create}}()\ \{\ \}}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00174\ \ \ \ \ std::string\ \mbox{\hyperlink{class_authentication_ae42c64f26261ec3fcf5684104df12b5c}{token}}()\ \{\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};\ \}}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_authentication_aa3564fb3be530b449f316541797077bf}{loggedIn}}()\ \{\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};\ \}}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00185\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_authentication_abb1fa7b2ad19c5613127251463efcb70}{refreshToken}}()\ \{\ \}}
+\DoxyCodeLine{00186\ \};}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

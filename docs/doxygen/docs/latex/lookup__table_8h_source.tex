@@ -1,0 +1,48 @@
+\doxysection{lookup\+\_\+table.\+h}
+\hypertarget{lookup__table_8h_source}{}\label{lookup__table_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/lookups/lookup\_table.h@{/Users/davidvogel/repos/VitalHelp/src/synthesis/lookups/lookup\_table.h}}
+\mbox{\hyperlink{lookup__table_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{common_8h}{common.h}}"{}}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{poly__utils_8h}{poly\_utils.h}}"{}}}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keyword}{template}<mono\_\textcolor{keywordtype}{float}(*function)(mono\_\textcolor{keywordtype}{float}),\ \textcolor{keywordtype}{size\_t}\ resolution>}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{classvital_1_1_one_dim_lookup}{OneDimLookup}}\ \{}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kExtraValues\ =\ 4;\ }
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_one_dim_lookup_afa3fef5b5d89c697a94367d1b4f565d0}{OneDimLookup}}(\textcolor{keywordtype}{float}\ scale\ =\ 1.0f)\ \{}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \ \ \ \ scale\_\ =\ resolution\ /\ scale;}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ static\_cast<int>(resolution)\ +\ kExtraValues;\ ++i)\ \{}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ t\ =\ (i\ -\/\ 1.0f)\ /\ (resolution\ -\/\ 1.0f);}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ lookup\_[i]\ =\ function(t\ *\ scale);}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_one_dim_lookup_ad3651ec6f2f1d23c45c3b5e7708c2458}{\string~OneDimLookup}}()\ \{\ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{classvital_1_1_one_dim_lookup_a33ee03c4f8d54f682d22cb96061650f9}{cubicLookup}}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ boost\ =\ value\ *\ scale\_;}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ indices\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{namespacevital_1_1utils_ad78f0e7d254bdef79f99ff199f8cbd9f}{utils::toInt}}(boost),\ 0,\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(resolution));}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ t\ =\ boost\ -\/\ \mbox{\hyperlink{namespacevital_1_1utils_a29ec8af38789c39515d4b43ee42e9de6}{utils::toFloat}}(indices);}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1matrix}{matrix}}\ interpolation\_matrix\ =\ \mbox{\hyperlink{namespacevital_1_1utils_abe27d3b36055d0b33464451f55da3e4c}{utils::getCatmullInterpolationMatrix}}(t);}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1matrix}{matrix}}\ value\_matrix\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ac395090a16e639959e02aa2ff9527202}{utils::getValueMatrix}}(lookup\_,\ indices);}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \ \ \ \ value\_matrix.\mbox{\hyperlink{structvital_1_1matrix_a6c21356aed14f6074aba63a9a4e6ce2c}{transpose}}();}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ interpolation\_matrix.\mbox{\hyperlink{structvital_1_1matrix_a453c475add0774341fd36d8adf3f0a32}{multiplyAndSumRows}}(value\_matrix);}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ lookup\_[resolution\ +\ kExtraValues];\ }
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ scale\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ JUCE\_LEAK\_DETECTOR(\mbox{\hyperlink{classvital_1_1_one_dim_lookup}{OneDimLookup}})}
+\DoxyCodeLine{00078\ \ \ \ \ \};}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

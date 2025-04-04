@@ -1,0 +1,50 @@
+\doxysection{wavetable\+\_\+keyframe.\+cpp}
+\hypertarget{wavetable__keyframe_8cpp_source}{}\label{wavetable__keyframe_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/wavetable\_keyframe.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/wavetable\_keyframe.cpp}}
+\mbox{\hyperlink{wavetable__keyframe_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{WavetableKeyframe\ defines\ a\ single\ point\ in\ a\ wavetable\ where\ the\ waveform\ configuration\ is\ known.\ By\ interpolating\ between\ keyframes,\ a\ component\ can\ produce\ evolving\ waveforms.\ This\ class\ provides\ generic\ interpolation\ (linear\ and\ cubic)\ and\ serialization\ methods,\ while\ subclasses\ specify\ how\ waveform\ data\ is\ stored\ and\ rendered.}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable__keyframe_8h}{wavetable\_keyframe.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable__component_8h}{wavetable\_component.h}}"{}}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_wavetable_keyframe_a06dcc7e7c618cedfa746b46f7cc4c79e}{WavetableKeyframe::linearTween}}(\textcolor{keywordtype}{float}\ point\_from,\ \textcolor{keywordtype}{float}\ point\_to,\ \textcolor{keywordtype}{float}\ t)\ \{}
+\DoxyCodeLine{00012\ \ \ \textcolor{comment}{//\ Uses\ a\ simple\ linear\ interpolation\ from\ utils.}}
+\DoxyCodeLine{00013\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{vital::utils::interpolate}}(point\_from,\ point\_to,\ t);}
+\DoxyCodeLine{00014\ \}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_wavetable_keyframe_a1936d535aa7d22f6281c86c56c38b6cd}{WavetableKeyframe::cubicTween}}(\textcolor{keywordtype}{float}\ point\_prev,\ \textcolor{keywordtype}{float}\ point\_from,\ \textcolor{keywordtype}{float}\ point\_to,\ \textcolor{keywordtype}{float}\ point\_next,}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ range\_prev,\ \textcolor{keywordtype}{float}\ range,\ \textcolor{keywordtype}{float}\ range\_next,\ \textcolor{keywordtype}{float}\ t)\ \{}
+\DoxyCodeLine{00018\ \ \ \textcolor{comment}{//\ Computes\ a\ cubic\ interpolation\ between\ four\ points\ for\ smoother\ transitions\ than\ linear.}}
+\DoxyCodeLine{00019\ \ \ \textcolor{keywordtype}{float}\ slope\_from\ =\ 0.0f;}
+\DoxyCodeLine{00020\ \ \ \textcolor{keywordtype}{float}\ slope\_to\ =\ 0.0f;}
+\DoxyCodeLine{00021\ \ \ \textcolor{keywordflow}{if}\ (range\_prev\ >\ 0.0f)}
+\DoxyCodeLine{00022\ \ \ \ \ slope\_from\ =\ (point\_to\ -\/\ point\_prev)\ /\ (1.0f\ +\ range\_prev\ /\ range);}
+\DoxyCodeLine{00023\ \ \ \textcolor{keywordflow}{if}\ (range\_next\ >\ 0.0f)}
+\DoxyCodeLine{00024\ \ \ \ \ slope\_to\ =\ (point\_next\ -\/\ point\_from)\ /\ (1.0f\ +\ range\_next\ /\ range);}
+\DoxyCodeLine{00025\ \ \ \textcolor{keywordtype}{float}\ delta\ =\ point\_to\ -\/\ point\_from;}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \textcolor{keywordtype}{float}\ movement\ =\ \mbox{\hyperlink{class_wavetable_keyframe_a06dcc7e7c618cedfa746b46f7cc4c79e}{linearTween}}(point\_from,\ point\_to,\ t);}
+\DoxyCodeLine{00028\ \ \ \textcolor{keywordtype}{float}\ smooth\ =\ t\ *\ (1.0f\ -\/\ t)\ *\ ((1.0f\ -\/\ t)\ *\ (slope\_from\ -\/\ delta)\ +\ t\ *\ (delta\ -\/\ slope\_to));}
+\DoxyCodeLine{00029\ \ \ \textcolor{keywordflow}{return}\ movement\ +\ smooth;}
+\DoxyCodeLine{00030\ \}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_wavetable_keyframe_a1faf74be7dd4b7f3f4ea0e83fa75ce8d}{WavetableKeyframe::index}}()\ \{}
+\DoxyCodeLine{00033\ \ \ \textcolor{comment}{//\ Retrieves\ the\ index\ of\ this\ keyframe\ by\ asking\ the\ owner\ component.}}
+\DoxyCodeLine{00034\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wavetable_keyframe_a568088f16dde91e6f8ae8d0f3fa5b755}{owner}}()-\/>\mbox{\hyperlink{class_wavetable_component_a750d9e68099e67e549fc93a2099048c0}{indexOf}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00035\ \}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_wavetable_keyframe_ab12d53e98f7188d011cd3c69e86d2bda}{WavetableKeyframe::stateToJson}}()\ \{}
+\DoxyCodeLine{00038\ \ \ \textcolor{keywordflow}{return}\ \{\ \{\ \textcolor{stringliteral}{"{}position"{}},\ \mbox{\hyperlink{class_wavetable_keyframe_aa62a6901a5c206c8a696c2ccba92dd3c}{position\_}}\ \}\ \};}
+\DoxyCodeLine{00039\ \}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wavetable_keyframe_ad0e81b3bdc5fe9a3d901dec69d9b7b5b}{WavetableKeyframe::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ Restore\ the\ position\ from\ the\ JSON\ data.}}
+\DoxyCodeLine{00043\ \ \ \mbox{\hyperlink{class_wavetable_keyframe_aa62a6901a5c206c8a696c2ccba92dd3c}{position\_}}\ =\ data[\textcolor{stringliteral}{"{}position"{}}];}
+\DoxyCodeLine{00044\ \}}
+
+\end{DoxyCode}

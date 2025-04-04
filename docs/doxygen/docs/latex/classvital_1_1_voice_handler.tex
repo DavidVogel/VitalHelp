@@ -1,0 +1,1711 @@
+\doxysection{vital\+::Voice\+Handler Class Reference}
+\hypertarget{classvital_1_1_voice_handler}{}\label{classvital_1_1_voice_handler}\index{vital::VoiceHandler@{vital::VoiceHandler}}
+
+
+A \doxylink{classvital_1_1_synth_module}{Synth\+Module} and \doxylink{classvital_1_1_note_handler}{Note\+Handler} that manages a pool of polyphonic voices, handles note-\/on/off logic, and routes the data to multiple processors.  
+
+
+
+
+{\ttfamily \#include $<$voice\+\_\+handler.\+h$>$}
+
+Inheritance diagram for vital\+::Voice\+Handler\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=5.000000cm]{classvital_1_1_voice_handler}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \mbox{\hyperlink{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49ad4c79773dcc7cfe4bb9c09be7b4cd6b8}{k\+Polyphony}}
+, \mbox{\hyperlink{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49a7684082869598db6fba58e3d5421371c}{k\+Voice\+Priority}}
+, \mbox{\hyperlink{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49aac12e1188289a6c76d73a32aa8eda374}{k\+Voice\+Override}}
+, \mbox{\hyperlink{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49accd67974cef726a93d35cd61564cbe18}{k\+Num\+Inputs}}
+ \}
+\begin{DoxyCompactList}\small\item\em \doxylink{structvital_1_1_input}{Input} indexes for \doxylink{classvital_1_1_voice_handler}{Voice\+Handler} control parameters. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5}{Voice\+Override}} \{ \mbox{\hyperlink{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5a61e720f06cc7acaa9e67dcccb4f63f80}{k\+Kill}}
+, \mbox{\hyperlink{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5aec2d8374207a7daf9681cc835f52934a}{k\+Steal}}
+, \mbox{\hyperlink{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5a5c31547657d16a8b1f763fae2802dad4}{k\+Num\+Voice\+Overrides}}
+ \}
+\begin{DoxyCompactList}\small\item\em Behavior for assigning a new note when at max polyphony. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5b}{Voice\+Priority}} \{ \newline
+\mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5bad88815db67e1315b0ff62a765ba50fd9}{k\+Newest}}
+, \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5ba3f399bffb12929d40eb078bb8802614a}{k\+Oldest}}
+, \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5ba25f8f497c6f4e71933241b0cc5054ffb}{k\+Highest}}
+, \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5baf103c35e836a0c20290c220a7b945ab8}{k\+Lowest}}
+, \newline
+\mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5ba21491e6bc8b080e87ac7368e988f3f03}{k\+Round\+Robin}}
+, \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5ba9799d3a5b1585f5e5a352030c4c59f93}{k\+Num\+Voice\+Priorities}}
+ \}
+\begin{DoxyCompactList}\small\item\em Determines the voice stealing strategy (oldest, newest, highest, etc.). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classvital_1_1_voice_handler_a5e8fd363dbf6963b3519e82fd0817e0b}{Voice\+Handler}} (int num\+\_\+outputs, int \mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}}, bool control\+\_\+rate=false)
+\begin{DoxyCompactList}\small\item\em Constructs a \doxylink{classvital_1_1_voice_handler}{Voice\+Handler} with a given polyphony and outputs. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classvital_1_1_voice_handler_ab3915346519ca3ee2eac4a742d47b8cc}{Voice\+Handler}} ()=delete
+\begin{DoxyCompactList}\small\item\em Disabled default constructor; must specify polyphony and output count. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classvital_1_1_voice_handler_a4fdca04b0083d2745de0378ab64385cf}{\texorpdfstring{$\sim$}{\string~}\+Voice\+Handler}} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a1bd2ab027225c7288cea4cf9c124f23e}{clone}} () const override
+\begin{DoxyCompactList}\small\item\em Clones this \doxylink{classvital_1_1_voice_handler}{Voice\+Handler}. Not supported for this class. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_voice_handler_a6c379397d5efcd674dcf5e5f3511444a}{process}} (int num\+\_\+samples) override
+\begin{DoxyCompactList}\small\item\em Processes audio for a block of samples. For each active voice, triggers events, updates parameters, and runs its \doxylink{classvital_1_1_processor}{Processor}. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_voice_handler_a4356352dc3f7b72cdd071d8a7d813651}{init}} () override
+\begin{DoxyCompactList}\small\item\em Initializes the voice and global routers, then calls \doxylink{classvital_1_1_processor_adb6eaa40b95275a42029ed4c0c4bcba4}{Synth\+Module\+::init()}. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_voice_handler_acda85debb852419a5388c994684906bc}{set\+Sample\+Rate}} (int sample\+\_\+rate) override
+\begin{DoxyCompactList}\small\item\em Sets the sample rate for both mono/global and voice (poly) routers. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_aae8ef13ab1a30f7512ea0dff5703a8e6}{set\+Tuning}} (const \mbox{\hyperlink{class_tuning}{Tuning}} \texorpdfstring{$\ast$}{*}tuning)
+\begin{DoxyCompactList}\small\item\em Sets the custom \doxylink{class_tuning}{Tuning} object (if any) for note-\/\texorpdfstring{$>$}{>}frequency conversion. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classvital_1_1_voice_handler_a4b764cef0010cc39069eda5a21217a0a}{get\+Num\+Active\+Voices}} ()
+\begin{DoxyCompactList}\small\item\em Returns the number of currently active voices (not dead). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int \mbox{\hyperlink{classvital_1_1_voice_handler_a2479ebc5f317538af4b0b22f79593a9d}{get\+Num\+Pressed\+Notes}} ()
+\begin{DoxyCompactList}\small\item\em Returns how many notes are pressed (including partial states). \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classvital_1_1_voice_handler_a53e3a45424bf758ea60616bc381b1b0e}{is\+Note\+Playing}} (int \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}})
+\begin{DoxyCompactList}\small\item\em Checks if a given MIDI note is playing. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classvital_1_1_voice_handler_a829bd49908bd19715f936b8052ab66f6}{is\+Note\+Playing}} (int \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}}, int \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})
+\begin{DoxyCompactList}\small\item\em Checks if a given MIDI note is playing on a particular channel. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_ab5cd9adc8d64167bf02b0bc0d2048c24}{all\+Sounds\+Off}} () override
+\begin{DoxyCompactList}\small\item\em Immediately turns off all sounding notes and stops all sound production. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_a9c2e023d7557a286b9b1aae83a04ecb3}{all\+Notes\+Off}} (int sample) override
+\begin{DoxyCompactList}\small\item\em Turns off all currently active notes, optionally specifying a sample index for timing. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_a7bdf2558b9659dab632975d2ec1613aa}{all\+Notes\+Off}} (int sample, int \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}) override
+\begin{DoxyCompactList}\small\item\em Turns off all currently active notes on a specific MIDI channel, optionally specifying a sample index. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_a13a31a0656c6bf3cb177e6464eea323e}{all\+Notes\+Off\+Range}} (int sample, int from\+\_\+channel, int to\+\_\+channel)
+\item 
+virtual void \mbox{\hyperlink{classvital_1_1_voice_handler_a2b1d804067ab284731a3ed878fd09657}{note\+On}} (int \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}}, \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}} \mbox{\hyperlink{classvital_1_1_voice_handler_a0864b01c35b14dd08f928d9a860c88a0}{velocity}}, int sample, int \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}) override
+\begin{DoxyCompactList}\small\item\em Handles a MIDI note-\/on event, starting a note with a specified velocity and timing. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_voice_handler_a797a35d52f58f52d08e2e74fd109e033}{note\+Off}} (int \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}}, \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}} \mbox{\hyperlink{classvital_1_1_voice_handler_a0864b01c35b14dd08f928d9a860c88a0}{velocity}}, int sample, int \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}) override
+\begin{DoxyCompactList}\small\item\em Handles a MIDI note-\/off event, releasing a currently active note. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_a43abdff6282eb0c0c6e70dccde54e76b}{set\+Aftertouch}} (int \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}}, \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}} \mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}}, int sample, int \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})
+\begin{DoxyCompactList}\small\item\em Handles per-\/note aftertouch for a specific note and channel. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_a3a6ab79f983b43d55107f229c73dbbd6}{set\+Channel\+Aftertouch}} (int \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}, \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}} \mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}}, int sample)
+\begin{DoxyCompactList}\small\item\em Sets channel-\/wide aftertouch (applies to all voices on that channel). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_af8ae26a950af9e576f966df306b006b0}{set\+Channel\+Range\+Aftertouch}} (int from\+\_\+channel, int to\+\_\+channel, \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}} \mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}}, int sample)
+\begin{DoxyCompactList}\small\item\em Sets channel-\/wide aftertouch for a range of channels. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_afc55e52e9be6665f43c82ba25cfb4c57}{set\+Channel\+Slide}} (int \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}, \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}} \mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}}, int sample)
+\begin{DoxyCompactList}\small\item\em Sets channel-\/wide MPE "{}slide"{} for a single channel. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_afe3f0c1b675b5e681772f7d2cde81763}{set\+Channel\+Range\+Slide}} (int from\+\_\+channel, int to\+\_\+channel, \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}} \mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}}, int sample)
+\begin{DoxyCompactList}\small\item\em Sets channel-\/wide MPE "{}slide"{} for a range of channels. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_ae5b4747368b09bb35c6a61e16bdd0157}{sustain\+On}} (int \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})
+\begin{DoxyCompactList}\small\item\em Turns on sustain for a single channel. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_aa42f3e7cfaccdd1df40de257c056098a}{sustain\+Off}} (int sample, int \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})
+\begin{DoxyCompactList}\small\item\em Turns off sustain for a single channel, prompting voices to release. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_a462a32d5c280a54d442b1af301974d00}{sostenuto\+On}} (int \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})
+\begin{DoxyCompactList}\small\item\em Turns on sostenuto for a single channel. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_ac199432b792697353449ae763eb52c99}{sostenuto\+Off}} (int sample, int \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})
+\begin{DoxyCompactList}\small\item\em Turns off sostenuto for a single channel, prompting release if not sustained. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_ae385ce4f96cced338815457fa8a5b2ad}{sustain\+On\+Range}} (int from\+\_\+channel, int to\+\_\+channel)
+\begin{DoxyCompactList}\small\item\em Turns on sustain for a range of channels. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_ac28a59d52cd4a3dfa4790d4bd8fb6c2f}{sustain\+Off\+Range}} (int sample, int from\+\_\+channel, int to\+\_\+channel)
+\begin{DoxyCompactList}\small\item\em Turns off sustain for a range of channels, prompting voices to release. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_affbb755df859e914c647911453e7cb5c}{sostenuto\+On\+Range}} (int from\+\_\+channel, int to\+\_\+channel)
+\begin{DoxyCompactList}\small\item\em Turns on sostenuto for a range of channels. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_a7c3e19cd0303954bbc991ef5bc7d349f}{sostenuto\+Off\+Range}} (int sample, int from\+\_\+channel, int to\+\_\+channel)
+\begin{DoxyCompactList}\small\item\em Turns off sostenuto for a range of channels, prompting release if not sustained. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\+\_\+mask}} \mbox{\hyperlink{classvital_1_1_voice_handler_af9dad893ef3471a4f17d5abbf00d39df}{get\+Current\+Voice\+Mask}} ()
+\begin{DoxyCompactList}\small\item\em Returns a mask for the last active voice, used for writing to output buffers. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void \mbox{\hyperlink{classvital_1_1_voice_handler_a1641e8c060958f4971e74a9be5dc04a9}{set\+Mod\+Wheel}} (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}} value, int \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}=0)
+\begin{DoxyCompactList}\small\item\em Sets the mod wheel value for a single channel. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void \mbox{\hyperlink{classvital_1_1_voice_handler_aa3bcb5eede86b1589db1a6cc6473c806}{set\+Mod\+Wheel\+All\+Channels}} (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}} value)
+\begin{DoxyCompactList}\small\item\em Sets the mod wheel value for all channels at once. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void \mbox{\hyperlink{classvital_1_1_voice_handler_a7d0b8202d82ccdbdea3d7d874591d55a}{set\+Pitch\+Wheel}} (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}} value, int \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}=0)
+\begin{DoxyCompactList}\small\item\em Sets the pitch wheel value for a single channel, applying to all held voices on that channel. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void \mbox{\hyperlink{classvital_1_1_voice_handler_aadae39a2b7b747f3620ac6b4e24275e8}{set\+Zoned\+Pitch\+Wheel}} (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}} value, int from\+\_\+channel, int to\+\_\+channel)
+\begin{DoxyCompactList}\small\item\em Sets pitch wheel in a zoned manner for a range of MIDI channels. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a5bab229a723b7e9320270adbdafe5470}{voice\+\_\+event}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to the voice\+\_\+event \doxylink{structvital_1_1_output}{Output}, used to track voice On/\+Off/\+Kill events. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a0b383ada4224e84985c24a6d933dc727}{retrigger}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to the retrigger \doxylink{structvital_1_1_output}{Output}, used for controlling certain envelope triggers. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a976723d6f281467f174826548bacfad0}{reset}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to the reset \doxylink{structvital_1_1_output}{Output}, indicating a full voice reset (On from Dead). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to the note \doxylink{structvital_1_1_output}{Output}, giving the current tuned note frequency or pitch. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_ad6359772bd2bc8452c3a2c22b654751e}{last\+\_\+note}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to the last\+\_\+note \doxylink{structvital_1_1_output}{Output}, giving the previous note (for legato transitions). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a3c664ee950ff76142332c898ab8149dc}{note\+\_\+pressed}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to the note\+\_\+pressed \doxylink{structvital_1_1_output}{Output}, a count of how many times a note was pressed. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a846e5c9914a34e31aad4d802fbd1b03e}{note\+\_\+count}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to note\+\_\+count, a global note counter. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_af3fd762c49f8027e66573046529622c8}{note\+\_\+in\+\_\+octave}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to note\+\_\+in\+\_\+octave, a fractional note position in \mbox{[}0..1). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to channel, indicating the MIDI channel of the voice. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a0864b01c35b14dd08f928d9a860c88a0}{velocity}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to velocity, the note-\/on velocity. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_ad144feadb03921b4e7e1efef2c7fa0e9}{lift}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to lift, the note-\/off velocity or release velocity. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to aftertouch, storing per-\/voice or channel-\/based aftertouch. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a462430bd8e71f5fe0a3930c5172052b5}{slide}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to slide, the MPE "{}slide"{} expression value. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_adbc3fd9c0b7be93f56c82ee8cd645f5b}{active\+\_\+mask}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to active\+\_\+mask, a mask that indicates which voices are active. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a226348dca73703b71c33951215eda2a8}{pitch\+\_\+wheel}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to pitch\+\_\+wheel, storing the pitch-\/bend range for each channel. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a92a74775e0aa6b32f59b9476617d6deb}{pitch\+\_\+wheel\+\_\+percent}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to pitch\+\_\+wheel\+\_\+percent, a normalized \mbox{[}0..1\mbox{]} version of pitch\+\_\+wheel. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a265a67b52cf6b80a0a14dd20b18f61a6}{local\+\_\+pitch\+\_\+bend}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to local\+\_\+pitch\+\_\+bend, the per-\/voice pitch bend output. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a70bc08150629cec99717dc0a46c777e6}{mod\+\_\+wheel}} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to mod\+\_\+wheel, storing the mod wheel value for each channel. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a92047d76691ceeb37f21ce427ea807f3}{get\+Accumulated\+Output}} (\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}})
+\begin{DoxyCompactList}\small\item\em Retrieves the accumulated \doxylink{structvital_1_1_output}{Output} associated with a given output pointer. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int \mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}} ()
+\begin{DoxyCompactList}\small\item\em Returns the current maximum polyphony (number of active voices allowed). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}} \mbox{\hyperlink{classvital_1_1_voice_handler_abfd3ceae67afccbf3eac02d9b12483e0}{get\+Last\+Active\+Note}} () const
+\begin{DoxyCompactList}\small\item\em Gets the last active note\textquotesingle{}s tuned frequency (or 0 if none). \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classvital_1_1_processor_router}{Processor\+Router}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_a5c5a9ebd941b20b2aa6269aaa88bee25}{get\+Mono\+Router}} () override
+\begin{DoxyCompactList}\small\item\em Returns the monophonic (global) \doxylink{classvital_1_1_processor_router}{Processor\+Router} for this \doxylink{classvital_1_1_voice_handler}{Voice\+Handler}. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classvital_1_1_processor_router}{Processor\+Router}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_aa694f92412944e785061e9bdc0a5b111}{get\+Poly\+Router}} () override
+\begin{DoxyCompactList}\small\item\em Returns the polyphonic (voice) \doxylink{classvital_1_1_processor_router}{Processor\+Router} for this \doxylink{classvital_1_1_voice_handler}{Voice\+Handler}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}{add\+Processor}} (\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}processor) override
+\begin{DoxyCompactList}\small\item\em Adds a \doxylink{classvital_1_1_processor}{Processor} to be managed by this router. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_aa8cb1c88d309cc966904ef3af4f6cd51}{add\+Idle\+Processor}} (\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}processor) override
+\begin{DoxyCompactList}\small\item\em Adds a \doxylink{classvital_1_1_processor}{Processor} that should remain idle (not processed) in the router. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_a609a240662e8d02977b3d78398489b91}{remove\+Processor}} (\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}processor) override
+\begin{DoxyCompactList}\small\item\em Removes a \doxylink{classvital_1_1_processor}{Processor} from this router. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_a7d8139798f84bc48f799ffcc0b975c61}{add\+Global\+Processor}} (\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}processor)
+\begin{DoxyCompactList}\small\item\em Adds a \doxylink{classvital_1_1_processor}{Processor} to the "{}global"{} (monophonic) router, e.\+g. for final mixing or master effects. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_a0e61973632129c6a2e9fa1f91e3cf5e2}{remove\+Global\+Processor}} (\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}processor)
+\begin{DoxyCompactList}\small\item\em Removes a \doxylink{classvital_1_1_processor}{Processor} from the global router. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_a2b6195a578e16b6ad1490a8a1d20b1cc}{reset\+Feedbacks}} (\mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\+\_\+mask}} reset\+\_\+mask) override
+\begin{DoxyCompactList}\small\item\em Resets any feedback paths in the poly router, applying the given mask. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_ac6d558d9f34643e9b79cec8cf8fd4299}{register\+Output}} (\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}) override
+\begin{DoxyCompactList}\small\item\em Registers an \doxylink{structvital_1_1_output}{Output} with this \doxylink{classvital_1_1_voice_handler}{Voice\+Handler}, returning a pointer to a new accumulated or single-\/lane \doxylink{structvital_1_1_output}{Output}. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_ade40a08b9e01e1520ae1d5c18a37036f}{register\+Control\+Rate\+Output}} (\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}, bool active)
+\begin{DoxyCompactList}\small\item\em Registers a control-\/rate \doxylink{structvital_1_1_output}{Output} with the \doxylink{classvital_1_1_voice_handler}{Voice\+Handler}. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_voice_handler_ac6b212ebd68e8e46a619306a5aff5faa}{register\+Output}} (\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}, int index) override
+\begin{DoxyCompactList}\small\item\em Not implemented index-\/based register\+Output override (asserts false). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_a281bb6ca17fb3142dbf6c86460bf137b}{set\+Polyphony}} (int \mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}})
+\begin{DoxyCompactList}\small\item\em Sets the polyphony to a new value, allocating or freeing voices as needed. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void \mbox{\hyperlink{classvital_1_1_voice_handler_aa5b94e7e9b6c92fd4d0f5999e7a311a6}{set\+Voice\+Killer}} (const \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}killer)
+\begin{DoxyCompactList}\small\item\em Specifies an \doxylink{structvital_1_1_output}{Output} from a \doxylink{classvital_1_1_processor}{Processor} used to detect silence or inactivity for voice killing. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void \mbox{\hyperlink{classvital_1_1_voice_handler_ad5fea6c423d16c89ffd25ab5dc62d8f1}{set\+Voice\+Killer}} (const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}killer)
+\begin{DoxyCompactList}\small\item\em Overload for setting the voice killer from a \doxylink{classvital_1_1_processor}{Processor} directly. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void \mbox{\hyperlink{classvital_1_1_voice_handler_aeefea73f352fe89dba038f4b7436dbac}{set\+Voice\+Midi}} (const \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}midi)
+\begin{DoxyCompactList}\small\item\em Sets the \doxylink{structvital_1_1_output}{Output} that provides the current MIDI note for the voice. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void \mbox{\hyperlink{classvital_1_1_voice_handler_aeb8d75e8ee4624fdcfa85aeaa897a75f}{set\+Legato}} (bool \mbox{\hyperlink{classvital_1_1_voice_handler_a8aacdc084da8809bd2becc881902da5c}{legato}})
+\begin{DoxyCompactList}\small\item\em Enables or disables legato mode (disables retriggers if still in Held state). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} bool \mbox{\hyperlink{classvital_1_1_voice_handler_a8aacdc084da8809bd2becc881902da5c}{legato}} ()
+\begin{DoxyCompactList}\small\item\em Returns true if legato mode is enabled. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classvital_1_1_voice_handler_acbcd8fd539c375970189efe6732e1ef6}{is\+Polyphonic}} (const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}processor) const override
+\begin{DoxyCompactList}\small\item\em Checks if a given \doxylink{classvital_1_1_processor}{Processor} is handled by the poly (voice) router. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_voice_handler_a888b1914b8574338a37ec0e96bd14c72}{set\+Oversample\+Amount}} (int oversample) override
+\begin{DoxyCompactList}\small\item\em Sets the oversampling factor for both \doxylink{classvital_1_1_synth_module}{Synth\+Module} and the internal poly/mono routers. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_a593542da24c24578fd81da57d585f498}{set\+Active\+Nonaccumulated\+Output}} (\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}})
+\begin{DoxyCompactList}\small\item\em Marks an \doxylink{structvital_1_1_output}{Output} as "{}active"{} for non-\/accumulated usage (e.\+g., for the last active voice only). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_voice_handler_aba6c7e7efbd63d12efc9f7b46fc212c7}{set\+Inactive\+Nonaccumulated\+Output}} (\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}})
+\begin{DoxyCompactList}\small\item\em Marks an \doxylink{structvital_1_1_output}{Output} as "{}inactive"{} for non-\/accumulated usage, effectively disabling it. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{classvital_1_1_synth_module}{vital\+::\+Synth\+Module}}}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classvital_1_1_synth_module_a8fd6bca475b8764861a5d9ad8fd1882a}{Synth\+Module}} (int num\+\_\+inputs, int num\+\_\+outputs, bool control\+\_\+rate=false)
+\begin{DoxyCompactList}\small\item\em Constructs a \doxylink{classvital_1_1_synth_module}{Synth\+Module} with specified I/O and control rate. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classvital_1_1_synth_module_a8c9e20d822fbf111b990d97c59a05165}{\texorpdfstring{$\sim$}{\string~}\+Synth\+Module}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{namespacevital_aa714e9b3957a28c9eaf0105959aea482}{control\+\_\+map}} \mbox{\hyperlink{classvital_1_1_synth_module_a69dfeeec6b2ac27790ee35e63a775328}{get\+Controls}} ()
+\begin{DoxyCompactList}\small\item\em Returns a map of all controls from this module and its submodules. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_synth_module_aa91319dc5d300584b4897e1a0c53afe8}{get\+Modulation\+Source}} (std\+::string name)
+\begin{DoxyCompactList}\small\item\em Retrieves a modulation source output by name. \end{DoxyCompactList}\item 
+const \mbox{\hyperlink{classvital_1_1_status_output}{Status\+Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_synth_module_aeecd2f538fa5aef97217f2281ad94818}{get\+Status\+Output}} (std\+::string name) const
+\begin{DoxyCompactList}\small\item\em Retrieves a \doxylink{classvital_1_1_status_output}{Status\+Output} by name. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_synth_module_a92b01c1f768f6c5f5ab0e5839325c731}{get\+Modulation\+Destination}} (std\+::string name, bool poly)
+\begin{DoxyCompactList}\small\item\em Retrieves a modulation destination \doxylink{classvital_1_1_processor}{Processor} by name and poly mode. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_synth_module_a88796e9b2e6534cc0487ba9b9093abb7}{get\+Mono\+Modulation\+Destination}} (std\+::string name)
+\begin{DoxyCompactList}\small\item\em Retrieves a mono modulation destination by name. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_synth_module_a0c312994cd4a64802b03264298d05ab1}{get\+Poly\+Modulation\+Destination}} (std\+::string name)
+\begin{DoxyCompactList}\small\item\em Retrieves a poly modulation destination by name. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classvital_1_1_value_switch}{Value\+Switch}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_synth_module_aafa30b2ddddb54b2dd4458a8d88b3365}{get\+Modulation\+Switch}} (std\+::string name, bool poly)
+\begin{DoxyCompactList}\small\item\em Retrieves a modulation switch by name and poly mode. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classvital_1_1_value_switch}{Value\+Switch}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_synth_module_a43b4afb268dccd3b082046e23f6db2dc}{get\+Mono\+Modulation\+Switch}} (std\+::string name)
+\begin{DoxyCompactList}\small\item\em Retrieves a mono modulation switch by name. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classvital_1_1_value_switch}{Value\+Switch}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_synth_module_a6fd21c583fcbb8b61ed0c1af2b485671}{get\+Poly\+Modulation\+Switch}} (std\+::string name)
+\begin{DoxyCompactList}\small\item\em Retrieves a poly modulation switch by name. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_synth_module_abc034b1fa2e5af558e664e2126414686}{update\+All\+Modulation\+Switches}} ()
+\begin{DoxyCompactList}\small\item\em Updates all modulation switches based on whether their destinations have inputs. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{output\+\_\+map}} \& \mbox{\hyperlink{classvital_1_1_synth_module_a0f58e24f03ac426b605e4ec91f410c52}{get\+Modulation\+Sources}} ()
+\begin{DoxyCompactList}\small\item\em Returns a reference to the map of modulation sources. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{namespacevital_ac52a9058cac44bd7cda817bbbf742322}{input\+\_\+map}} \& \mbox{\hyperlink{classvital_1_1_synth_module_aae68b4c6565e84567251222a1584b86a}{get\+Mono\+Modulation\+Destinations}} ()
+\begin{DoxyCompactList}\small\item\em Returns a reference to the map of mono modulation destinations. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{namespacevital_ac52a9058cac44bd7cda817bbbf742322}{input\+\_\+map}} \& \mbox{\hyperlink{classvital_1_1_synth_module_a69115918bcf0693078f96f6a43580da0}{get\+Poly\+Modulation\+Destinations}} ()
+\begin{DoxyCompactList}\small\item\em Returns a reference to the map of poly modulation destinations. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{output\+\_\+map}} \& \mbox{\hyperlink{classvital_1_1_synth_module_a36720066bba9eef72906514f0bf3019e}{get\+Mono\+Modulations}} ()
+\begin{DoxyCompactList}\small\item\em Returns a reference to the map of mono modulation readouts. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{output\+\_\+map}} \& \mbox{\hyperlink{classvital_1_1_synth_module_a9878e8bee7632526ee410d6e39b78b31}{get\+Poly\+Modulations}} ()
+\begin{DoxyCompactList}\small\item\em Returns a reference to the map of poly modulation readouts. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_synth_module_ac519bf16cc28d68df06e90dcd198c93c}{correct\+To\+Time}} (double seconds)
+\begin{DoxyCompactList}\small\item\em Allows correction of module state to a given time (if needed). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_synth_module_ad13ce25952df2d4440e0a07d8411150d}{enable\+Owned\+Processors}} (bool \mbox{\hyperlink{classvital_1_1_synth_module_ad4f615773fab56c5a41aa4229bd26089}{enable}})
+\begin{DoxyCompactList}\small\item\em Enables or disables all owned processors. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_synth_module_ad4f615773fab56c5a41aa4229bd26089}{enable}} (bool enable) override
+\begin{DoxyCompactList}\small\item\em Enables or disables this \doxylink{classvital_1_1_synth_module}{Synth\+Module} and its owned processors. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_synth_module_a3748b6f3d27305917933a3336e921af7}{add\+Mono\+Processor}} (\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}processor, bool own=true)
+\begin{DoxyCompactList}\small\item\em Adds a mono processor to this module. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_synth_module_a39c59179f80d8107eb5043454185bb3e}{add\+Idle\+Mono\+Processor}} (\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}processor)
+\begin{DoxyCompactList}\small\item\em Adds a mono processor that is considered idle (not part of main processing chain). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_synth_module_ac711ab2fcf3df34bc0ab9bf0c67f2b13}{add\+Submodule}} (\mbox{\hyperlink{classvital_1_1_synth_module}{Synth\+Module}} \texorpdfstring{$\ast$}{*}module)
+\begin{DoxyCompactList}\small\item\em Adds a submodule to this \doxylink{classvital_1_1_synth_module}{Synth\+Module}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{classvital_1_1_processor_router}{vital\+::\+Processor\+Router}}}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classvital_1_1_processor_router_a43ee925ced978ace8ec567faac893add}{Processor\+Router}} (int num\+\_\+inputs=0, int num\+\_\+outputs=0, bool control\+\_\+rate=false)
+\begin{DoxyCompactList}\small\item\em Constructs a \doxylink{classvital_1_1_processor_router}{Processor\+Router} with a specified number of inputs and outputs. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classvital_1_1_processor_router_a4a502f8bd1fc478ddd14943db85d3d7d}{Processor\+Router}} (const \mbox{\hyperlink{classvital_1_1_processor_router}{Processor\+Router}} \&original)
+\begin{DoxyCompactList}\small\item\em Copy constructor. Creates a new \doxylink{classvital_1_1_processor_router}{Processor\+Router} from an existing one. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classvital_1_1_processor_router_a203c2bc185de31720f97cc5e244e149d}{\texorpdfstring{$\sim$}{\string~}\+Processor\+Router}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_router_acd338716e49f52c83662951b22ed012b}{add\+Processor\+Real\+Time}} (\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}processor)
+\begin{DoxyCompactList}\small\item\em Adds a \doxylink{classvital_1_1_processor}{Processor} to the router in real-\/time (no memory allocations). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_processor_router_ad172a585ce6ed81b9817f400b4f8e2ee}{connect}} (\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}destination, const \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}source, int index)
+\begin{DoxyCompactList}\small\item\em Connects a source \doxylink{structvital_1_1_output}{Output} to a destination \doxylink{classvital_1_1_processor}{Processor} input by index. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_processor_router_a2c272134f228096aff853f46c0f5cac6}{disconnect}} (const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}destination, const \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}source)
+\begin{DoxyCompactList}\small\item\em Disconnects a source \doxylink{structvital_1_1_output}{Output} from a destination \doxylink{classvital_1_1_processor}{Processor}. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classvital_1_1_processor_router_a44f998b01ec090f5a071efbb19dbd75a}{is\+Downstream}} (const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}first, const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}second) const
+\begin{DoxyCompactList}\small\item\em Checks if one \doxylink{classvital_1_1_processor}{Processor} is downstream from another, i.\+e., if there\textquotesingle{}s a path from the second to the first. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classvital_1_1_processor_router_a8d323f7284f5980af0575d09de995ef0}{are\+Ordered}} (const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}first, const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}second) const
+\begin{DoxyCompactList}\small\item\em Checks if the order of two Processors is fixed in the router\textquotesingle{}s processing sequence. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{classvital_1_1_processor}{vital\+::\+Processor}}}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classvital_1_1_processor_a0ccc3140079d85c64283ad08414df5c1}{Processor}} (int num\+\_\+inputs, int num\+\_\+outputs, bool control\+\_\+rate=false, int max\+\_\+oversample=1)
+\begin{DoxyCompactList}\small\item\em Constructs a \doxylink{classvital_1_1_processor}{Processor} with a given number of inputs/outputs and oversampling. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classvital_1_1_processor_a3cb2c5dc6d835cee5d47672f0d1ef000}{\texorpdfstring{$\sim$}{\string~}\+Processor}} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classvital_1_1_processor_a5f8c50d9a90045c173a2b0b91fcf796c}{has\+State}} () const
+\begin{DoxyCompactList}\small\item\em Indicates whether this \doxylink{classvital_1_1_processor}{Processor} requires per-\/voice state. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_afe3cef44950897ed775dcab05cecc35a}{process\+With\+Input}} (const \mbox{\hyperlink{structvital_1_1poly__float}{poly\+\_\+float}} \texorpdfstring{$\ast$}{*}audio\+\_\+in, int num\+\_\+samples)
+\begin{DoxyCompactList}\small\item\em An optional processing function taking explicit input buffer. Fallback is an assertion failure (not supported). \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_af96e6e12894fcc2cce9abe7d93ed4f99}{reset}} (\mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\+\_\+mask}} reset\+\_\+mask)
+\begin{DoxyCompactList}\small\item\em Called to reset the \doxylink{classvital_1_1_processor}{Processor}\textquotesingle{}s per-\/voice state (e.\+g., on note-\/on). \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_a8ee20e3c0a3e79f07465f93e3988b6d2}{hard\+Reset}} ()
+\begin{DoxyCompactList}\small\item\em Called to perform a "{}hard"{} reset for all voices. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classvital_1_1_processor_a0a4f8f5e565662175e72d3e037c0bd46}{initialized}} ()
+\begin{DoxyCompactList}\small\item\em Returns whether this \doxylink{classvital_1_1_processor}{Processor} has been initialized. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} bool \mbox{\hyperlink{classvital_1_1_processor_a74b147c92221c428c49a767fdc8364dd}{enabled}} () const
+\begin{DoxyCompactList}\small\item\em Checks if this \doxylink{classvital_1_1_processor}{Processor} is enabled. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{get\+Sample\+Rate}} () const
+\begin{DoxyCompactList}\small\item\em Retrieves the current (effective) sample rate. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int \mbox{\hyperlink{classvital_1_1_processor_a9781b732ace6aa715422754635b771ca}{get\+Oversample\+Amount}} () const
+\begin{DoxyCompactList}\small\item\em Retrieves the current oversampling factor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} bool \mbox{\hyperlink{classvital_1_1_processor_a7c412df809f6c84fe54bdd977681fd9a}{is\+Control\+Rate}} () const
+\begin{DoxyCompactList}\small\item\em Checks if this \doxylink{classvital_1_1_processor}{Processor} is running at control rate (buffer\+\_\+size == 1). \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_a128bbac48afbf1f2256965f084e0fe2b}{set\+Control\+Rate}} (bool control\+\_\+rate)
+\begin{DoxyCompactList}\small\item\em Sets whether this \doxylink{classvital_1_1_processor}{Processor} runs at control rate. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\+\_\+mask}} \mbox{\hyperlink{classvital_1_1_processor_a7fed5dc3ae95e104c71f7ce7f570fab4}{get\+Reset\+Mask}} (int input\+\_\+index) const
+\begin{DoxyCompactList}\small\item\em Retrieves a mask indicating which voices triggered a note-\/on event. Compares the input\textquotesingle{}s trigger\+\_\+value to k\+Voice\+On. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void \mbox{\hyperlink{classvital_1_1_processor_ad58828f023e9d7741e101dd8d69d593d}{clear\+Output\+Buffer\+For\+Reset}} (\mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\+\_\+mask}} reset\+\_\+mask, int input\+\_\+index, int output\+\_\+index) const
+\begin{DoxyCompactList}\small\item\em Clears output samples for voices that are about to be reset, based on the trigger offset. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classvital_1_1_processor_a7e35d4d320b562f794d2e4028a04cf92}{input\+Matches\+Buffer\+Size}} (int \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}=0)
+\begin{DoxyCompactList}\small\item\em Checks whether the buffer size of a particular input matches the size needed by this \doxylink{classvital_1_1_processor}{Processor}. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classvital_1_1_processor_a8d337b56c2e0d52ec3396a9b41befd30}{check\+Input\+And\+Output\+Size}} (int num\+\_\+samples)
+\begin{DoxyCompactList}\small\item\em Checks if all inputs and outputs have buffers big enough for {\ttfamily num\+\_\+samples}. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classvital_1_1_processor_a6109203f5da8f0c3a7413db829e13381}{is\+Polyphonic}} () const
+\begin{DoxyCompactList}\small\item\em Checks if this \doxylink{classvital_1_1_processor}{Processor} is polyphonic by querying its \doxylink{classvital_1_1_processor_router}{Processor\+Router}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_processor_a99005e6f52c7289c548a51065582e3ac}{plug}} (const \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}source)
+\begin{DoxyCompactList}\small\item\em Connects an external \doxylink{structvital_1_1_output}{Output} to this \doxylink{classvital_1_1_processor}{Processor}\textquotesingle{}s first input. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_processor_a10fd51e394356fbc2dc797e1fb38fbf7}{plug}} (const \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}source, unsigned int input\+\_\+index)
+\begin{DoxyCompactList}\small\item\em Connects an external \doxylink{structvital_1_1_output}{Output} to a specified input index. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_processor_a2b751bfee477763e2fc6e1e07b958471}{plug}} (const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}source)
+\begin{DoxyCompactList}\small\item\em Connects the first output of a \doxylink{classvital_1_1_processor}{Processor} to this \doxylink{classvital_1_1_processor}{Processor}\textquotesingle{}s first input. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_processor_a0b2aaa76a76e84d8b54c3f14d02663f4}{plug}} (const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}source, unsigned int input\+\_\+index)
+\begin{DoxyCompactList}\small\item\em Connects the first output of a \doxylink{classvital_1_1_processor}{Processor} to a specified input index. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_processor_a330bb54cfa578d50210e265455283c47}{plug\+Next}} (const \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}source)
+\begin{DoxyCompactList}\small\item\em Connects an external \doxylink{structvital_1_1_output}{Output} to the first available (unplugged) input. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_processor_a4c3bb29f0783cf226f183465b1fe4550}{plug\+Next}} (const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}source)
+\begin{DoxyCompactList}\small\item\em Connects the first output of a \doxylink{classvital_1_1_processor}{Processor} to the first available (unplugged) input. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_processor_a78efa1437ab306088d67a66f681b12e5}{use\+Input}} (\mbox{\hyperlink{structvital_1_1_input}{Input}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}})
+\begin{DoxyCompactList}\small\item\em Uses an existing \doxylink{structvital_1_1_input}{Input} object as this \doxylink{classvital_1_1_processor}{Processor}\textquotesingle{}s first input. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_processor_a9debaf5c063c9e06abfacebf852fa6e9}{use\+Input}} (\mbox{\hyperlink{structvital_1_1_input}{Input}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}, int index)
+\begin{DoxyCompactList}\small\item\em Uses an existing \doxylink{structvital_1_1_input}{Input} object at a specified input index. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_processor_a4ab8d1bebcc9b45ae4eefb1f0ea20d77}{use\+Output}} (\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}})
+\begin{DoxyCompactList}\small\item\em Uses an existing \doxylink{structvital_1_1_output}{Output} object as this \doxylink{classvital_1_1_processor}{Processor}\textquotesingle{}s first output. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_processor_ac0c5116708a88737c6c3c99e7b8b7561}{use\+Output}} (\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}, int index)
+\begin{DoxyCompactList}\small\item\em Uses an existing \doxylink{structvital_1_1_output}{Output} object at a specified output index. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classvital_1_1_processor_a999188fba2b1ce928ca2ba88f38c2bcf}{connected\+Inputs}} ()
+\begin{DoxyCompactList}\small\item\em Counts how many inputs are connected to a real source (not null\+\_\+source\+\_\+). \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_a088796a2f96960935284fd1b973d8c3c}{unplug\+Index}} (unsigned int input\+\_\+index)
+\begin{DoxyCompactList}\small\item\em Removes the connection at a specified input index, if any. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_ac500152ad4dc52a0ca70cb5d07804a84}{unplug}} (const \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}source)
+\begin{DoxyCompactList}\small\item\em Removes a connection to a given \doxylink{structvital_1_1_output}{Output} from all inputs. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_af54c9f599dc80ee51c8ef3a4f462cb08}{unplug}} (const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}source)
+\begin{DoxyCompactList}\small\item\em Removes connections to all outputs from a given \doxylink{classvital_1_1_processor}{Processor}. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_a1cec0d341b14e6761e2f111fea404787}{num\+Inputs\+Changed}} ()
+\begin{DoxyCompactList}\small\item\em Called when the number of inputs changes (e.\+g., new connections). Subclasses may override for dynamic behavior. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void \mbox{\hyperlink{classvital_1_1_processor_ad669f63d02cbbab8b33bbfb25be43e19}{router}} (\mbox{\hyperlink{classvital_1_1_processor_router}{Processor\+Router}} \texorpdfstring{$\ast$}{*}router)
+\begin{DoxyCompactList}\small\item\em Sets the \doxylink{classvital_1_1_processor_router}{Processor\+Router} that owns or manages this \doxylink{classvital_1_1_processor}{Processor}. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{classvital_1_1_processor_router}{Processor\+Router}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_processor_a01a46654b29be1e36e7673b90955b4ed}{router}} () const
+\begin{DoxyCompactList}\small\item\em Returns the \doxylink{classvital_1_1_processor_router}{Processor\+Router} that currently owns this \doxylink{classvital_1_1_processor}{Processor}. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classvital_1_1_processor_router}{Processor\+Router}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_processor_a868e95bf796ceda46b955497d8e3d258}{get\+Top\+Level\+Router}} () const
+\begin{DoxyCompactList}\small\item\em Gets the topmost (root) \doxylink{classvital_1_1_processor_router}{Processor\+Router} by traversing parent routers. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_a7c12f360e48e79dba8c009a11898f18d}{register\+Input}} (\mbox{\hyperlink{structvital_1_1_input}{Input}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}, int index)
+\begin{DoxyCompactList}\small\item\em Registers a new input, appending it to the input list. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_a87eef0a03e756c78518cabfdf5d7273a}{register\+Input}} (\mbox{\hyperlink{structvital_1_1_input}{Input}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}})
+\begin{DoxyCompactList}\small\item\em Registers a new \doxylink{structvital_1_1_input}{Input} by appending it to the end of the input list. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int \mbox{\hyperlink{classvital_1_1_processor_a11d86444fb2fb200b11d54b5602b6f18}{num\+Inputs}} () const
+\begin{DoxyCompactList}\small\item\em Returns the total number of \doxylink{structvital_1_1_input}{Input} pointers (owned or otherwise). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int \mbox{\hyperlink{classvital_1_1_processor_a0e3edbf7d0f35c163a6e8913c861beb7}{num\+Outputs}} () const
+\begin{DoxyCompactList}\small\item\em Returns the total number of \doxylink{structvital_1_1_output}{Output} pointers (owned or otherwise). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int \mbox{\hyperlink{classvital_1_1_processor_ab517f06f8eb9ca2857858f53e45dd363}{num\+Owned\+Inputs}} () const
+\begin{DoxyCompactList}\small\item\em Returns how many \doxylink{structvital_1_1_input}{Input} objects this \doxylink{classvital_1_1_processor}{Processor} owns. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int \mbox{\hyperlink{classvital_1_1_processor_a94f5b6076f387ef2fc78052cce0727cd}{num\+Owned\+Outputs}} () const
+\begin{DoxyCompactList}\small\item\em Returns how many \doxylink{structvital_1_1_output}{Output} objects this \doxylink{classvital_1_1_processor}{Processor} owns. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_input}{Input}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}} (unsigned int index=0) const
+\begin{DoxyCompactList}\small\item\em Retrieves the \doxylink{structvital_1_1_input}{Input} pointer at a given index. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} bool \mbox{\hyperlink{classvital_1_1_processor_acb973e33fb4fc8c08e07034af27b11ab}{is\+Input\+Source\+Polyphonic}} (int index=0)
+\begin{DoxyCompactList}\small\item\em Checks if the input source at a given index is polyphonic. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_input}{Input}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_processor_ab853fcd72d4d3f8f93bc60c43bd9e970}{owned\+Input}} (unsigned int index=0) const
+\begin{DoxyCompactList}\small\item\em Retrieves an owned \doxylink{structvital_1_1_input}{Input} pointer at a given index. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}} (unsigned int index=0) const
+\begin{DoxyCompactList}\small\item\em Retrieves the \doxylink{structvital_1_1_output}{Output} pointer at a given index. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_processor_ab7d313620dfe2e97e943971f312802d5}{owned\+Output}} (unsigned int index=0) const
+\begin{DoxyCompactList}\small\item\em Retrieves an owned \doxylink{structvital_1_1_output}{Output} pointer at a given index. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_processor_ab214d40c9da03b41bd72956cc954f631}{set\+Plugging\+Start}} (int start)
+\begin{DoxyCompactList}\small\item\em Sets the position at which {\ttfamily plug\+Next} starts searching for an open input. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{classvital_1_1_note_handler}{vital\+::\+Note\+Handler}}}
+\begin{DoxyCompactItemize}
+\item 
+virtual \mbox{\hyperlink{classvital_1_1_note_handler_a44c3d3d84ef0810914aae259e4dedc27}{\texorpdfstring{$\sim$}{\string~}\+Note\+Handler}} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static constexpr \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}} \mbox{\hyperlink{classvital_1_1_voice_handler_aa5164a224d49c5f13852661d1cdd1de0}{k\+Local\+Pitch\+Bend\+Range}} = 48.\+0f
+\begin{DoxyCompactList}\small\item\em Range of local pitch bend in semitones for each voice. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual bool \mbox{\hyperlink{classvital_1_1_voice_handler_adf7416833ec7abc5d8b34c604720b969}{should\+Accumulate}} (\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}})
+\begin{DoxyCompactList}\small\item\em Determines whether an \doxylink{structvital_1_1_output}{Output} should be summed across voices (accumulated) or handled individually. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions inherited from \mbox{\hyperlink{classvital_1_1_synth_module}{vital\+::\+Synth\+Module}}}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classvital_1_1_value}{Value}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_synth_module_a3829cadfd1dfc7802119541ca1753d69}{create\+Base\+Control}} (std\+::string name, bool audio\+\_\+rate=false, bool smooth\+\_\+value=false)
+\begin{DoxyCompactList}\small\item\em Creates a simple control processor for a given parameter name. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_synth_module_abb60400c03c137468840f86a36b893a7}{create\+Base\+Mod\+Control}} (std\+::string name, bool audio\+\_\+rate=false, bool smooth\+\_\+value=false, \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}internal\+\_\+modulation=nullptr)
+\begin{DoxyCompactList}\small\item\em Creates a base mod control, which is a control combined with a modulation input. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_synth_module_ae5eccb22cca0d1f82d4c2273a91b0cad}{create\+Mono\+Mod\+Control}} (std\+::string name, bool audio\+\_\+rate=false, bool smooth\+\_\+value=false, \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}internal\+\_\+modulation=nullptr)
+\begin{DoxyCompactList}\small\item\em Creates a monophonic mod control, including applying parameter scaling. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_synth_module_a170876a577ad1f0f7bd4b1cbb581b1aa}{create\+Poly\+Mod\+Control}} (std\+::string name, bool audio\+\_\+rate=false, bool smooth\+\_\+value=false, \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}internal\+\_\+modulation=nullptr, \mbox{\hyperlink{structvital_1_1_input}{Input}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classvital_1_1_processor_af96e6e12894fcc2cce9abe7d93ed4f99}{reset}}=nullptr)
+\begin{DoxyCompactList}\small\item\em Creates a polyphonic mod control, including applying parameter scaling. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_synth_module_aa506e525d7867019f7412715346ff7a8}{create\+Tempo\+Sync\+Switch}} (std\+::string name, \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}frequency, const \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}beats\+\_\+per\+\_\+second, bool poly, \mbox{\hyperlink{structvital_1_1_input}{Input}} \texorpdfstring{$\ast$}{*}midi=nullptr)
+\begin{DoxyCompactList}\small\item\em Creates a tempo sync switch that toggles between tempo-\/based frequency and free-\/running frequency. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_synth_module_ac79d68aed81a3aec11e4448f66447315}{create\+Status\+Output}} (std\+::string name, \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}source)
+\begin{DoxyCompactList}\small\item\em Creates a status output associated with a given \doxylink{structvital_1_1_output}{Output}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions inherited from \mbox{\hyperlink{classvital_1_1_processor_router}{vital\+::\+Processor\+Router}}}
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_router_a57792f6f08a068cdade56ca571b78e8e}{add\+Feedback}} (\mbox{\hyperlink{classvital_1_1_feedback}{Feedback}} \texorpdfstring{$\ast$}{*}feedback)
+\begin{DoxyCompactList}\small\item\em Adds a \doxylink{classvital_1_1_feedback}{Feedback} node to handle a feedback loop introduced by a connection. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_router_a6c80c8234c2dded315fb62415db7ca26}{remove\+Feedback}} (\mbox{\hyperlink{classvital_1_1_feedback}{Feedback}} \texorpdfstring{$\ast$}{*}feedback)
+\begin{DoxyCompactList}\small\item\em Removes a previously added \doxylink{classvital_1_1_feedback}{Feedback} node. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_processor_router_acbde70124da8d2bf06b9ea3d6412211b}{reorder}} (\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}processor)
+\begin{DoxyCompactList}\small\item\em Reorders the internal processing sequence to account for a \doxylink{classvital_1_1_processor}{Processor}\textquotesingle{}s dependencies. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_router_a064f6bdad96043512fd705a9a017c7a3}{update\+All\+Processors}} ()
+\begin{DoxyCompactList}\small\item\em Updates all processors to match the global order. Called when changes occur. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} bool \mbox{\hyperlink{classvital_1_1_processor_router_acc4d83926132b0f626c41aa0f255bfa6}{should\+Update}} ()
+\begin{DoxyCompactList}\small\item\em Checks if local changes need to be synchronized with global changes. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_router_a8ae875714d516809d6f9122201ac7b78}{create\+Added\+Processors}} ()
+\begin{DoxyCompactList}\small\item\em Creates any processors that were added at the global level but not yet replicated locally. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvital_1_1_processor_router_a266316372e5c54e7210aac8d4f2c207f}{delete\+Removed\+Processors}} ()
+\begin{DoxyCompactList}\small\item\em Deletes any processors that were removed at the global level but not yet removed locally. \end{DoxyCompactList}\item 
+const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_processor_router_aed399a6457c7206cf35d3c575b9d21d3}{get\+Context}} (const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}processor) const
+\begin{DoxyCompactList}\small\item\em Gets the processor context within this router for a global \doxylink{classvital_1_1_processor}{Processor} reference. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvital_1_1_processor_router_ae9d882ba4884aad6e011488177885a56}{get\+Dependencies}} (const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}processor) const
+\begin{DoxyCompactList}\small\item\em Populates the internal dependencies structure for a given \doxylink{classvital_1_1_processor}{Processor}. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_processor_router_af1221aabafb55e72099c46e094b75f72}{get\+Local\+Processor}} (const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}global\+\_\+processor)
+\begin{DoxyCompactList}\small\item\em Retrieves the local instance of a globally defined \doxylink{classvital_1_1_processor}{Processor}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions inherited from \mbox{\hyperlink{classvital_1_1_processor}{vital\+::\+Processor}}}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_processor_aa6dfaa08c56142016d7bfb8985132c63}{add\+Output}} (int oversample=1)
+\begin{DoxyCompactList}\small\item\em Creates and registers a new \doxylink{structvital_1_1_output}{Output}. Handles control rate vs. audio rate. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structvital_1_1_input}{Input}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_processor_a37f1e0db6053084b36c3e939d93bfd17}{add\+Input}} ()
+\begin{DoxyCompactList}\small\item\em Creates and registers a new \doxylink{structvital_1_1_input}{Input}, initially connected to null\+\_\+source\+\_\+. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Additional Inherited Members}
+\doxysubsection*{Protected Attributes inherited from \mbox{\hyperlink{classvital_1_1_synth_module}{vital\+::\+Synth\+Module}}}
+\begin{DoxyCompactItemize}
+\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structvital_1_1_module_data}{Module\+Data}} $>$ \mbox{\hyperlink{classvital_1_1_synth_module_a4062f5371989f6445dfef9943a14d468}{data\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Shared data storage for this \doxylink{classvital_1_1_synth_module}{Synth\+Module}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes inherited from \mbox{\hyperlink{classvital_1_1_processor_router}{vital\+::\+Processor\+Router}}}
+\begin{DoxyCompactItemize}
+\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classvital_1_1_circular_queue}{Circular\+Queue}}$<$ \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*} $>$ $>$ \mbox{\hyperlink{classvital_1_1_processor_router_a80b0f439ed2a3395b7368e6e6e08be5a}{global\+\_\+order\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Global processing order reference. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classvital_1_1_circular_queue}{Circular\+Queue}}$<$ \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*} $>$ $>$ \mbox{\hyperlink{classvital_1_1_processor_router_adb3133fc9539fc2f3bbaef89d1ade304}{global\+\_\+reorder\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Temporary storage for reorder operations. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classvital_1_1_circular_queue}{Circular\+Queue}}$<$ \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*} $>$ \mbox{\hyperlink{classvital_1_1_processor_router_ad7b50fb0c85a4bfb4249accd79c53f1e}{local\+\_\+order\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Local ordering of Processors. \end{DoxyCompactList}\item 
+std\+::map$<$ const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}, std\+::pair$<$ int, std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classvital_1_1_processor}{Processor}} $>$ $>$ $>$ \mbox{\hyperlink{classvital_1_1_processor_router_a35a7167247ff12bb042f9224d48534a6}{processors\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Map of global to local Processors. \end{DoxyCompactList}\item 
+std\+::map$<$ const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}, std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classvital_1_1_processor}{Processor}} $>$ $>$ \mbox{\hyperlink{classvital_1_1_processor_router_a99f43b9da34a29911ed8df8f8839c1a1}{idle\+\_\+processors\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Idle Processors that are not active in the graph. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ std\+::vector$<$ const \mbox{\hyperlink{classvital_1_1_feedback}{Feedback}} \texorpdfstring{$\ast$}{*} $>$ $>$ \mbox{\hyperlink{classvital_1_1_processor_router_a7f64d093205c346eb27ffa0ce2b4a8c7}{global\+\_\+feedback\+\_\+order\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Global order of \doxylink{classvital_1_1_feedback}{Feedback} nodes. \end{DoxyCompactList}\item 
+std\+::vector$<$ \mbox{\hyperlink{classvital_1_1_feedback}{Feedback}} \texorpdfstring{$\ast$}{*} $>$ \mbox{\hyperlink{classvital_1_1_processor_router_a87be28861bfe6cf768ee244e4f7877be}{local\+\_\+feedback\+\_\+order\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Local copies of \doxylink{classvital_1_1_feedback}{Feedback} nodes. \end{DoxyCompactList}\item 
+std\+::map$<$ const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}, std\+::pair$<$ int, std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classvital_1_1_feedback}{Feedback}} $>$ $>$ $>$ \mbox{\hyperlink{classvital_1_1_processor_router_a064ca063a40b70ac3bd913f90cfb5b26}{feedback\+\_\+processors\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Map of global to local \doxylink{classvital_1_1_feedback}{Feedback} processors. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ int $>$ \mbox{\hyperlink{classvital_1_1_processor_router_a47473325d367640a685cbdafece68619}{global\+\_\+changes\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Global change counter. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classvital_1_1_processor_router_a18ae154ff39a2b8656b90779ab8baa50}{local\+\_\+changes\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Local change counter to track synchronization with global changes. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classvital_1_1_circular_queue}{Circular\+Queue}}$<$ const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*} $>$ $>$ \mbox{\hyperlink{classvital_1_1_processor_router_a0af6729c08f07e71c1d636a8318f2944}{dependencies\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Queue for dependencies calculations. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classvital_1_1_circular_queue}{Circular\+Queue}}$<$ const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*} $>$ $>$ \mbox{\hyperlink{classvital_1_1_processor_router_a9181b40895e99a7550efb14c6fdcf3e9}{dependencies\+\_\+visited\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Queue of visited processors for dependencies calc. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classvital_1_1_circular_queue}{Circular\+Queue}}$<$ const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*} $>$ $>$ \mbox{\hyperlink{classvital_1_1_processor_router_a96a105ef8c10efa5132b6c1cbdcdf196}{dependency\+\_\+inputs\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Queue of processors to check inputs for dependencies. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes inherited from \mbox{\hyperlink{classvital_1_1_processor}{vital\+::\+Processor}}}
+\begin{DoxyCompactItemize}
+\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structvital_1_1_processor_state}{Processor\+State}} $>$ \mbox{\hyperlink{classvital_1_1_processor_a01dfae5ad046d0d0a99880651b2fdd4f}{state\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Shared state (sample rate, oversample, etc.) \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classvital_1_1_processor_a3b363711ba194528b1a3e0568e64f943}{plugging\+\_\+start\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The index at which {\ttfamily plug\+Next} starts searching for an unplugged input. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structvital_1_1_input}{Input}} $>$ $>$ \mbox{\hyperlink{classvital_1_1_processor_a97a84a504204e5468d285ba94046121e}{owned\+\_\+inputs\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Inputs owned by this \doxylink{classvital_1_1_processor}{Processor}. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structvital_1_1_output}{Output}} $>$ $>$ \mbox{\hyperlink{classvital_1_1_processor_acb1514f529de1cd139f6d1bd65b36606}{owned\+\_\+outputs\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Outputs owned by this \doxylink{classvital_1_1_processor}{Processor}. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ std\+::vector$<$ \mbox{\hyperlink{structvital_1_1_input}{Input}} \texorpdfstring{$\ast$}{*} $>$ $>$ \mbox{\hyperlink{classvital_1_1_processor_a8a68011df2f062b0a13c62b3381da521}{inputs\+\_\+}}
+\begin{DoxyCompactList}\small\item\em All inputs, owned or external. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ std\+::vector$<$ \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} $>$ $>$ \mbox{\hyperlink{classvital_1_1_processor_aca25b595d1deda69cb8d83ab8d09899c}{outputs\+\_\+}}
+\begin{DoxyCompactList}\small\item\em All outputs, owned or external. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classvital_1_1_processor_router}{Processor\+Router}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classvital_1_1_processor_ace0e128ab619a92c4b2647b8157e1098}{router\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The \doxylink{classvital_1_1_processor_router}{Processor\+Router} that manages this \doxylink{classvital_1_1_processor}{Processor}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Static Protected Attributes inherited from \mbox{\hyperlink{classvital_1_1_processor}{vital\+::\+Processor}}}
+\begin{DoxyCompactItemize}
+\item 
+static const \mbox{\hyperlink{structvital_1_1_output}{Output}} \mbox{\hyperlink{classvital_1_1_processor_a813191fdb6729bffcf2bb1cab0b028fe}{null\+\_\+source\+\_\+}}
+\begin{DoxyCompactList}\small\item\em A null (dummy) source used for unconnected inputs. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+A \doxylink{classvital_1_1_synth_module}{Synth\+Module} and \doxylink{classvital_1_1_note_handler}{Note\+Handler} that manages a pool of polyphonic voices, handles note-\/on/off logic, and routes the data to multiple processors. 
+
+The \doxylink{classvital_1_1_voice_handler}{Voice\+Handler} class takes in note events (MIDI or otherwise) and dispatches them to available or stolen voices, tracks voice states (e.\+g., sustaining), and provides outputs that other modules can use to render audio or handle modulation based on active voices. 
+
+\doxysubsection{Member Enumeration Documentation}
+\Hypertarget{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49}\doxysubsubsection{\texorpdfstring{anonymous enum}{anonymous enum}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49} 
+anonymous enum}
+
+
+
+\doxylink{structvital_1_1_input}{Input} indexes for \doxylink{classvital_1_1_voice_handler}{Voice\+Handler} control parameters. 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kPolyphony@{kPolyphony}!vital::VoiceHandler@{vital::VoiceHandler}}\index{vital::VoiceHandler@{vital::VoiceHandler}!kPolyphony@{kPolyphony}}}\Hypertarget{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49ad4c79773dcc7cfe4bb9c09be7b4cd6b8}\label{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49} 
+k\+Polyphony&Desired polyphony setting (1..k\+Max\+Active\+Polyphony). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kVoicePriority@{kVoicePriority}!vital::VoiceHandler@{vital::VoiceHandler}}\index{vital::VoiceHandler@{vital::VoiceHandler}!kVoicePriority@{kVoicePriority}}}\Hypertarget{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49a7684082869598db6fba58e3d5421371c}\label{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49} 
+k\+Voice\+Priority&Priority scheme for stealing or reassigning voices. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kVoiceOverride@{kVoiceOverride}!vital::VoiceHandler@{vital::VoiceHandler}}\index{vital::VoiceHandler@{vital::VoiceHandler}!kVoiceOverride@{kVoiceOverride}}}\Hypertarget{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49aac12e1188289a6c76d73a32aa8eda374}\label{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49} 
+k\+Voice\+Override&Behavior when exceeding polyphony\+: kill or steal. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kNumInputs@{kNumInputs}!vital::VoiceHandler@{vital::VoiceHandler}}\index{vital::VoiceHandler@{vital::VoiceHandler}!kNumInputs@{kNumInputs}}}\Hypertarget{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49accd67974cef726a93d35cd61564cbe18}\label{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49} 
+k\+Num\+Inputs&\\
+\hline
+
+\end{DoxyEnumFields}
+\Hypertarget{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5}\index{vital::VoiceHandler@{vital::VoiceHandler}!VoiceOverride@{VoiceOverride}}
+\index{VoiceOverride@{VoiceOverride}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{VoiceOverride}{VoiceOverride}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5} 
+enum \mbox{\hyperlink{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5}{vital\+::\+Voice\+Handler\+::\+Voice\+Override}}}
+
+
+
+Behavior for assigning a new note when at max polyphony. 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kKill@{kKill}!vital::VoiceHandler@{vital::VoiceHandler}}\index{vital::VoiceHandler@{vital::VoiceHandler}!kKill@{kKill}}}\Hypertarget{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5a61e720f06cc7acaa9e67dcccb4f63f80}\label{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5} 
+k\+Kill&Immediately kill an existing voice to free one. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kSteal@{kSteal}!vital::VoiceHandler@{vital::VoiceHandler}}\index{vital::VoiceHandler@{vital::VoiceHandler}!kSteal@{kSteal}}}\Hypertarget{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5aec2d8374207a7daf9681cc835f52934a}\label{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5} 
+k\+Steal&Steal an existing voice that is in a certain state (released/sustained). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kNumVoiceOverrides@{kNumVoiceOverrides}!vital::VoiceHandler@{vital::VoiceHandler}}\index{vital::VoiceHandler@{vital::VoiceHandler}!kNumVoiceOverrides@{kNumVoiceOverrides}}}\Hypertarget{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5a5c31547657d16a8b1f763fae2802dad4}\label{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5} 
+k\+Num\+Voice\+Overrides&\\
+\hline
+
+\end{DoxyEnumFields}
+\Hypertarget{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5b}\index{vital::VoiceHandler@{vital::VoiceHandler}!VoicePriority@{VoicePriority}}
+\index{VoicePriority@{VoicePriority}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{VoicePriority}{VoicePriority}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5b} 
+enum \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5b}{vital\+::\+Voice\+Handler\+::\+Voice\+Priority}}}
+
+
+
+Determines the voice stealing strategy (oldest, newest, highest, etc.). 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kNewest@{kNewest}!vital::VoiceHandler@{vital::VoiceHandler}}\index{vital::VoiceHandler@{vital::VoiceHandler}!kNewest@{kNewest}}}\Hypertarget{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5bad88815db67e1315b0ff62a765ba50fd9}\label{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5b} 
+k\+Newest&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kOldest@{kOldest}!vital::VoiceHandler@{vital::VoiceHandler}}\index{vital::VoiceHandler@{vital::VoiceHandler}!kOldest@{kOldest}}}\Hypertarget{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5ba3f399bffb12929d40eb078bb8802614a}\label{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5b} 
+k\+Oldest&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kHighest@{kHighest}!vital::VoiceHandler@{vital::VoiceHandler}}\index{vital::VoiceHandler@{vital::VoiceHandler}!kHighest@{kHighest}}}\Hypertarget{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5ba25f8f497c6f4e71933241b0cc5054ffb}\label{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5b} 
+k\+Highest&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kLowest@{kLowest}!vital::VoiceHandler@{vital::VoiceHandler}}\index{vital::VoiceHandler@{vital::VoiceHandler}!kLowest@{kLowest}}}\Hypertarget{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5baf103c35e836a0c20290c220a7b945ab8}\label{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5b} 
+k\+Lowest&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kRoundRobin@{kRoundRobin}!vital::VoiceHandler@{vital::VoiceHandler}}\index{vital::VoiceHandler@{vital::VoiceHandler}!kRoundRobin@{kRoundRobin}}}\Hypertarget{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5ba21491e6bc8b080e87ac7368e988f3f03}\label{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5b} 
+k\+Round\+Robin&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{kNumVoicePriorities@{kNumVoicePriorities}!vital::VoiceHandler@{vital::VoiceHandler}}\index{vital::VoiceHandler@{vital::VoiceHandler}!kNumVoicePriorities@{kNumVoicePriorities}}}\Hypertarget{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5ba9799d3a5b1585f5e5a352030c4c59f93}\label{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5b} 
+k\+Num\+Voice\+Priorities&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classvital_1_1_voice_handler_a5e8fd363dbf6963b3519e82fd0817e0b}\index{vital::VoiceHandler@{vital::VoiceHandler}!VoiceHandler@{VoiceHandler}}
+\index{VoiceHandler@{VoiceHandler}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{VoiceHandler()}{VoiceHandler()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a5e8fd363dbf6963b3519e82fd0817e0b} 
+vital\+::\+Voice\+Handler\+::\+Voice\+Handler (\begin{DoxyParamCaption}\item[{int}]{num\+\_\+outputs}{, }\item[{int}]{polyphony}{, }\item[{bool}]{control\+\_\+rate}{ = {\ttfamily false}}\end{DoxyParamCaption})}
+
+
+
+Constructs a \doxylink{classvital_1_1_voice_handler}{Voice\+Handler} with a given polyphony and outputs. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em num\+\_\+outputs} & How many output channels to allocate (e.\+g., for various mod outputs). \\
+\hline
+{\em polyphony} & Number of voices to allow. \\
+\hline
+{\em control\+\_\+rate} & True if running at control rate (buffer\+\_\+size == 1). \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classvital_1_1_voice_handler_ab3915346519ca3ee2eac4a742d47b8cc}\index{vital::VoiceHandler@{vital::VoiceHandler}!VoiceHandler@{VoiceHandler}}
+\index{VoiceHandler@{VoiceHandler}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{VoiceHandler()}{VoiceHandler()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_ab3915346519ca3ee2eac4a742d47b8cc} 
+vital\+::\+Voice\+Handler\+::\+Voice\+Handler (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [delete]}}
+
+
+
+Disabled default constructor; must specify polyphony and output count. 
+
+\Hypertarget{classvital_1_1_voice_handler_a4fdca04b0083d2745de0378ab64385cf}\index{vital::VoiceHandler@{vital::VoiceHandler}!````~VoiceHandler@{\texorpdfstring{$\sim$}{\string~}VoiceHandler}}
+\index{````~VoiceHandler@{\texorpdfstring{$\sim$}{\string~}VoiceHandler}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{\texorpdfstring{$\sim$}{\string~}VoiceHandler()}{\string~VoiceHandler()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a4fdca04b0083d2745de0378ab64385cf} 
+vital\+::\+Voice\+Handler\+::\texorpdfstring{$\sim$}{\string~}\+Voice\+Handler (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Virtual destructor. 
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classvital_1_1_voice_handler_adbc3fd9c0b7be93f56c82ee8cd645f5b}\index{vital::VoiceHandler@{vital::VoiceHandler}!active\_mask@{active\_mask}}
+\index{active\_mask@{active\_mask}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{active\_mask()}{active\_mask()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_adbc3fd9c0b7be93f56c82ee8cd645f5b} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::active\+\_\+mask (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to active\+\_\+mask, a mask that indicates which voices are active. 
+
+\Hypertarget{classvital_1_1_voice_handler_a7d8139798f84bc48f799ffcc0b975c61}\index{vital::VoiceHandler@{vital::VoiceHandler}!addGlobalProcessor@{addGlobalProcessor}}
+\index{addGlobalProcessor@{addGlobalProcessor}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{addGlobalProcessor()}{addGlobalProcessor()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a7d8139798f84bc48f799ffcc0b975c61} 
+void vital\+::\+Voice\+Handler\+::add\+Global\+Processor (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}}]{processor}{}\end{DoxyParamCaption})}
+
+
+
+Adds a \doxylink{classvital_1_1_processor}{Processor} to the "{}global"{} (monophonic) router, e.\+g. for final mixing or master effects. 
+
+\Hypertarget{classvital_1_1_voice_handler_aa8cb1c88d309cc966904ef3af4f6cd51}\index{vital::VoiceHandler@{vital::VoiceHandler}!addIdleProcessor@{addIdleProcessor}}
+\index{addIdleProcessor@{addIdleProcessor}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{addIdleProcessor()}{addIdleProcessor()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_aa8cb1c88d309cc966904ef3af4f6cd51} 
+void vital\+::\+Voice\+Handler\+::add\+Idle\+Processor (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}}]{processor}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Adds a \doxylink{classvital_1_1_processor}{Processor} that should remain idle (not processed) in the router. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em processor} & The idle \doxylink{classvital_1_1_processor}{Processor} to add. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classvital_1_1_processor_router_a8bc90b699c1ec299b060ed0df32f476c}{vital\+::\+Processor\+Router}}.
+
+\Hypertarget{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}\index{vital::VoiceHandler@{vital::VoiceHandler}!addProcessor@{addProcessor}}
+\index{addProcessor@{addProcessor}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{addProcessor()}{addProcessor()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57} 
+void vital\+::\+Voice\+Handler\+::add\+Processor (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}}]{processor}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Adds a \doxylink{classvital_1_1_processor}{Processor} to be managed by this router. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em processor} & The \doxylink{classvital_1_1_processor}{Processor} to add.\\
+\hline
+\end{DoxyParams}
+The \doxylink{classvital_1_1_processor}{Processor} becomes part of the routing graph. The router ensures that the \doxylink{classvital_1_1_processor}{Processor} is run at the appropriate point in the signal flow. 
+
+Reimplemented from \mbox{\hyperlink{classvital_1_1_processor_router_af5322ce72a1e53f6d81ce917f07427e7}{vital\+::\+Processor\+Router}}.
+
+\Hypertarget{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}\index{vital::VoiceHandler@{vital::VoiceHandler}!aftertouch@{aftertouch}}
+\index{aftertouch@{aftertouch}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{aftertouch()}{aftertouch()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::aftertouch (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to aftertouch, storing per-\/voice or channel-\/based aftertouch. 
+
+\Hypertarget{classvital_1_1_voice_handler_a9c2e023d7557a286b9b1aae83a04ecb3}\index{vital::VoiceHandler@{vital::VoiceHandler}!allNotesOff@{allNotesOff}}
+\index{allNotesOff@{allNotesOff}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{allNotesOff()}{allNotesOff()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a9c2e023d7557a286b9b1aae83a04ecb3} 
+void vital\+::\+Voice\+Handler\+::all\+Notes\+Off (\begin{DoxyParamCaption}\item[{int}]{sample}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Turns off all currently active notes, optionally specifying a sample index for timing. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sample} & The sample index at which to turn off notes. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classvital_1_1_note_handler_a6c94e4a056f697c692a77784c85beab7}{vital\+::\+Note\+Handler}}.
+
+\Hypertarget{classvital_1_1_voice_handler_a7bdf2558b9659dab632975d2ec1613aa}\index{vital::VoiceHandler@{vital::VoiceHandler}!allNotesOff@{allNotesOff}}
+\index{allNotesOff@{allNotesOff}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{allNotesOff()}{allNotesOff()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a7bdf2558b9659dab632975d2ec1613aa} 
+void vital\+::\+Voice\+Handler\+::all\+Notes\+Off (\begin{DoxyParamCaption}\item[{int}]{sample}{, }\item[{int}]{channel}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Turns off all currently active notes on a specific MIDI channel, optionally specifying a sample index. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sample} & The sample index at which to turn off notes. \\
+\hline
+{\em channel} & The MIDI channel for which to turn off notes. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classvital_1_1_note_handler_a2b828ec89d3e342f0968d6e219a1014b}{vital\+::\+Note\+Handler}}.
+
+\Hypertarget{classvital_1_1_voice_handler_a13a31a0656c6bf3cb177e6464eea323e}\index{vital::VoiceHandler@{vital::VoiceHandler}!allNotesOffRange@{allNotesOffRange}}
+\index{allNotesOffRange@{allNotesOffRange}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{allNotesOffRange()}{allNotesOffRange()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a13a31a0656c6bf3cb177e6464eea323e} 
+void vital\+::\+Voice\+Handler\+::all\+Notes\+Off\+Range (\begin{DoxyParamCaption}\item[{int}]{sample}{, }\item[{int}]{from\+\_\+channel}{, }\item[{int}]{to\+\_\+channel}{}\end{DoxyParamCaption})}
+
+\Hypertarget{classvital_1_1_voice_handler_ab5cd9adc8d64167bf02b0bc0d2048c24}\index{vital::VoiceHandler@{vital::VoiceHandler}!allSoundsOff@{allSoundsOff}}
+\index{allSoundsOff@{allSoundsOff}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{allSoundsOff()}{allSoundsOff()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_ab5cd9adc8d64167bf02b0bc0d2048c24} 
+void vital\+::\+Voice\+Handler\+::all\+Sounds\+Off (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Immediately turns off all sounding notes and stops all sound production. 
+
+
+
+Implements \mbox{\hyperlink{classvital_1_1_note_handler_adbfb975ba5d6242308dc5bbb76b087f6}{vital\+::\+Note\+Handler}}.
+
+\Hypertarget{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}\index{vital::VoiceHandler@{vital::VoiceHandler}!channel@{channel}}
+\index{channel@{channel}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{channel()}{channel()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::channel (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to channel, indicating the MIDI channel of the voice. 
+
+\Hypertarget{classvital_1_1_voice_handler_a1bd2ab027225c7288cea4cf9c124f23e}\index{vital::VoiceHandler@{vital::VoiceHandler}!clone@{clone}}
+\index{clone@{clone}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{clone()}{clone()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a1bd2ab027225c7288cea4cf9c124f23e} 
+virtual \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::clone (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Clones this \doxylink{classvital_1_1_voice_handler}{Voice\+Handler}. Not supported for this class. 
+
+\begin{DoxyReturn}{Returns}
+Always returns nullptr after asserting false. 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classvital_1_1_synth_module_a14bd04d2ea806df8e895693f9663fe1e}{vital\+::\+Synth\+Module}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_a9b5e0340b7f83f6d1ce2acf272ad1eb8}{vital\+::\+Effects\+Modulation\+Handler}}, and \mbox{\hyperlink{classvital_1_1_synth_voice_handler_a53c9ec63906e7b41ba0d095220ef8ca6}{vital\+::\+Synth\+Voice\+Handler}}.
+
+\Hypertarget{classvital_1_1_voice_handler_a92047d76691ceeb37f21ce427ea807f3}\index{vital::VoiceHandler@{vital::VoiceHandler}!getAccumulatedOutput@{getAccumulatedOutput}}
+\index{getAccumulatedOutput@{getAccumulatedOutput}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{getAccumulatedOutput()}{getAccumulatedOutput()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a92047d76691ceeb37f21ce427ea807f3} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::get\+Accumulated\+Output (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}}]{output}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Retrieves the accumulated \doxylink{structvital_1_1_output}{Output} associated with a given output pointer. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em output} & The original \doxylink{structvital_1_1_output}{Output} pointer. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A pointer to the internally managed \doxylink{structvital_1_1_output}{Output} that accumulates across voices. 
+\end{DoxyReturn}
+\Hypertarget{classvital_1_1_voice_handler_af9dad893ef3471a4f17d5abbf00d39df}\index{vital::VoiceHandler@{vital::VoiceHandler}!getCurrentVoiceMask@{getCurrentVoiceMask}}
+\index{getCurrentVoiceMask@{getCurrentVoiceMask}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{getCurrentVoiceMask()}{getCurrentVoiceMask()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_af9dad893ef3471a4f17d5abbf00d39df} 
+\mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\+\_\+mask}} vital\+::\+Voice\+Handler\+::get\+Current\+Voice\+Mask (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Returns a mask for the last active voice, used for writing to output buffers. 
+
+\Hypertarget{classvital_1_1_voice_handler_abfd3ceae67afccbf3eac02d9b12483e0}\index{vital::VoiceHandler@{vital::VoiceHandler}!getLastActiveNote@{getLastActiveNote}}
+\index{getLastActiveNote@{getLastActiveNote}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{getLastActiveNote()}{getLastActiveNote()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_abfd3ceae67afccbf3eac02d9b12483e0} 
+\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}} vital\+::\+Voice\+Handler\+::get\+Last\+Active\+Note (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+
+
+Gets the last active note\textquotesingle{}s tuned frequency (or 0 if none). 
+
+\Hypertarget{classvital_1_1_voice_handler_a5c5a9ebd941b20b2aa6269aaa88bee25}\index{vital::VoiceHandler@{vital::VoiceHandler}!getMonoRouter@{getMonoRouter}}
+\index{getMonoRouter@{getMonoRouter}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{getMonoRouter()}{getMonoRouter()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a5c5a9ebd941b20b2aa6269aaa88bee25} 
+virtual \mbox{\hyperlink{classvital_1_1_processor_router}{Processor\+Router}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::get\+Mono\+Router (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Returns the monophonic (global) \doxylink{classvital_1_1_processor_router}{Processor\+Router} for this \doxylink{classvital_1_1_voice_handler}{Voice\+Handler}. 
+
+
+
+Reimplemented from \mbox{\hyperlink{classvital_1_1_processor_router_a737c2d4614b288a18bfda203f23fb04f}{vital\+::\+Processor\+Router}}.
+
+\Hypertarget{classvital_1_1_voice_handler_a4b764cef0010cc39069eda5a21217a0a}\index{vital::VoiceHandler@{vital::VoiceHandler}!getNumActiveVoices@{getNumActiveVoices}}
+\index{getNumActiveVoices@{getNumActiveVoices}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{getNumActiveVoices()}{getNumActiveVoices()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a4b764cef0010cc39069eda5a21217a0a} 
+int vital\+::\+Voice\+Handler\+::get\+Num\+Active\+Voices (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Returns the number of currently active voices (not dead). 
+
+\Hypertarget{classvital_1_1_voice_handler_a2479ebc5f317538af4b0b22f79593a9d}\index{vital::VoiceHandler@{vital::VoiceHandler}!getNumPressedNotes@{getNumPressedNotes}}
+\index{getNumPressedNotes@{getNumPressedNotes}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{getNumPressedNotes()}{getNumPressedNotes()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a2479ebc5f317538af4b0b22f79593a9d} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int vital\+::\+Voice\+Handler\+::get\+Num\+Pressed\+Notes (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns how many notes are pressed (including partial states). 
+
+\Hypertarget{classvital_1_1_voice_handler_aa694f92412944e785061e9bdc0a5b111}\index{vital::VoiceHandler@{vital::VoiceHandler}!getPolyRouter@{getPolyRouter}}
+\index{getPolyRouter@{getPolyRouter}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{getPolyRouter()}{getPolyRouter()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_aa694f92412944e785061e9bdc0a5b111} 
+virtual \mbox{\hyperlink{classvital_1_1_processor_router}{Processor\+Router}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::get\+Poly\+Router (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Returns the polyphonic (voice) \doxylink{classvital_1_1_processor_router}{Processor\+Router} for this \doxylink{classvital_1_1_voice_handler}{Voice\+Handler}. 
+
+
+
+Reimplemented from \mbox{\hyperlink{classvital_1_1_processor_router_a3fa90cbfd166bd59948cfb9a0dd66bc1}{vital\+::\+Processor\+Router}}.
+
+\Hypertarget{classvital_1_1_voice_handler_a4356352dc3f7b72cdd071d8a7d813651}\index{vital::VoiceHandler@{vital::VoiceHandler}!init@{init}}
+\index{init@{init}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{init()}{init()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a4356352dc3f7b72cdd071d8a7d813651} 
+void vital\+::\+Voice\+Handler\+::init (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Initializes the voice and global routers, then calls \doxylink{classvital_1_1_processor_adb6eaa40b95275a42029ed4c0c4bcba4}{Synth\+Module\+::init()}. 
+
+
+
+Reimplemented from \mbox{\hyperlink{classvital_1_1_processor_router_a6ebd94c5d73a14a1a20b67ddf60125ee}{vital\+::\+Processor\+Router}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_aa43af5cc3a7d4501b8f98dbc93c01efc}{vital\+::\+Effects\+Modulation\+Handler}}, and \mbox{\hyperlink{classvital_1_1_synth_voice_handler_a253f98dadfe6011cafa8a90407248f30}{vital\+::\+Synth\+Voice\+Handler}}.
+
+\Hypertarget{classvital_1_1_voice_handler_a53e3a45424bf758ea60616bc381b1b0e}\index{vital::VoiceHandler@{vital::VoiceHandler}!isNotePlaying@{isNotePlaying}}
+\index{isNotePlaying@{isNotePlaying}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{isNotePlaying()}{isNotePlaying()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a53e3a45424bf758ea60616bc381b1b0e} 
+bool vital\+::\+Voice\+Handler\+::is\+Note\+Playing (\begin{DoxyParamCaption}\item[{int}]{note}{}\end{DoxyParamCaption})}
+
+
+
+Checks if a given MIDI note is playing. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em note} & The MIDI note to check. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if any voice is on with that note, false otherwise. 
+\end{DoxyReturn}
+\Hypertarget{classvital_1_1_voice_handler_a829bd49908bd19715f936b8052ab66f6}\index{vital::VoiceHandler@{vital::VoiceHandler}!isNotePlaying@{isNotePlaying}}
+\index{isNotePlaying@{isNotePlaying}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{isNotePlaying()}{isNotePlaying()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a829bd49908bd19715f936b8052ab66f6} 
+bool vital\+::\+Voice\+Handler\+::is\+Note\+Playing (\begin{DoxyParamCaption}\item[{int}]{note}{, }\item[{int}]{channel}{}\end{DoxyParamCaption})}
+
+
+
+Checks if a given MIDI note is playing on a particular channel. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em note} & The MIDI note to check. \\
+\hline
+{\em channel} & The MIDI channel to check. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if a matching voice is found, false otherwise. 
+\end{DoxyReturn}
+\Hypertarget{classvital_1_1_voice_handler_acbcd8fd539c375970189efe6732e1ef6}\index{vital::VoiceHandler@{vital::VoiceHandler}!isPolyphonic@{isPolyphonic}}
+\index{isPolyphonic@{isPolyphonic}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{isPolyphonic()}{isPolyphonic()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_acbcd8fd539c375970189efe6732e1ef6} 
+bool vital\+::\+Voice\+Handler\+::is\+Polyphonic (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}}]{processor}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Checks if a given \doxylink{classvital_1_1_processor}{Processor} is handled by the poly (voice) router. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em processor} & The \doxylink{classvital_1_1_processor}{Processor} to check. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if {\ttfamily processor} belongs to the voice\+\_\+router\+\_\+, false otherwise. 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classvital_1_1_processor_router_a560081c1bcecdef978baf5411cefa7b2}{vital\+::\+Processor\+Router}}.
+
+\Hypertarget{classvital_1_1_voice_handler_ad6359772bd2bc8452c3a2c22b654751e}\index{vital::VoiceHandler@{vital::VoiceHandler}!last\_note@{last\_note}}
+\index{last\_note@{last\_note}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{last\_note()}{last\_note()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_ad6359772bd2bc8452c3a2c22b654751e} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::last\+\_\+note (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to the last\+\_\+note \doxylink{structvital_1_1_output}{Output}, giving the previous note (for legato transitions). 
+
+\Hypertarget{classvital_1_1_voice_handler_a8aacdc084da8809bd2becc881902da5c}\index{vital::VoiceHandler@{vital::VoiceHandler}!legato@{legato}}
+\index{legato@{legato}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{legato()}{legato()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a8aacdc084da8809bd2becc881902da5c} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} bool vital\+::\+Voice\+Handler\+::legato (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns true if legato mode is enabled. 
+
+\Hypertarget{classvital_1_1_voice_handler_ad144feadb03921b4e7e1efef2c7fa0e9}\index{vital::VoiceHandler@{vital::VoiceHandler}!lift@{lift}}
+\index{lift@{lift}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{lift()}{lift()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_ad144feadb03921b4e7e1efef2c7fa0e9} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::lift (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to lift, the note-\/off velocity or release velocity. 
+
+\Hypertarget{classvital_1_1_voice_handler_a265a67b52cf6b80a0a14dd20b18f61a6}\index{vital::VoiceHandler@{vital::VoiceHandler}!local\_pitch\_bend@{local\_pitch\_bend}}
+\index{local\_pitch\_bend@{local\_pitch\_bend}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{local\_pitch\_bend()}{local\_pitch\_bend()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a265a67b52cf6b80a0a14dd20b18f61a6} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::local\+\_\+pitch\+\_\+bend (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to local\+\_\+pitch\+\_\+bend, the per-\/voice pitch bend output. 
+
+\Hypertarget{classvital_1_1_voice_handler_a70bc08150629cec99717dc0a46c777e6}\index{vital::VoiceHandler@{vital::VoiceHandler}!mod\_wheel@{mod\_wheel}}
+\index{mod\_wheel@{mod\_wheel}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{mod\_wheel()}{mod\_wheel()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a70bc08150629cec99717dc0a46c777e6} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::mod\+\_\+wheel (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to mod\+\_\+wheel, storing the mod wheel value for each channel. 
+
+\Hypertarget{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}\index{vital::VoiceHandler@{vital::VoiceHandler}!note@{note}}
+\index{note@{note}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{note()}{note()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::note (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to the note \doxylink{structvital_1_1_output}{Output}, giving the current tuned note frequency or pitch. 
+
+\Hypertarget{classvital_1_1_voice_handler_a846e5c9914a34e31aad4d802fbd1b03e}\index{vital::VoiceHandler@{vital::VoiceHandler}!note\_count@{note\_count}}
+\index{note\_count@{note\_count}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{note\_count()}{note\_count()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a846e5c9914a34e31aad4d802fbd1b03e} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::note\+\_\+count (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to note\+\_\+count, a global note counter. 
+
+\Hypertarget{classvital_1_1_voice_handler_af3fd762c49f8027e66573046529622c8}\index{vital::VoiceHandler@{vital::VoiceHandler}!note\_in\_octave@{note\_in\_octave}}
+\index{note\_in\_octave@{note\_in\_octave}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{note\_in\_octave()}{note\_in\_octave()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_af3fd762c49f8027e66573046529622c8} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::note\+\_\+in\+\_\+octave (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to note\+\_\+in\+\_\+octave, a fractional note position in \mbox{[}0..1). 
+
+\Hypertarget{classvital_1_1_voice_handler_a3c664ee950ff76142332c898ab8149dc}\index{vital::VoiceHandler@{vital::VoiceHandler}!note\_pressed@{note\_pressed}}
+\index{note\_pressed@{note\_pressed}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{note\_pressed()}{note\_pressed()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a3c664ee950ff76142332c898ab8149dc} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::note\+\_\+pressed (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to the note\+\_\+pressed \doxylink{structvital_1_1_output}{Output}, a count of how many times a note was pressed. 
+
+\Hypertarget{classvital_1_1_voice_handler_a797a35d52f58f52d08e2e74fd109e033}\index{vital::VoiceHandler@{vital::VoiceHandler}!noteOff@{noteOff}}
+\index{noteOff@{noteOff}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{noteOff()}{noteOff()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a797a35d52f58f52d08e2e74fd109e033} 
+void vital\+::\+Voice\+Handler\+::note\+Off (\begin{DoxyParamCaption}\item[{int}]{note}{, }\item[{\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}}}]{lift}{, }\item[{int}]{sample}{, }\item[{int}]{channel}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Handles a MIDI note-\/off event, releasing a currently active note. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em note} & The MIDI note number (0-\/127). \\
+\hline
+{\em lift} & The release velocity (0.\+0 to 1.\+0). \\
+\hline
+{\em sample} & The sample index at which the note-\/off occurs. \\
+\hline
+{\em channel} & The MIDI channel on which the note-\/off occurred. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classvital_1_1_note_handler_aaea4e908d4268685798726857a721cdb}{vital\+::\+Note\+Handler}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_aced57b2ed9b092a3e3872086cd6db1f3}{vital\+::\+Effects\+Modulation\+Handler}}, and \mbox{\hyperlink{classvital_1_1_synth_voice_handler_a278dc53e817b2df71d48ed06969cb4d6}{vital\+::\+Synth\+Voice\+Handler}}.
+
+\Hypertarget{classvital_1_1_voice_handler_a2b1d804067ab284731a3ed878fd09657}\index{vital::VoiceHandler@{vital::VoiceHandler}!noteOn@{noteOn}}
+\index{noteOn@{noteOn}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{noteOn()}{noteOn()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a2b1d804067ab284731a3ed878fd09657} 
+void vital\+::\+Voice\+Handler\+::note\+On (\begin{DoxyParamCaption}\item[{int}]{note}{, }\item[{\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}}}]{velocity}{, }\item[{int}]{sample}{, }\item[{int}]{channel}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Handles a MIDI note-\/on event, starting a note with a specified velocity and timing. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em note} & The MIDI note number (0-\/127). \\
+\hline
+{\em velocity} & The velocity of the note-\/on event (0.\+0 to 1.\+0). \\
+\hline
+{\em sample} & The sample index at which the note-\/on occurs. \\
+\hline
+{\em channel} & The MIDI channel on which the note-\/on occurred. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classvital_1_1_note_handler_aa3b42be707f418c3486fc4e36ab57d2f}{vital\+::\+Note\+Handler}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_af65ffd61d42db7fa02470b7cfaf76aac}{vital\+::\+Effects\+Modulation\+Handler}}, and \mbox{\hyperlink{classvital_1_1_synth_voice_handler_abea0ee8ea0cec0aadb23326ab39cc264}{vital\+::\+Synth\+Voice\+Handler}}.
+
+\Hypertarget{classvital_1_1_voice_handler_a226348dca73703b71c33951215eda2a8}\index{vital::VoiceHandler@{vital::VoiceHandler}!pitch\_wheel@{pitch\_wheel}}
+\index{pitch\_wheel@{pitch\_wheel}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{pitch\_wheel()}{pitch\_wheel()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a226348dca73703b71c33951215eda2a8} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::pitch\+\_\+wheel (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to pitch\+\_\+wheel, storing the pitch-\/bend range for each channel. 
+
+\Hypertarget{classvital_1_1_voice_handler_a92a74775e0aa6b32f59b9476617d6deb}\index{vital::VoiceHandler@{vital::VoiceHandler}!pitch\_wheel\_percent@{pitch\_wheel\_percent}}
+\index{pitch\_wheel\_percent@{pitch\_wheel\_percent}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{pitch\_wheel\_percent()}{pitch\_wheel\_percent()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a92a74775e0aa6b32f59b9476617d6deb} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::pitch\+\_\+wheel\+\_\+percent (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to pitch\+\_\+wheel\+\_\+percent, a normalized \mbox{[}0..1\mbox{]} version of pitch\+\_\+wheel. 
+
+\Hypertarget{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}\index{vital::VoiceHandler@{vital::VoiceHandler}!polyphony@{polyphony}}
+\index{polyphony@{polyphony}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{polyphony()}{polyphony()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} int vital\+::\+Voice\+Handler\+::polyphony (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the current maximum polyphony (number of active voices allowed). 
+
+\Hypertarget{classvital_1_1_voice_handler_a6c379397d5efcd674dcf5e5f3511444a}\index{vital::VoiceHandler@{vital::VoiceHandler}!process@{process}}
+\index{process@{process}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{process()}{process()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a6c379397d5efcd674dcf5e5f3511444a} 
+void vital\+::\+Voice\+Handler\+::process (\begin{DoxyParamCaption}\item[{int}]{num\+\_\+samples}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Processes audio for a block of samples. For each active voice, triggers events, updates parameters, and runs its \doxylink{classvital_1_1_processor}{Processor}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em num\+\_\+samples} & The number of samples in this processing block. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classvital_1_1_processor_router_aeb03f0b2e5c2249dd065f26b8b3f1866}{vital\+::\+Processor\+Router}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_af7a098978c3a57d927f651ea5d0a7885}{vital\+::\+Effects\+Modulation\+Handler}}, and \mbox{\hyperlink{classvital_1_1_synth_voice_handler_a379361c03974b40b279b5dd4280c8233}{vital\+::\+Synth\+Voice\+Handler}}.
+
+\Hypertarget{classvital_1_1_voice_handler_ade40a08b9e01e1520ae1d5c18a37036f}\index{vital::VoiceHandler@{vital::VoiceHandler}!registerControlRateOutput@{registerControlRateOutput}}
+\index{registerControlRateOutput@{registerControlRateOutput}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{registerControlRateOutput()}{registerControlRateOutput()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_ade40a08b9e01e1520ae1d5c18a37036f} 
+\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::register\+Control\+Rate\+Output (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}}]{output}{, }\item[{bool}]{active}{}\end{DoxyParamCaption})}
+
+
+
+Registers a control-\/rate \doxylink{structvital_1_1_output}{Output} with the \doxylink{classvital_1_1_voice_handler}{Voice\+Handler}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em output} & The original \doxylink{structvital_1_1_output}{Output} pointer. \\
+\hline
+{\em active} & Whether this output is "{}active"{} (if false, it won\textquotesingle{}t get updates). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The new control-\/rate \doxylink{structvital_1_1_output}{Output} pointer owned by \doxylink{classvital_1_1_voice_handler}{Voice\+Handler}. 
+\end{DoxyReturn}
+\Hypertarget{classvital_1_1_voice_handler_ac6d558d9f34643e9b79cec8cf8fd4299}\index{vital::VoiceHandler@{vital::VoiceHandler}!registerOutput@{registerOutput}}
+\index{registerOutput@{registerOutput}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{registerOutput()}{registerOutput()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_ac6d558d9f34643e9b79cec8cf8fd4299} 
+\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::register\+Output (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}}]{output}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Registers an \doxylink{structvital_1_1_output}{Output} with this \doxylink{classvital_1_1_voice_handler}{Voice\+Handler}, returning a pointer to a new accumulated or single-\/lane \doxylink{structvital_1_1_output}{Output}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em output} & The original \doxylink{structvital_1_1_output}{Output} pointer from a \doxylink{classvital_1_1_processor}{Processor}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The new \doxylink{structvital_1_1_output}{Output} pointer (owned by \doxylink{classvital_1_1_voice_handler}{Voice\+Handler}). 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classvital_1_1_processor_a57db93c66eda4ad3b106891f1193b89e}{vital\+::\+Processor}}.
+
+\Hypertarget{classvital_1_1_voice_handler_ac6b212ebd68e8e46a619306a5aff5faa}\index{vital::VoiceHandler@{vital::VoiceHandler}!registerOutput@{registerOutput}}
+\index{registerOutput@{registerOutput}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{registerOutput()}{registerOutput()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_ac6b212ebd68e8e46a619306a5aff5faa} 
+\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::register\+Output (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}}]{output}{, }\item[{int}]{index}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Not implemented index-\/based register\+Output override (asserts false). 
+
+
+
+Reimplemented from \mbox{\hyperlink{classvital_1_1_processor_a26e293db393befbf0b0796bd0823f2cc}{vital\+::\+Processor}}.
+
+\Hypertarget{classvital_1_1_voice_handler_a0e61973632129c6a2e9fa1f91e3cf5e2}\index{vital::VoiceHandler@{vital::VoiceHandler}!removeGlobalProcessor@{removeGlobalProcessor}}
+\index{removeGlobalProcessor@{removeGlobalProcessor}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{removeGlobalProcessor()}{removeGlobalProcessor()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a0e61973632129c6a2e9fa1f91e3cf5e2} 
+void vital\+::\+Voice\+Handler\+::remove\+Global\+Processor (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}}]{processor}{}\end{DoxyParamCaption})}
+
+
+
+Removes a \doxylink{classvital_1_1_processor}{Processor} from the global router. 
+
+\Hypertarget{classvital_1_1_voice_handler_a609a240662e8d02977b3d78398489b91}\index{vital::VoiceHandler@{vital::VoiceHandler}!removeProcessor@{removeProcessor}}
+\index{removeProcessor@{removeProcessor}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{removeProcessor()}{removeProcessor()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a609a240662e8d02977b3d78398489b91} 
+void vital\+::\+Voice\+Handler\+::remove\+Processor (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}}]{processor}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Removes a \doxylink{classvital_1_1_processor}{Processor} from this router. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em processor} & The \doxylink{classvital_1_1_processor}{Processor} to remove. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classvital_1_1_processor_router_a2e2a39dff7f95f2faee9421b87133a4f}{vital\+::\+Processor\+Router}}.
+
+\Hypertarget{classvital_1_1_voice_handler_a976723d6f281467f174826548bacfad0}\index{vital::VoiceHandler@{vital::VoiceHandler}!reset@{reset}}
+\index{reset@{reset}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{reset()}{reset()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a976723d6f281467f174826548bacfad0} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::reset (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to the reset \doxylink{structvital_1_1_output}{Output}, indicating a full voice reset (On from Dead). 
+
+\Hypertarget{classvital_1_1_voice_handler_a2b6195a578e16b6ad1490a8a1d20b1cc}\index{vital::VoiceHandler@{vital::VoiceHandler}!resetFeedbacks@{resetFeedbacks}}
+\index{resetFeedbacks@{resetFeedbacks}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{resetFeedbacks()}{resetFeedbacks()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a2b6195a578e16b6ad1490a8a1d20b1cc} 
+void vital\+::\+Voice\+Handler\+::reset\+Feedbacks (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\+\_\+mask}}}]{reset\+\_\+mask}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Resets any feedback paths in the poly router, applying the given mask. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em reset\+\_\+mask} & The mask of voices to reset. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classvital_1_1_processor_router_ab064299dac2dfea05f18aeb91c5e22f7}{vital\+::\+Processor\+Router}}.
+
+\Hypertarget{classvital_1_1_voice_handler_a0b383ada4224e84985c24a6d933dc727}\index{vital::VoiceHandler@{vital::VoiceHandler}!retrigger@{retrigger}}
+\index{retrigger@{retrigger}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{retrigger()}{retrigger()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a0b383ada4224e84985c24a6d933dc727} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::retrigger (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to the retrigger \doxylink{structvital_1_1_output}{Output}, used for controlling certain envelope triggers. 
+
+\Hypertarget{classvital_1_1_voice_handler_a593542da24c24578fd81da57d585f498}\index{vital::VoiceHandler@{vital::VoiceHandler}!setActiveNonaccumulatedOutput@{setActiveNonaccumulatedOutput}}
+\index{setActiveNonaccumulatedOutput@{setActiveNonaccumulatedOutput}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setActiveNonaccumulatedOutput()}{setActiveNonaccumulatedOutput()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a593542da24c24578fd81da57d585f498} 
+void vital\+::\+Voice\+Handler\+::set\+Active\+Nonaccumulated\+Output (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}}]{output}{}\end{DoxyParamCaption})}
+
+
+
+Marks an \doxylink{structvital_1_1_output}{Output} as "{}active"{} for non-\/accumulated usage (e.\+g., for the last active voice only). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em output} & The original \doxylink{structvital_1_1_output}{Output} pointer. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classvital_1_1_voice_handler_a43abdff6282eb0c0c6e70dccde54e76b}\index{vital::VoiceHandler@{vital::VoiceHandler}!setAftertouch@{setAftertouch}}
+\index{setAftertouch@{setAftertouch}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setAftertouch()}{setAftertouch()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a43abdff6282eb0c0c6e70dccde54e76b} 
+void vital\+::\+Voice\+Handler\+::set\+Aftertouch (\begin{DoxyParamCaption}\item[{int}]{note}{, }\item[{\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}}}]{aftertouch}{, }\item[{int}]{sample}{, }\item[{int}]{channel}{}\end{DoxyParamCaption})}
+
+
+
+Handles per-\/note aftertouch for a specific note and channel. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em note} & The MIDI note. \\
+\hline
+{\em aftertouch} & The aftertouch value. \\
+\hline
+{\em sample} & The sample index for the event. \\
+\hline
+{\em channel} & MIDI channel. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classvital_1_1_voice_handler_a3a6ab79f983b43d55107f229c73dbbd6}\index{vital::VoiceHandler@{vital::VoiceHandler}!setChannelAftertouch@{setChannelAftertouch}}
+\index{setChannelAftertouch@{setChannelAftertouch}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setChannelAftertouch()}{setChannelAftertouch()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a3a6ab79f983b43d55107f229c73dbbd6} 
+void vital\+::\+Voice\+Handler\+::set\+Channel\+Aftertouch (\begin{DoxyParamCaption}\item[{int}]{channel}{, }\item[{\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}}}]{aftertouch}{, }\item[{int}]{sample}{}\end{DoxyParamCaption})}
+
+
+
+Sets channel-\/wide aftertouch (applies to all voices on that channel). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em channel} & MIDI channel. \\
+\hline
+{\em aftertouch} & The aftertouch value. \\
+\hline
+{\em sample} & The sample index for the event. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classvital_1_1_voice_handler_af8ae26a950af9e576f966df306b006b0}\index{vital::VoiceHandler@{vital::VoiceHandler}!setChannelRangeAftertouch@{setChannelRangeAftertouch}}
+\index{setChannelRangeAftertouch@{setChannelRangeAftertouch}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setChannelRangeAftertouch()}{setChannelRangeAftertouch()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_af8ae26a950af9e576f966df306b006b0} 
+void vital\+::\+Voice\+Handler\+::set\+Channel\+Range\+Aftertouch (\begin{DoxyParamCaption}\item[{int}]{from\+\_\+channel}{, }\item[{int}]{to\+\_\+channel}{, }\item[{\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}}}]{aftertouch}{, }\item[{int}]{sample}{}\end{DoxyParamCaption})}
+
+
+
+Sets channel-\/wide aftertouch for a range of channels. 
+
+\Hypertarget{classvital_1_1_voice_handler_afe3f0c1b675b5e681772f7d2cde81763}\index{vital::VoiceHandler@{vital::VoiceHandler}!setChannelRangeSlide@{setChannelRangeSlide}}
+\index{setChannelRangeSlide@{setChannelRangeSlide}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setChannelRangeSlide()}{setChannelRangeSlide()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_afe3f0c1b675b5e681772f7d2cde81763} 
+void vital\+::\+Voice\+Handler\+::set\+Channel\+Range\+Slide (\begin{DoxyParamCaption}\item[{int}]{from\+\_\+channel}{, }\item[{int}]{to\+\_\+channel}{, }\item[{\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}}}]{aftertouch}{, }\item[{int}]{sample}{}\end{DoxyParamCaption})}
+
+
+
+Sets channel-\/wide MPE "{}slide"{} for a range of channels. 
+
+\Hypertarget{classvital_1_1_voice_handler_afc55e52e9be6665f43c82ba25cfb4c57}\index{vital::VoiceHandler@{vital::VoiceHandler}!setChannelSlide@{setChannelSlide}}
+\index{setChannelSlide@{setChannelSlide}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setChannelSlide()}{setChannelSlide()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_afc55e52e9be6665f43c82ba25cfb4c57} 
+void vital\+::\+Voice\+Handler\+::set\+Channel\+Slide (\begin{DoxyParamCaption}\item[{int}]{channel}{, }\item[{\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}}}]{aftertouch}{, }\item[{int}]{sample}{}\end{DoxyParamCaption})}
+
+
+
+Sets channel-\/wide MPE "{}slide"{} for a single channel. 
+
+\Hypertarget{classvital_1_1_voice_handler_aba6c7e7efbd63d12efc9f7b46fc212c7}\index{vital::VoiceHandler@{vital::VoiceHandler}!setInactiveNonaccumulatedOutput@{setInactiveNonaccumulatedOutput}}
+\index{setInactiveNonaccumulatedOutput@{setInactiveNonaccumulatedOutput}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setInactiveNonaccumulatedOutput()}{setInactiveNonaccumulatedOutput()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_aba6c7e7efbd63d12efc9f7b46fc212c7} 
+void vital\+::\+Voice\+Handler\+::set\+Inactive\+Nonaccumulated\+Output (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}}]{output}{}\end{DoxyParamCaption})}
+
+
+
+Marks an \doxylink{structvital_1_1_output}{Output} as "{}inactive"{} for non-\/accumulated usage, effectively disabling it. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em output} & The original \doxylink{structvital_1_1_output}{Output} pointer. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classvital_1_1_voice_handler_aeb8d75e8ee4624fdcfa85aeaa897a75f}\index{vital::VoiceHandler@{vital::VoiceHandler}!setLegato@{setLegato}}
+\index{setLegato@{setLegato}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setLegato()}{setLegato()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_aeb8d75e8ee4624fdcfa85aeaa897a75f} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void vital\+::\+Voice\+Handler\+::set\+Legato (\begin{DoxyParamCaption}\item[{bool}]{legato}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Enables or disables legato mode (disables retriggers if still in Held state). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em legato} & True to enable legato mode, false otherwise. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classvital_1_1_voice_handler_a1641e8c060958f4971e74a9be5dc04a9}\index{vital::VoiceHandler@{vital::VoiceHandler}!setModWheel@{setModWheel}}
+\index{setModWheel@{setModWheel}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setModWheel()}{setModWheel()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a1641e8c060958f4971e74a9be5dc04a9} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void vital\+::\+Voice\+Handler\+::set\+Mod\+Wheel (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}}}]{value}{, }\item[{int}]{channel}{ = {\ttfamily 0}}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Sets the mod wheel value for a single channel. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & The new mod wheel value \mbox{[}0..1\mbox{]}. \\
+\hline
+{\em channel} & The MIDI channel. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classvital_1_1_voice_handler_aa3bcb5eede86b1589db1a6cc6473c806}\index{vital::VoiceHandler@{vital::VoiceHandler}!setModWheelAllChannels@{setModWheelAllChannels}}
+\index{setModWheelAllChannels@{setModWheelAllChannels}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setModWheelAllChannels()}{setModWheelAllChannels()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_aa3bcb5eede86b1589db1a6cc6473c806} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void vital\+::\+Voice\+Handler\+::set\+Mod\+Wheel\+All\+Channels (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}}}]{value}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Sets the mod wheel value for all channels at once. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & The new mod wheel value \mbox{[}0..1\mbox{]}. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classvital_1_1_voice_handler_a888b1914b8574338a37ec0e96bd14c72}\index{vital::VoiceHandler@{vital::VoiceHandler}!setOversampleAmount@{setOversampleAmount}}
+\index{setOversampleAmount@{setOversampleAmount}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setOversampleAmount()}{setOversampleAmount()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a888b1914b8574338a37ec0e96bd14c72} 
+virtual void vital\+::\+Voice\+Handler\+::set\+Oversample\+Amount (\begin{DoxyParamCaption}\item[{int}]{oversample}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Sets the oversampling factor for both \doxylink{classvital_1_1_synth_module}{Synth\+Module} and the internal poly/mono routers. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em oversample} & The new oversampling factor. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classvital_1_1_processor_router_a4c88954b0d0baec70f87485772d0c228}{vital\+::\+Processor\+Router}}.
+
+\Hypertarget{classvital_1_1_voice_handler_a7d0b8202d82ccdbdea3d7d874591d55a}\index{vital::VoiceHandler@{vital::VoiceHandler}!setPitchWheel@{setPitchWheel}}
+\index{setPitchWheel@{setPitchWheel}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setPitchWheel()}{setPitchWheel()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a7d0b8202d82ccdbdea3d7d874591d55a} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void vital\+::\+Voice\+Handler\+::set\+Pitch\+Wheel (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}}}]{value}{, }\item[{int}]{channel}{ = {\ttfamily 0}}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Sets the pitch wheel value for a single channel, applying to all held voices on that channel. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & The new pitch wheel value \mbox{[}0..1\mbox{]}. \\
+\hline
+{\em channel} & The MIDI channel. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classvital_1_1_voice_handler_a281bb6ca17fb3142dbf6c86460bf137b}\index{vital::VoiceHandler@{vital::VoiceHandler}!setPolyphony@{setPolyphony}}
+\index{setPolyphony@{setPolyphony}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setPolyphony()}{setPolyphony()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a281bb6ca17fb3142dbf6c86460bf137b} 
+void vital\+::\+Voice\+Handler\+::set\+Polyphony (\begin{DoxyParamCaption}\item[{int}]{polyphony}{}\end{DoxyParamCaption})}
+
+
+
+Sets the polyphony to a new value, allocating or freeing voices as needed. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em polyphony} & The desired number of voices (1..k\+Max\+Active\+Polyphony). \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classvital_1_1_voice_handler_acda85debb852419a5388c994684906bc}\index{vital::VoiceHandler@{vital::VoiceHandler}!setSampleRate@{setSampleRate}}
+\index{setSampleRate@{setSampleRate}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setSampleRate()}{setSampleRate()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_acda85debb852419a5388c994684906bc} 
+void vital\+::\+Voice\+Handler\+::set\+Sample\+Rate (\begin{DoxyParamCaption}\item[{int}]{sample\+\_\+rate}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Sets the sample rate for both mono/global and voice (poly) routers. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sample\+\_\+rate} & The base sample rate (pre-\/oversampling). \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classvital_1_1_processor_router_a7e0dd6e0873082d4883a3fa1e6e451a0}{vital\+::\+Processor\+Router}}.
+
+\Hypertarget{classvital_1_1_voice_handler_aae8ef13ab1a30f7512ea0dff5703a8e6}\index{vital::VoiceHandler@{vital::VoiceHandler}!setTuning@{setTuning}}
+\index{setTuning@{setTuning}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setTuning()}{setTuning()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_aae8ef13ab1a30f7512ea0dff5703a8e6} 
+void vital\+::\+Voice\+Handler\+::set\+Tuning (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_tuning}{Tuning}} \texorpdfstring{$\ast$}{*}}]{tuning}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Sets the custom \doxylink{class_tuning}{Tuning} object (if any) for note-\/\texorpdfstring{$>$}{>}frequency conversion. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em tuning} & Pointer to a \doxylink{class_tuning}{Tuning} object. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classvital_1_1_voice_handler_aa5b94e7e9b6c92fd4d0f5999e7a311a6}\index{vital::VoiceHandler@{vital::VoiceHandler}!setVoiceKiller@{setVoiceKiller}}
+\index{setVoiceKiller@{setVoiceKiller}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setVoiceKiller()}{setVoiceKiller()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_aa5b94e7e9b6c92fd4d0f5999e7a311a6} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void vital\+::\+Voice\+Handler\+::set\+Voice\+Killer (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}}]{killer}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Specifies an \doxylink{structvital_1_1_output}{Output} from a \doxylink{classvital_1_1_processor}{Processor} used to detect silence or inactivity for voice killing. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em killer} & A pointer to the "{}voice killer"{} \doxylink{structvital_1_1_output}{Output}. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classvital_1_1_voice_handler_ad5fea6c423d16c89ffd25ab5dc62d8f1}\index{vital::VoiceHandler@{vital::VoiceHandler}!setVoiceKiller@{setVoiceKiller}}
+\index{setVoiceKiller@{setVoiceKiller}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setVoiceKiller()}{setVoiceKiller()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_ad5fea6c423d16c89ffd25ab5dc62d8f1} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void vital\+::\+Voice\+Handler\+::set\+Voice\+Killer (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classvital_1_1_processor}{Processor}} \texorpdfstring{$\ast$}{*}}]{killer}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Overload for setting the voice killer from a \doxylink{classvital_1_1_processor}{Processor} directly. 
+
+\Hypertarget{classvital_1_1_voice_handler_aeefea73f352fe89dba038f4b7436dbac}\index{vital::VoiceHandler@{vital::VoiceHandler}!setVoiceMidi@{setVoiceMidi}}
+\index{setVoiceMidi@{setVoiceMidi}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setVoiceMidi()}{setVoiceMidi()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_aeefea73f352fe89dba038f4b7436dbac} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void vital\+::\+Voice\+Handler\+::set\+Voice\+Midi (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}}]{midi}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Sets the \doxylink{structvital_1_1_output}{Output} that provides the current MIDI note for the voice. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em midi} & \doxylink{structvital_1_1_output}{Output} pointer (e.\+g., note\+\_\+). \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classvital_1_1_voice_handler_aadae39a2b7b747f3620ac6b4e24275e8}\index{vital::VoiceHandler@{vital::VoiceHandler}!setZonedPitchWheel@{setZonedPitchWheel}}
+\index{setZonedPitchWheel@{setZonedPitchWheel}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{setZonedPitchWheel()}{setZonedPitchWheel()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_aadae39a2b7b747f3620ac6b4e24275e8} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} void vital\+::\+Voice\+Handler\+::set\+Zoned\+Pitch\+Wheel (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}}}]{value}{, }\item[{int}]{from\+\_\+channel}{, }\item[{int}]{to\+\_\+channel}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Sets pitch wheel in a zoned manner for a range of MIDI channels. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & The new pitch wheel value. \\
+\hline
+{\em from\+\_\+channel} & Starting channel. \\
+\hline
+{\em to\+\_\+channel} & Ending channel (inclusive). \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classvital_1_1_voice_handler_adf7416833ec7abc5d8b34c604720b969}\index{vital::VoiceHandler@{vital::VoiceHandler}!shouldAccumulate@{shouldAccumulate}}
+\index{shouldAccumulate@{shouldAccumulate}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{shouldAccumulate()}{shouldAccumulate()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_adf7416833ec7abc5d8b34c604720b969} 
+bool vital\+::\+Voice\+Handler\+::should\+Accumulate (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*}}]{output}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Determines whether an \doxylink{structvital_1_1_output}{Output} should be summed across voices (accumulated) or handled individually. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em output} & The \doxylink{structvital_1_1_output}{Output} pointer. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if it should be accumulated, false if not (e.\+g., control-\/rate). 
+\end{DoxyReturn}
+
+
+Reimplemented in \mbox{\hyperlink{classvital_1_1_effects_modulation_handler_aa44e9e78c31298184dd19cc7bbff0f30}{vital\+::\+Effects\+Modulation\+Handler}}, and \mbox{\hyperlink{classvital_1_1_synth_voice_handler_a2fe15deb6ce30075624da36ab4f4fdad}{vital\+::\+Synth\+Voice\+Handler}}.
+
+\Hypertarget{classvital_1_1_voice_handler_a462430bd8e71f5fe0a3930c5172052b5}\index{vital::VoiceHandler@{vital::VoiceHandler}!slide@{slide}}
+\index{slide@{slide}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{slide()}{slide()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a462430bd8e71f5fe0a3930c5172052b5} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::slide (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to slide, the MPE "{}slide"{} expression value. 
+
+\Hypertarget{classvital_1_1_voice_handler_ac199432b792697353449ae763eb52c99}\index{vital::VoiceHandler@{vital::VoiceHandler}!sostenutoOff@{sostenutoOff}}
+\index{sostenutoOff@{sostenutoOff}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{sostenutoOff()}{sostenutoOff()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_ac199432b792697353449ae763eb52c99} 
+void vital\+::\+Voice\+Handler\+::sostenuto\+Off (\begin{DoxyParamCaption}\item[{int}]{sample}{, }\item[{int}]{channel}{}\end{DoxyParamCaption})}
+
+
+
+Turns off sostenuto for a single channel, prompting release if not sustained. 
+
+\Hypertarget{classvital_1_1_voice_handler_a7c3e19cd0303954bbc991ef5bc7d349f}\index{vital::VoiceHandler@{vital::VoiceHandler}!sostenutoOffRange@{sostenutoOffRange}}
+\index{sostenutoOffRange@{sostenutoOffRange}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{sostenutoOffRange()}{sostenutoOffRange()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a7c3e19cd0303954bbc991ef5bc7d349f} 
+void vital\+::\+Voice\+Handler\+::sostenuto\+Off\+Range (\begin{DoxyParamCaption}\item[{int}]{sample}{, }\item[{int}]{from\+\_\+channel}{, }\item[{int}]{to\+\_\+channel}{}\end{DoxyParamCaption})}
+
+
+
+Turns off sostenuto for a range of channels, prompting release if not sustained. 
+
+\Hypertarget{classvital_1_1_voice_handler_a462a32d5c280a54d442b1af301974d00}\index{vital::VoiceHandler@{vital::VoiceHandler}!sostenutoOn@{sostenutoOn}}
+\index{sostenutoOn@{sostenutoOn}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{sostenutoOn()}{sostenutoOn()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a462a32d5c280a54d442b1af301974d00} 
+void vital\+::\+Voice\+Handler\+::sostenuto\+On (\begin{DoxyParamCaption}\item[{int}]{channel}{}\end{DoxyParamCaption})}
+
+
+
+Turns on sostenuto for a single channel. 
+
+\Hypertarget{classvital_1_1_voice_handler_affbb755df859e914c647911453e7cb5c}\index{vital::VoiceHandler@{vital::VoiceHandler}!sostenutoOnRange@{sostenutoOnRange}}
+\index{sostenutoOnRange@{sostenutoOnRange}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{sostenutoOnRange()}{sostenutoOnRange()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_affbb755df859e914c647911453e7cb5c} 
+void vital\+::\+Voice\+Handler\+::sostenuto\+On\+Range (\begin{DoxyParamCaption}\item[{int}]{from\+\_\+channel}{, }\item[{int}]{to\+\_\+channel}{}\end{DoxyParamCaption})}
+
+
+
+Turns on sostenuto for a range of channels. 
+
+\Hypertarget{classvital_1_1_voice_handler_aa42f3e7cfaccdd1df40de257c056098a}\index{vital::VoiceHandler@{vital::VoiceHandler}!sustainOff@{sustainOff}}
+\index{sustainOff@{sustainOff}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{sustainOff()}{sustainOff()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_aa42f3e7cfaccdd1df40de257c056098a} 
+void vital\+::\+Voice\+Handler\+::sustain\+Off (\begin{DoxyParamCaption}\item[{int}]{sample}{, }\item[{int}]{channel}{}\end{DoxyParamCaption})}
+
+
+
+Turns off sustain for a single channel, prompting voices to release. 
+
+\Hypertarget{classvital_1_1_voice_handler_ac28a59d52cd4a3dfa4790d4bd8fb6c2f}\index{vital::VoiceHandler@{vital::VoiceHandler}!sustainOffRange@{sustainOffRange}}
+\index{sustainOffRange@{sustainOffRange}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{sustainOffRange()}{sustainOffRange()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_ac28a59d52cd4a3dfa4790d4bd8fb6c2f} 
+void vital\+::\+Voice\+Handler\+::sustain\+Off\+Range (\begin{DoxyParamCaption}\item[{int}]{sample}{, }\item[{int}]{from\+\_\+channel}{, }\item[{int}]{to\+\_\+channel}{}\end{DoxyParamCaption})}
+
+
+
+Turns off sustain for a range of channels, prompting voices to release. 
+
+\Hypertarget{classvital_1_1_voice_handler_ae5b4747368b09bb35c6a61e16bdd0157}\index{vital::VoiceHandler@{vital::VoiceHandler}!sustainOn@{sustainOn}}
+\index{sustainOn@{sustainOn}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{sustainOn()}{sustainOn()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_ae5b4747368b09bb35c6a61e16bdd0157} 
+void vital\+::\+Voice\+Handler\+::sustain\+On (\begin{DoxyParamCaption}\item[{int}]{channel}{}\end{DoxyParamCaption})}
+
+
+
+Turns on sustain for a single channel. 
+
+\Hypertarget{classvital_1_1_voice_handler_ae385ce4f96cced338815457fa8a5b2ad}\index{vital::VoiceHandler@{vital::VoiceHandler}!sustainOnRange@{sustainOnRange}}
+\index{sustainOnRange@{sustainOnRange}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{sustainOnRange()}{sustainOnRange()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_ae385ce4f96cced338815457fa8a5b2ad} 
+void vital\+::\+Voice\+Handler\+::sustain\+On\+Range (\begin{DoxyParamCaption}\item[{int}]{from\+\_\+channel}{, }\item[{int}]{to\+\_\+channel}{}\end{DoxyParamCaption})}
+
+
+
+Turns on sustain for a range of channels. 
+
+\Hypertarget{classvital_1_1_voice_handler_a0864b01c35b14dd08f928d9a860c88a0}\index{vital::VoiceHandler@{vital::VoiceHandler}!velocity@{velocity}}
+\index{velocity@{velocity}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{velocity()}{velocity()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a0864b01c35b14dd08f928d9a860c88a0} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::velocity (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to velocity, the note-\/on velocity. 
+
+\Hypertarget{classvital_1_1_voice_handler_a5bab229a723b7e9320270adbdafe5470}\index{vital::VoiceHandler@{vital::VoiceHandler}!voice\_event@{voice\_event}}
+\index{voice\_event@{voice\_event}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{voice\_event()}{voice\_event()}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_a5bab229a723b7e9320270adbdafe5470} 
+\mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\+\_\+inline}} \mbox{\hyperlink{structvital_1_1_output}{Output}} \texorpdfstring{$\ast$}{*} vital\+::\+Voice\+Handler\+::voice\+\_\+event (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a pointer to the voice\+\_\+event \doxylink{structvital_1_1_output}{Output}, used to track voice On/\+Off/\+Kill events. 
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classvital_1_1_voice_handler_aa5164a224d49c5f13852661d1cdd1de0}\index{vital::VoiceHandler@{vital::VoiceHandler}!kLocalPitchBendRange@{kLocalPitchBendRange}}
+\index{kLocalPitchBendRange@{kLocalPitchBendRange}!vital::VoiceHandler@{vital::VoiceHandler}}
+\doxysubsubsection{\texorpdfstring{kLocalPitchBendRange}{kLocalPitchBendRange}}
+{\footnotesize\ttfamily \label{classvital_1_1_voice_handler_aa5164a224d49c5f13852661d1cdd1de0} 
+\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\+\_\+float}} vital\+::\+Voice\+Handler\+::k\+Local\+Pitch\+Bend\+Range = 48.\+0f\hspace{0.3cm}{\ttfamily [static]}, {\ttfamily [constexpr]}}
+
+
+
+Range of local pitch bend in semitones for each voice. 
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/davidvogel/repos/\+Vital\+Help/src/synthesis/framework/\mbox{\hyperlink{voice__handler_8h}{voice\+\_\+handler.\+h}}\item 
+/\+Users/davidvogel/repos/\+Vital\+Help/src/synthesis/framework/\mbox{\hyperlink{voice__handler_8cpp}{voice\+\_\+handler.\+cpp}}\end{DoxyCompactItemize}

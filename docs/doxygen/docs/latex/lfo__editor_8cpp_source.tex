@@ -1,0 +1,244 @@
+\doxysection{lfo\+\_\+editor.\+cpp}
+\hypertarget{lfo__editor_8cpp_source}{}\label{lfo__editor_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/lfo\_editor.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/lfo\_editor.cpp}}
+\mbox{\hyperlink{lfo__editor_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{lfo__editor_8h}{lfo\_editor.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{default__look__and__feel_8h}{default\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{shaders_8h}{shaders.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__gui__interface_8h}{synth\_gui\_interface.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__section_8h}{synth\_section.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \mbox{\hyperlink{class_lfo_editor_a5f4c0e8a0530f7d2d379d1c8ea3aa4f3}{LfoEditor::LfoEditor}}(\mbox{\hyperlink{class_line_generator}{LineGenerator}}*\ lfo\_source,\ String\ prefix,}
+\DoxyCodeLine{00011\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ mono\_modulations,}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_a4f29d888b099153b9d0980a73fdc89aa}{vital::output\_map}}\&\ poly\_modulations)\ :\ \mbox{\hyperlink{class_line_editor}{LineEditor}}(lfo\_source)\ \{}
+\DoxyCodeLine{00013\ \ \ parent\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00014\ \ \ wave\_phase\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00015\ \ \ frequency\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00016\ \ \ last\_phase\_\ =\ 0.0f;}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a2370751b939ff421b5ad9049ce7e008d}{setFill}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00019\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a189b7b9f30f4d7e46095ad96df34489e}{setFillCenter}}(-\/1.0f);}
+\DoxyCodeLine{00020\ \ \ setName(prefix);}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ last\_voice\_\ =\ -\/1.0f;}
+\DoxyCodeLine{00023\ \}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \mbox{\hyperlink{class_lfo_editor_a5aa0a032a1d0db44531b002326b2a625}{LfoEditor::\string~LfoEditor}}()\ \{\ \}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_lfo_editor_a381ae280d284da4e6d7729dcd3e700de}{LfoEditor::parentHierarchyChanged}}()\ \{}
+\DoxyCodeLine{00028\ \ \ parent\_\ =\ findParentComponentOfClass<SynthGuiInterface>();}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ \textcolor{keywordflow}{if}\ (wave\_phase\_\ ==\ \textcolor{keyword}{nullptr}\ \&\&\ parent\_)}
+\DoxyCodeLine{00031\ \ \ \ \ wave\_phase\_\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_add97643be1ba341314ac1b158206dc4b}{getStatusOutput}}(getName().toStdString()\ +\ \textcolor{stringliteral}{"{}\_phase"{}});}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \textcolor{keywordflow}{if}\ (frequency\_\ ==\ \textcolor{keyword}{nullptr}\ \&\&\ parent\_)}
+\DoxyCodeLine{00034\ \ \ \ \ frequency\_\ =\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_add97643be1ba341314ac1b158206dc4b}{getStatusOutput}}(getName().toStdString()\ +\ \textcolor{stringliteral}{"{}\_frequency"{}});}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \mbox{\hyperlink{class_open_gl_component_af9fb26cee075fba78305a7e79b53008d}{LineEditor::parentHierarchyChanged}}();}
+\DoxyCodeLine{00037\ \}}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_lfo_editor_a1f9c074cdc2f19aaa88d06e7578b37dc}{LfoEditor::mouseDown}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00040\ \ \ \textcolor{keywordflow}{if}\ (e.mods.isPopupMenu())\ \{}
+\DoxyCodeLine{00041\ \ \ \ \ \mbox{\hyperlink{struct_popup_items}{PopupItems}}\ options;}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keywordtype}{int}\ active\_point\ =\ \mbox{\hyperlink{class_line_editor_aca7b3ba5e385b35a5cb7705710405a0e}{getActivePoint}}();}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_point\ >=\ 0)\ \{}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_lfo_editor_a77fe7d52f585b954d5af2a0010656c82ace6a5c90ee6ae68e5aeef3cf49e3be93}{kSetPhaseToPoint}},\ \textcolor{stringliteral}{"{}Set\ Start\ Point"{}});}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_point\ >=\ 1\ \&\&\ active\_point\ <\ \mbox{\hyperlink{class_line_editor_a5bb57055fa4759d47be1cebe9ed39c54}{getModel}}()-\/>getNumPoints()\ -\/\ 1)\ \{}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5a15f5bcc508ce0bc7d7410907df6933e2}{kRemovePoint}},\ \textcolor{stringliteral}{"{}Remove\ Point"{}});}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5abb3bd8b71b76ea0e2b5c1215a4862a75}{kEnterPhase}},\ \textcolor{stringliteral}{"{}Enter\ Point\ Phase"{}});}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5a63e4a24b9e17b6dd722989a109c1e431}{kEnterValue}},\ \textcolor{stringliteral}{"{}Enter\ Point\ Value"{}});}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(-\/1,\ \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00053\ \ \ \ \ \}}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_editor_a7076df48eb6553d66d187550c2aab34a}{getActivePower}}()\ >=\ 0)\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_lfo_editor_a77fe7d52f585b954d5af2a0010656c82ad49f9711ca003fe2085cdc2fa3806c6f}{kSetPhaseToPower}},\ \textcolor{stringliteral}{"{}Set\ Start\ Point"{}});}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5aa15b5b5b822887bf6de0b1dee2df58eb}{kResetPower}},\ \textcolor{stringliteral}{"{}Reset\ Power"{}});}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(-\/1,\ \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00058\ \ \ \ \ \}}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_editor_ad5a86613fc782b88d79ab9d5679524ce}{getActiveGridSection}}()\ >=\ 0)}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_lfo_editor_a77fe7d52f585b954d5af2a0010656c82afc9f97624ba7b00b20bfd2a8501527db}{kSetPhaseToGrid}},\ \textcolor{stringliteral}{"{}Set\ Start\ Point"{}});}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5acd0f9021d07e45ffb01e08f6f47a179c}{kCopy}},\ \textcolor{stringliteral}{"{}Copy"{}});}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_line_editor_a60e5f98611e860de635342ebff38f677}{hasMatchingSystemClipboard}}())}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5aececa6253bdc5f18b5cd209fffd2a0d3}{kPaste}},\ \textcolor{stringliteral}{"{}Paste"{}});}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5a299b41bb18c160a751e0e365471b11f4}{kSave}},\ \textcolor{stringliteral}{"{}Save\ to\ LFOs"{}});}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5a122dd8b72e05384e6d23f1e9ae97b412}{kFlipHorizontal}},\ \textcolor{stringliteral}{"{}Flip\ Horizontal"{}});}
+\DoxyCodeLine{00069\ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_line_editor_a7f5d7c1c879a354511fc37c2e1b10de5aedebadfd1cb2c52d85fa5eef3a858f88}{kFlipVertical}},\ \textcolor{stringliteral}{"{}Flip\ Vertical"{}});}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_lfo_editor_a77fe7d52f585b954d5af2a0010656c82aebbc50628281f4d261bdfd47d6a9fe3a}{kImportLfo}},\ \textcolor{stringliteral}{"{}Import\ LFO"{}});}
+\DoxyCodeLine{00072\ \ \ \ \ options.\mbox{\hyperlink{struct_popup_items_a091b6aac3301c664924f0c520e32635a}{addItem}}(\mbox{\hyperlink{class_lfo_editor_a77fe7d52f585b954d5af2a0010656c82a05077d920a2b0ac7a7a2f541ddf2ec32}{kExportLfo}},\ \textcolor{stringliteral}{"{}Export\ LFO"{}});}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \ \ \mbox{\hyperlink{class_synth_section}{SynthSection}}*\ parent\ =\ findParentComponentOfClass<SynthSection>();}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keywordtype}{int}\ point\ =\ active\_point;}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keywordtype}{int}\ power\ =\ \mbox{\hyperlink{class_line_editor_a7076df48eb6553d66d187550c2aab34a}{getActivePower}}();}
+\DoxyCodeLine{00077\ \ \ \ \ parent-\/>\mbox{\hyperlink{class_synth_section_a9424df12646a0b756b1b58904b9be6ff}{showPopupSelector}}(\textcolor{keyword}{this},\ e.getPosition(),\ options,}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ [=](\textcolor{keywordtype}{int}\ selection)\ \{\ respondToCallback(point,\ power,\ selection);\ \});}
+\DoxyCodeLine{00079\ \ \ \}}
+\DoxyCodeLine{00080\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00081\ \ \ \ \ \mbox{\hyperlink{class_line_editor_ae769a0567e4f1e80a749e007cf59e550}{LineEditor::mouseDown}}(e);}
+\DoxyCodeLine{00082\ \}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_lfo_editor_adc8734c0ff423a03ec92ad62b2eae31e}{LfoEditor::mouseDoubleClick}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00085\ \ \ \textcolor{keywordflow}{if}\ (!e.mods.isPopupMenu())}
+\DoxyCodeLine{00086\ \ \ \ \ \mbox{\hyperlink{class_line_editor_a5673d4608a598f62e2419654eb8848ff}{LineEditor::mouseDoubleClick}}(e);}
+\DoxyCodeLine{00087\ \}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_lfo_editor_afa4c64f8f8aed6a25770ac4ae373fd29}{LfoEditor::mouseUp}}(\textcolor{keyword}{const}\ MouseEvent\&\ e)\ \{}
+\DoxyCodeLine{00090\ \ \ \textcolor{keywordflow}{if}\ (!e.mods.isPopupMenu())}
+\DoxyCodeLine{00091\ \ \ \ \ \mbox{\hyperlink{class_line_editor_a36433358f5873de0293d2590e8d84c0e}{LineEditor::mouseUp}}(e);}
+\DoxyCodeLine{00092\ \}}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_lfo_editor_ae2231ff5f3c271b854e80b2b4fbb884d}{LfoEditor::respondToCallback}}(\textcolor{keywordtype}{int}\ point,\ \textcolor{keywordtype}{int}\ power,\ \textcolor{keywordtype}{int}\ result)\ \{}
+\DoxyCodeLine{00095\ \ \ \textcolor{keywordflow}{if}\ (result\ ==\ \mbox{\hyperlink{class_lfo_editor_a77fe7d52f585b954d5af2a0010656c82ace6a5c90ee6ae68e5aeef3cf49e3be93}{kSetPhaseToPoint}})\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordflow}{if}\ (point\ >=\ 0\ \&\&\ point\ <\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}())}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \mbox{\hyperlink{class_lfo_editor_abe2aa998f8ee892219e95569c444efb4}{setPhase}}(\mbox{\hyperlink{class_line_editor_a5bb57055fa4759d47be1cebe9ed39c54}{getModel}}()-\/>getPoint(point).first);}
+\DoxyCodeLine{00098\ \ \ \}}
+\DoxyCodeLine{00099\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (result\ ==\ \mbox{\hyperlink{class_lfo_editor_a77fe7d52f585b954d5af2a0010656c82ad49f9711ca003fe2085cdc2fa3806c6f}{kSetPhaseToPower}})\ \{}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordflow}{if}\ (power\ >=\ 0\ \&\&\ power\ <\ \mbox{\hyperlink{class_open_gl_line_renderer_abc56c4ba15ec002553ec6f53a04bd97a}{numPoints}}()\ -\/\ 1)\ \{}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ from\ =\ \mbox{\hyperlink{class_line_editor_a5bb57055fa4759d47be1cebe9ed39c54}{getModel}}()-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(power).first;}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ to\ =\ \mbox{\hyperlink{class_line_editor_a5bb57055fa4759d47be1cebe9ed39c54}{getModel}}()-\/>\mbox{\hyperlink{class_line_generator_ade4110ba6fd92a5e9def4d280b87e9de}{getPoint}}(power\ +\ 1).first;}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \mbox{\hyperlink{class_lfo_editor_abe2aa998f8ee892219e95569c444efb4}{setPhase}}((from\ +\ to)\ /\ 2.0f);}
+\DoxyCodeLine{00104\ \ \ \ \ \}}
+\DoxyCodeLine{00105\ \ \ \}}
+\DoxyCodeLine{00106\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (result\ ==\ \mbox{\hyperlink{class_lfo_editor_a77fe7d52f585b954d5af2a0010656c82afc9f97624ba7b00b20bfd2a8501527db}{kSetPhaseToGrid}})\ \{}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordtype}{int}\ section\ =\ \mbox{\hyperlink{class_line_editor_ad5a86613fc782b88d79ab9d5679524ce}{getActiveGridSection}}();}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keywordtype}{int}\ grid\_size\ =\ \mbox{\hyperlink{class_line_editor_acd2765c3be13955ed005fa437b481656}{getGridSizeX}}();}
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordflow}{if}\ (section\ >=\ 0\ \&\&\ grid\_size\ >\ 0)}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \mbox{\hyperlink{class_lfo_editor_abe2aa998f8ee892219e95569c444efb4}{setPhase}}(section\ *\ 1.0f\ /\ grid\_size);}
+\DoxyCodeLine{00111\ \ \ \}}
+\DoxyCodeLine{00112\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (result\ ==\ \mbox{\hyperlink{class_lfo_editor_a77fe7d52f585b954d5af2a0010656c82aebbc50628281f4d261bdfd47d6a9fe3a}{kImportLfo}})\ \{}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_line_editor_1_1_listener}{Listener}}*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ listener-\/>importLfo();}
+\DoxyCodeLine{00115\ \ \ \}}
+\DoxyCodeLine{00116\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (result\ ==\ \mbox{\hyperlink{class_lfo_editor_a77fe7d52f585b954d5af2a0010656c82a05077d920a2b0ac7a7a2f541ddf2ec32}{kExportLfo}})\ \{}
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_line_editor_1_1_listener}{Listener}}*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ listener-\/>exportLfo();}
+\DoxyCodeLine{00119\ \ \ \}}
+\DoxyCodeLine{00120\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00121\ \ \ \ \ \mbox{\hyperlink{class_line_editor_ac59f867072cdc3844881e08eee5fb93a}{LineEditor::respondToCallback}}(point,\ power,\ result);}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \ \ \mbox{\hyperlink{class_line_editor_a0986102c0e92251d948a1d846fb067e6}{clearActiveMouseActions}}();}
+\DoxyCodeLine{00124\ \}}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_lfo_editor_abe2aa998f8ee892219e95569c444efb4}{LfoEditor::setPhase}}(\textcolor{keywordtype}{float}\ phase)\ \{}
+\DoxyCodeLine{00127\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{class_line_editor_1_1_listener}{Listener}}*\ listener\ :\ \mbox{\hyperlink{class_line_editor_ae7968b05c19c4cf2989a5b2939cdcfc2}{listeners\_}})}
+\DoxyCodeLine{00128\ \ \ \ \ listener-\/>setPhase(phase);}
+\DoxyCodeLine{00129\ \}}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_lfo_editor_a2b6ab10902d94df9a09c29477ca56c9d}{LfoEditor::render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00132\ \ \ \textcolor{comment}{//\ The\ rendering\ code\ sets\ up\ the\ LFO\ curve\ and\ the\ animated\ position\ indicator.}}
+\DoxyCodeLine{00133\ \ \ \textcolor{comment}{//\ It\ applies\ smoothing\ (boost\ and\ decay)\ to\ changes\ in\ phase\ and\ amplitude.}}
+\DoxyCodeLine{00134\ \ \ \textcolor{comment}{//\ The\ LFO\ curve\ is\ drawn\ along\ with\ optional\ stereo\ variations.}}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kBackupTime\ =\ 1.0f\ /\ 50.0f;}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ \mbox{\hyperlink{class_line_editor_aab19ed03fb2a6051de6ca202feaac605}{setGlPositions}}();}
+\DoxyCodeLine{00139\ \ \ \mbox{\hyperlink{class_line_editor_a0dd2d0c4d12de68b100210fcc8c461e2}{renderGrid}}(open\_gl,\ animate);}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ encoded\_phase\ =\ wave\_phase\_-\/>\mbox{\hyperlink{classvital_1_1_status_output_adc2827a952fdcedd4ba84d1e3b793240}{value}}();}
+\DoxyCodeLine{00142\ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{vital::poly\_mask}}\ inactive\_mask\ =\ 0;}
+\DoxyCodeLine{00143\ \ \ \textcolor{keywordflow}{if}\ (wave\_phase\_-\/>\mbox{\hyperlink{classvital_1_1_status_output_acfb390df9f235c3cd2e694c2b8293af8}{isClearValue}}(encoded\_phase))\ \{}
+\DoxyCodeLine{00144\ \ \ \ \ encoded\_phase\ =\ 0.0f;}
+\DoxyCodeLine{00145\ \ \ \ \ inactive\_mask\ =\ \mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{vital::constants::kFullMask}};}
+\DoxyCodeLine{00146\ \ \ \}}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ frequency\ =\ frequency\_-\/>\mbox{\hyperlink{classvital_1_1_status_output_adc2827a952fdcedd4ba84d1e3b793240}{value}}();}
+\DoxyCodeLine{00149\ \ \ \textcolor{keywordflow}{if}\ (frequency\_-\/>\mbox{\hyperlink{classvital_1_1_status_output_acfb390df9f235c3cd2e694c2b8293af8}{isClearValue}}(frequency))}
+\DoxyCodeLine{00150\ \ \ \ \ frequency\ =\ 0.0f;}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ std::pair<vital::poly\_float,\ vital::poly\_float>\ decoded\ =\ \mbox{\hyperlink{namespacevital_1_1utils_af9e790a10bedc9b9dd5279b689298de8}{vital::utils::decodePhaseAndVoice}}(encoded\_phase);}
+\DoxyCodeLine{00153\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ phase\ =\ decoded.first;}
+\DoxyCodeLine{00154\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ voice\ =\ decoded.second;}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00156\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ phase\_delta\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ac682406ecd547c6e897f3d09ac549105}{vital::poly\_float::abs}}(phase\ -\/\ last\_phase\_);}
+\DoxyCodeLine{00157\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ decay\ =\ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}(1.0f)\ -\/\ phase\_delta\ *\ \mbox{\hyperlink{class_lfo_editor_a31166de259048cfad3539d4a3a35c9fd}{kSpeedDecayMult}};}
+\DoxyCodeLine{00158\ \ \ decay\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{vital::utils::clamp}}(decay,\ \mbox{\hyperlink{class_lfo_editor_adf6d768494f252506a9de53097e6f047}{kBoostDecay}},\ 1.0f);}
+\DoxyCodeLine{00159\ \ \ decay\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{vital::utils::maskLoad}}(decay,\ \mbox{\hyperlink{class_lfo_editor_adf6d768494f252506a9de53097e6f047}{kBoostDecay}},\ inactive\_mask);}
+\DoxyCodeLine{00160\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a291a3b43c9a3f692ef2fd7989a2a5148}{decayBoosts}}(decay);}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{vital::poly\_mask}}\ switch\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ad58ea0499df6b4f55868db8213a12c98}{vital::poly\_float::notEqual}}(voice,\ last\_voice\_)\ |\ inactive\_mask;}
+\DoxyCodeLine{00163\ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ phase\_reset\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ab453d9dff7b875976c8c8e22047a8558}{vital::utils::max}}(0.0f,\ phase\ -\/\ frequency\ *\ kBackupTime);}
+\DoxyCodeLine{00164\ \ \ last\_phase\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{vital::utils::maskLoad}}(last\_phase\_,\ phase\_reset,\ switch\_mask);}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ \textcolor{keywordtype}{bool}\ animating\ =\ animate;}
+\DoxyCodeLine{00167\ \ \ \textcolor{keywordflow}{if}\ (parent\_)}
+\DoxyCodeLine{00168\ \ \ \ \ animating\ =\ animating\ \&\&\ parent\_-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_a36dcb3820193df171dc30bddf85aa946}{isModSourceEnabled}}(getName().toStdString());}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \ \ \textcolor{keywordflow}{if}\ (animating)}
+\DoxyCodeLine{00171\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ab885c7fae9b135539ab4e1541097800f}{boostRange}}(\mbox{\hyperlink{class_line_editor_a0d0ec4a62b8830f7afd1bb998b2b4531}{adjustBoostPhase}}(last\_phase\_),\ \mbox{\hyperlink{class_line_editor_a0d0ec4a62b8830f7afd1bb998b2b4531}{adjustBoostPhase}}(phase),\ \mbox{\hyperlink{class_line_editor_a84b2887dc814aaa98c67496956b414e5}{kNumWrapPoints}},\ decay);}
+\DoxyCodeLine{00172\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00173\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a291a3b43c9a3f692ef2fd7989a2a5148}{decayBoosts}}(0.0f);}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ \ \ last\_phase\_\ =\ phase;}
+\DoxyCodeLine{00176\ \ \ last\_voice\_\ =\ voice;}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_aa6fb221f264f39c93c973656445b5bea}{setLineWidth}}(\mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a0706c2f54d7b90b90c5e3141c4ea3e39}{Skin::kWidgetLineWidth}}));}
+\DoxyCodeLine{00179\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a189b7b9f30f4d7e46095ad96df34489e}{setFillCenter}}(\mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a4ecdcf3e37141374ba73b7841aa397f3}{Skin::kWidgetFillCenter}}));}
+\DoxyCodeLine{00180\ }
+\DoxyCodeLine{00181\ \ \ Colour\ fill\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca759c8acbffc8962e9ee2d8cba9677e73}{Skin::kWidgetSecondary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00182\ \ \ \textcolor{keywordtype}{float}\ fill\_fade\ =\ \mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a5268c3e135a7b246af15add8577ea3ac}{Skin::kWidgetFillFade}});}
+\DoxyCodeLine{00183\ \ \ Colour\ fill\_color\_fade\ =\ fill\_color.withMultipliedAlpha(1.0f\ -\/\ fill\_fade);}
+\DoxyCodeLine{00184\ \ \ Colour\ position\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \ \ Colour\ fill\_color\_stereo\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caf0e70a44ed7ab9d5dbef16a856b50cfb}{Skin::kWidgetSecondary2}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00187\ \ \ Colour\ fill\_color\_stereo\_fade\ =\ fill\_color\_stereo.withMultipliedAlpha(1.0f\ -\/\ fill\_fade);}
+\DoxyCodeLine{00188\ \ \ Colour\ position\_color\_stereo\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca52527c370464bf967aac85bb7c22a5ab}{Skin::kWidgetPrimary2}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \ \ \textcolor{keywordflow}{if}\ (animating)\ \{}
+\DoxyCodeLine{00191\ \ \ \ \ \textcolor{comment}{//\ Drawing\ the\ animated\ LFO\ lines\ and\ positions.}}
+\DoxyCodeLine{00192\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a2370751b939ff421b5ad9049ce7e008d}{setFill}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00193\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a5009bf6a1b7b6fc2e1d7cb077db2145e}{setBoostAmount}}(\mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a9c9397bfae636bb4478a9f360d91bba0}{Skin::kWidgetLineBoost}}));}
+\DoxyCodeLine{00194\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a320bfdf74261a460c79ba0a8eb464297}{setFillBoostAmount}}(\mbox{\hyperlink{class_open_gl_component_aabfea74619ee336cb31ea174c56d2c67}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180aa1c1e074ba7cbe057c9a24baa1ad84fa}{Skin::kWidgetFillBoost}}));}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00196\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_aeecc118f10773a802ba5b26c7f152fdc}{setIndex}}(1);}
+\DoxyCodeLine{00197\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca52527c370464bf967aac85bb7c22a5ab}{Skin::kWidgetPrimary2}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00198\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a8f1edffc163ebb29305d10f4f91eef33}{setFillColors}}(fill\_color\_stereo\_fade,\ fill\_color\_stereo);}
+\DoxyCodeLine{00199\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ace33179a7e0636d04f0226f87b7258aa}{drawLines}}(open\_gl,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_aeecc118f10773a802ba5b26c7f152fdc}{setIndex}}(0);}
+\DoxyCodeLine{00202\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00203\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a8f1edffc163ebb29305d10f4f91eef33}{setFillColors}}(fill\_color\_fade,\ fill\_color);}
+\DoxyCodeLine{00204\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ace33179a7e0636d04f0226f87b7258aa}{drawLines}}(open\_gl,\ \mbox{\hyperlink{class_open_gl_line_renderer_a93f03388eb1c1a55001e5b745ad4595d}{anyBoostValue}}());}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00206\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a5009bf6a1b7b6fc2e1d7cb077db2145e}{setBoostAmount}}(0.0f);}
+\DoxyCodeLine{00207\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a2370751b939ff421b5ad9049ce7e008d}{setFill}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00208\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cabbaf3da4792c5389424b537b943e52ac}{Skin::kWidgetCenterLine}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00209\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ace33179a7e0636d04f0226f87b7258aa}{drawLines}}(open\_gl,\ \mbox{\hyperlink{class_open_gl_line_renderer_a93f03388eb1c1a55001e5b745ad4595d}{anyBoostValue}}());}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ \ \ \ \ \mbox{\hyperlink{class_open_gl_component_a0641317fa0d502284c603188bb7da9a7}{setViewPort}}(open\_gl);}
+\DoxyCodeLine{00212\ \ \ \ \ \textcolor{keywordflow}{if}\ (switch\_mask.\mbox{\hyperlink{structvital_1_1poly__int_a3b380522ce405dcfc4800ff807a96d61}{sum}}()\ ==\ 0)\ \{}
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \mbox{\hyperlink{class_line_editor_ac91f850123f6738190d402fdc89d123f}{drawPosition}}(open\_gl,\ position\_color\_stereo,\ phase[1]);}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \mbox{\hyperlink{class_line_editor_ac91f850123f6738190d402fdc89d123f}{drawPosition}}(open\_gl,\ position\_color,\ phase[0]);}
+\DoxyCodeLine{00215\ \ \ \ \ \}}
+\DoxyCodeLine{00216\ \ \ \}}
+\DoxyCodeLine{00217\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00218\ \ \ \ \ \textcolor{comment}{//\ Drawing\ the\ static\ LFO\ lines\ without\ animation.}}
+\DoxyCodeLine{00219\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a5009bf6a1b7b6fc2e1d7cb077db2145e}{setBoostAmount}}(0.0f);}
+\DoxyCodeLine{00220\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a320bfdf74261a460c79ba0a8eb464297}{setFillBoostAmount}}(0.0f);}
+\DoxyCodeLine{00221\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a2370751b939ff421b5ad9049ce7e008d}{setFill}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00222\ }
+\DoxyCodeLine{00223\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca52527c370464bf967aac85bb7c22a5ab}{Skin::kWidgetPrimary2}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00224\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a8f1edffc163ebb29305d10f4f91eef33}{setFillColors}}(fill\_color\_stereo\_fade,\ fill\_color\_stereo);}
+\DoxyCodeLine{00225\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ace33179a7e0636d04f0226f87b7258aa}{drawLines}}(open\_gl,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00226\ }
+\DoxyCodeLine{00227\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00228\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a8f1edffc163ebb29305d10f4f91eef33}{setFillColors}}(fill\_color\_fade,\ fill\_color);}
+\DoxyCodeLine{00229\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ace33179a7e0636d04f0226f87b7258aa}{drawLines}}(open\_gl,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00230\ }
+\DoxyCodeLine{00231\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a2370751b939ff421b5ad9049ce7e008d}{setFill}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00232\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ab5d0f4d954c1f93976f1875145424f84}{setColor}}(findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127cabbaf3da4792c5389424b537b943e52ac}{Skin::kWidgetCenterLine}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00233\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ace33179a7e0636d04f0226f87b7258aa}{drawLines}}(open\_gl,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00234\ \ \ \}}
+\DoxyCodeLine{00235\ }
+\DoxyCodeLine{00236\ \ \ \mbox{\hyperlink{class_line_editor_ae17c347d018abdfc556e88c8a54b2f4b}{renderPoints}}(open\_gl,\ animate);}
+\DoxyCodeLine{00237\ \ \ \mbox{\hyperlink{class_open_gl_component_a5c6aa6d7c8a20882ce3b621efbf7e18b}{renderCorners}}(open\_gl,\ animate);}
+\DoxyCodeLine{00238\ \}}
+
+\end{DoxyCode}

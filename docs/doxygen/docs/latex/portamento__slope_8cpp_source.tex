@@ -1,0 +1,69 @@
+\doxysection{portamento\+\_\+slope.\+cpp}
+\hypertarget{portamento__slope_8cpp_source}{}\label{portamento__slope_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/utilities/portamento\_slope.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/utilities/portamento\_slope.cpp}}
+\mbox{\hyperlink{portamento__slope_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{portamento__slope_8h}{portamento\_slope.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{futils_8h}{futils.h}}"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_portamento_slope_a5cb9acece245b916c8f7a04b1ae72c87}{PortamentoSlope::PortamentoSlope}}()\ :}
+\DoxyCodeLine{00013\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}(kNumInputs,\ 1,\ true),}
+\DoxyCodeLine{00014\ \ \ \ \ \ \ \ \ \ \ \ \ position\_(0.0f)\ \{\ \}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_portamento_slope_a1ad0a87c611d869029cdf3329cec4279}{PortamentoSlope::processBypass}}(\textcolor{keywordtype}{int}\ start)\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ bypassed\ (no\ portamento),\ set\ position\ to\ 1.0\ (fully\ at\ target)}}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ position\_\ =\ 1.0f;}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Directly\ output\ target\ value\ as\ no\ portamento\ is\ occurring.}}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3eab022925b2d1139861490910d33bab148}{kTarget}})-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0];}
+\DoxyCodeLine{00021\ \ \ \ \ \}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_portamento_slope_a04af5ccf3bf6e40ea16181f05d98c755}{PortamentoSlope::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ force\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3eaffc5904e038bd0bd8ceca9938f68c46c}{kPortamentoForce}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0)[0];}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ run\_seconds\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3ea22f0f946c0b0803fb0603f9754abec90}{kRunSeconds}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Determine\ if\ the\ portamento\ is\ active\ (run\_seconds\ >\ minimum)}}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ active\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_afe451ece04ecb9be82648c49c4e27e7b}{poly\_float::greaterThan}}(run\_seconds,\ \mbox{\hyperlink{classvital_1_1_portamento_slope_aed1ddd620a563da842383b1a79cf5338}{kMinPortamentoTime}});}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_mask.\mbox{\hyperlink{structvital_1_1poly__int_a2fab54be2efa9a05ed842b91e4bad62d}{anyMask}}()\ ==\ 0)\ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ not\ active,\ just\ bypass.}}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_portamento_slope_a1ad0a87c611d869029cdf3329cec4279}{processBypass}}(0);}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Check\ for\ reset\ triggers.}}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask\ =\ \mbox{\hyperlink{classvital_1_1_processor_a7fed5dc3ae95e104c71f7ce7f570fab4}{getResetMask}}(\mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3ea9a60aee91c4683d8007f4e7ff9802acf}{kReset}});}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ position\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(position\_,\ 0.0f,\ reset\_mask);}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ not\ forcing\ portamento,\ consider\ the\ number\ of\ notes\ pressed.}}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!force)\ \{}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ num\_voices\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3ea71c8faae1a26e351bef053234bed8db2}{kNumNotesPressed}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \ \ \ \ reset\_mask\ =\ reset\_mask\ \&\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(num\_voices,\ 1.0f);}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \ \ \ \ position\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(position\_,\ 1.0f,\ reset\_mask);}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ target\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3eab022925b2d1139861490910d33bab148}{kTarget}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ source\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3ea73b8832943bd5d6674b9646168982432}{kSource}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ scaling\ is\ enabled,\ adjust\ the\ run\_seconds\ based\ on\ pitch\ interval.}}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3ea2fbe9daa954f8e791142b0114a8fba7d}{kPortamentoScale}})-\/>at(0)[0])\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ midi\_delta\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ac682406ecd547c6e897f3d09ac549105}{poly\_float::abs}}(target\ -\/\ source);}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Adjust\ run\ time\ by\ interval\ in\ octaves\ (or\ notes),\ defined\ in\ kNotesPerOctave.}}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ run\_seconds\ *=\ midi\_delta\ *\ (1.0f\ /\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{kNotesPerOctave}});}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ how\ much\ to\ move\ per\ sample.}}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ position\_delta\ =\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f\ *\ num\_samples)\ /\ (run\_seconds\ *\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}());}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ position\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(position\_\ +\ position\_delta,\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Apply\ power\ scaling\ to\ the\ position\ if\ a\ slope\ power\ is\ provided.}}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ power\ =\ -\/\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_portamento_slope_a19e08c15353dda0ff64f00c42ba5df3ea73790ee93bae5ea1127a97da26fdb761}{kSlopePower}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ adjusted\_position\ =\ \mbox{\hyperlink{namespacevital_1_1futils_aa31b3556c72e49b4c05ced2d1139f8e4}{futils::powerScale}}(position\_,\ power);}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Interpolate\ between\ source\ and\ target\ based\ on\ adjusted\ position.}}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}}[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(source,\ target,\ adjusted\_position);}
+\DoxyCodeLine{00066\ \ \ \ \ \}}
+\DoxyCodeLine{00067\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

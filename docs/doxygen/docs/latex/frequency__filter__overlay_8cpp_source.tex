@@ -1,0 +1,161 @@
+\doxysection{frequency\+\_\+filter\+\_\+overlay.\+cpp}
+\hypertarget{frequency__filter__overlay_8cpp_source}{}\label{frequency__filter__overlay_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/overlays/frequency\_filter\_overlay.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/overlays/frequency\_filter\_overlay.cpp}}
+\mbox{\hyperlink{frequency__filter__overlay_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{frequency__filter__overlay_8h}{frequency\_filter\_overlay.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__frame_8h}{wave\_frame.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__look__and__feel_8h}{text\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__selector_8h}{text\_selector.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00009\ \ \ \textcolor{comment}{//\ Lookup\ table\ for\ filter\ styles\ display\ names.}}
+\DoxyCodeLine{00010\ \ \ \textcolor{keyword}{const}\ std::string\ filter\_style\_lookup[\mbox{\hyperlink{class_frequency_filter_modifier_a99acdff41a72dd0835522ead69c8250ba03feaf6f3306bb894f4d3f774a261cce}{FrequencyFilterModifier::kNumFilterStyles}}]\ =\ \{}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{stringliteral}{"{}Low\ Pass"{}},}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{stringliteral}{"{}Band\ Pass"{}},}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{stringliteral}{"{}High\ Pass"{}},}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{stringliteral}{"{}Comb"{}},}
+\DoxyCodeLine{00015\ \ \ \};}
+\DoxyCodeLine{00016\ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \mbox{\hyperlink{class_frequency_filter_overlay_a09766fd1ced585322897a4e7bd2b8657}{FrequencyFilterOverlay::FrequencyFilterOverlay}}()\ :}
+\DoxyCodeLine{00019\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_overlay}{WavetableComponentOverlay}}(\textcolor{stringliteral}{"{}FREQUENCY\ FILTER"{}}),\ frequency\_modifier\_(nullptr)\ \{}
+\DoxyCodeLine{00020\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a353fb9ac9dd8bf495cdf4ee1d9d3048f}{current\_frame\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \textcolor{comment}{//\ Create\ and\ configure\ style\ selector}}
+\DoxyCodeLine{00023\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}\ =\ std::make\_unique<TextSelector>(\textcolor{stringliteral}{"{}Filter\ Style"{}});}
+\DoxyCodeLine{00024\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}.get());}
+\DoxyCodeLine{00025\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00026\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00027\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}-\/>setRange(0,\ \mbox{\hyperlink{class_frequency_filter_modifier_a99acdff41a72dd0835522ead69c8250ba03feaf6f3306bb894f4d3f774a261cce}{FrequencyFilterModifier::kNumFilterStyles}}\ -\/\ 1);}
+\DoxyCodeLine{00028\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}-\/>setLongStringLookup(filter\_style\_lookup);}
+\DoxyCodeLine{00029\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}-\/>setStringLookup(filter\_style\_lookup);}
+\DoxyCodeLine{00030\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00031\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00032\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \textcolor{comment}{//\ Create\ and\ configure\ normalization\ toggle}}
+\DoxyCodeLine{00035\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a4570408c6e2466320c576b15fc619736}{normalize\_}}\ =\ std::make\_unique<OpenGlToggleButton>(\textcolor{stringliteral}{"{}NORMALIZE"{}});}
+\DoxyCodeLine{00036\ \ \ addAndMakeVisible(\mbox{\hyperlink{class_frequency_filter_overlay_a4570408c6e2466320c576b15fc619736}{normalize\_}}.get());}
+\DoxyCodeLine{00037\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\mbox{\hyperlink{class_frequency_filter_overlay_a4570408c6e2466320c576b15fc619736}{normalize\_}}-\/>getGlComponent());}
+\DoxyCodeLine{00038\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a4570408c6e2466320c576b15fc619736}{normalize\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00039\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a4570408c6e2466320c576b15fc619736}{normalize\_}}-\/>getGlComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00040\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a4570408c6e2466320c576b15fc619736}{normalize\_}}-\/>setNoBackground();}
+\DoxyCodeLine{00041\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a4570408c6e2466320c576b15fc619736}{normalize\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00042\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a4570408c6e2466320c576b15fc619736}{normalize\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ \textcolor{comment}{//\ Create\ and\ configure\ cutoff\ slider}}
+\DoxyCodeLine{00045\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a9930f8b29453196c3e0fc6fd24775a62}{cutoff\_}}\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}Frequency\ Filter\ Cutoff"{}});}
+\DoxyCodeLine{00046\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_frequency_filter_overlay_a9930f8b29453196c3e0fc6fd24775a62}{cutoff\_}}.get());}
+\DoxyCodeLine{00047\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a9930f8b29453196c3e0fc6fd24775a62}{cutoff\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00048\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a9930f8b29453196c3e0fc6fd24775a62}{cutoff\_}}-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00049\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a9930f8b29453196c3e0fc6fd24775a62}{cutoff\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00050\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a9930f8b29453196c3e0fc6fd24775a62}{cutoff\_}}-\/>setRange(0.0f,\ \mbox{\hyperlink{classvital_1_1_wave_frame_a00d4d92ba3e17cbebdcfb9dff5590b2d}{vital::WaveFrame::kWaveformBits}}\ -\/\ 1);}
+\DoxyCodeLine{00051\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a9930f8b29453196c3e0fc6fd24775a62}{cutoff\_}}-\/>setDoubleClickReturnValue(\textcolor{keyword}{true},\ 4.0f);}
+\DoxyCodeLine{00052\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a9930f8b29453196c3e0fc6fd24775a62}{cutoff\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00053\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a9930f8b29453196c3e0fc6fd24775a62}{cutoff\_}}-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \textcolor{comment}{//\ Create\ and\ configure\ shape\ slider}}
+\DoxyCodeLine{00056\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a0267eb8357c642b4ae97bf47c49b0f0b}{shape\_}}\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}Frequency\ Filter\ Shape"{}});}
+\DoxyCodeLine{00057\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_frequency_filter_overlay_a0267eb8357c642b4ae97bf47c49b0f0b}{shape\_}}.get());}
+\DoxyCodeLine{00058\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a0267eb8357c642b4ae97bf47c49b0f0b}{shape\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00059\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a0267eb8357c642b4ae97bf47c49b0f0b}{shape\_}}-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00060\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a0267eb8357c642b4ae97bf47c49b0f0b}{shape\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00061\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a0267eb8357c642b4ae97bf47c49b0f0b}{shape\_}}-\/>setRange(0.0f,\ 1.0f);}
+\DoxyCodeLine{00062\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a0267eb8357c642b4ae97bf47c49b0f0b}{shape\_}}-\/>setDoubleClickReturnValue(\textcolor{keyword}{true},\ 0.5f);}
+\DoxyCodeLine{00063\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a0267eb8357c642b4ae97bf47c49b0f0b}{shape\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00064\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a0267eb8357c642b4ae97bf47c49b0f0b}{shape\_}}-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \textcolor{comment}{//\ Set\ up\ background\ lines\ and\ titles}}
+\DoxyCodeLine{00067\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_aa2fc0516ff532630f3bfcf5910e453b1}{clearTitles}}();}
+\DoxyCodeLine{00068\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}STYLE"{}});}
+\DoxyCodeLine{00069\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}CUTOFF"{}});}
+\DoxyCodeLine{00070\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}SHAPE"{}});}
+\DoxyCodeLine{00071\ \}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frequency_filter_overlay_a7cba180e465515d98b7f5747d136e6ad}{FrequencyFilterOverlay::frameSelected}}(\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00074\ \ \ \textcolor{keywordflow}{if}\ (keyframe\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00075\ \ \ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a353fb9ac9dd8bf495cdf4ee1d9d3048f}{current\_frame\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00076\ \ \ \}}
+\DoxyCodeLine{00077\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a568088f16dde91e6f8ae8d0f3fa5b755}{owner}}()\ ==\ \mbox{\hyperlink{class_frequency_filter_overlay_a3c0e77680628365dfebdcdc6930cc2a1}{frequency\_modifier\_}})\ \{}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{comment}{//\ Keyframe\ belongs\ to\ the\ same\ frequency\ modifier}}
+\DoxyCodeLine{00079\ \ \ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a353fb9ac9dd8bf495cdf4ee1d9d3048f}{current\_frame\_}}\ =\ \mbox{\hyperlink{class_frequency_filter_overlay_a3c0e77680628365dfebdcdc6930cc2a1}{frequency\_modifier\_}}-\/>\mbox{\hyperlink{class_frequency_filter_modifier_afa45265c6f76ccae4282a922e9c91249}{getKeyframe}}(keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a1faf74be7dd4b7f3f4ea0e83fa75ce8d}{index}}());}
+\DoxyCodeLine{00080\ \ \ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a9930f8b29453196c3e0fc6fd24775a62}{cutoff\_}}-\/>setValue(\mbox{\hyperlink{class_frequency_filter_overlay_a353fb9ac9dd8bf495cdf4ee1d9d3048f}{current\_frame\_}}-\/>\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_a8ed2ed3b9c33db7158d8f95fcb1626a2}{getCutoff}}(),\ dontSendNotification);}
+\DoxyCodeLine{00081\ \ \ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a0267eb8357c642b4ae97bf47c49b0f0b}{shape\_}}-\/>setValue(\mbox{\hyperlink{class_frequency_filter_overlay_a353fb9ac9dd8bf495cdf4ee1d9d3048f}{current\_frame\_}}-\/>\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_aad8ea9b2e80a9683f4f1d730ddb5997b}{getShape}}(),\ dontSendNotification);}
+\DoxyCodeLine{00082\ \ \ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a4570408c6e2466320c576b15fc619736}{normalize\_}}-\/>setToggleState(\mbox{\hyperlink{class_frequency_filter_overlay_a3c0e77680628365dfebdcdc6930cc2a1}{frequency\_modifier\_}}-\/>\mbox{\hyperlink{class_frequency_filter_modifier_a5e4160d0b2f6edd26b6418b205a4e2f9}{getNormalize}}(),\ dontSendNotification);}
+\DoxyCodeLine{00083\ \ \ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}-\/>setValue(\mbox{\hyperlink{class_frequency_filter_overlay_a3c0e77680628365dfebdcdc6930cc2a1}{frequency\_modifier\_}}-\/>\mbox{\hyperlink{class_frequency_filter_modifier_a69a6de77c3d24a9d672945243efa8ef6}{getStyle}}(),\ dontSendNotification);}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a9930f8b29453196c3e0fc6fd24775a62}{cutoff\_}}-\/>redoImage();}
+\DoxyCodeLine{00086\ \ \ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a0267eb8357c642b4ae97bf47c49b0f0b}{shape\_}}-\/>redoImage();}
+\DoxyCodeLine{00087\ \ \ \}}
+\DoxyCodeLine{00088\ \}}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frequency_filter_overlay_aa10e859dd78191fec5dd7affa958f4b3}{FrequencyFilterOverlay::setEditBounds}}(Rectangle<int>\ bounds)\ \{}
+\DoxyCodeLine{00091\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kSectionWidthHeightRatio\ =\ 4.0f;}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \ \textcolor{keywordtype}{int}\ padding\ =\ \mbox{\hyperlink{class_wavetable_component_overlay_a6247819afe1ddce8d34ad500917e3460}{getPadding}}();}
+\DoxyCodeLine{00094\ \ \ \textcolor{keywordtype}{int}\ section\_width\ =\ bounds.getHeight()\ *\ kSectionWidthHeightRatio;}
+\DoxyCodeLine{00095\ \ \ \textcolor{keywordtype}{int}\ total\_width\ =\ 4\ *\ section\_width\ +\ 3\ *\ padding;}
+\DoxyCodeLine{00096\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a16ea421b63ea56ec8a453dde9b45c7a7}{setControlsWidth}}(total\_width);}
+\DoxyCodeLine{00097\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2b9025728b8627dae45261e3d72814db}{WavetableComponentOverlay::setEditBounds}}(bounds);}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \textcolor{keywordtype}{int}\ x\ =\ bounds.getX()\ +\ (bounds.getWidth()\ -\/\ total\_width)\ /\ 2;}
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordtype}{int}\ title\_height\ =\ \mbox{\hyperlink{class_wavetable_component_overlay_a54c6e22bd9b774c88c6246d849ce8c56}{WavetableComponentOverlay::kTitleHeightRatio}}\ *\ bounds.getHeight();}
+\DoxyCodeLine{00101\ \ \ \textcolor{keywordtype}{int}\ y\ =\ bounds.getY();}
+\DoxyCodeLine{00102\ \ \ \textcolor{keywordtype}{int}\ y\_title\ =\ y\ +\ title\_height;}
+\DoxyCodeLine{00103\ \ \ \textcolor{keywordtype}{int}\ height\ =\ bounds.getHeight();}
+\DoxyCodeLine{00104\ \ \ \textcolor{keywordtype}{int}\ height\_title\ =\ height\ -\/\ title\_height;}
+\DoxyCodeLine{00105\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}-\/>setTextHeightPercentage(0.4f);}
+\DoxyCodeLine{00106\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}-\/>setBounds(x,\ y\_title,\ section\_width,\ height\_title);}
+\DoxyCodeLine{00107\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a9930f8b29453196c3e0fc6fd24775a62}{cutoff\_}}-\/>setBounds(\mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}-\/>getRight()\ +\ padding,\ y\_title,\ section\_width,\ height\_title);}
+\DoxyCodeLine{00108\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a0267eb8357c642b4ae97bf47c49b0f0b}{shape\_}}-\/>setBounds(\mbox{\hyperlink{class_frequency_filter_overlay_a9930f8b29453196c3e0fc6fd24775a62}{cutoff\_}}-\/>getRight()\ +\ padding,\ y\_title,\ section\_width,\ height\_title);}
+\DoxyCodeLine{00109\ \ \ \textcolor{keywordtype}{int}\ normalize\_padding\ =\ height\ /\ 6;}
+\DoxyCodeLine{00110\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a4570408c6e2466320c576b15fc619736}{normalize\_}}-\/>setBounds(\mbox{\hyperlink{class_frequency_filter_overlay_a0267eb8357c642b4ae97bf47c49b0f0b}{shape\_}}-\/>getRight(),\ y\ +\ normalize\_padding,}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ section\_width,\ height\ -\/\ 2\ *\ normalize\_padding);}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_af5926c7c594c424bc5f4e62574e85c39}{clearLines}}();}
+\DoxyCodeLine{00114\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(section\_width);}
+\DoxyCodeLine{00115\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(2\ *\ section\_width\ +\ padding);}
+\DoxyCodeLine{00116\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(3\ *\ section\_width\ +\ 2\ *\ padding);}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}-\/>redoImage();}
+\DoxyCodeLine{00119\ \}}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_frequency_filter_overlay_ae7b058054e5d3933d177e433d731b262}{FrequencyFilterOverlay::setFrequencyAmplitudeBounds}}(Rectangle<int>\ bounds)\ \{}
+\DoxyCodeLine{00122\ \ \ \textcolor{comment}{//\ Not\ actively\ used,\ just\ return\ true}}
+\DoxyCodeLine{00123\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00124\ \}}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frequency_filter_overlay_a781fc1f0204d347927fa06327ccf7d82}{FrequencyFilterOverlay::sliderValueChanged}}(Slider*\ moved\_slider)\ \{}
+\DoxyCodeLine{00127\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_frequency_filter_overlay_a353fb9ac9dd8bf495cdf4ee1d9d3048f}{current\_frame\_}}\ ==\ \textcolor{keyword}{nullptr}\ ||\ \mbox{\hyperlink{class_frequency_filter_overlay_a3c0e77680628365dfebdcdc6930cc2a1}{frequency\_modifier\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00130\ \ \ \textcolor{keywordflow}{if}\ (moved\_slider\ ==\ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}.get())\ \{}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keywordtype}{int}\ value\ =\ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}-\/>getValue();}
+\DoxyCodeLine{00132\ \ \ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a3c0e77680628365dfebdcdc6930cc2a1}{frequency\_modifier\_}}-\/>\mbox{\hyperlink{class_frequency_filter_modifier_abfbe7b05a69b1aa557090ce1a7afd121}{setStyle}}(\textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_frequency_filter_modifier_a99acdff41a72dd0835522ead69c8250b}{FrequencyFilterModifier::FilterStyle}}\textcolor{keyword}{>}(value));}
+\DoxyCodeLine{00133\ \ \ \}}
+\DoxyCodeLine{00134\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (moved\_slider\ ==\ \mbox{\hyperlink{class_frequency_filter_overlay_a9930f8b29453196c3e0fc6fd24775a62}{cutoff\_}}.get())\ \{}
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{keywordtype}{float}\ value\ =\ \mbox{\hyperlink{class_frequency_filter_overlay_a9930f8b29453196c3e0fc6fd24775a62}{cutoff\_}}-\/>getValue();}
+\DoxyCodeLine{00136\ \ \ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a353fb9ac9dd8bf495cdf4ee1d9d3048f}{current\_frame\_}}-\/>\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_af0d150dcfdc8d058b75dbe9a9930f328}{setCutoff}}(value);}
+\DoxyCodeLine{00137\ \ \ \}}
+\DoxyCodeLine{00138\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (moved\_slider\ ==\ \mbox{\hyperlink{class_frequency_filter_overlay_a0267eb8357c642b4ae97bf47c49b0f0b}{shape\_}}.get())\ \{}
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{keywordtype}{float}\ value\ =\ \mbox{\hyperlink{class_frequency_filter_overlay_a0267eb8357c642b4ae97bf47c49b0f0b}{shape\_}}-\/>getValue();}
+\DoxyCodeLine{00140\ \ \ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a353fb9ac9dd8bf495cdf4ee1d9d3048f}{current\_frame\_}}-\/>\mbox{\hyperlink{class_frequency_filter_modifier_1_1_frequency_filter_modifier_keyframe_ad630515118d0586a95aba54b43bb1840}{setShape}}(value);}
+\DoxyCodeLine{00141\ \ \ \}}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(moved\_slider\ ==\ \mbox{\hyperlink{class_frequency_filter_overlay_a5e65a89a5217ef3d0c25e786ab28832d}{style\_}}.get());}
+\DoxyCodeLine{00144\ \}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frequency_filter_overlay_af37f6c7d34c0cc0bb421f280d6826bfc}{FrequencyFilterOverlay::sliderDragEnded}}(Slider*\ moved\_slider)\ \{}
+\DoxyCodeLine{00147\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00148\ \}}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00150\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frequency_filter_overlay_a0493f5aa1cde4543d12ff2c126502849}{FrequencyFilterOverlay::buttonClicked}}(Button*\ clicked\_button)\ \{}
+\DoxyCodeLine{00151\ \ \ \textcolor{keywordflow}{if}\ (clicked\_button\ ==\ \mbox{\hyperlink{class_frequency_filter_overlay_a4570408c6e2466320c576b15fc619736}{normalize\_}}.get()\ \&\&\ \mbox{\hyperlink{class_frequency_filter_overlay_a3c0e77680628365dfebdcdc6930cc2a1}{frequency\_modifier\_}})\ \{}
+\DoxyCodeLine{00152\ \ \ \ \ \mbox{\hyperlink{class_frequency_filter_overlay_a3c0e77680628365dfebdcdc6930cc2a1}{frequency\_modifier\_}}-\/>\mbox{\hyperlink{class_frequency_filter_modifier_ac5f06e1aaa22eec7569f3ed266b17f89}{setNormalize}}(\mbox{\hyperlink{class_frequency_filter_overlay_a4570408c6e2466320c576b15fc619736}{normalize\_}}-\/>getToggleState());}
+\DoxyCodeLine{00153\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00154\ \ \ \}}
+\DoxyCodeLine{00155\ \}}
+
+\end{DoxyCode}

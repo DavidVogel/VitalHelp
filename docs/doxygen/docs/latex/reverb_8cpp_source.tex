@@ -1,0 +1,474 @@
+\doxysection{reverb.\+cpp}
+\hypertarget{reverb_8cpp_source}{}\label{reverb_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/effects/reverb.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/effects/reverb.cpp}}
+\mbox{\hyperlink{reverb_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{reverb_8h}{reverb.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{futils_8h}{futils.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{memory_8h}{memory.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \ \ \textcolor{comment}{//============================================================================}}
+\DoxyCodeLine{00010\ \ \ \textcolor{comment}{//\ Local\ constants\ for\ reverb-\/specific\ processing}}
+\DoxyCodeLine{00011\ \ \ \textcolor{comment}{//============================================================================}}
+\DoxyCodeLine{00012\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMaxChorusDrift\ =\ 2500.0f;}
+\DoxyCodeLine{00013\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMinDecayTime\ =\ 0.1f;}
+\DoxyCodeLine{00014\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMaxDecayTime\ =\ 100.0f;}
+\DoxyCodeLine{00015\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMaxChorusFrequency\ =\ 16.0f;}
+\DoxyCodeLine{00016\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kChorusShiftAmount\ =\ 0.9f;}
+\DoxyCodeLine{00017\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kSampleDelayMultiplier\ =\ 0.05f;}
+\DoxyCodeLine{00018\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kSampleIncrementMultiplier\ =\ 0.05f;}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \textcolor{comment}{//\ Fixed\ per-\/container\ all-\/pass\ delays}}
+\DoxyCodeLine{00021\ \ \ \textcolor{keyword}{const}\ poly\_int\ \mbox{\hyperlink{classvital_1_1_reverb_ac50a607e7abcc999ca53ccdda903f864}{Reverb::kAllpassDelays}}[kNetworkContainers]\ =\ \{}
+\DoxyCodeLine{00022\ \ \ \ \ \{\ 1001,\ 799,\ 933,\ 876\ \},}
+\DoxyCodeLine{00023\ \ \ \ \ \{\ 895,\ 807,\ 907,\ 853\ \},}
+\DoxyCodeLine{00024\ \ \ \ \ \{\ 957,\ 1019,\ 711,\ 567\ \},}
+\DoxyCodeLine{00025\ \ \ \ \ \{\ 833,\ 779,\ 663,\ 997\ \}}
+\DoxyCodeLine{00026\ \ \ \};}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \textcolor{comment}{//\ Fixed\ per-\/container\ feedback\ delays\ (in\ floating-\/point\ samples)}}
+\DoxyCodeLine{00029\ \ \ \textcolor{keyword}{const}\ poly\_float\ \mbox{\hyperlink{classvital_1_1_reverb_a7f5b807e80b714a6687b1b25ba4cf60d}{Reverb::kFeedbackDelays}}[kNetworkContainers]\ =\ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \{\ 6753.2f,\ 9278.4f,\ 7704.5f,\ 11328.5f\ \},}
+\DoxyCodeLine{00031\ \ \ \ \ \{\ 9701.12f,\ 5512.5f,\ 8480.45f,\ 5638.65f\ \},}
+\DoxyCodeLine{00032\ \ \ \ \ \{\ 3120.73f,\ 3429.5f,\ 3626.37f,\ 7713.52f\ \},}
+\DoxyCodeLine{00033\ \ \ \ \ \{\ 4521.54f,\ 6518.97f,\ 5265.56f,\ 5630.25f\ \}}
+\DoxyCodeLine{00034\ \ \ \};}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00041\ \ \ \mbox{\hyperlink{classvital_1_1_reverb_ad84eef84d66ad2e707eb002ab542619b}{Reverb::Reverb}}()}
+\DoxyCodeLine{00042\ \ \ \ \ :\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}(kNumInputs,\ 1),}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ chorus\_phase\_(0.0f),}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ chorus\_amount\_(0.0f),}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ feedback\_(0.0f),}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ damping\_(0.0f),}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ dry\_(0.0f),}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ wet\_(0.0f),}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ write\_index\_(0),}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ max\_allpass\_size\_(0),}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ max\_feedback\_size\_(0),}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ feedback\_mask\_(0),}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ allpass\_mask\_(0),}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ poly\_allpass\_mask\_(0)\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{comment}{//\ Initialize\ buffer\ sizes\ for\ default\ sample\ rate}}
+\DoxyCodeLine{00056\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a868cd131fffe0c8911bbf82f14cb0603}{setupBuffersForSampleRate}}(\mbox{\hyperlink{classvital_1_1_reverb_a247f355df577186c0703f945b4330f09}{kDefaultSampleRate}});}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{comment}{//\ StereoMemory\ for\ final\ summation}}
+\DoxyCodeLine{00059\ \ \ \ \ memory\_\ =\ std::make\_unique<StereoMemory>(\mbox{\hyperlink{namespacevital_abaef014ec65384fc46e96cd9ec9edcd1}{kMaxSampleRate}});}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{comment}{//\ Initialize\ decays\ and\ filter\ coefficients}}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_reverb_a71ac7d9470797a474cf53ab33d6ced78}{kNetworkContainers}};\ ++i)}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ decays\_[i]\ =\ 0.0f;}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \ \ low\_pre\_coefficient\_\ =\ 0.1f;}
+\DoxyCodeLine{00066\ \ \ \ \ high\_pre\_coefficient\_\ =\ 0.1f;}
+\DoxyCodeLine{00067\ \ \ \ \ low\_coefficient\_\ =\ 0.1f;}
+\DoxyCodeLine{00068\ \ \ \ \ high\_coefficient\_\ =\ 0.1f;}
+\DoxyCodeLine{00069\ \ \ \ \ low\_amplitude\_\ =\ 0.0f;}
+\DoxyCodeLine{00070\ \ \ \ \ high\_amplitude\_\ =\ 0.0f;}
+\DoxyCodeLine{00071\ \ \ \ \ sample\_delay\_\ =\ \mbox{\hyperlink{classvital_1_1_reverb_a07a250709a458c90f19d756800436d8e}{kMinDelay}};}
+\DoxyCodeLine{00072\ \ \ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00079\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_reverb_a868cd131fffe0c8911bbf82f14cb0603}{Reverb::setupBuffersForSampleRate}}(\textcolor{keywordtype}{int}\ sample\_rate)\ \{}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordtype}{int}\ buffer\_scale\ =\ \mbox{\hyperlink{classvital_1_1_reverb_a2904eecb07642e9851446856443b2002}{getBufferScale}}(sample\_rate);}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{comment}{//\ Compute\ maximum\ feedback\ buffer\ size}}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{keywordtype}{int}\ max\_feedback\_size\ =\ buffer\_scale\ *\ (1\ <<\ (\mbox{\hyperlink{classvital_1_1_reverb_ad75432475304d830ede4f861af82f3d2}{kBaseFeedbackBits}}\ +\ \mbox{\hyperlink{classvital_1_1_reverb_ad8dc4dcd0f82de58b63b457f8e7e405c}{kMaxSizePower}}));}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordflow}{if}\ (max\_feedback\_size\_\ ==\ max\_feedback\_size)}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \textcolor{keywordflow}{return};\ \ \textcolor{comment}{//\ No\ change\ needed}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \ \ max\_feedback\_size\_\ =\ max\_feedback\_size;}
+\DoxyCodeLine{00088\ \ \ \ \ feedback\_mask\_\ =\ max\_feedback\_size\_\ -\/\ 1;}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{comment}{//\ Reallocate\ feedback\ memories\ and\ pointers}}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_reverb_af2926ad162c909a5ca1a57e77ac15ce7}{kNetworkSize}};\ ++i)\ \{}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ feedback\_memories\_[i]\ =\ std::make\_unique<mono\_float[]>(max\_feedback\_size\_\ +\ \mbox{\hyperlink{classvital_1_1_reverb_a4edfcb2dc27cf8d90fbabeb6764e4983}{kExtraLookupSample}});}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ feedback\_lookups\_[i]\ =\ feedback\_memories\_[i].get()\ +\ 1;\ \ \textcolor{comment}{//\ offset\ for\ wrapping}}
+\DoxyCodeLine{00094\ \ \ \ \ \}}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{comment}{//\ All-\/pass\ buffer\ sizes}}
+\DoxyCodeLine{00097\ \ \ \ \ max\_allpass\_size\_\ =\ buffer\_scale\ *\ (1\ <<\ \mbox{\hyperlink{classvital_1_1_reverb_ad1793a03ce342fb871fd508ebbff3304}{kBaseAllpassBits}});}
+\DoxyCodeLine{00098\ \ \ \ \ poly\_allpass\_mask\_\ =\ max\_allpass\_size\_\ -\/\ 1;}
+\DoxyCodeLine{00099\ \ \ \ \ allpass\_mask\_\ =\ max\_allpass\_size\_\ *\ poly\_float::kSize\ -\/\ 1;}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_reverb_a71ac7d9470797a474cf53ab33d6ced78}{kNetworkContainers}};\ ++i)}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ allpass\_lookups\_[i]\ =\ std::make\_unique<\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}[]>(max\_allpass\_size\_);}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{comment}{//\ Ensure\ write\ index\ is\ in\ range}}
+\DoxyCodeLine{00105\ \ \ \ \ write\_index\_\ \&=\ feedback\_mask\_;}
+\DoxyCodeLine{00106\ \ \ \}}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00113\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_reverb_ada32f4fac9a1e2515db8e893712143ab}{Reverb::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00114\ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{classvital_1_1_processor_a7e35d4d320b562f794d2e4028a04cf92}{inputMatchesBufferSize}}(\mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a613c76043c55848a16e80e12e4fa2f05}{kAudio}}));}
+\DoxyCodeLine{00115\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_ae6b9ee4fc9c0d49ae2c01aa0cbd1ea6c}{processWithInput}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a613c76043c55848a16e80e12e4fa2f05}{kAudio}})-\/>source-\/>buffer,\ num\_samples);}
+\DoxyCodeLine{00116\ \ \ \}}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00128\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_reverb_ae6b9ee4fc9c0d49ae2c01aa0cbd1ea6c}{Reverb::processWithInput}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_in,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{comment}{//\ Wrap\ feedback\ buffers\ for\ safe\ interpolation}}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_reverb_af2926ad162c909a5ca1a57e77ac15ce7}{kNetworkSize}};\ ++i)}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_af88c8664908bb08bfc96a8b142bf5818}{wrapFeedbackBuffer}}(feedback\_memories\_[i].get());}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ audio\_out\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00134\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ tick\_increment\ =\ 1.0f\ /\ num\_samples;}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \ \ \textcolor{comment}{//\ Cache\ current\ parameter\ values\ for\ smooth\ interpolation}}
+\DoxyCodeLine{00137\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_dry\ =\ dry\_;}
+\DoxyCodeLine{00138\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_wet\ =\ wet\_;}
+\DoxyCodeLine{00139\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_low\_pre\_coefficient\ =\ low\_pre\_coefficient\_;}
+\DoxyCodeLine{00140\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_high\_pre\_coefficient\ =\ high\_pre\_coefficient\_;}
+\DoxyCodeLine{00141\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_low\_coefficient\ =\ low\_coefficient\_;}
+\DoxyCodeLine{00142\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_low\_amplitude\ =\ low\_amplitude\_;}
+\DoxyCodeLine{00143\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_high\_coefficient\ =\ high\_coefficient\_;}
+\DoxyCodeLine{00144\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_high\_amplitude\ =\ high\_amplitude\_;}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{comment}{//\ Update\ wet/dry\ with\ equal-\/power\ crossfade}}
+\DoxyCodeLine{00147\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ wet\_in\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499af0cf3d7e68e827c2431b6f53937be6bc}{kWet}})-\/>at(0),\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00148\ \ \ \ \ wet\_\ =\ \mbox{\hyperlink{namespacevital_1_1futils_a618c4dafb4655bd704f479f43558967f}{futils::equalPowerFade}}(wet\_in);}
+\DoxyCodeLine{00149\ \ \ \ \ dry\_\ =\ \mbox{\hyperlink{namespacevital_1_1futils_a3cff72e4b970981cf679fd336597fd18}{futils::equalPowerFadeInverse}}(wet\_in);}
+\DoxyCodeLine{00150\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_wet\ =\ (wet\_\ -\/\ current\_wet)\ *\ tick\_increment;}
+\DoxyCodeLine{00151\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_dry\ =\ (dry\_\ -\/\ current\_dry)\ *\ tick\_increment;}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{comment}{//\ Calculate\ oversampling\ scale}}
+\DoxyCodeLine{00154\ \ \ \ \ \textcolor{keywordtype}{int}\ sample\_rate\ =\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}();}
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{keywordtype}{int}\ buffer\_scale\ =\ \mbox{\hyperlink{classvital_1_1_reverb_a2904eecb07642e9851446856443b2002}{getBufferScale}}(sample\_rate);}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordtype}{float}\ sample\_rate\_ratio\ =\ \mbox{\hyperlink{classvital_1_1_reverb_a5cd1fbce63e29f76b3b51a8058b04053}{getSampleRateRatio}}(sample\_rate);}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \ \ \ \ \textcolor{comment}{//\ Pre-\/filter\ cutoff\ frequencies}}
+\DoxyCodeLine{00159\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_pre\_cutoff\_midi\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a85f4ccae881463abc36aaf1f9dc41135}{kPreLowCutoff}})-\/>at(0),\ 0.0f,\ 130.0f);}
+\DoxyCodeLine{00160\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_pre\_cutoff\_frequency\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad576b73366d625ca0b47c8b92b81f7a4}{utils::midiNoteToFrequency}}(low\_pre\_cutoff\_midi);}
+\DoxyCodeLine{00161\ \ \ \ \ low\_pre\_coefficient\_\ =\ \mbox{\hyperlink{classvital_1_1_one_pole_filter_ad115bf14e588efe1b9d65a0f7b209313}{OnePoleFilter<>::computeCoefficient}}(low\_pre\_cutoff\_frequency,\ sample\_rate);}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_pre\_cutoff\_midi\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a38412c0a208daf58cc6089cb6b264b6d}{kPreHighCutoff}})-\/>at(0),\ 0.0f,\ 130.0f);}
+\DoxyCodeLine{00164\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_pre\_cutoff\_frequency\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad576b73366d625ca0b47c8b92b81f7a4}{utils::midiNoteToFrequency}}(high\_pre\_cutoff\_midi);}
+\DoxyCodeLine{00165\ \ \ \ \ high\_pre\_coefficient\_\ =\ \mbox{\hyperlink{classvital_1_1_one_pole_filter_ad115bf14e588efe1b9d65a0f7b209313}{OnePoleFilter<>::computeCoefficient}}(high\_pre\_cutoff\_frequency,\ sample\_rate);}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00167\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_low\_pre\_coefficient\ =\ (low\_pre\_coefficient\_\ -\/\ current\_low\_pre\_coefficient)\ *\ tick\_increment;}
+\DoxyCodeLine{00168\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_high\_pre\_coefficient\ =\ (high\_pre\_coefficient\_\ -\/\ current\_high\_pre\_coefficient)\ *\ tick\_increment;}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \ \ \ \ \textcolor{comment}{//\ Internal\ feedback\ filter\ parameters}}
+\DoxyCodeLine{00171\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_cutoff\_midi\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499acfd0a533dbeeca277de1cd9c81d10d5f}{kLowCutoff}})-\/>at(0),\ 0.0f,\ 130.0f);}
+\DoxyCodeLine{00172\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_cutoff\_frequency\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad576b73366d625ca0b47c8b92b81f7a4}{utils::midiNoteToFrequency}}(low\_cutoff\_midi);}
+\DoxyCodeLine{00173\ \ \ \ \ low\_coefficient\_\ =\ \mbox{\hyperlink{classvital_1_1_one_pole_filter_ad115bf14e588efe1b9d65a0f7b209313}{OnePoleFilter<>::computeCoefficient}}(low\_cutoff\_frequency,\ sample\_rate);}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_cutoff\_midi\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499ab5cdc3e3b7d378d4bbb85ceba3c4a8f0}{kHighCutoff}})-\/>at(0),\ 0.0f,\ 130.0f);}
+\DoxyCodeLine{00176\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_cutoff\_frequency\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad576b73366d625ca0b47c8b92b81f7a4}{utils::midiNoteToFrequency}}(high\_cutoff\_midi);}
+\DoxyCodeLine{00177\ \ \ \ \ high\_coefficient\_\ =\ \mbox{\hyperlink{classvital_1_1_one_pole_filter_ad115bf14e588efe1b9d65a0f7b209313}{OnePoleFilter<>::computeCoefficient}}(high\_cutoff\_frequency,\ sample\_rate);}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00179\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_low\_coefficient\ =\ (low\_coefficient\_\ -\/\ current\_low\_coefficient)\ *\ tick\_increment;}
+\DoxyCodeLine{00180\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_high\_coefficient\ =\ (high\_coefficient\_\ -\/\ current\_high\_coefficient)\ *\ tick\_increment;}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \ \ \ \ \textcolor{comment}{//\ Low/high\ gains\ become\ attenuation\ factors}}
+\DoxyCodeLine{00183\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_gain\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499ad3230fb58c2bdec51bf88af878b06a81}{kLowGain}})-\/>at(0),\ -\/24.0f,\ 0.0f);}
+\DoxyCodeLine{00184\ \ \ \ \ low\_amplitude\_\ =\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(1.0f)\ -\/\ \mbox{\hyperlink{namespacevital_1_1utils_aa6239058f964f32989cc761a8784d799}{utils::dbToMagnitude}}(low\_gain);}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_gain\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a638cd041b33885130e23991377fdea92}{kHighGain}})-\/>at(0),\ -\/24.0f,\ 0.0f);}
+\DoxyCodeLine{00187\ \ \ \ \ high\_amplitude\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_aa6239058f964f32989cc761a8784d799}{utils::dbToMagnitude}}(high\_gain);}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_low\_amplitude\ =\ (low\_amplitude\_\ -\/\ current\_low\_amplitude)\ *\ tick\_increment;}
+\DoxyCodeLine{00190\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_high\_amplitude\ =\ (high\_amplitude\_\ -\/\ current\_high\_amplitude)\ *\ tick\_increment;}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \ \ \ \ \textcolor{comment}{//\ Retrieve\ pointers\ to\ all-\/pass\ memory\ blocks}}
+\DoxyCodeLine{00193\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ allpass\_lookup1\ =\ (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)allpass\_lookups\_[0].get();}
+\DoxyCodeLine{00194\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ allpass\_lookup2\ =\ (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)allpass\_lookups\_[1].get();}
+\DoxyCodeLine{00195\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ allpass\_lookup3\ =\ (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)allpass\_lookups\_[2].get();}
+\DoxyCodeLine{00196\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ allpass\_lookup4\ =\ (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)allpass\_lookups\_[3].get();}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \ \ \ \ \textcolor{comment}{//\ Group\ feedback\ memory\ in\ sets\ of\ four\ for\ each\ container}}
+\DoxyCodeLine{00199\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ feedback\_lookups1[]\ =\ \{\ feedback\_lookups\_[0],\ feedback\_lookups\_[1],}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ feedback\_lookups\_[2],\ feedback\_lookups\_[3]\ \};}
+\DoxyCodeLine{00201\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ feedback\_lookups2[]\ =\ \{\ feedback\_lookups\_[4],\ feedback\_lookups\_[5],}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ feedback\_lookups\_[6],\ feedback\_lookups\_[7]\ \};}
+\DoxyCodeLine{00203\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ feedback\_lookups3[]\ =\ \{\ feedback\_lookups\_[8],\ feedback\_lookups\_[9],}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ feedback\_lookups\_[10],\ feedback\_lookups\_[11]\ \};}
+\DoxyCodeLine{00205\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ feedback\_lookups4[]\ =\ \{\ feedback\_lookups\_[12],\ feedback\_lookups\_[13],}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ feedback\_lookups\_[14],\ feedback\_lookups\_[15]\ \};}
+\DoxyCodeLine{00207\ }
+\DoxyCodeLine{00208\ \ \ \ \ \textcolor{comment}{//\ Size\ parameter\ modifies\ overall\ delay\ lengths}}
+\DoxyCodeLine{00209\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ size\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a4654024fb43efaa68230663b92f99353}{kSize}})-\/>at(0),\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00210\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ size\_mult\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ae7439e66951da54e8d732fd62619bc5b}{futils::pow}}(2.0f,\ size\ *\ \mbox{\hyperlink{classvital_1_1_reverb_adbf15223dae9c7e1abf5476c9ec4c743}{kSizePowerRange}}\ +\ \mbox{\hyperlink{classvital_1_1_reverb_a33852d6904662b6f7f63a0d71f1371f6}{kMinSizePower}});}
+\DoxyCodeLine{00211\ }
+\DoxyCodeLine{00212\ \ \ \ \ \textcolor{comment}{//\ Compute\ decay\ from\ size\ and\ decay\ time}}
+\DoxyCodeLine{00213\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ decay\_samples\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499ad26fcd6119ed6d43feac1c9ab9d21832}{kDecayTime}})-\/>at(0),\ kMinDecayTime,\ kMaxDecayTime)\ *\ \mbox{\hyperlink{classvital_1_1_reverb_abb3ccd671d36022fcbdf4d37a9e4be59}{kBaseSampleRate}};}
+\DoxyCodeLine{00214\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ decay\_period\ =\ size\_mult\ /\ decay\_samples;}
+\DoxyCodeLine{00215\ }
+\DoxyCodeLine{00216\ \ \ \ \ \textcolor{comment}{//\ Load\ old\ decay\ values\ for\ interpolation}}
+\DoxyCodeLine{00217\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_decay1\ =\ decays\_[0];}
+\DoxyCodeLine{00218\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_decay2\ =\ decays\_[1];}
+\DoxyCodeLine{00219\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_decay3\ =\ decays\_[2];}
+\DoxyCodeLine{00220\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_decay4\ =\ decays\_[3];}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00222\ \ \ \ \ \textcolor{comment}{//\ Calculate\ new\ decays}}
+\DoxyCodeLine{00223\ \ \ \ \ decays\_[0]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a90c332e24e543d2c988396aa1f6596c7}{utils::pow}}(\mbox{\hyperlink{classvital_1_1_reverb_a1e0c98286a57154189e6a90d9c2712ab}{kT60Amplitude}},\ \mbox{\hyperlink{classvital_1_1_reverb_a7f5b807e80b714a6687b1b25ba4cf60d}{kFeedbackDelays}}[0]\ *\ decay\_period);}
+\DoxyCodeLine{00224\ \ \ \ \ decays\_[1]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a90c332e24e543d2c988396aa1f6596c7}{utils::pow}}(\mbox{\hyperlink{classvital_1_1_reverb_a1e0c98286a57154189e6a90d9c2712ab}{kT60Amplitude}},\ \mbox{\hyperlink{classvital_1_1_reverb_a7f5b807e80b714a6687b1b25ba4cf60d}{kFeedbackDelays}}[1]\ *\ decay\_period);}
+\DoxyCodeLine{00225\ \ \ \ \ decays\_[2]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a90c332e24e543d2c988396aa1f6596c7}{utils::pow}}(\mbox{\hyperlink{classvital_1_1_reverb_a1e0c98286a57154189e6a90d9c2712ab}{kT60Amplitude}},\ \mbox{\hyperlink{classvital_1_1_reverb_a7f5b807e80b714a6687b1b25ba4cf60d}{kFeedbackDelays}}[2]\ *\ decay\_period);}
+\DoxyCodeLine{00226\ \ \ \ \ decays\_[3]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a90c332e24e543d2c988396aa1f6596c7}{utils::pow}}(\mbox{\hyperlink{classvital_1_1_reverb_a1e0c98286a57154189e6a90d9c2712ab}{kT60Amplitude}},\ \mbox{\hyperlink{classvital_1_1_reverb_a7f5b807e80b714a6687b1b25ba4cf60d}{kFeedbackDelays}}[3]\ *\ decay\_period);}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00228\ \ \ \ \ \textcolor{comment}{//\ Interpolate\ decays\ over\ this\ block}}
+\DoxyCodeLine{00229\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_decay1\ =\ (decays\_[0]\ -\/\ current\_decay1)\ *\ tick\_increment;}
+\DoxyCodeLine{00230\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_decay2\ =\ (decays\_[1]\ -\/\ current\_decay2)\ *\ tick\_increment;}
+\DoxyCodeLine{00231\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_decay3\ =\ (decays\_[2]\ -\/\ current\_decay3)\ *\ tick\_increment;}
+\DoxyCodeLine{00232\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_decay4\ =\ (decays\_[3]\ -\/\ current\_decay4)\ *\ tick\_increment;}
+\DoxyCodeLine{00233\ }
+\DoxyCodeLine{00234\ \ \ \ \ \textcolor{comment}{//\ Offsets\ for\ all-\/pass\ buffers,\ scaled\ by\ buffer\_scale}}
+\DoxyCodeLine{00235\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ delay\_offset(0,\ -\/1,\ -\/2,\ -\/3);\ \ \textcolor{comment}{//\ for\ safe\ indexing\ in\ stereo}}
+\DoxyCodeLine{00236\ \ \ \ \ \textcolor{keywordflow}{if}\ (buffer\_scale)}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ delay\_offset\ +=\ poly\_float::kSize;}
+\DoxyCodeLine{00238\ }
+\DoxyCodeLine{00239\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ allpass\_offset1\ =\ \mbox{\hyperlink{namespacevital_1_1utils_af5c60a9d57eb9105808c85d03cc6ae71}{utils::swapStereo}}(\mbox{\hyperlink{classvital_1_1_reverb_ac50a607e7abcc999ca53ccdda903f864}{kAllpassDelays}}[0]\ *\ buffer\_scale\ *\ poly\_float::kSize\ +\ delay\_offset);}
+\DoxyCodeLine{00240\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ allpass\_offset2\ =\ \mbox{\hyperlink{namespacevital_1_1utils_af5c60a9d57eb9105808c85d03cc6ae71}{utils::swapStereo}}(\mbox{\hyperlink{classvital_1_1_reverb_ac50a607e7abcc999ca53ccdda903f864}{kAllpassDelays}}[1]\ *\ buffer\_scale\ *\ poly\_float::kSize\ +\ delay\_offset);}
+\DoxyCodeLine{00241\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ allpass\_offset3\ =\ \mbox{\hyperlink{namespacevital_1_1utils_af5c60a9d57eb9105808c85d03cc6ae71}{utils::swapStereo}}(\mbox{\hyperlink{classvital_1_1_reverb_ac50a607e7abcc999ca53ccdda903f864}{kAllpassDelays}}[2]\ *\ buffer\_scale\ *\ poly\_float::kSize\ +\ delay\_offset);}
+\DoxyCodeLine{00242\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ allpass\_offset4\ =\ \mbox{\hyperlink{namespacevital_1_1utils_af5c60a9d57eb9105808c85d03cc6ae71}{utils::swapStereo}}(\mbox{\hyperlink{classvital_1_1_reverb_ac50a607e7abcc999ca53ccdda903f864}{kAllpassDelays}}[3]\ *\ buffer\_scale\ *\ poly\_float::kSize\ +\ delay\_offset);}
+\DoxyCodeLine{00243\ }
+\DoxyCodeLine{00244\ \ \ \ \ \textcolor{comment}{//\ Chorus\ LFO\ calculation}}
+\DoxyCodeLine{00245\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ chorus\_frequency\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a20a205e07a6bc6d619a4feda56742868}{kChorusFrequency}})-\/>at(0)[0],\ 0.0f,\ kMaxChorusFrequency);}
+\DoxyCodeLine{00246\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ chorus\_phase\_increment\ =\ chorus\_frequency\ /\ sample\_rate;}
+\DoxyCodeLine{00247\ }
+\DoxyCodeLine{00248\ \ \ \ \ \textcolor{comment}{//\ Spread\ the\ phase\ per\ container}}
+\DoxyCodeLine{00249\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ network\_offset\ =\ 2.0f\ *\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{kPi}}\ /\ \mbox{\hyperlink{classvital_1_1_reverb_af2926ad162c909a5ca1a57e77ac15ce7}{kNetworkSize}};}
+\DoxyCodeLine{00250\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ phase\_offset\ =\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}(0.0f,\ 1.0f,\ 2.0f,\ 3.0f)\ *\ network\_offset;}
+\DoxyCodeLine{00251\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ container\_phase\ =\ phase\_offset\ +\ chorus\_phase\_\ *\ 2.0f\ *\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{kPi}};}
+\DoxyCodeLine{00252\ \ \ \ \ chorus\_phase\_\ +=\ num\_samples\ *\ chorus\_phase\_increment;}
+\DoxyCodeLine{00253\ \ \ \ \ chorus\_phase\_\ -\/=\ std::floor(chorus\_phase\_);}
+\DoxyCodeLine{00254\ }
+\DoxyCodeLine{00255\ \ \ \ \ \textcolor{comment}{//\ Real\ and\ imaginary\ increments\ for\ a\ small\ rotation\ in\ the\ complex\ plane}}
+\DoxyCodeLine{00256\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ chorus\_increment\_real\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a087b0896db47de58b698d92829794d19}{utils::cos}}(chorus\_phase\_increment\ *\ (2.0f\ *\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{kPi}}));}
+\DoxyCodeLine{00257\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ chorus\_increment\_imaginary\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad8fc18346f5d17f12f8131e5efa6e5e6}{utils::sin}}(chorus\_phase\_increment\ *\ (2.0f\ *\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{kPi}}));}
+\DoxyCodeLine{00258\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_chorus\_real\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a087b0896db47de58b698d92829794d19}{utils::cos}}(container\_phase);}
+\DoxyCodeLine{00259\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_chorus\_imaginary\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ad8fc18346f5d17f12f8131e5efa6e5e6}{utils::sin}}(container\_phase);}
+\DoxyCodeLine{00260\ }
+\DoxyCodeLine{00261\ \ \ \ \ \textcolor{comment}{//\ Baseline\ feedback\ delay\ amounts}}
+\DoxyCodeLine{00262\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delay1\ =\ size\_mult\ *\ \mbox{\hyperlink{classvital_1_1_reverb_a7f5b807e80b714a6687b1b25ba4cf60d}{kFeedbackDelays}}[0]\ *\ sample\_rate\_ratio;}
+\DoxyCodeLine{00263\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delay2\ =\ size\_mult\ *\ \mbox{\hyperlink{classvital_1_1_reverb_a7f5b807e80b714a6687b1b25ba4cf60d}{kFeedbackDelays}}[1]\ *\ sample\_rate\_ratio;}
+\DoxyCodeLine{00264\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delay3\ =\ size\_mult\ *\ \mbox{\hyperlink{classvital_1_1_reverb_a7f5b807e80b714a6687b1b25ba4cf60d}{kFeedbackDelays}}[2]\ *\ sample\_rate\_ratio;}
+\DoxyCodeLine{00265\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delay4\ =\ size\_mult\ *\ \mbox{\hyperlink{classvital_1_1_reverb_a7f5b807e80b714a6687b1b25ba4cf60d}{kFeedbackDelays}}[3]\ *\ sample\_rate\_ratio;}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00267\ \ \ \ \ \textcolor{comment}{//\ Compute\ chorus\ amount\ (in\ samples)}}
+\DoxyCodeLine{00268\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_chorus\_amount\ =\ chorus\_amount\_;}
+\DoxyCodeLine{00269\ \ \ \ \ chorus\_amount\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a48d604ff536f01bf6b604f4956f88f6d}{kChorusAmount}})-\/>at(0)[0],\ 0.0f,\ 1.0f)\ *\ kMaxChorusDrift\ *\ sample\_rate\_ratio;}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00271\ \ \ \ \ \textcolor{comment}{//\ Ensure\ chorus\ doesn’t\ exceed\ safe\ range\ relative\ to\ delays}}
+\DoxyCodeLine{00272\ \ \ \ \ chorus\_amount\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5b6ee09220fec012fc1597235e4c50e3}{utils::min}}(chorus\_amount\_,\ delay1\ -\/\ 8\ *\ poly\_float::kSize);}
+\DoxyCodeLine{00273\ \ \ \ \ chorus\_amount\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5b6ee09220fec012fc1597235e4c50e3}{utils::min}}(chorus\_amount\_,\ delay2\ -\/\ 8\ *\ poly\_float::kSize);}
+\DoxyCodeLine{00274\ \ \ \ \ chorus\_amount\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5b6ee09220fec012fc1597235e4c50e3}{utils::min}}(chorus\_amount\_,\ delay3\ -\/\ 8\ *\ poly\_float::kSize);}
+\DoxyCodeLine{00275\ \ \ \ \ chorus\_amount\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5b6ee09220fec012fc1597235e4c50e3}{utils::min}}(chorus\_amount\_,\ delay4\ -\/\ 8\ *\ poly\_float::kSize);}
+\DoxyCodeLine{00276\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_chorus\_amount\ =\ (chorus\_amount\_\ -\/\ current\_chorus\_amount)\ *\ tick\_increment;}
+\DoxyCodeLine{00277\ \ \ \ \ current\_chorus\_amount\ =\ current\_chorus\_amount\ *\ size\_mult;}
+\DoxyCodeLine{00278\ }
+\DoxyCodeLine{00279\ \ \ \ \ \textcolor{comment}{//\ Handle\ user-\/defined\ additional\ pre-\/delay}}
+\DoxyCodeLine{00280\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_sample\_delay\ =\ sample\_delay\_;}
+\DoxyCodeLine{00281\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_delay\_increment\ =\ sample\_delay\_increment\_;}
+\DoxyCodeLine{00282\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ end\_target\ =\ current\_sample\_delay\ +\ current\_delay\_increment\ *\ num\_samples;}
+\DoxyCodeLine{00283\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ target\_delay\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a64c4b9ae88ba1fc4c00db9cc1c6d4323}{kDelay}})-\/>at(0)\ *\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}(),\ \mbox{\hyperlink{classvital_1_1_reverb_a07a250709a458c90f19d756800436d8e}{kMinDelay}},\ \mbox{\hyperlink{namespacevital_abaef014ec65384fc46e96cd9ec9edcd1}{kMaxSampleRate}});}
+\DoxyCodeLine{00284\ \ \ \ \ target\_delay\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ae1ebe307e6064bb3d3bf55a2258d308a}{utils::interpolate}}(sample\_delay\_,\ target\_delay,\ kSampleDelayMultiplier);}
+\DoxyCodeLine{00285\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ makeup\_delay\ =\ target\_delay\ -\/\ end\_target;}
+\DoxyCodeLine{00286\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_delay\_increment\ =\ makeup\_delay\ /\ (0.5f\ *\ num\_samples\ *\ num\_samples)\ *\ kSampleIncrementMultiplier;}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00288\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \textcolor{comment}{//\ Increment\ chorus\ phase\ and\ amplitude}}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ current\_chorus\_amount\ +=\ delta\_chorus\_amount;}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \textcolor{comment}{//\ Basic\ complex-\/plane\ rotation\ for\ chorus\ real/imag\ parts}}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \textcolor{keyword}{auto}\ old\_real\ =\ current\_chorus\_real;}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ current\_chorus\_real\ =\ current\_chorus\_real\ *\ chorus\_increment\_real\ -\/}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ current\_chorus\_imaginary\ *\ chorus\_increment\_imaginary;}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ current\_chorus\_imaginary\ =\ current\_chorus\_imaginary\ *\ chorus\_increment\_real\ +}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ old\_real\ *\ chorus\_increment\_imaginary;}
+\DoxyCodeLine{00297\ }
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \textcolor{comment}{//\ Add\ or\ subtract\ the\ chorus\ to\ each\ line’s\ offset}}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ feedback\_offset1\ =\ delay1\ +\ current\_chorus\_real\ *\ current\_chorus\_amount;}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ feedback\_offset2\ =\ delay2\ -\/\ current\_chorus\_real\ *\ current\_chorus\_amount;}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ feedback\_offset3\ =\ delay3\ +\ current\_chorus\_imaginary\ *\ current\_chorus\_amount;}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ feedback\_offset4\ =\ delay4\ -\/\ current\_chorus\_imaginary\ *\ current\_chorus\_amount;}
+\DoxyCodeLine{00303\ }
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \textcolor{comment}{//\ Interpolate\ feedback\ from\ each\ container}}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ feedback\_read1\ =\ \mbox{\hyperlink{classvital_1_1_reverb_a55c0ed7e825f713089c9d8523bef490e}{readFeedback}}(feedback\_lookups1,\ feedback\_offset1);}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ feedback\_read2\ =\ \mbox{\hyperlink{classvital_1_1_reverb_a55c0ed7e825f713089c9d8523bef490e}{readFeedback}}(feedback\_lookups2,\ feedback\_offset2);}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ feedback\_read3\ =\ \mbox{\hyperlink{classvital_1_1_reverb_a55c0ed7e825f713089c9d8523bef490e}{readFeedback}}(feedback\_lookups3,\ feedback\_offset3);}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ feedback\_read4\ =\ \mbox{\hyperlink{classvital_1_1_reverb_a55c0ed7e825f713089c9d8523bef490e}{readFeedback}}(feedback\_lookups4,\ feedback\_offset4);}
+\DoxyCodeLine{00309\ }
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \textcolor{comment}{//\ Merge\ the\ input\ to\ a\ mono\ signal\ (for\ a\ typical\ reverb\ design)}}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}\ =\ audio\_in[i]\ \&\ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}};}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}\ +=\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}});}
+\DoxyCodeLine{00313\ }
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \textcolor{comment}{//\ Pre-\/filters}}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ filtered\_input\ =\ high\_pre\_filter\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_ad14c30acf8f8cb5122e352652d852b5e}{tickBasic}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}},\ current\_high\_pre\_coefficient);}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ filtered\_input\ =\ low\_pre\_filter\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_ad14c30acf8f8cb5122e352652d852b5e}{tickBasic}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}},\ current\_low\_pre\_coefficient)\ -\/\ filtered\_input;}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ scaled\_input\ =\ filtered\_input\ *\ 0.25f;}
+\DoxyCodeLine{00318\ }
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \textcolor{comment}{//\ All-\/pass\ retrieval}}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ allpass\_read1\ =\ \mbox{\hyperlink{classvital_1_1_reverb_a166d8b2ab7e1d6178ea6f36c293e9366}{readAllpass}}(allpass\_lookup1,\ allpass\_offset1);}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ allpass\_read2\ =\ \mbox{\hyperlink{classvital_1_1_reverb_a166d8b2ab7e1d6178ea6f36c293e9366}{readAllpass}}(allpass\_lookup2,\ allpass\_offset2);}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ allpass\_read3\ =\ \mbox{\hyperlink{classvital_1_1_reverb_a166d8b2ab7e1d6178ea6f36c293e9366}{readAllpass}}(allpass\_lookup3,\ allpass\_offset3);}
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ allpass\_read4\ =\ \mbox{\hyperlink{classvital_1_1_reverb_a166d8b2ab7e1d6178ea6f36c293e9366}{readAllpass}}(allpass\_lookup4,\ allpass\_offset4);}
+\DoxyCodeLine{00324\ }
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ allpass\_delay\_input1\ =\ feedback\_read1\ -\/\ allpass\_read1\ *\ \mbox{\hyperlink{classvital_1_1_reverb_aa20f47a74634f8db92bd2dfa098df01a}{kAllpassFeedback}};}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ allpass\_delay\_input2\ =\ feedback\_read2\ -\/\ allpass\_read2\ *\ \mbox{\hyperlink{classvital_1_1_reverb_aa20f47a74634f8db92bd2dfa098df01a}{kAllpassFeedback}};}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ allpass\_delay\_input3\ =\ feedback\_read3\ -\/\ allpass\_read3\ *\ \mbox{\hyperlink{classvital_1_1_reverb_aa20f47a74634f8db92bd2dfa098df01a}{kAllpassFeedback}};}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ allpass\_delay\_input4\ =\ feedback\_read4\ -\/\ allpass\_read4\ *\ \mbox{\hyperlink{classvital_1_1_reverb_aa20f47a74634f8db92bd2dfa098df01a}{kAllpassFeedback}};}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \textcolor{comment}{//\ Write\ to\ all-\/pass\ memory}}
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ allpass\_write\_index\ =\ write\_index\_\ \&\ poly\_allpass\_mask\_;}
+\DoxyCodeLine{00332\ \ \ \ \ \ \ allpass\_lookups\_[0][allpass\_write\_index]\ =\ scaled\_input\ +\ allpass\_delay\_input1;}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ allpass\_lookups\_[1][allpass\_write\_index]\ =\ scaled\_input\ +\ allpass\_delay\_input2;}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ allpass\_lookups\_[2][allpass\_write\_index]\ =\ scaled\_input\ +\ allpass\_delay\_input3;}
+\DoxyCodeLine{00335\ \ \ \ \ \ \ allpass\_lookups\_[3][allpass\_write\_index]\ =\ scaled\_input\ +\ allpass\_delay\_input4;}
+\DoxyCodeLine{00336\ }
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ final\ all-\/pass\ outputs}}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ allpass\_output1\ =\ allpass\_read1\ +\ allpass\_delay\_input1\ *\ \mbox{\hyperlink{classvital_1_1_reverb_aa20f47a74634f8db92bd2dfa098df01a}{kAllpassFeedback}};}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ allpass\_output2\ =\ allpass\_read2\ +\ allpass\_delay\_input2\ *\ \mbox{\hyperlink{classvital_1_1_reverb_aa20f47a74634f8db92bd2dfa098df01a}{kAllpassFeedback}};}
+\DoxyCodeLine{00340\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ allpass\_output3\ =\ allpass\_read3\ +\ allpass\_delay\_input3\ *\ \mbox{\hyperlink{classvital_1_1_reverb_aa20f47a74634f8db92bd2dfa098df01a}{kAllpassFeedback}};}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ allpass\_output4\ =\ allpass\_read4\ +\ allpass\_delay\_input4\ *\ \mbox{\hyperlink{classvital_1_1_reverb_aa20f47a74634f8db92bd2dfa098df01a}{kAllpassFeedback}};}
+\DoxyCodeLine{00342\ }
+\DoxyCodeLine{00343\ \ \ \ \ \ \ \textcolor{comment}{//\ Combine\ lines}}
+\DoxyCodeLine{00344\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ total\_rows\ =\ allpass\_output1\ +\ allpass\_output2\ +\ allpass\_output3\ +\ allpass\_output4;}
+\DoxyCodeLine{00345\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ other\_feedback\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ad7abd2a606f9fb3e67162447f2f97057}{poly\_float::mulAdd}}(total\_rows.\mbox{\hyperlink{structvital_1_1poly__float_ac0d714d9754c00dff8b735b4f4022a4e}{sum}}()\ *\ 0.25f,\ total\_rows,\ -\/0.5f);}
+\DoxyCodeLine{00346\ }
+\DoxyCodeLine{00347\ \ \ \ \ \ \ \textcolor{comment}{//\ Mix\ partial\ feedback\ signals}}
+\DoxyCodeLine{00348\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ write1\ =\ other\_feedback\ +\ allpass\_output1;}
+\DoxyCodeLine{00349\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ write2\ =\ other\_feedback\ +\ allpass\_output2;}
+\DoxyCodeLine{00350\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ write3\ =\ other\_feedback\ +\ allpass\_output3;}
+\DoxyCodeLine{00351\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ write4\ =\ other\_feedback\ +\ allpass\_output4;}
+\DoxyCodeLine{00352\ }
+\DoxyCodeLine{00353\ \ \ \ \ \ \ \textcolor{comment}{//\ Cross-\/line\ coupling}}
+\DoxyCodeLine{00354\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a1bdfeb6a6013278e2e6c74d7cc5fcfba}{poly\_float::transpose}}(allpass\_output1.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ allpass\_output2.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},}
+\DoxyCodeLine{00355\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ allpass\_output3.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ allpass\_output4.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ adjacent\_feedback\ =\ (allpass\_output1\ +\ allpass\_output2\ +\ allpass\_output3\ +\ allpass\_output4)\ *\ -\/0.5f;}
+\DoxyCodeLine{00357\ }
+\DoxyCodeLine{00358\ \ \ \ \ \ \ write1\ +=\ adjacent\_feedback[0];}
+\DoxyCodeLine{00359\ \ \ \ \ \ \ write2\ +=\ adjacent\_feedback[1];}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ write3\ +=\ adjacent\_feedback[2];}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ write4\ +=\ adjacent\_feedback[3];}
+\DoxyCodeLine{00362\ }
+\DoxyCodeLine{00363\ \ \ \ \ \ \ \textcolor{comment}{//\ Apply\ high-\/shelf\ filtering}}
+\DoxyCodeLine{00364\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_filtered1\ =\ high\_shelf\_filters\_[0].\mbox{\hyperlink{classvital_1_1_one_pole_filter_ad14c30acf8f8cb5122e352652d852b5e}{tickBasic}}(write1,\ current\_high\_coefficient);}
+\DoxyCodeLine{00365\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_filtered2\ =\ high\_shelf\_filters\_[1].\mbox{\hyperlink{classvital_1_1_one_pole_filter_ad14c30acf8f8cb5122e352652d852b5e}{tickBasic}}(write2,\ current\_high\_coefficient);}
+\DoxyCodeLine{00366\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_filtered3\ =\ high\_shelf\_filters\_[2].\mbox{\hyperlink{classvital_1_1_one_pole_filter_ad14c30acf8f8cb5122e352652d852b5e}{tickBasic}}(write3,\ current\_high\_coefficient);}
+\DoxyCodeLine{00367\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ high\_filtered4\ =\ high\_shelf\_filters\_[3].\mbox{\hyperlink{classvital_1_1_one_pole_filter_ad14c30acf8f8cb5122e352652d852b5e}{tickBasic}}(write4,\ current\_high\_coefficient);}
+\DoxyCodeLine{00368\ \ \ \ \ \ \ write1\ =\ high\_filtered1\ +\ current\_high\_amplitude\ *\ (write1\ -\/\ high\_filtered1);}
+\DoxyCodeLine{00369\ \ \ \ \ \ \ write2\ =\ high\_filtered2\ +\ current\_high\_amplitude\ *\ (write2\ -\/\ high\_filtered2);}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ write3\ =\ high\_filtered3\ +\ current\_high\_amplitude\ *\ (write3\ -\/\ high\_filtered3);}
+\DoxyCodeLine{00371\ \ \ \ \ \ \ write4\ =\ high\_filtered4\ +\ current\_high\_amplitude\ *\ (write4\ -\/\ high\_filtered4);}
+\DoxyCodeLine{00372\ }
+\DoxyCodeLine{00373\ \ \ \ \ \ \ \textcolor{comment}{//\ Apply\ low-\/shelf\ filtering}}
+\DoxyCodeLine{00374\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_filtered1\ =\ low\_shelf\_filters\_[0].\mbox{\hyperlink{classvital_1_1_one_pole_filter_ad14c30acf8f8cb5122e352652d852b5e}{tickBasic}}(write1,\ current\_low\_coefficient);}
+\DoxyCodeLine{00375\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_filtered2\ =\ low\_shelf\_filters\_[1].\mbox{\hyperlink{classvital_1_1_one_pole_filter_ad14c30acf8f8cb5122e352652d852b5e}{tickBasic}}(write2,\ current\_low\_coefficient);}
+\DoxyCodeLine{00376\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_filtered3\ =\ low\_shelf\_filters\_[2].\mbox{\hyperlink{classvital_1_1_one_pole_filter_ad14c30acf8f8cb5122e352652d852b5e}{tickBasic}}(write3,\ current\_low\_coefficient);}
+\DoxyCodeLine{00377\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ low\_filtered4\ =\ low\_shelf\_filters\_[3].\mbox{\hyperlink{classvital_1_1_one_pole_filter_ad14c30acf8f8cb5122e352652d852b5e}{tickBasic}}(write4,\ current\_low\_coefficient);}
+\DoxyCodeLine{00378\ \ \ \ \ \ \ write1\ -\/=\ low\_filtered1\ *\ current\_low\_amplitude;}
+\DoxyCodeLine{00379\ \ \ \ \ \ \ write2\ -\/=\ low\_filtered2\ *\ current\_low\_amplitude;}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ write3\ -\/=\ low\_filtered3\ *\ current\_low\_amplitude;}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ write4\ -\/=\ low\_filtered4\ *\ current\_low\_amplitude;}
+\DoxyCodeLine{00382\ }
+\DoxyCodeLine{00383\ \ \ \ \ \ \ \textcolor{comment}{//\ Interpolate\ decays}}
+\DoxyCodeLine{00384\ \ \ \ \ \ \ current\_decay1\ +=\ delta\_decay1;}
+\DoxyCodeLine{00385\ \ \ \ \ \ \ current\_decay2\ +=\ delta\_decay2;}
+\DoxyCodeLine{00386\ \ \ \ \ \ \ current\_decay3\ +=\ delta\_decay3;}
+\DoxyCodeLine{00387\ \ \ \ \ \ \ current\_decay4\ +=\ delta\_decay4;}
+\DoxyCodeLine{00388\ }
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \textcolor{comment}{//\ Multiply\ by\ decays\ for\ feedback\ storage}}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ store1\ =\ current\_decay1\ *\ write1;}
+\DoxyCodeLine{00391\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ store2\ =\ current\_decay2\ *\ write2;}
+\DoxyCodeLine{00392\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ store3\ =\ current\_decay3\ *\ write3;}
+\DoxyCodeLine{00393\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ store4\ =\ current\_decay4\ *\ write4;}
+\DoxyCodeLine{00394\ }
+\DoxyCodeLine{00395\ \ \ \ \ \ \ \textcolor{comment}{//\ Store\ in\ feedback\ buffers}}
+\DoxyCodeLine{00396\ \ \ \ \ \ \ feedback\_lookups1[0][write\_index\_]\ =\ store1[0];}
+\DoxyCodeLine{00397\ \ \ \ \ \ \ feedback\_lookups1[1][write\_index\_]\ =\ store1[1];}
+\DoxyCodeLine{00398\ \ \ \ \ \ \ feedback\_lookups1[2][write\_index\_]\ =\ store1[2];}
+\DoxyCodeLine{00399\ \ \ \ \ \ \ feedback\_lookups1[3][write\_index\_]\ =\ store1[3];}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ feedback\_lookups2[0][write\_index\_]\ =\ store2[0];}
+\DoxyCodeLine{00401\ \ \ \ \ \ \ feedback\_lookups2[1][write\_index\_]\ =\ store2[1];}
+\DoxyCodeLine{00402\ \ \ \ \ \ \ feedback\_lookups2[2][write\_index\_]\ =\ store2[2];}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ feedback\_lookups2[3][write\_index\_]\ =\ store2[3];}
+\DoxyCodeLine{00404\ \ \ \ \ \ \ feedback\_lookups3[0][write\_index\_]\ =\ store3[0];}
+\DoxyCodeLine{00405\ \ \ \ \ \ \ feedback\_lookups3[1][write\_index\_]\ =\ store3[1];}
+\DoxyCodeLine{00406\ \ \ \ \ \ \ feedback\_lookups3[2][write\_index\_]\ =\ store3[2];}
+\DoxyCodeLine{00407\ \ \ \ \ \ \ feedback\_lookups3[3][write\_index\_]\ =\ store3[3];}
+\DoxyCodeLine{00408\ \ \ \ \ \ \ feedback\_lookups4[0][write\_index\_]\ =\ store4[0];}
+\DoxyCodeLine{00409\ \ \ \ \ \ \ feedback\_lookups4[1][write\_index\_]\ =\ store4[1];}
+\DoxyCodeLine{00410\ \ \ \ \ \ \ feedback\_lookups4[2][write\_index\_]\ =\ store4[2];}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ feedback\_lookups4[3][write\_index\_]\ =\ store4[3];}
+\DoxyCodeLine{00412\ }
+\DoxyCodeLine{00413\ \ \ \ \ \ \ write\_index\_\ =\ (write\_index\_\ +\ 1)\ \&\ feedback\_mask\_;}
+\DoxyCodeLine{00414\ }
+\DoxyCodeLine{00415\ \ \ \ \ \ \ \textcolor{comment}{//\ Cross-\/line\ sum\ to\ feed\ forward}}
+\DoxyCodeLine{00416\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ total\_allpass\ =\ store1\ +\ store2\ +\ store3\ +\ store4;}
+\DoxyCodeLine{00417\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ other\_feedback\_allpass\ =\ \mbox{\hyperlink{structvital_1_1poly__float_ad7abd2a606f9fb3e67162447f2f97057}{poly\_float::mulAdd}}(total\_allpass.\mbox{\hyperlink{structvital_1_1poly__float_ac0d714d9754c00dff8b735b4f4022a4e}{sum}}()\ *\ 0.25f,\ total\_allpass,\ -\/0.5f);}
+\DoxyCodeLine{00418\ }
+\DoxyCodeLine{00419\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ feed\_forward1\ =\ other\_feedback\_allpass\ +\ store1;}
+\DoxyCodeLine{00420\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ feed\_forward2\ =\ other\_feedback\_allpass\ +\ store2;}
+\DoxyCodeLine{00421\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ feed\_forward3\ =\ other\_feedback\_allpass\ +\ store3;}
+\DoxyCodeLine{00422\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ feed\_forward4\ =\ other\_feedback\_allpass\ +\ store4;}
+\DoxyCodeLine{00423\ }
+\DoxyCodeLine{00424\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float_a1bdfeb6a6013278e2e6c74d7cc5fcfba}{poly\_float::transpose}}(store1.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ store2.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ store3.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}},\ store4.\mbox{\hyperlink{structvital_1_1poly__float_a734f1dba0e0979e016a2a43ddeac633b}{value}});}
+\DoxyCodeLine{00425\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ adjacent\_feedback\_allpass\ =\ (store1\ +\ store2\ +\ store3\ +\ store4)\ *\ -\/0.5f;}
+\DoxyCodeLine{00426\ }
+\DoxyCodeLine{00427\ \ \ \ \ \ \ feed\_forward1\ +=\ adjacent\_feedback\_allpass[0];}
+\DoxyCodeLine{00428\ \ \ \ \ \ \ feed\_forward2\ +=\ adjacent\_feedback\_allpass[1];}
+\DoxyCodeLine{00429\ \ \ \ \ \ \ feed\_forward3\ +=\ adjacent\_feedback\_allpass[2];}
+\DoxyCodeLine{00430\ \ \ \ \ \ \ feed\_forward4\ +=\ adjacent\_feedback\_allpass[3];}
+\DoxyCodeLine{00431\ }
+\DoxyCodeLine{00432\ \ \ \ \ \ \ \textcolor{comment}{//\ Sum\ final\ signals\ and\ push\ to\ StereoMemory\ for\ short-\/latency\ read}}
+\DoxyCodeLine{00433\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ total\ =\ write1\ +\ write2\ +\ write3\ +\ write4;}
+\DoxyCodeLine{00434\ \ \ \ \ \ \ total\ +=\ (feed\_forward1\ *\ current\_decay1\ +\ feed\_forward2\ *\ current\_decay2\ +}
+\DoxyCodeLine{00435\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ feed\_forward3\ *\ current\_decay3\ +\ feed\_forward4\ *\ current\_decay4)\ *\ 0.125f;}
+\DoxyCodeLine{00436\ }
+\DoxyCodeLine{00437\ \ \ \ \ \ \ memory\_-\/>push(total\ +\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(total));}
+\DoxyCodeLine{00438\ \ \ \ \ \ \ audio\_out[i]\ =\ current\_wet\ *\ memory\_-\/>get(current\_sample\_delay)\ +\ current\_dry\ *\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}};}
+\DoxyCodeLine{00439\ }
+\DoxyCodeLine{00440\ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ pre-\/delay\ increments}}
+\DoxyCodeLine{00441\ \ \ \ \ \ \ current\_delay\_increment\ +=\ delta\_delay\_increment;}
+\DoxyCodeLine{00442\ \ \ \ \ \ \ current\_sample\_delay\ +=\ current\_delay\_increment;}
+\DoxyCodeLine{00443\ \ \ \ \ \ \ current\_sample\_delay\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(current\_sample\_delay,\ \mbox{\hyperlink{classvital_1_1_reverb_a07a250709a458c90f19d756800436d8e}{kMinDelay}},\ \mbox{\hyperlink{namespacevital_abaef014ec65384fc46e96cd9ec9edcd1}{kMaxSampleRate}});}
+\DoxyCodeLine{00444\ }
+\DoxyCodeLine{00445\ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ interpolated\ parameters}}
+\DoxyCodeLine{00446\ \ \ \ \ \ \ current\_dry\ +=\ delta\_dry;}
+\DoxyCodeLine{00447\ \ \ \ \ \ \ current\_wet\ +=\ delta\_wet;}
+\DoxyCodeLine{00448\ \ \ \ \ \ \ current\_high\_coefficient\ +=\ delta\_high\_coefficient;}
+\DoxyCodeLine{00449\ \ \ \ \ \ \ current\_high\_amplitude\ +=\ delta\_high\_amplitude;}
+\DoxyCodeLine{00450\ \ \ \ \ \}}
+\DoxyCodeLine{00451\ }
+\DoxyCodeLine{00452\ \ \ \ \ \textcolor{comment}{//\ Save\ state\ for\ next\ block}}
+\DoxyCodeLine{00453\ \ \ \ \ sample\_delay\_increment\_\ =\ current\_delay\_increment;}
+\DoxyCodeLine{00454\ \ \ \ \ sample\_delay\_\ =\ current\_sample\_delay;}
+\DoxyCodeLine{00455\ \ \ \}}
+\DoxyCodeLine{00456\ }
+\DoxyCodeLine{00462\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_reverb_a07c78049284fc6502de333012022ffa4}{Reverb::setSampleRate}}(\textcolor{keywordtype}{int}\ sample\_rate)\ \{}
+\DoxyCodeLine{00463\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ac778f37e9b9e3c1c05fca568e8f8664c}{Processor::setSampleRate}}(sample\_rate);}
+\DoxyCodeLine{00464\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a868cd131fffe0c8911bbf82f14cb0603}{setupBuffersForSampleRate}}(\mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}());}
+\DoxyCodeLine{00465\ \ \ \}}
+\DoxyCodeLine{00466\ }
+\DoxyCodeLine{00472\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_reverb_a657852171b697999d086ae86ae3f65ce}{Reverb::setOversampleAmount}}(\textcolor{keywordtype}{int}\ oversample\_amount)\ \{}
+\DoxyCodeLine{00473\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a2684da3687deca092882748cf170eac7}{Processor::setOversampleAmount}}(oversample\_amount);}
+\DoxyCodeLine{00474\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_reverb_a868cd131fffe0c8911bbf82f14cb0603}{setupBuffersForSampleRate}}(\mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}());}
+\DoxyCodeLine{00475\ \ \ \}}
+\DoxyCodeLine{00476\ }
+\DoxyCodeLine{00483\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_reverb_a066c3df579fa1ae9553d3710ad75aa3b}{Reverb::hardReset}}()\ \{}
+\DoxyCodeLine{00484\ \ \ \ \ wet\_\ =\ 0.0f;}
+\DoxyCodeLine{00485\ \ \ \ \ dry\_\ =\ 0.0f;}
+\DoxyCodeLine{00486\ \ \ \ \ low\_pre\_filter\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a443d75713b1c8ffbaf044c0af6478be9}{reset}}(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}});}
+\DoxyCodeLine{00487\ \ \ \ \ high\_pre\_filter\_.\mbox{\hyperlink{classvital_1_1_one_pole_filter_a443d75713b1c8ffbaf044c0af6478be9}{reset}}(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}});}
+\DoxyCodeLine{00488\ \ \ \ \ chorus\_amount\_\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_reverb_a968b20e43de6171f30dcc24008406499a48d604ff536f01bf6b604f4956f88f6d}{kChorusAmount}})-\/>at(0)[0],\ 0.0f,\ 1.0f)\ *\ kMaxChorusDrift;}
+\DoxyCodeLine{00489\ }
+\DoxyCodeLine{00490\ \ \ \ \ \textcolor{comment}{//\ Reset\ shelves\ and\ decays}}
+\DoxyCodeLine{00491\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_reverb_a71ac7d9470797a474cf53ab33d6ced78}{kNetworkContainers}};\ ++i)\ \{}
+\DoxyCodeLine{00492\ \ \ \ \ \ \ low\_shelf\_filters\_[i].\mbox{\hyperlink{classvital_1_1_one_pole_filter_a443d75713b1c8ffbaf044c0af6478be9}{reset}}(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}});}
+\DoxyCodeLine{00493\ \ \ \ \ \ \ high\_shelf\_filters\_[i].\mbox{\hyperlink{classvital_1_1_one_pole_filter_a443d75713b1c8ffbaf044c0af6478be9}{reset}}(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}});}
+\DoxyCodeLine{00494\ \ \ \ \ \ \ decays\_[i]\ =\ 0.0f;}
+\DoxyCodeLine{00495\ \ \ \ \ \}}
+\DoxyCodeLine{00496\ }
+\DoxyCodeLine{00497\ \ \ \ \ \textcolor{comment}{//\ Clear\ all-\/pass\ memory}}
+\DoxyCodeLine{00498\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ n\ =\ 0;\ n\ <\ \mbox{\hyperlink{classvital_1_1_reverb_a71ac7d9470797a474cf53ab33d6ced78}{kNetworkContainers}};\ ++n)\ \{}
+\DoxyCodeLine{00499\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ max\_allpass\_size\_;\ ++i)}
+\DoxyCodeLine{00500\ \ \ \ \ \ \ \ \ allpass\_lookups\_[n][i]\ =\ 0.0f;}
+\DoxyCodeLine{00501\ \ \ \ \ \}}
+\DoxyCodeLine{00502\ }
+\DoxyCodeLine{00503\ \ \ \ \ \textcolor{comment}{//\ Clear\ feedback\ memory}}
+\DoxyCodeLine{00504\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ n\ =\ 0;\ n\ <\ \mbox{\hyperlink{classvital_1_1_reverb_af2926ad162c909a5ca1a57e77ac15ce7}{kNetworkSize}};\ ++n)\ \{}
+\DoxyCodeLine{00505\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ max\_feedback\_size\_\ +\ \mbox{\hyperlink{classvital_1_1_reverb_a4edfcb2dc27cf8d90fbabeb6764e4983}{kExtraLookupSample}};\ ++i)}
+\DoxyCodeLine{00506\ \ \ \ \ \ \ \ \ feedback\_memories\_[n][i]\ =\ 0.0f;}
+\DoxyCodeLine{00507\ \ \ \ \ \}}
+\DoxyCodeLine{00508\ \ \ \}}
+\DoxyCodeLine{00509\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

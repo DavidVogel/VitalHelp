@@ -1,0 +1,175 @@
+\doxysection{wavetable.\+cpp}
+\hypertarget{wavetable_8cpp_source}{}\label{wavetable_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/lookups/wavetable.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/lookups/wavetable.cpp}}
+\mbox{\hyperlink{wavetable_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable_8h}{wavetable.h}}"{}}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fourier__transform_8h}{fourier\_transform.h}}"{}}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <thread>}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_wavetable_a81614f3686b351ffda41039cd7634298}{Wavetable::kZeroWaveform}}[kWaveformSize\ +\ kExtraValues]\ =\ \{\ \};}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00015\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a31581fdcf6c2bfab336e4c4f9713dcd0}{Wavetable::Wavetable}}(\textcolor{keywordtype}{int}\ max\_frames)\ :}
+\DoxyCodeLine{00016\ \ \ \ \ \ \ \ \ \ \ \ \ max\_frames\_(max\_frames),\ current\_data\_(nullptr),}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \ \ \ \ active\_audio\_data\_(nullptr),\ shepard\_table\_(false),\ fft\_data\_()\ \{}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a79f7e92e725a3681b1cc6fa4b664062b}{loadDefaultWavetable}}();}
+\DoxyCodeLine{00019\ \ \ \ \ \}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_wavetable_a79f7e92e725a3681b1cc6fa4b664062b}{Wavetable::loadDefaultWavetable}}()\ \{}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a775f412c03d7919dfb74366cf886f2b5}{setNumFrames}}(1);}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wave_frame}{WaveFrame}}\ default\_frame;}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a0874bb4bf5bacdc4f4d1a62a6bff3c89}{loadWaveFrame}}(\&default\_frame);}
+\DoxyCodeLine{00025\ \ \ \ \ \}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_wavetable_a775f412c03d7919dfb74366cf886f2b5}{Wavetable::setNumFrames}}(\textcolor{keywordtype}{int}\ num\_frames)\ \{}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{classvital_1_1_wavetable_a83665c5d5a9c4f8e892fbc1c150c738d}{active\_audio\_data\_}}.is\_lock\_free());}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(num\_frames\ <=\ \mbox{\hyperlink{classvital_1_1_wavetable_abb071c1ae1a46f4db392b6681593a9be}{max\_frames\_}});}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}\ \&\&\ num\_frames\ ==\ \mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>num\_frames)}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ old\_version\ =\ 0;}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ old\_num\_frames\ =\ 0;}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}})\ \{}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \ \ \ \ old\_version\ =\ \mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>version;}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \ \ \ \ old\_num\_frames\ =\ \mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>num\_frames;}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Move\ old\ data\ and\ create\ new\ data\ structure}}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ std::unique\_ptr<WavetableData>\ old\_data\ =\ std::move(\mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}});}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}\ =\ std::make\_unique<WavetableData>(num\_frames,\ old\_version\ +\ 1);}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>wave\_data\ =\ std::make\_unique<mono\_float[][kWaveformSize]>(num\_frames);}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>frequency\_amplitudes\ =\ std::make\_unique<poly\_float[][kPolyFrequencySize]>(num\_frames);}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>normalized\_frequencies\ =\ std::make\_unique<poly\_float[][kPolyFrequencySize]>(num\_frames);}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>phases\ =\ std::make\_unique<poly\_float[][kPolyFrequencySize]>(num\_frames);}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ frame\_size\ =\ \mbox{\hyperlink{classvital_1_1_wavetable_af75994d8bd5b79ec318fb936abfe8141}{kWaveformSize}}\ *\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}});}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ frequency\_size\ =\ \mbox{\hyperlink{classvital_1_1_wavetable_a9f1d5606e65f93e59d8260e40296fda9}{kPolyFrequencySize}}\ *\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}});}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ copy\_frames\ =\ std::min(num\_frames,\ old\_num\_frames);}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ copy\_frames;\ ++i)\ \{}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \ \ \ \ memcpy(\mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>wave\_data[i],\ old\_data-\/>wave\_data[i],\ frame\_size);}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ memcpy(\mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>frequency\_amplitudes[i],\ old\_data-\/>frequency\_amplitudes[i],\ frequency\_size);}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \ \ \ \ memcpy(\mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>normalized\_frequencies[i],\ old\_data-\/>normalized\_frequencies[i],\ frequency\_size);}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \ \ \ \ memcpy(\mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>phases[i],\ old\_data-\/>phases[i],\ frequency\_size);}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (old\_data)\ \{}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>frequency\_ratio\ =\ old\_data-\/>frequency\_ratio;}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>sample\_rate\ =\ old\_data-\/>sample\_rate;}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ remaining\_frames\ =\ num\_frames\ -\/\ old\_num\_frames;}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}*\ last\_old\_frame\ =\ old\_data-\/>wave\_data[old\_num\_frames\ -\/\ 1];}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}*\ last\_old\_amplitudes\ =\ old\_data-\/>frequency\_amplitudes[old\_num\_frames\ -\/\ 1];}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}*\ last\_old\_normalized\ =\ old\_data-\/>normalized\_frequencies[old\_num\_frames\ -\/\ 1];}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}*\ last\_old\_phases\ =\ old\_data-\/>phases[old\_num\_frames\ -\/\ 1];}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ remaining\_frames;\ ++i)\ \{}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ memcpy(\mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>wave\_data[i\ +\ old\_num\_frames],\ last\_old\_frame,\ frame\_size);}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ memcpy(\mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>frequency\_amplitudes[i\ +\ old\_num\_frames],\ last\_old\_amplitudes,\ frequency\_size);}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ memcpy(\mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>normalized\_frequencies[i\ +\ old\_num\_frames],\ last\_old\_normalized,\ frequency\_size);}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ memcpy(\mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}-\/>phases[i\ +\ old\_num\_frames],\ last\_old\_phases,\ frequency\_size);}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}\ =\ \mbox{\hyperlink{classvital_1_1_wavetable_a45da1f0e79da03f4c7e046e7e357d2b7}{data\_}}.get();}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Wait\ until\ the\ old\ data\ is\ not\ in\ use\ by\ the\ audio\ thread\ before\ discarding.}}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (\mbox{\hyperlink{classvital_1_1_wavetable_a83665c5d5a9c4f8e892fbc1c150c738d}{active\_audio\_data\_}}.load())}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ std::this\_thread::yield();}
+\DoxyCodeLine{00079\ \ \ \ \ \}}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_wavetable_a48114de1e086ed1ac3a66fe69c9fa573}{Wavetable::setFrequencyRatio}}(\textcolor{keywordtype}{float}\ frequency\_ratio)\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_ab67b7eff2d4ce0fea7cce040ed9abd76}{frequency\_ratio}}\ =\ frequency\_ratio;}
+\DoxyCodeLine{00083\ \ \ \ \ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_wavetable_a6d5497e4b9ad4a03ccb1a583353a65d9}{Wavetable::setSampleRate}}(\textcolor{keywordtype}{float}\ rate)\ \{}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_a3229f1e8004e7cbd345ce2813d4173f2}{sample\_rate}}\ =\ rate;}
+\DoxyCodeLine{00087\ \ \ \ \ \}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_wavetable_a0874bb4bf5bacdc4f4d1a62a6bff3c89}{Wavetable::loadWaveFrame}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{WaveFrame}}*\ wave\_frame)\ \{}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a0874bb4bf5bacdc4f4d1a62a6bff3c89}{loadWaveFrame}}(wave\_frame,\ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a997e3cb5e3619931c2f147d30f28588c}{index}});}
+\DoxyCodeLine{00091\ \ \ \ \ \}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_wavetable_a0874bb4bf5bacdc4f4d1a62a6bff3c89}{Wavetable::loadWaveFrame}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{WaveFrame}}*\ wave\_frame,\ \textcolor{keywordtype}{int}\ to\_index)\ \{}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (to\_index\ >=\ \mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_a5e48342510777230944d2a4582058b5d}{num\_frames}})}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_af12a8100e3c721670745a88fa5c7fba9}{loadFrequencyAmplitudes}}(wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}},\ to\_index);}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_wavetable_a88566fc075b30f5c5d852065de1d3751}{loadNormalizedFrequencies}}(wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}},\ to\_index);}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ memcpy(\mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_abab104929aa72b16541a556a7f139b5c}{wave\_data}}[to\_index],\ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}},\ \mbox{\hyperlink{classvital_1_1_wavetable_af75994d8bd5b79ec318fb936abfe8141}{kWaveformSize}}\ *\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}));}
+\DoxyCodeLine{00100\ \ \ \ \ \}}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_wavetable_afb9e3aaf1d7983137ef423e289e46a04}{Wavetable::postProcess}}(\textcolor{keywordtype}{float}\ max\_span)\ \{}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMinAmplitudePhase\ =\ 0.1f;}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Scale\ amplitude\ and\ wave\ data\ if\ max\_span\ is\ provided}}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (max\_span\ >\ 0.0f)\ \{}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ scale\ =\ 2.0f\ /\ max\_span;}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ w\ =\ 0;\ w\ <\ \mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_a5e48342510777230944d2a4582058b5d}{num\_frames}};\ ++w)\ \{}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ frequency\_amplitudes\ =\ \mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_a1397a8758591a95b75e041b0ecf3b297}{frequency\_amplitudes}}[w];}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wavetable_a9f1d5606e65f93e59d8260e40296fda9}{kPolyFrequencySize}};\ ++i)}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ frequency\_amplitudes[i]\ *=\ scale;}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ wave\_data\ =\ \mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_abab104929aa72b16541a556a7f139b5c}{wave\_data}}[w];}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wavetable_af75994d8bd5b79ec318fb936abfe8141}{kWaveformSize}};\ ++i)}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ wave\_data[i]\ *=\ scale;}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Interpolate\ normalized\ frequencies\ for\ frames\ below\ the\ min\ amplitude\ threshold}}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ std::unique\_ptr<std::complex<float>[]>\ normalized\_defaults\ =}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::make\_unique<std::complex<float>[]>(\mbox{\hyperlink{classvital_1_1_wavetable_a69ac4aa6bec3d2d0f08b82dfe9101e88}{kNumHarmonics}});}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wavetable_a69ac4aa6bec3d2d0f08b82dfe9101e88}{kNumHarmonics}};\ ++i)\ \{}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ amp\_index\ =\ 2\ *\ i;}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ last\_min\_amp\_frame\ =\ -\/1;}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \ \ \ \ std::complex<float>\ last\_normalized\_frequency\ =\ std::complex<float>(0.0f,\ 1.0f);}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ w\ =\ 0;\ w\ <\ \mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_a5e48342510777230944d2a4582058b5d}{num\_frames}};\ ++w)\ \{}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ amplitude\ =\ ((\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)\mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_a1397a8758591a95b75e041b0ecf3b297}{frequency\_amplitudes}}[w])[amp\_index];}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::complex<float>\ normalized\_frequency\ =\ ((std::complex<float>*)\mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_af626aa871fa7e9fb80ae40cab7b31e27}{normalized\_frequencies}}[w])[i];}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (amplitude\ >\ kMinAmplitudePhase)\ \{}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (last\_min\_amp\_frame\ <\ 0)\ \{}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ last\_min\_amp\_frame\ =\ 0;}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ last\_normalized\_frequency\ =\ normalized\_frequency;}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::complex<float>\ delta\_normalized\_frequency\ =\ normalized\_frequency\ -\/\ last\_normalized\_frequency;}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ frame\ =\ last\_min\_amp\_frame\ +\ 1;\ frame\ <\ w;\ ++frame)\ \{}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ t\ =\ (frame\ -\/\ last\_min\_amp\_frame)\ *\ 1.0f\ /\ (w\ -\/\ last\_min\_amp\_frame);}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::complex<float>\ interpolated\ =\ delta\_normalized\_frequency\ *\ t\ +\ last\_normalized\_frequency;}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ((std::complex<float>*)\mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_af626aa871fa7e9fb80ae40cab7b31e27}{normalized\_frequencies}}[frame])[i]\ =\ interpolated;}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ last\_normalized\_frequency\ =\ normalized\_frequency;}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ last\_min\_amp\_frame\ =\ w;}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ frame\ =\ last\_min\_amp\_frame\ +\ 1;\ frame\ <\ \mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_a5e48342510777230944d2a4582058b5d}{num\_frames}};\ ++frame)}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ((std::complex<float>*)\mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_af626aa871fa7e9fb80ae40cab7b31e27}{normalized\_frequencies}}[frame])[i]\ =\ last\_normalized\_frequency;}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00151\ \ \ \ \ \}}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_wavetable_af12a8100e3c721670745a88fa5c7fba9}{Wavetable::loadFrequencyAmplitudes}}(\textcolor{keyword}{const}\ std::complex<float>*\ frequencies,\ \textcolor{keywordtype}{int}\ to\_index)\ \{}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Convert\ complex\ frequencies\ to\ amplitude\ values.}}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ amplitudes\ =\ (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)\mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_a1397a8758591a95b75e041b0ecf3b297}{frequency\_amplitudes}}[to\_index];}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wavetable_a69ac4aa6bec3d2d0f08b82dfe9101e88}{kNumHarmonics}};\ ++i)\ \{}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\ =\ std::abs(frequencies[i]);}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \ \ \ \ amplitudes[2\ *\ i]\ =\ amplitude;}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \ \ \ \ amplitudes[2\ *\ i\ +\ 1]\ =\ amplitude;}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00161\ \ \ \ \ \}}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_wavetable_a88566fc075b30f5c5d852065de1d3751}{Wavetable::loadNormalizedFrequencies}}(\textcolor{keyword}{const}\ std::complex<float>*\ frequencies,\ \textcolor{keywordtype}{int}\ to\_index)\ \{}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Extract\ and\ store\ phase\ information\ in\ normalized\ form.}}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ std::complex<float>*\ normalized\ =\ (std::complex<float>*)\mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_af626aa871fa7e9fb80ae40cab7b31e27}{normalized\_frequencies}}[to\_index];}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*\ phases\ =\ (\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}*)\mbox{\hyperlink{classvital_1_1_wavetable_a720c973602682f02f40e01ac523fc3ac}{current\_data\_}}-\/>\mbox{\hyperlink{structvital_1_1_wavetable_1_1_wavetable_data_a7d36547907b88f5c31177e5da685cb63}{phases}}[to\_index];}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wavetable_a69ac4aa6bec3d2d0f08b82dfe9101e88}{kNumHarmonics}};\ ++i)\ \{}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ arg\ =\ std::arg(frequencies[i]);}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ \ \ \ \ normalized[i]\ =\ std::polar(1.0f,\ arg);}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \ \ \ \ phases[2\ *\ i]\ =\ arg;}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \ \ \ \ phases[2\ *\ i\ +\ 1]\ =\ arg;}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00173\ \ \ \ \ \}}
+\DoxyCodeLine{00174\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

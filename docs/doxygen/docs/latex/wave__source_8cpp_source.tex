@@ -1,0 +1,215 @@
+\doxysection{wave\+\_\+source.\+cpp}
+\hypertarget{wave__source_8cpp_source}{}\label{wave__source_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/wave\_source.cpp@{/Users/davidvogel/repos/VitalHelp/src/common/wavetable/wave\_source.cpp}}
+\mbox{\hyperlink{wave__source_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{WaveSource\ and\ WaveSourceKeyframe\ provide\ a\ direct\ representation\ of\ wavetables\ via\ WaveFrames.\ By\ storing\ entire\ waveforms\ and\ supporting\ time\ or\ frequency\ domain\ interpolation\ (including\ cubic\ methods\ for\ smoothness),\ they\ enable\ flexible\ and\ sophisticated\ transitions\ between\ keyframes.\ This\ results\ in\ dynamic\ and\ evolving\ sounds\ that\ can\ be\ tailored\ by\ controlling\ interpolation\ modes\ and\ parameters.}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__source_8h}{wave\_source.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__frame_8h}{wave\_frame.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wavetable__component__factory_8h}{wavetable\_component\_factory.h}}"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \mbox{\hyperlink{class_wave_source_ae555f5a13f70e98bd1f64d6ace194648}{WaveSource::WaveSource}}()\ \{}
+\DoxyCodeLine{00011\ \ \ \mbox{\hyperlink{class_wave_source_a11755dbac312e2988927c173e4c8e30e}{compute\_frame\_}}\ =\ std::make\_unique<WaveSourceKeyframe>();}
+\DoxyCodeLine{00012\ \ \ \mbox{\hyperlink{class_wave_source_a4664e91a2660a56e2a721b6c10726955}{interpolation\_mode\_}}\ =\ \mbox{\hyperlink{class_wave_source_add4f921a9aaac5d27e4ae82704779d90a8ff2606e13b37e886ce6ae1568450739}{kFrequency}};\ \textcolor{comment}{//\ Default\ to\ frequency\ interpolation.}}
+\DoxyCodeLine{00013\ \}}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \mbox{\hyperlink{class_wave_source_a17c8638d956e4de07f99f8b2215c9d44}{WaveSource::\string~WaveSource}}()\ \{\ \}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ \mbox{\hyperlink{class_wave_source_a9bdbe4a5e4d1cacfdb38a856abd08104}{WaveSource::createKeyframe}}(\textcolor{keywordtype}{int}\ position)\ \{}
+\DoxyCodeLine{00018\ \ \ \mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}*\ keyframe\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}();}
+\DoxyCodeLine{00019\ \ \ \textcolor{comment}{//\ Renders\ the\ initial\ WaveFrame\ at\ this\ position\ into\ the\ keyframe's\ frame.}}
+\DoxyCodeLine{00020\ \ \ \mbox{\hyperlink{class_wave_source_a7015bd634946b71148bf58f4279c34fe}{render}}(keyframe-\/>\mbox{\hyperlink{class_wave_source_keyframe_ac2f19ba59f1866a789cdeb38fef24e12}{wave\_frame}}(),\ position);}
+\DoxyCodeLine{00021\ \ \ \textcolor{keywordflow}{return}\ keyframe;}
+\DoxyCodeLine{00022\ \}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_a7015bd634946b71148bf58f4279c34fe}{WaveSource::render}}(\mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ wave\_frame,\ \textcolor{keywordtype}{float}\ position)\ \{}
+\DoxyCodeLine{00025\ \ \ \textcolor{comment}{//\ Set\ the\ interpolation\ mode\ for\ the\ compute\_frame\_\ and\ interpolate\ into\ it.}}
+\DoxyCodeLine{00026\ \ \ \mbox{\hyperlink{class_wave_source_a11755dbac312e2988927c173e4c8e30e}{compute\_frame\_}}-\/>\mbox{\hyperlink{class_wave_source_keyframe_a8375d5c3ffe9ecaaa9d3cffae9c1c649}{setInterpolationMode}}(\mbox{\hyperlink{class_wave_source_a4664e91a2660a56e2a721b6c10726955}{interpolation\_mode\_}});}
+\DoxyCodeLine{00027\ \ \ \mbox{\hyperlink{class_wavetable_component_a59b735ee67cc2281379418304de76b6d}{interpolate}}(\mbox{\hyperlink{class_wave_source_a11755dbac312e2988927c173e4c8e30e}{compute\_frame\_}}.get(),\ position);}
+\DoxyCodeLine{00028\ \ \ wave\_frame-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a097b35df7e1e30b50991550a21d4927b}{copy}}(\mbox{\hyperlink{class_wave_source_a11755dbac312e2988927c173e4c8e30e}{compute\_frame\_}}-\/>wave\_frame());}
+\DoxyCodeLine{00029\ \}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bd}{WavetableComponentFactory::ComponentType}}\ \mbox{\hyperlink{class_wave_source_ae6fed21b5af63d52515f7f956f40116e}{WaveSource::getType}}()\ \{}
+\DoxyCodeLine{00032\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wavetable_component_factory_a22042886b7b3acd718509949040238bda4abc444b080aeb6684a0305d20feed03}{WavetableComponentFactory::kWaveSource}};}
+\DoxyCodeLine{00033\ \}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_wave_source_a04562d7646704ac5dab012c05358fe11}{WaveSource::stateToJson}}()\ \{}
+\DoxyCodeLine{00036\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_wavetable_component_a1c7bd3ba09cf3093d5aea225ee876b02}{WavetableComponent::stateToJson}}();}
+\DoxyCodeLine{00037\ \ \ data[\textcolor{stringliteral}{"{}interpolation"{}}]\ =\ \mbox{\hyperlink{class_wave_source_a4664e91a2660a56e2a721b6c10726955}{interpolation\_mode\_}};}
+\DoxyCodeLine{00038\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00039\ \}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_a4e5bab83a373220e2dbe774a75d29e2d}{WaveSource::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00042\ \ \ \mbox{\hyperlink{class_wavetable_component_a656616fbc4a9d37b7e76c4179f496196}{WavetableComponent::jsonToState}}(data);}
+\DoxyCodeLine{00043\ \ \ \mbox{\hyperlink{class_wave_source_a4664e91a2660a56e2a721b6c10726955}{interpolation\_mode\_}}\ =\ data[\textcolor{stringliteral}{"{}interpolation"{}}];}
+\DoxyCodeLine{00044\ \ \ \mbox{\hyperlink{class_wave_source_a11755dbac312e2988927c173e4c8e30e}{compute\_frame\_}}-\/>setInterpolationMode(\mbox{\hyperlink{class_wave_source_a4664e91a2660a56e2a721b6c10726955}{interpolation\_mode\_}});}
+\DoxyCodeLine{00045\ \}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ \mbox{\hyperlink{class_wave_source_a63ed7a33886879e253bb602143b026d5}{WaveSource::getWaveFrame}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00048\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_wave_source_a715a55593b9018c4a380be67c5b948f9}{getKeyframe}}(index)-\/>\mbox{\hyperlink{class_wave_source_keyframe_ac2f19ba59f1866a789cdeb38fef24e12}{wave\_frame}}();}
+\DoxyCodeLine{00049\ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}*\ \mbox{\hyperlink{class_wave_source_a715a55593b9018c4a380be67c5b948f9}{WaveSource::getKeyframe}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00052\ \ \ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ wavetable\_keyframe\ =\ \mbox{\hyperlink{class_wavetable_component_a9186070f6ca3742cfd0ab22cbdcbb875}{keyframes\_}}[index].get();}
+\DoxyCodeLine{00053\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}*\textcolor{keyword}{>}(wavetable\_keyframe);}
+\DoxyCodeLine{00054\ \}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_keyframe_a1b574fe8cd5c6549bad0c0e161caa9ee}{WaveSourceKeyframe::copy}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00057\ \ \ \textcolor{comment}{//\ Copies\ the\ WaveFrame\ data\ from\ another\ WaveSourceKeyframe.}}
+\DoxyCodeLine{00058\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}*\ source\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}*\textcolor{keyword}{>}(keyframe);}
+\DoxyCodeLine{00059\ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>\mbox{\hyperlink{class_wave_source_keyframe_a1b574fe8cd5c6549bad0c0e161caa9ee}{copy}}(source-\/>\mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}.get());}
+\DoxyCodeLine{00060\ \}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_keyframe_a91a03b2129322973ebe9cb8c72ba7b50}{WaveSourceKeyframe::linearTimeInterpolate}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ from,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ to,\ \textcolor{keywordtype}{float}\ t)\ \{}
+\DoxyCodeLine{00063\ \ \ \textcolor{comment}{//\ Perform\ a\ simple\ linear\ interpolation\ of\ time-\/domain\ samples\ between\ two\ WaveFrames.}}
+\DoxyCodeLine{00064\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};\ ++i)}
+\DoxyCodeLine{00065\ \ \ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>time\_domain[i]\ =\ \mbox{\hyperlink{class_wavetable_keyframe_a06dcc7e7c618cedfa746b46f7cc4c79e}{linearTween}}(from-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i],\ to-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i],\ t);}
+\DoxyCodeLine{00066\ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>toFrequencyDomain();}
+\DoxyCodeLine{00067\ \}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_keyframe_a21b939df52c0df8a8d01dbf8aec1ffcd}{WaveSourceKeyframe::cubicTimeInterpolate}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ prev,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ from,}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ to,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ next,}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ range\_prev,\ \textcolor{keywordtype}{float}\ range,\ \textcolor{keywordtype}{float}\ range\_next,\ \textcolor{keywordtype}{float}\ t)\ \{}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \textcolor{comment}{//\ Cubic\ interpolation\ for\ an\ even\ smoother\ transition\ in\ the\ time\ domain.}}
+\DoxyCodeLine{00074\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};\ ++i)\ \{}
+\DoxyCodeLine{00075\ \ \ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>time\_domain[i]\ =\ \mbox{\hyperlink{class_wavetable_keyframe_a1936d535aa7d22f6281c86c56c38b6cd}{cubicTween}}(prev-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i],\ from-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i],}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ to-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i],\ next-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i],}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ range\_prev,\ range,\ range\_next,\ t);}
+\DoxyCodeLine{00078\ \ \ \}}
+\DoxyCodeLine{00079\ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>toFrequencyDomain();}
+\DoxyCodeLine{00080\ \}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_keyframe_a25bf945cc7e05f3e24785e2c18f1ddf5}{WaveSourceKeyframe::linearFrequencyInterpolate}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ from,}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ to,\ \textcolor{keywordtype}{float}\ t)\ \{}
+\DoxyCodeLine{00084\ \ \ \textcolor{comment}{//\ Linear\ interpolation\ in\ frequency\ domain:\ smoothly\ blend\ magnitudes\ and\ phases\ of\ harmonics.}}
+\DoxyCodeLine{00085\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_addeb13945e5fe1e653aa4b2edd487ede}{vital::WaveFrame::kNumRealComplex}};\ ++i)\ \{}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\_from\ =\ sqrtf(std::abs(from-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]));}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\_to\ =\ sqrtf(std::abs(to-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]));}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\ =\ \mbox{\hyperlink{class_wavetable_keyframe_a06dcc7e7c618cedfa746b46f7cc4c79e}{linearTween}}(amplitude\_from,\ amplitude\_to,\ t);}
+\DoxyCodeLine{00089\ \ \ \ \ amplitude\ *=\ amplitude;}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{comment}{//\ Interpolate\ DC\ and\ last\ harmonic\ separately\ for\ consistency.}}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keywordtype}{float}\ phase\_from\ =\ std::arg(from-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]);}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordtype}{float}\ phase\_delta\ =\ std::arg(std::conj(from-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i])\ *\ to-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]);}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordtype}{float}\ phase\ =\ phase\_from\ +\ t\ *\ phase\_delta;}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordflow}{if}\ (amplitude\_from\ ==\ 0)}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ phase\ =\ std::arg(to-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]);}
+\DoxyCodeLine{00097\ \ \ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>frequency\_domain[i]\ =\ std::polar(amplitude,\ phase);}
+\DoxyCodeLine{00098\ \ \ \}}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordtype}{float}\ dc\_from\ =\ from-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[0].real();}
+\DoxyCodeLine{00101\ \ \ \textcolor{keywordtype}{float}\ dc\_to\ =\ to-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[0].real();}
+\DoxyCodeLine{00102\ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>frequency\_domain[0]\ =\ \mbox{\hyperlink{class_wavetable_keyframe_a06dcc7e7c618cedfa746b46f7cc4c79e}{linearTween}}(dc\_from,\ dc\_to,\ t);}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \textcolor{keywordtype}{int}\ last\ =\ \mbox{\hyperlink{classvital_1_1_wave_frame_addeb13945e5fe1e653aa4b2edd487ede}{vital::WaveFrame::kNumRealComplex}}\ -\/\ 1;}
+\DoxyCodeLine{00105\ \ \ \textcolor{keywordtype}{float}\ last\_harmonic\_from\ =\ from-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[last].real();}
+\DoxyCodeLine{00106\ \ \ \textcolor{keywordtype}{float}\ last\_harmonic\_to\ =\ to-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[last].real();}
+\DoxyCodeLine{00107\ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>frequency\_domain[last]\ =\ \mbox{\hyperlink{class_wavetable_keyframe_a06dcc7e7c618cedfa746b46f7cc4c79e}{linearTween}}(last\_harmonic\_from,\ last\_harmonic\_to,\ t);}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>toTimeDomain();}
+\DoxyCodeLine{00110\ \}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_keyframe_ae736aa8a1e0efb5162022d4cae795729}{WaveSourceKeyframe::cubicFrequencyInterpolate}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ prev,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ from,}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ to,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ next,}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ range\_prev,\ \textcolor{keywordtype}{float}\ range,\ \textcolor{keywordtype}{float}\ range\_next,\ \textcolor{keywordtype}{float}\ t)\ \{}
+\DoxyCodeLine{00115\ \ \ \textcolor{comment}{//\ Cubic\ interpolation\ in\ frequency\ domain\ for\ very\ smooth\ harmonic\ transitions\ across\ multiple\ frames.}}
+\DoxyCodeLine{00116\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_addeb13945e5fe1e653aa4b2edd487ede}{vital::WaveFrame::kNumRealComplex}};\ ++i)\ \{}
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\_prev\ =\ sqrtf(std::abs(prev-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]));}
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\_from\ =\ sqrtf(std::abs(from-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]));}
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\_to\ =\ sqrtf(std::abs(to-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]));}
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\_next\ =\ sqrtf(std::abs(next-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]));}
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\ =\ \mbox{\hyperlink{class_wavetable_keyframe_a1936d535aa7d22f6281c86c56c38b6cd}{cubicTween}}(amplitude\_prev,\ amplitude\_from,\ amplitude\_to,\ amplitude\_next,}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ range\_prev,\ range,\ range\_next,\ t);}
+\DoxyCodeLine{00123\ \ \ \ \ amplitude\ *=\ amplitude;}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{comment}{//\ Calculate\ phase\ transitions\ similarly,\ ensuring\ continuous\ phase\ evolution.}}
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{keywordtype}{float}\ phase\_delta\_from\ =\ std::arg(std::conj(prev-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i])\ *\ from-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]);}
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{keywordtype}{float}\ phase\_delta\_to\ =\ std::arg(std::conj(from-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i])\ *\ to-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]);}
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keywordtype}{float}\ phase\_delta\_next\ =\ std::arg(std::conj(to-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i])\ *\ next-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]);}
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{keywordtype}{float}\ phase\_prev\ =\ std::arg(prev-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]);}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{keywordtype}{float}\ phase\_from\ =\ phase\_prev;}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keywordflow}{if}\ (amplitude\_from)}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ phase\_from\ +=\ phase\_delta\_from;}
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keywordtype}{float}\ phase\_to\ =\ phase\_from;}
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keywordflow}{if}\ (amplitude\_to)}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ phase\_to\ +=\ phase\_delta\_to;}
+\DoxyCodeLine{00136\ \ \ \ \ \textcolor{keywordtype}{float}\ phase\_next\ =\ phase\_to;}
+\DoxyCodeLine{00137\ \ \ \ \ \textcolor{keywordflow}{if}\ (amplitude\_next)}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ phase\_next\ +=\ phase\_delta\_next;}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{keywordtype}{float}\ phase\ =\ \mbox{\hyperlink{class_wavetable_keyframe_a1936d535aa7d22f6281c86c56c38b6cd}{cubicTween}}(phase\_prev,\ phase\_from,\ phase\_to,\ phase\_next,\ range\_prev,\ range,\ range\_next,\ t);}
+\DoxyCodeLine{00141\ \ \ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>frequency\_domain[i]\ =\ std::polar(amplitude,\ phase);}
+\DoxyCodeLine{00142\ \ \ \}}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00144\ \ \ \textcolor{comment}{//\ Handle\ DC\ and\ last\ harmonic\ separately\ with\ cubic\ interpolation.}}
+\DoxyCodeLine{00145\ \ \ \textcolor{keywordtype}{float}\ dc\_prev\ =\ prev-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[0].real();}
+\DoxyCodeLine{00146\ \ \ \textcolor{keywordtype}{float}\ dc\_from\ =\ from-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[0].real();}
+\DoxyCodeLine{00147\ \ \ \textcolor{keywordtype}{float}\ dc\_to\ =\ to-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[0].real();}
+\DoxyCodeLine{00148\ \ \ \textcolor{keywordtype}{float}\ dc\_next\ =\ next-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[0].real();}
+\DoxyCodeLine{00149\ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>frequency\_domain[0]\ =\ \mbox{\hyperlink{class_wavetable_keyframe_a1936d535aa7d22f6281c86c56c38b6cd}{cubicTween}}(dc\_prev,\ dc\_from,\ dc\_to,\ dc\_next,\ range\_prev,\ range,\ range\_next,\ t);}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \ \ \textcolor{keywordtype}{int}\ last\ =\ \mbox{\hyperlink{classvital_1_1_wave_frame_addeb13945e5fe1e653aa4b2edd487ede}{vital::WaveFrame::kNumRealComplex}}\ -\/\ 1;}
+\DoxyCodeLine{00152\ \ \ \textcolor{keywordtype}{float}\ last\_harmonic\_prev\ =\ prev-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[last].real();}
+\DoxyCodeLine{00153\ \ \ \textcolor{keywordtype}{float}\ last\_harmonic\_from\ =\ from-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[last].real();}
+\DoxyCodeLine{00154\ \ \ \textcolor{keywordtype}{float}\ last\_harmonic\_to\ =\ to-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[last].real();}
+\DoxyCodeLine{00155\ \ \ \textcolor{keywordtype}{float}\ last\_harmonic\_next\ =\ next-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[last].real();}
+\DoxyCodeLine{00156\ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>frequency\_domain[last]\ =\ \mbox{\hyperlink{class_wavetable_keyframe_a1936d535aa7d22f6281c86c56c38b6cd}{cubicTween}}(last\_harmonic\_prev,\ last\_harmonic\_from,}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ last\_harmonic\_to,\ last\_harmonic\_next,}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ range\_prev,\ range,\ range\_next,\ t);}
+\DoxyCodeLine{00159\ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>toTimeDomain();}
+\DoxyCodeLine{00160\ \}}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_keyframe_aefa83b8a0623b6becd80c462236e014a}{WaveSourceKeyframe::interpolate}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ from\_keyframe,}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ to\_keyframe,\ \textcolor{keywordtype}{float}\ t)\ \{}
+\DoxyCodeLine{00164\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}*\ from\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}*\textcolor{keyword}{>}(from\_keyframe);}
+\DoxyCodeLine{00165\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}*\ to\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}*\textcolor{keyword}{>}(to\_keyframe);}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00167\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wave_source_keyframe_a1594ee99df6e7bf5145f2eca3e383f25}{interpolation\_mode\_}}\ ==\ \mbox{\hyperlink{class_wave_source_add4f921a9aaac5d27e4ae82704779d90a8ff2606e13b37e886ce6ae1568450739}{WaveSource::kFrequency}})}
+\DoxyCodeLine{00168\ \ \ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a25bf945cc7e05f3e24785e2c18f1ddf5}{linearFrequencyInterpolate}}(from-\/>\mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}.get(),\ to-\/>\mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}.get(),\ t);}
+\DoxyCodeLine{00169\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00170\ \ \ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a91a03b2129322973ebe9cb8c72ba7b50}{linearTimeInterpolate}}(from-\/>\mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}.get(),\ to-\/>\mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}.get(),\ t);}
+\DoxyCodeLine{00171\ \}}
+\DoxyCodeLine{00172\ }
+\DoxyCodeLine{00173\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_keyframe_a1d98f2353ed1314db13fe28782cce7f3}{WaveSourceKeyframe::smoothInterpolate}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ prev\_keyframe,}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ from\_keyframe,}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ to\_keyframe,}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ next\_keyframe,\ \textcolor{keywordtype}{float}\ t)\ \{}
+\DoxyCodeLine{00177\ \ \ \textcolor{comment}{//\ Uses\ cubic\ interpolation\ if\ possible\ for\ even\ smoother\ transitions.}}
+\DoxyCodeLine{00178\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ prev\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}*\textcolor{keyword}{>}(prev\_keyframe)-\/>\mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}.get();}
+\DoxyCodeLine{00179\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ from\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}*\textcolor{keyword}{>}(from\_keyframe)-\/>\mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}.get();}
+\DoxyCodeLine{00180\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ to\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}*\textcolor{keyword}{>}(to\_keyframe)-\/>\mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}.get();}
+\DoxyCodeLine{00181\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_wave_frame}{vital::WaveFrame}}*\ next\ =\ \textcolor{keyword}{dynamic\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{class_wave_source_keyframe}{WaveSourceKeyframe}}*\textcolor{keyword}{>}(next\_keyframe)-\/>\mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}.get();}
+\DoxyCodeLine{00182\ }
+\DoxyCodeLine{00183\ \ \ \textcolor{keywordtype}{float}\ range\_prev\ =\ from\_keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}()\ -\/\ prev\_keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}();}
+\DoxyCodeLine{00184\ \ \ \textcolor{keywordtype}{float}\ range\ =\ to\_keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}()\ -\/\ from\_keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}();}
+\DoxyCodeLine{00185\ \ \ \textcolor{keywordtype}{float}\ range\_next\ =\ next\_keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}()\ -\/\ to\_keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a0cb9189b60f53bacbbbf18cf99ca1c28}{position}}();}
+\DoxyCodeLine{00186\ }
+\DoxyCodeLine{00187\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wave_source_keyframe_a1594ee99df6e7bf5145f2eca3e383f25}{interpolation\_mode\_}}\ ==\ \mbox{\hyperlink{class_wave_source_add4f921a9aaac5d27e4ae82704779d90a8ff2606e13b37e886ce6ae1568450739}{WaveSource::kFrequency}})}
+\DoxyCodeLine{00188\ \ \ \ \ \mbox{\hyperlink{class_wave_source_keyframe_ae736aa8a1e0efb5162022d4cae795729}{cubicFrequencyInterpolate}}(prev,\ from,\ to,\ next,\ range\_prev,\ range,\ range\_next,\ t);}
+\DoxyCodeLine{00189\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00190\ \ \ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a21b939df52c0df8a8d01dbf8aec1ffcd}{cubicTimeInterpolate}}(prev,\ from,\ to,\ next,\ range\_prev,\ range,\ range\_next,\ t);}
+\DoxyCodeLine{00191\ \}}
+\DoxyCodeLine{00192\ }
+\DoxyCodeLine{00193\ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ \mbox{\hyperlink{class_wave_source_keyframe_a42bb1c4473019173e7b0435aae21ea1a}{WaveSourceKeyframe::stateToJson}}()\ \{}
+\DoxyCodeLine{00194\ \ \ \textcolor{comment}{//\ Serialize\ the\ waveform’s\ time-\/domain\ data\ as\ Base64.}}
+\DoxyCodeLine{00195\ \ \ String\ encoded\ =\ Base64::toBase64(\mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>time\_domain,\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float})\ *\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}});}
+\DoxyCodeLine{00196\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_wavetable_keyframe_ab12d53e98f7188d011cd3c69e86d2bda}{WavetableKeyframe::stateToJson}}();}
+\DoxyCodeLine{00197\ \ \ data[\textcolor{stringliteral}{"{}wave\_data"{}}]\ =\ encoded.toStdString();}
+\DoxyCodeLine{00198\ \ \ \textcolor{keywordflow}{return}\ data;}
+\DoxyCodeLine{00199\ \}}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_keyframe_a90a5537b7612e577b7697443e9fc2025}{WaveSourceKeyframe::jsonToState}}(\mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data)\ \{}
+\DoxyCodeLine{00202\ \ \ \mbox{\hyperlink{class_wavetable_keyframe_ad0e81b3bdc5fe9a3d901dec69d9b7b5b}{WavetableKeyframe::jsonToState}}(data);}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \ \ MemoryOutputStream\ decoded(\textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float})\ *\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}});}
+\DoxyCodeLine{00205\ \ \ std::string\ wave\_data\ =\ data[\textcolor{stringliteral}{"{}wave\_data"{}}];}
+\DoxyCodeLine{00206\ \ \ Base64::convertFromBase64(decoded,\ wave\_data);}
+\DoxyCodeLine{00207\ \ \ memcpy(\mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>time\_domain,\ decoded.getData(),\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float})\ *\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}});}
+\DoxyCodeLine{00208\ \ \ \mbox{\hyperlink{class_wave_source_keyframe_a99884fc97dc01f240686506e0eaea4f6}{wave\_frame\_}}-\/>toFrequencyDomain();}
+\DoxyCodeLine{00209\ \}}
+
+\end{DoxyCode}

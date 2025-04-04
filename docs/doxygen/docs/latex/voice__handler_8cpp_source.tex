@@ -1,0 +1,975 @@
+\doxysection{voice\+\_\+handler.\+cpp}
+\hypertarget{voice__handler_8cpp_source}{}\label{voice__handler_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/framework/voice\_handler.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/framework/voice\_handler.cpp}}
+\mbox{\hyperlink{voice__handler_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{voice__handler_8h}{voice\_handler.h}}"{}}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \ \ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kParallelVoices\ =\ poly\_float::kSize\ /\ 2;}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kChannelShift\ =\ 8;\ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kNoteMask\ =\ (1\ <<\ kChannelShift)\ -\/\ 1;}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00021\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ combineNoteChannel(\textcolor{keywordtype}{int}\ note,\ \textcolor{keywordtype}{int}\ channel)\ \{}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (channel\ <<\ kChannelShift)\ +\ note;}
+\DoxyCodeLine{00023\ \ \ \ \ \}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00026\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ getChannel(\textcolor{keywordtype}{int}\ value)\ \{}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value\ >>\ kChannelShift;}
+\DoxyCodeLine{00028\ \ \ \ \ \}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00031\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ getNote(\textcolor{keywordtype}{int}\ value)\ \{}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value\ \&\ kNoteMask;}
+\DoxyCodeLine{00033\ \ \ \ \ \}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00036\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ voiceCompareNewestFirst(Voice*\ left,\ Voice*\ right)\ \{}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ left\_count\ =\ left-\/>state().note\_count;}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ right\_count\ =\ right-\/>state().note\_count;}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ left\_count\ -\/\ right\_count;}
+\DoxyCodeLine{00040\ \ \ \ \ \}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00043\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ voiceCompareLowestFirst(Voice*\ left,\ Voice*\ right)\ \{}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ right-\/>state().midi\_note\ -\/\ left-\/>state().midi\_note;}
+\DoxyCodeLine{00045\ \ \ \ \ \}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00048\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ voiceCompareHighestFirst(Voice*\ left,\ Voice*\ right)\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ left-\/>state().midi\_note\ -\/\ right-\/>state().midi\_note;}
+\DoxyCodeLine{00050\ \ \ \ \ \}}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00053\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ pressedCompareLowestFirst(\textcolor{keywordtype}{int}\ left,\ \textcolor{keywordtype}{int}\ right)\ \{}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ getNote(right)\ -\/\ getNote(left);}
+\DoxyCodeLine{00055\ \ \ \ \ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00058\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ pressedCompareHighestFirst(\textcolor{keywordtype}{int}\ left,\ \textcolor{keywordtype}{int}\ right)\ \{}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ getNote(left)\ -\/\ getNote(right);}
+\DoxyCodeLine{00060\ \ \ \ \ \}}
+\DoxyCodeLine{00061\ \ \ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \textcolor{comment}{//=========================\ \ Voice\ Implementation\ \ =========================//}}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \mbox{\hyperlink{classvital_1_1_voice_ab19ca59a44f09bc0de6982b2c7b715a5}{Voice::Voice}}(\mbox{\hyperlink{structvital_1_1_aggregate_voice}{AggregateVoice}}*\ parent)}
+\DoxyCodeLine{00066\ \ \ \ \ :\ voice\_index\_(0),}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ voice\_mask\_(0),}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ event\_sample\_(-\/1),}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ aftertouch\_sample\_(-\/1),}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ aftertouch\_(0.0f),}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ slide\_sample\_(-\/1),}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ slide\_(0.0f),}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ parent\_(parent)\ \{}
+\DoxyCodeLine{00074\ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_a456b4ccee212c3cfe1859424063efcd7}{event}}\ =\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836faa8561c95d99b0fd70d107807f0fd88ca}{kVoiceOff}};}
+\DoxyCodeLine{00075\ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_a2a1e50697e0029ce9c23fdb130632573}{midi\_note}}\ =\ 0;}
+\DoxyCodeLine{00076\ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_ac2599cbdf87e724a7c2c4cac9edb67bb}{tuned\_note}}\ =\ 0;}
+\DoxyCodeLine{00077\ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_aad05be7c6fa219a2a87f04e55ca16268}{velocity}}\ =\ 0;}
+\DoxyCodeLine{00078\ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_afcab84fa951278078b14b73ad585bb4b}{last\_note}}\ =\ 0;}
+\DoxyCodeLine{00079\ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_a5fbdbbc1ecea25ea4b97fb7dd03a572c}{note\_pressed}}\ =\ 0;}
+\DoxyCodeLine{00080\ \ \ \ \ state\_.\mbox{\hyperlink{structvital_1_1_voice_state_a1dc87b271735aa6f44505fc4807f870e}{channel}}\ =\ 0;}
+\DoxyCodeLine{00081\ \ \ \ \ key\_state\_\ =\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a0c1b5b9b658126a9ccbb6d6101b9cc48}{kDead}};}
+\DoxyCodeLine{00082\ \ \ \ \ last\_key\_state\_\ =\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a0c1b5b9b658126a9ccbb6d6101b9cc48}{kDead}};}
+\DoxyCodeLine{00083\ \ \ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \textcolor{comment}{//=======================\ \ VoiceHandler\ Implementation\ \ ====================//}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_ab3915346519ca3ee2eac4a742d47b8cc}{VoiceHandler::VoiceHandler}}(\textcolor{keywordtype}{int}\ num\_outputs,\ \textcolor{keywordtype}{int}\ polyphony,\ \textcolor{keywordtype}{bool}\ control\_rate)\ :}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_synth_module}{SynthModule}}(kNumInputs,\ num\_outputs,\ control\_rate),}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ polyphony\_(0),}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ legato\_(false),}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ voice\_killer\_(nullptr),}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ last\_num\_voices\_(0),}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ last\_played\_note\_(-\/1.0f),}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ sustain\_(),}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ sostenuto\_(),}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ mod\_wheel\_values\_(),}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ pitch\_wheel\_values\_(),}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ zoned\_pitch\_wheel\_values\_(),}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ pressure\_values\_(),}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ slide\_values\_(),}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ tuning\_(nullptr),}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ voice\_priority\_(kRoundRobin),}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ voice\_override\_(kKill),}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ total\_notes\_(0)\ \{}
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{comment}{//\ Reserve\ space\ for\ data\ structures:}}
+\DoxyCodeLine{00106\ \ \ \ \ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_a58522ab970c78c39efacf58b83032161}{reserve}}(\mbox{\hyperlink{namespacevital_a7be9efa423f42230b10924b0f69b3b03}{kMidiSize}});}
+\DoxyCodeLine{00107\ \ \ \ \ all\_voices\_.reserve(\mbox{\hyperlink{namespacevital_a99d8c3c0bd5a84c70f8d20f5c7ff0875}{kMaxPolyphony}}\ +\ kParallelVoices);}
+\DoxyCodeLine{00108\ \ \ \ \ free\_voices\_.reserve(\mbox{\hyperlink{namespacevital_a99d8c3c0bd5a84c70f8d20f5c7ff0875}{kMaxPolyphony}}\ +\ kParallelVoices);}
+\DoxyCodeLine{00109\ \ \ \ \ active\_voices\_.reserve(\mbox{\hyperlink{namespacevital_a99d8c3c0bd5a84c70f8d20f5c7ff0875}{kMaxPolyphony}}\ +\ kParallelVoices);}
+\DoxyCodeLine{00110\ \ \ \ \ all\_aggregate\_voices\_.reserve(\mbox{\hyperlink{namespacevital_a99d8c3c0bd5a84c70f8d20f5c7ff0875}{kMaxPolyphony}}\ /\ kParallelVoices\ +\ kParallelVoices);}
+\DoxyCodeLine{00111\ \ \ \ \ active\_aggregate\_voices\_.reserve(\mbox{\hyperlink{namespacevital_a99d8c3c0bd5a84c70f8d20f5c7ff0875}{kMaxPolyphony}}\ /\ kParallelVoices\ +\ kParallelVoices);}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{comment}{//\ By\ default,\ note\_\ is\ used\ as\ the\ main\ "{}midi"{}\ output\ for\ reference.}}
+\DoxyCodeLine{00114\ \ \ \ \ voice\_midi\_\ =\ \&note\_;}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{comment}{//\ Mark\ these\ Outputs\ as\ belonging\ to\ voice\_router\_\ (the\ poly\ router).}}
+\DoxyCodeLine{00117\ \ \ \ \ voice\_event\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00118\ \ \ \ \ retrigger\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00119\ \ \ \ \ reset\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00120\ \ \ \ \ note\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00121\ \ \ \ \ last\_note\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00122\ \ \ \ \ note\_pressed\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00123\ \ \ \ \ note\_count\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00124\ \ \ \ \ note\_in\_octave\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00125\ \ \ \ \ channel\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00126\ \ \ \ \ velocity\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00127\ \ \ \ \ lift\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00128\ \ \ \ \ aftertouch\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00129\ \ \ \ \ slide\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00130\ \ \ \ \ active\_mask\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00131\ \ \ \ \ mod\_wheel\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00132\ \ \ \ \ pitch\_wheel\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00133\ \ \ \ \ pitch\_wheel\_percent\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00134\ \ \ \ \ local\_pitch\_bend\_.\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \&voice\_router\_;}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a281bb6ca17fb3142dbf6c86460bf137b}{setPolyphony}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}});}
+\DoxyCodeLine{00137\ \ \ \ \ voice\_router\_.\mbox{\hyperlink{classvital_1_1_processor_ad669f63d02cbbab8b33bbfb25be43e19}{router}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00138\ \ \ \ \ global\_router\_.\mbox{\hyperlink{classvital_1_1_processor_ad669f63d02cbbab8b33bbfb25be43e19}{router}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00139\ \ \ \}}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a4fdca04b0083d2745de0378ab64385cf}{VoiceHandler::\string~VoiceHandler}}()\ \{\ \}}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \ \ \textcolor{keywordtype}{void}\ VoiceHandler::prepareVoiceTriggers(\mbox{\hyperlink{structvital_1_1_aggregate_voice}{AggregateVoice}}*\ aggregate\_voice,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{comment}{//\ Clear\ triggers\ for\ each\ block.}}
+\DoxyCodeLine{00145\ \ \ \ \ note\_.\mbox{\hyperlink{structvital_1_1_output_a60830e1cea540817709295d17510ce27}{clearTrigger}}();}
+\DoxyCodeLine{00146\ \ \ \ \ last\_note\_.\mbox{\hyperlink{structvital_1_1_output_a60830e1cea540817709295d17510ce27}{clearTrigger}}();}
+\DoxyCodeLine{00147\ \ \ \ \ channel\_.\mbox{\hyperlink{structvital_1_1_output_a60830e1cea540817709295d17510ce27}{clearTrigger}}();}
+\DoxyCodeLine{00148\ \ \ \ \ velocity\_.\mbox{\hyperlink{structvital_1_1_output_a60830e1cea540817709295d17510ce27}{clearTrigger}}();}
+\DoxyCodeLine{00149\ \ \ \ \ lift\_.\mbox{\hyperlink{structvital_1_1_output_a60830e1cea540817709295d17510ce27}{clearTrigger}}();}
+\DoxyCodeLine{00150\ \ \ \ \ voice\_event\_.\mbox{\hyperlink{structvital_1_1_output_a60830e1cea540817709295d17510ce27}{clearTrigger}}();}
+\DoxyCodeLine{00151\ \ \ \ \ retrigger\_.\mbox{\hyperlink{structvital_1_1_output_a60830e1cea540817709295d17510ce27}{clearTrigger}}();}
+\DoxyCodeLine{00152\ \ \ \ \ reset\_.\mbox{\hyperlink{structvital_1_1_output_a60830e1cea540817709295d17510ce27}{clearTrigger}}();}
+\DoxyCodeLine{00153\ \ \ \ \ aftertouch\_.\mbox{\hyperlink{structvital_1_1_output_a60830e1cea540817709295d17510ce27}{clearTrigger}}();}
+\DoxyCodeLine{00154\ \ \ \ \ slide\_.\mbox{\hyperlink{structvital_1_1_output_a60830e1cea540817709295d17510ce27}{clearTrigger}}();}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{comment}{//\ Iterate\ each\ Voice\ in\ the\ group\ and\ trigger\ events\ if\ needed.}}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ aggregate\_voice-\/>\mbox{\hyperlink{structvital_1_1_aggregate_voice_a3479b9e6d20d0afb09b9fd123890c050}{voices}})\ \{}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ab808e07e0caa9d0b4924b788a7fb8968}{hasNewEvent}}())\ \{}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ offset\ =\ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_a757e9bebb379f8b626b30215ff0a9cd1}{event\_sample}}()\ *\ \mbox{\hyperlink{classvital_1_1_processor_a9781b732ace6aa715422754635b771ca}{getOversampleAmount}}();}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_samples\ <=\ offset)}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \ \ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ab2ac0cbfac28edf2a1f87ec4b8934dc2}{shiftVoiceEvent}}(num\_samples\ /\ \mbox{\hyperlink{classvital_1_1_processor_a9781b732ace6aa715422754635b771ca}{getOversampleAmount}}());}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ mask\ =\ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_a7957e955a61a898340e73fdbe82be6b2}{voice\_mask}}();}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \ \ voice\_event\_.\mbox{\hyperlink{structvital_1_1_output_a16f8b90753a7d427090e088f82b011de}{trigger}}(mask,\ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ab4aba7c9dba249ad77f9e6b9bc918fe6}{state}}().\mbox{\hyperlink{structvital_1_1_voice_state_a456b4ccee212c3cfe1859424063efcd7}{event}},\ offset);}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Trigger\ note-\/on}}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ab4aba7c9dba249ad77f9e6b9bc918fe6}{state}}().\mbox{\hyperlink{structvital_1_1_voice_state_a456b4ccee212c3cfe1859424063efcd7}{event}}\ ==\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa2ce85055a27054faf723c514c8a74dea}{kVoiceOn}})\ \{}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \ \ \ \ note\_.\mbox{\hyperlink{structvital_1_1_output_a16f8b90753a7d427090e088f82b011de}{trigger}}(mask,\ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ab4aba7c9dba249ad77f9e6b9bc918fe6}{state}}().\mbox{\hyperlink{structvital_1_1_voice_state_ac2599cbdf87e724a7c2c4cac9edb67bb}{tuned\_note}},\ offset);}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ \ \ \ \ last\_note\_.\mbox{\hyperlink{structvital_1_1_output_a16f8b90753a7d427090e088f82b011de}{trigger}}(mask,\ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ab4aba7c9dba249ad77f9e6b9bc918fe6}{state}}().\mbox{\hyperlink{structvital_1_1_voice_state_afcab84fa951278078b14b73ad585bb4b}{last\_note}},\ offset);}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \ \ \ \ velocity\_.\mbox{\hyperlink{structvital_1_1_output_a16f8b90753a7d427090e088f82b011de}{trigger}}(mask,\ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ab4aba7c9dba249ad77f9e6b9bc918fe6}{state}}().\mbox{\hyperlink{structvital_1_1_voice_state_aad05be7c6fa219a2a87f04e55ca16268}{velocity}},\ offset);}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \ \ \ \ channel\_.\mbox{\hyperlink{structvital_1_1_output_a16f8b90753a7d427090e088f82b011de}{trigger}}(mask,\ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ab4aba7c9dba249ad77f9e6b9bc918fe6}{state}}().\mbox{\hyperlink{structvital_1_1_voice_state_a1dc87b271735aa6f44505fc4807f870e}{channel}},\ offset);}
+\DoxyCodeLine{00172\ }
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ the\ voice\ was\ previously\ dead,\ also\ send\ a\ reset\ trigger.}}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>\mbox{\hyperlink{classvital_1_1_voice_a999a8be3a2b135445e5b00d570c6a8dd}{last\_key\_state}}()\ ==\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a0c1b5b9b658126a9ccbb6d6101b9cc48}{Voice::kDead}})}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ reset\_.\mbox{\hyperlink{structvital_1_1_output_a16f8b90753a7d427090e088f82b011de}{trigger}}(mask,\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa2ce85055a27054faf723c514c8a74dea}{kVoiceOn}},\ offset);}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Trigger\ note-\/off}}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ab4aba7c9dba249ad77f9e6b9bc918fe6}{state}}().\mbox{\hyperlink{structvital_1_1_voice_state_a456b4ccee212c3cfe1859424063efcd7}{event}}\ ==\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836faa8561c95d99b0fd70d107807f0fd88ca}{kVoiceOff}})}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \ \ \ \ lift\_.\mbox{\hyperlink{structvital_1_1_output_a16f8b90753a7d427090e088f82b011de}{trigger}}(mask,\ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ab4aba7c9dba249ad77f9e6b9bc918fe6}{state}}().\mbox{\hyperlink{structvital_1_1_voice_state_abc395725f07a35aa1998ac80e8f2b452}{lift}},\ offset);}
+\DoxyCodeLine{00180\ }
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Retrigger\ logic}}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!legato\_\ ||\ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_a999a8be3a2b135445e5b00d570c6a8dd}{last\_key\_state}}()\ !=\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293ad472959f595451e07952956d87e7aef4}{Voice::kHeld}}\ ||\ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ab4aba7c9dba249ad77f9e6b9bc918fe6}{state}}().\mbox{\hyperlink{structvital_1_1_voice_state_a456b4ccee212c3cfe1859424063efcd7}{event}}\ !=\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa2ce85055a27054faf723c514c8a74dea}{kVoiceOn}})}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \ \ \ \ retrigger\_.\mbox{\hyperlink{structvital_1_1_output_a16f8b90753a7d427090e088f82b011de}{trigger}}(mask,\ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ab4aba7c9dba249ad77f9e6b9bc918fe6}{state}}().\mbox{\hyperlink{structvital_1_1_voice_state_a456b4ccee212c3cfe1859424063efcd7}{event}},\ offset);}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \ \ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ad74af3b052edf711ca3d29af155a3f6b}{completeVoiceEvent}}();}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Check\ aftertouch\ event}}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>\mbox{\hyperlink{classvital_1_1_voice_af238861683c8e0a686655368d43eb515}{hasNewAftertouch}}())\ \{}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aftertouch\_sample\ =\ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_a869578b494b2f25393e032cc056ebb46}{aftertouch\_sample}}()\ *\ \mbox{\hyperlink{classvital_1_1_processor_a9781b732ace6aa715422754635b771ca}{getOversampleAmount}}();}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_samples\ <=\ aftertouch\_sample)}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ \ \ \ \ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_a10e21293b0026968e92bd76031eaa44a}{shiftAftertouchEvent}}(num\_samples\ /\ \mbox{\hyperlink{classvital_1_1_processor_a9781b732ace6aa715422754635b771ca}{getOversampleAmount}}());}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \ \ \ \ aftertouch\_.\mbox{\hyperlink{structvital_1_1_output_a16f8b90753a7d427090e088f82b011de}{trigger}}(voice-\/>\mbox{\hyperlink{classvital_1_1_voice_a7957e955a61a898340e73fdbe82be6b2}{voice\_mask}}(),\ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_a66bdbe609a6eb8e21ac1ccc23156cd9f}{aftertouch}}(),\ aftertouch\_sample);}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ \ \ \ \ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ae60767ecbd4836b596c9688165068495}{clearAftertouchEvent}}();}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00198\ }
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Check\ slide\ event}}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ac7d11decd60823180ae3e09c435fc3b2}{hasNewSlide}}())\ \{}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ slide\_sample\ =\ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_afb17a0e5a1396421281dc40c66003417}{slide\_sample}}()\ *\ \mbox{\hyperlink{classvital_1_1_processor_a9781b732ace6aa715422754635b771ca}{getOversampleAmount}}();}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_samples\ <=\ slide\_sample)}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \ \ \ \ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ac6eadbe105023c957aed77f8ddeb4f08}{shiftSlideEvent}}(num\_samples\ /\ \mbox{\hyperlink{classvital_1_1_processor_a9781b732ace6aa715422754635b771ca}{getOversampleAmount}}());}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \ \ \ \ \ \ slide\_.\mbox{\hyperlink{structvital_1_1_output_a16f8b90753a7d427090e088f82b011de}{trigger}}(voice-\/>\mbox{\hyperlink{classvital_1_1_voice_a7957e955a61a898340e73fdbe82be6b2}{voice\_mask}}(),\ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_a51881004dfac54134e7e27af7367ea7b}{slide}}(),\ slide\_sample);}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \ \ \ \ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_a42d2bb92e59dc5fb04981d117ace4b31}{clearSlideEvent}}();}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00210\ \ \ \ \ \}}
+\DoxyCodeLine{00211\ \ \ \}}
+\DoxyCodeLine{00212\ }
+\DoxyCodeLine{00213\ \ \ \textcolor{keywordtype}{void}\ VoiceHandler::prepareVoiceValues(AggregateVoice*\ aggregate\_voice)\ \{}
+\DoxyCodeLine{00214\ \ \ \ \ \textcolor{comment}{//\ For\ each\ voice,\ copy\ or\ mask-\/load\ its\ state\ into\ the\ relevant\ outputs.}}
+\DoxyCodeLine{00215\ \ \ \ \ \textcolor{keywordflow}{for}\ (Voice*\ voice\ :\ aggregate\_voice-\/>voices)\ \{}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ mask\ =\ voice-\/>voice\_mask();}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ =\ voice-\/>state().channel;}
+\DoxyCodeLine{00218\ }
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \textcolor{comment}{//\ Tune,\ note,\ channel,\ velocity,\ etc.}}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ poly\_float\ note\_val\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(note\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}},\ voice-\/>state().tuned\_note,\ mask);}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ note\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ note\_val;}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ last\_note\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(last\_note\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}},\ voice-\/>state().last\_note,\ mask);}
+\DoxyCodeLine{00223\ }
+\DoxyCodeLine{00224\ \ \ \ \ \ \ note\_pressed\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(note\_pressed\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}},\ voice-\/>state().note\_pressed,\ mask);}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ note\_count\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(note\_count\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}},\ voice-\/>state().note\_count,\ mask);}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ note\_in\_octave\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a02cebee05a6ccafbce870a1a18ae0d04}{utils::mod}}(note\_val\ *\ (1.0f\ /\ \mbox{\hyperlink{namespacevital_a536eae8e1b7eab087dc163b9911bca6e}{kNotesPerOctave}}));}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ channel\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(channel\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}},\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}},\ mask);}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ velocity\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(velocity\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}},\ voice-\/>state().velocity,\ mask);}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \textcolor{comment}{//\ Handle\ lift\ for\ released\ voices}}
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ lift\_val\ =\ (voice-\/>released()\ ?\ voice-\/>state().lift\ :\ 0.0f);}
+\DoxyCodeLine{00232\ \ \ \ \ \ \ lift\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(lift\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}},\ lift\_val,\ mask);}
+\DoxyCodeLine{00233\ }
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \textcolor{comment}{//\ Aftertouch\ and\ slide}}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ aftertouch\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(aftertouch\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}},\ voice-\/>aftertouch(),\ mask);}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ slide\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(slide\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}},\ voice-\/>slide(),\ mask);}
+\DoxyCodeLine{00237\ }
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \textcolor{comment}{//\ Mark\ voice\ active\ or\ not}}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ dead\ =\ (voice-\/>key\_state()\ ==\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a0c1b5b9b658126a9ccbb6d6101b9cc48}{Voice::kDead}});}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ poly\_float\ active\_value\ =\ dead\ ?\ 0.0f\ :\ 1.0f;}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ active\_mask\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(active\_mask\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}},\ active\_value,\ mask);}
+\DoxyCodeLine{00242\ }
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \textcolor{comment}{//\ Mod\ and\ pitch\ wheels}}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ mod\_wheel\_val\ =\ mod\_wheel\_values\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}];}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ mod\_wheel\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(mod\_wheel\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}},\ mod\_wheel\_val,\ mask);}
+\DoxyCodeLine{00246\ }
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ pitch\_wheel\_val\ =\ zoned\_pitch\_wheel\_values\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}];}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ pitch\_wheel\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(pitch\_wheel\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}},\ pitch\_wheel\_val,\ mask);}
+\DoxyCodeLine{00249\ }
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ pitch\_wheel\_percent\_val\ =\ pitch\_wheel\_val\ *\ 0.5f\ +\ 0.5f;}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ pitch\_wheel\_percent\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(pitch\_wheel\_percent\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}},}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ pitch\_wheel\_percent\_val,\ mask);}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \textcolor{comment}{//\ Per-\/voice\ pitch\ bend}}
+\DoxyCodeLine{00255\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ local\_pitch\_bend\_val\ =\ voice-\/>state().local\_pitch\_bend\ *\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa5164a224d49c5f13852661d1cdd1de0}{kLocalPitchBendRange}};}
+\DoxyCodeLine{00256\ \ \ \ \ \ \ local\_pitch\_bend\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(local\_pitch\_bend\_.\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}},\ local\_pitch\_bend\_val,\ mask);}
+\DoxyCodeLine{00257\ \ \ \ \ \}}
+\DoxyCodeLine{00258\ \ \ \}}
+\DoxyCodeLine{00259\ }
+\DoxyCodeLine{00260\ \ \ \textcolor{keywordtype}{void}\ VoiceHandler::processVoice(AggregateVoice*\ aggregate\_voice,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00261\ \ \ \ \ \textcolor{comment}{//\ Simply\ run\ the\ shared\ processor\ for\ this\ set\ of\ voices.}}
+\DoxyCodeLine{00262\ \ \ \ \ aggregate\_voice-\/>processor-\/>process(num\_samples);}
+\DoxyCodeLine{00263\ \ \ \}}
+\DoxyCodeLine{00264\ }
+\DoxyCodeLine{00265\ \ \ \textcolor{keywordtype}{void}\ VoiceHandler::clearAccumulatedOutputs()\ \{}
+\DoxyCodeLine{00266\ \ \ \ \ \textcolor{comment}{//\ Zero\ out\ all\ accumulated\ Output\ buffers\ before\ mixing.}}
+\DoxyCodeLine{00267\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}\ :\ accumulated\_outputs\_)}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a23be57085c57f535eb29b1de54525373}{utils::zeroBuffer}}(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}.second-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}},\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}.second-\/>\mbox{\hyperlink{structvital_1_1_output_a56a8b6494724ac9fc94fb1bc2974ae6d}{buffer\_size}});}
+\DoxyCodeLine{00269\ \ \ \}}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00271\ \ \ \textcolor{keywordtype}{void}\ VoiceHandler::clearNonaccumulatedOutputs()\ \{}
+\DoxyCodeLine{00272\ \ \ \ \ \textcolor{comment}{//\ Zero\ out\ all\ non-\/accumulated\ Output\ buffers\ (single-\/lane).}}
+\DoxyCodeLine{00273\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ outputs\ :\ nonaccumulated\_outputs\_)}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a23be57085c57f535eb29b1de54525373}{utils::zeroBuffer}}(outputs.second-\/>buffer,\ outputs.second-\/>buffer\_size);}
+\DoxyCodeLine{00275\ \ \ \}}
+\DoxyCodeLine{00276\ }
+\DoxyCodeLine{00277\ \ \ \textcolor{keywordtype}{void}\ VoiceHandler::accumulateOutputs(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00278\ \ \ \ \ \textcolor{comment}{//\ Sum\ each\ voice's\ output\ into\ the\ accumulated\ buffers.}}
+\DoxyCodeLine{00279\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}\ :\ accumulated\_outputs\_)\ \{}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ buffer\_size\ =\ std::min(num\_samples,\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}.second-\/>\mbox{\hyperlink{structvital_1_1_output_a56a8b6494724ac9fc94fb1bc2974ae6d}{buffer\_size}});}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ poly\_float*\ dest\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}.second-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ source\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}.first-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00284\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ buffer\_size;\ ++i)}
+\DoxyCodeLine{00285\ \ \ \ \ \ \ \ \ dest[i]\ +=\ source[i];}
+\DoxyCodeLine{00286\ \ \ \ \ \}}
+\DoxyCodeLine{00287\ \ \ \}}
+\DoxyCodeLine{00288\ }
+\DoxyCodeLine{00289\ \ \ \textcolor{keywordtype}{void}\ VoiceHandler::combineAccumulatedOutputs(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00290\ \ \ \ \ \textcolor{comment}{//\ For\ some\ poly-\/lane\ outputs,\ add\ a\ swapped\ version\ to\ handle\ stereo\ or\ voice\ doubling.}}
+\DoxyCodeLine{00291\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}\ :\ accumulated\_outputs\_)\ \{}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ buffer\_size\ =\ std::min(num\_samples,\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}.second-\/>\mbox{\hyperlink{structvital_1_1_output_a56a8b6494724ac9fc94fb1bc2974ae6d}{buffer\_size}});}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ poly\_float*\ dest\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}.second-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00294\ }
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ buffer\_size;\ ++i)}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \ \ dest[i]\ +=\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(dest[i]);}
+\DoxyCodeLine{00297\ \ \ \ \ \}}
+\DoxyCodeLine{00298\ \ \ \}}
+\DoxyCodeLine{00299\ }
+\DoxyCodeLine{00300\ \ \ \textcolor{keywordtype}{void}\ VoiceHandler::writeNonaccumulatedOutputs(\mbox{\hyperlink{namespacevital_a93f989304342224863c7c0ee9e174d21}{poly\_mask}}\ voice\_mask,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00301\ \ \ \ \ \textcolor{comment}{//\ Non-\/accumulated\ outputs:\ we\ only\ write\ the\ last\ active\ voice.}}
+\DoxyCodeLine{00302\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ outputs\ :\ nonaccumulated\_outputs\_)\ \{}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ buffer\_size\ =\ std::min(num\_samples,\ outputs.second-\/>buffer\_size);}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ poly\_float*\ dest\ =\ outputs.second-\/>buffer;}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ \textcolor{keyword}{const}\ poly\_float*\ source\ =\ outputs.first-\/>buffer;}
+\DoxyCodeLine{00306\ }
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(buffer\_size\ ==\ 1);}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ buffer\_size;\ ++i)\ \{}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ poly\_float\ masked\ =\ source[i]\ \&\ voice\_mask;}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \ \ dest[i]\ =\ masked\ +\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(masked);}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00313\ \ \ \ \ \}}
+\DoxyCodeLine{00314\ \ \ \}}
+\DoxyCodeLine{00315\ }
+\DoxyCodeLine{00316\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_handler_adf7416833ec7abc5d8b34c604720b969}{VoiceHandler::shouldAccumulate}}(\mbox{\hyperlink{structvital_1_1_output}{Output}}*\ output)\ \{}
+\DoxyCodeLine{00317\ \ \ \ \ \textcolor{comment}{//\ If\ output\ buffer\ size\ >\ 1,\ or\ if\ it's\ not\ control-\/rate,\ accumulate\ it.}}
+\DoxyCodeLine{00318\ \ \ \ \ \textcolor{keywordflow}{return}\ (\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}-\/>\mbox{\hyperlink{structvital_1_1_output_a56a8b6494724ac9fc94fb1bc2974ae6d}{buffer\_size}}\ >\ 1)\ ||\ (\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ \&\&\ !\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}-\/>\mbox{\hyperlink{classvital_1_1_processor_a7c412df809f6c84fe54bdd977681fd9a}{isControlRate}}());}
+\DoxyCodeLine{00319\ \ \ \}}
+\DoxyCodeLine{00320\ }
+\DoxyCodeLine{00321\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a6c379397d5efcd674dcf5e5f3511444a}{VoiceHandler::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00322\ \ \ \ \ \textcolor{comment}{//\ Process\ the\ global\ (mono)\ router\ first.}}
+\DoxyCodeLine{00323\ \ \ \ \ global\_router\_.\mbox{\hyperlink{classvital_1_1_processor_router_aeb03f0b2e5c2249dd065f26b8b3f1866}{process}}(num\_samples);}
+\DoxyCodeLine{00324\ }
+\DoxyCodeLine{00325\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_voices\ =\ active\_voices\_.size();}
+\DoxyCodeLine{00326\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_voices\ ==\ 0)\ \{}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \textcolor{comment}{//\ If\ no\ voices\ are\ active,\ clear\ the\ accumulated\ buffers\ if\ needed.}}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (last\_num\_voices\_)}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \ \ clearAccumulatedOutputs();}
+\DoxyCodeLine{00330\ }
+\DoxyCodeLine{00331\ \ \ \ \ \ \ last\_num\_voices\_\ =\ num\_voices;}
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00333\ \ \ \ \ \}}
+\DoxyCodeLine{00334\ }
+\DoxyCodeLine{00335\ \ \ \ \ \textcolor{comment}{//\ Update\ polyphony\ from\ input\ signals\ (if\ used).}}
+\DoxyCodeLine{00336\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}}\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(std::roundf(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49ad4c79773dcc7cfe4bb9c09be7b4cd6b8}{kPolyphony}})-\/>at(0)[0]));}
+\DoxyCodeLine{00337\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice_handler_a281bb6ca17fb3142dbf6c86460bf137b}{setPolyphony}}(\mbox{\hyperlink{namespacevital_1_1utils_a0096680ab20a53e9eade83f4f2ee1895}{utils::iclamp}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}},\ 1,\ \mbox{\hyperlink{namespacevital_a5be9f99bf4ebbc6b5f76bef8743b6fe0}{kMaxActivePolyphony}}));}
+\DoxyCodeLine{00338\ }
+\DoxyCodeLine{00339\ \ \ \ \ \textcolor{comment}{//\ Update\ voice\ priority\ from\ input\ signals.}}
+\DoxyCodeLine{00340\ \ \ \ \ \textcolor{keywordtype}{int}\ priority\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a4d84d37be8f005668f7d305e6391714a}{utils::roundToInt}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49a7684082869598db6fba58e3d5421371c}{kVoicePriority}})-\/>at(0))[0];}
+\DoxyCodeLine{00341\ \ \ \ \ voice\_priority\_\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5b}{VoicePriority}}\textcolor{keyword}{>}(priority);}
+\DoxyCodeLine{00342\ }
+\DoxyCodeLine{00343\ \ \ \ \ \textcolor{comment}{//\ Update\ override\ policy\ from\ input\ signals.}}
+\DoxyCodeLine{00344\ \ \ \ \ \textcolor{keywordtype}{int}\ voice\_override\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a4d84d37be8f005668f7d305e6391714a}{utils::roundToInt}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a3deff21dfea723af4b57e7c2f62eac49aac12e1188289a6c76d73a32aa8eda374}{kVoiceOverride}})-\/>at(0))[0];}
+\DoxyCodeLine{00345\ \ \ \ \ voice\_override\_\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5}{VoiceOverride}}\textcolor{keyword}{>}(voice\_override);}
+\DoxyCodeLine{00346\ }
+\DoxyCodeLine{00347\ \ \ \ \ clearAccumulatedOutputs();}
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00349\ \ \ \ \ \textcolor{comment}{//\ Gather\ all\ aggregate\ voices\ in\ active\_aggregate\_voices\_.}}
+\DoxyCodeLine{00350\ \ \ \ \ active\_aggregate\_voices\_.clear();}
+\DoxyCodeLine{00351\ \ \ \ \ \mbox{\hyperlink{structvital_1_1_aggregate_voice}{AggregateVoice}}*\ last\_aggregate\_voice\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00352\ \ \ \ \ \textcolor{keywordtype}{int}\ last\_aggregate\_index\ =\ 0;}
+\DoxyCodeLine{00353\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ active\_voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00354\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_aggregate\_voices\_.count(active\_voice-\/>parent())\ ==\ 0)}
+\DoxyCodeLine{00355\ \ \ \ \ \ \ \ \ active\_aggregate\_voices\_.push\_back(active\_voice-\/>parent());}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ last\_aggregate\_voice\ =\ active\_voice-\/>parent();}
+\DoxyCodeLine{00357\ \ \ \ \ \ \ last\_aggregate\_index\ =\ active\_voice-\/>voice\_index();}
+\DoxyCodeLine{00358\ \ \ \ \ \}}
+\DoxyCodeLine{00359\ }
+\DoxyCodeLine{00360\ \ \ \ \ \textcolor{comment}{//\ Move\ the\ last\ used\ AggregateVoice\ to\ the\ end\ (maintaining\ a\ specific\ order).}}
+\DoxyCodeLine{00361\ \ \ \ \ \textcolor{keywordflow}{if}\ (last\_aggregate\_voice)\ \{}
+\DoxyCodeLine{00362\ \ \ \ \ \ \ active\_aggregate\_voices\_.remove(last\_aggregate\_voice);}
+\DoxyCodeLine{00363\ \ \ \ \ \ \ active\_aggregate\_voices\_.push\_back(last\_aggregate\_voice);}
+\DoxyCodeLine{00364\ \ \ \ \ \}}
+\DoxyCodeLine{00365\ }
+\DoxyCodeLine{00366\ \ \ \ \ \textcolor{comment}{//\ Process\ each\ aggregate\ voice}}
+\DoxyCodeLine{00367\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{structvital_1_1_aggregate_voice}{AggregateVoice}}*\ aggregate\_voice\ :\ active\_aggregate\_voices\_)\ \{}
+\DoxyCodeLine{00368\ \ \ \ \ \ \ prepareVoiceTriggers(aggregate\_voice,\ num\_samples);}
+\DoxyCodeLine{00369\ \ \ \ \ \ \ prepareVoiceValues(aggregate\_voice);}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ processVoice(aggregate\_voice,\ num\_samples);}
+\DoxyCodeLine{00371\ \ \ \ \ \ \ accumulateOutputs(num\_samples);}
+\DoxyCodeLine{00372\ }
+\DoxyCodeLine{00373\ \ \ \ \ \ \ \textcolor{comment}{//\ Possibly\ kill\ voices\ that\ are\ silent\ if\ using\ a\ voice\_killer\_.}}
+\DoxyCodeLine{00374\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ alive\_mask\ =\ \mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}};}
+\DoxyCodeLine{00375\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice\_killer\_)}
+\DoxyCodeLine{00376\ \ \ \ \ \ \ \ \ alive\_mask\ =\ \mbox{\hyperlink{namespaceutils}{\string~utils}}::getSilentMask(voice\_killer\_-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}},\ num\_samples);}
+\DoxyCodeLine{00377\ }
+\DoxyCodeLine{00378\ \ \ \ \ \ \ \textcolor{comment}{//\ Check\ if\ the\ voice\ is\ fully\ released\ and\ silent\ =>\ remove\ from\ active\_voices\_.}}
+\DoxyCodeLine{00379\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ single\_voice\ :\ aggregate\_voice-\/>voices)\ \{}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ released\ =\ (single\_voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ab4aba7c9dba249ad77f9e6b9bc918fe6}{state}}().event\ ==\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836faa8561c95d99b0fd70d107807f0fd88ca}{kVoiceOff}}\ ||\ single\_voice-\/>\mbox{\hyperlink{classvital_1_1_voice_ab4aba7c9dba249ad77f9e6b9bc918fe6}{state}}().\mbox{\hyperlink{structvital_1_1_voice_state_a456b4ccee212c3cfe1859424063efcd7}{event}}\ ==\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa34372440894bc740541b0d8b97e54e6c}{kVoiceKill}});}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ alive\ =\ (single\_voice-\/>\mbox{\hyperlink{classvital_1_1_voice_a7957e955a61a898340e73fdbe82be6b2}{voice\_mask}}()\ \&\ alive\_mask).sum();}
+\DoxyCodeLine{00382\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ active\ =\ active\_voices\_.count(single\_voice);}
+\DoxyCodeLine{00383\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (released\ \&\&\ !alive\ \&\&\ active)\ \{}
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \ \ \ \ active\_voices\_.remove(single\_voice);}
+\DoxyCodeLine{00385\ \ \ \ \ \ \ \ \ \ \ free\_voices\_.push\_back(single\_voice);}
+\DoxyCodeLine{00386\ \ \ \ \ \ \ \ \ \ \ single\_voice-\/>\mbox{\hyperlink{classvital_1_1_voice_aa1517bc30d466f02d229f5422d36c335}{markDead}}();}
+\DoxyCodeLine{00387\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00388\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00389\ \ \ \ \ \}}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00391\ \ \ \ \ combineAccumulatedOutputs(num\_samples);}
+\DoxyCodeLine{00392\ }
+\DoxyCodeLine{00393\ \ \ \ \ \textcolor{comment}{//\ For\ the\ last\ active\ voice,\ write\ non-\/accumulated\ outputs.}}
+\DoxyCodeLine{00394\ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_voices\_.size())\ \{}
+\DoxyCodeLine{00395\ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ voice\_mask\ =\ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}};}
+\DoxyCodeLine{00396\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (last\_aggregate\_index)}
+\DoxyCodeLine{00397\ \ \ \ \ \ \ \ \ voice\_mask\ =\ \string~voice\_mask;}
+\DoxyCodeLine{00398\ }
+\DoxyCodeLine{00399\ \ \ \ \ \ \ writeNonaccumulatedOutputs(voice\_mask,\ num\_samples);}
+\DoxyCodeLine{00400\ }
+\DoxyCodeLine{00401\ \ \ \ \ \ \ \textcolor{comment}{//\ Remember\ the\ last\ played\ note\ for\ possible\ legato\ transitions.}}
+\DoxyCodeLine{00402\ \ \ \ \ \ \ last\_played\_note\_\ =\ voice\_midi\_-\/>\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ \&\ voice\_mask;}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ last\_played\_note\_\ +=\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(last\_played\_note\_);}
+\DoxyCodeLine{00404\ \ \ \ \ \}}
+\DoxyCodeLine{00405\ }
+\DoxyCodeLine{00406\ \ \ \ \ last\_num\_voices\_\ =\ num\_voices;}
+\DoxyCodeLine{00407\ \ \ \}}
+\DoxyCodeLine{00408\ }
+\DoxyCodeLine{00409\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a4356352dc3f7b72cdd071d8a7d813651}{VoiceHandler::init}}()\ \{}
+\DoxyCodeLine{00410\ \ \ \ \ \textcolor{comment}{//\ Initialize\ sub-\/routers\ first,\ then\ do\ standard\ SynthModule\ init.}}
+\DoxyCodeLine{00411\ \ \ \ \ voice\_router\_.\mbox{\hyperlink{classvital_1_1_processor_router_a6ebd94c5d73a14a1a20b67ddf60125ee}{init}}();}
+\DoxyCodeLine{00412\ \ \ \ \ global\_router\_.\mbox{\hyperlink{classvital_1_1_processor_router_a6ebd94c5d73a14a1a20b67ddf60125ee}{init}}();}
+\DoxyCodeLine{00413\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a6ebd94c5d73a14a1a20b67ddf60125ee}{ProcessorRouter::init}}();}
+\DoxyCodeLine{00414\ \ \ \}}
+\DoxyCodeLine{00415\ }
+\DoxyCodeLine{00416\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_acda85debb852419a5388c994684906bc}{VoiceHandler::setSampleRate}}(\textcolor{keywordtype}{int}\ sample\_rate)\ \{}
+\DoxyCodeLine{00417\ \ \ \ \ \textcolor{comment}{//\ Apply\ to\ all\ sub-\/routers\ and\ aggregated\ voice\ processors.}}
+\DoxyCodeLine{00418\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_a7e0dd6e0873082d4883a3fa1e6e451a0}{ProcessorRouter::setSampleRate}}(sample\_rate);}
+\DoxyCodeLine{00419\ \ \ \ \ voice\_router\_.\mbox{\hyperlink{classvital_1_1_processor_router_a7e0dd6e0873082d4883a3fa1e6e451a0}{setSampleRate}}(sample\_rate);}
+\DoxyCodeLine{00420\ \ \ \ \ global\_router\_.\mbox{\hyperlink{classvital_1_1_processor_router_a7e0dd6e0873082d4883a3fa1e6e451a0}{setSampleRate}}(sample\_rate);}
+\DoxyCodeLine{00421\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ aggregate\_voice\ :\ all\_aggregate\_voices\_)}
+\DoxyCodeLine{00422\ \ \ \ \ \ \ aggregate\_voice-\/>processor-\/>setSampleRate(sample\_rate);}
+\DoxyCodeLine{00423\ \ \ \}}
+\DoxyCodeLine{00424\ }
+\DoxyCodeLine{00425\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a4b764cef0010cc39069eda5a21217a0a}{VoiceHandler::getNumActiveVoices}}()\ \{}
+\DoxyCodeLine{00426\ \ \ \ \ \textcolor{keywordflow}{return}\ active\_voices\_.size();}
+\DoxyCodeLine{00427\ \ \ \}}
+\DoxyCodeLine{00428\ }
+\DoxyCodeLine{00429\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a53e3a45424bf758ea60616bc381b1b0e}{VoiceHandler::isNotePlaying}}(\textcolor{keywordtype}{int}\ note)\ \{}
+\DoxyCodeLine{00430\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00431\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>state().event\ !=\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa34372440894bc740541b0d8b97e54e6c}{kVoiceKill}}\ \&\&\ voice-\/>state().midi\_note\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}})}
+\DoxyCodeLine{00432\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00433\ \ \ \ \ \}}
+\DoxyCodeLine{00434\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00435\ \ \ \}}
+\DoxyCodeLine{00436\ }
+\DoxyCodeLine{00437\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a53e3a45424bf758ea60616bc381b1b0e}{VoiceHandler::isNotePlaying}}(\textcolor{keywordtype}{int}\ note,\ \textcolor{keywordtype}{int}\ channel)\ \{}
+\DoxyCodeLine{00438\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00439\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>state().event\ !=\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa34372440894bc740541b0d8b97e54e6c}{kVoiceKill}}\ \&\&\ voice-\/>state().midi\_note\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}}\ \&\&\ voice-\/>state().channel\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})}
+\DoxyCodeLine{00440\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00441\ \ \ \ \ \}}
+\DoxyCodeLine{00442\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00443\ \ \ \}}
+\DoxyCodeLine{00444\ }
+\DoxyCodeLine{00445\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_ae5b4747368b09bb35c6a61e16bdd0157}{VoiceHandler::sustainOn}}(\textcolor{keywordtype}{int}\ channel)\ \{}
+\DoxyCodeLine{00446\ \ \ \ \ sustain\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}]\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00447\ \ \ \}}
+\DoxyCodeLine{00448\ }
+\DoxyCodeLine{00449\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa42f3e7cfaccdd1df40de257c056098a}{VoiceHandler::sustainOff}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ channel)\ \{}
+\DoxyCodeLine{00450\ \ \ \ \ sustain\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00451\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00452\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>sustained()\ \&\&\ !voice-\/>sostenuto()\ \&\&\ voice-\/>state().channel\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})}
+\DoxyCodeLine{00453\ \ \ \ \ \ \ \ \ voice-\/>deactivate(sample);}
+\DoxyCodeLine{00454\ \ \ \ \ \}}
+\DoxyCodeLine{00455\ \ \ \}}
+\DoxyCodeLine{00456\ }
+\DoxyCodeLine{00457\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a462a32d5c280a54d442b1af301974d00}{VoiceHandler::sostenutoOn}}(\textcolor{keywordtype}{int}\ channel)\ \{}
+\DoxyCodeLine{00458\ \ \ \ \ sostenuto\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}]\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00459\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00460\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>state().channel\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})}
+\DoxyCodeLine{00461\ \ \ \ \ \ \ \ \ voice-\/>setSostenuto(\textcolor{keyword}{true});}
+\DoxyCodeLine{00462\ \ \ \ \ \}}
+\DoxyCodeLine{00463\ \ \ \}}
+\DoxyCodeLine{00464\ }
+\DoxyCodeLine{00465\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_ac199432b792697353449ae763eb52c99}{VoiceHandler::sostenutoOff}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ channel)\ \{}
+\DoxyCodeLine{00466\ \ \ \ \ sostenuto\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00467\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00468\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>state().channel\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})\ \{}
+\DoxyCodeLine{00469\ \ \ \ \ \ \ \ \ voice-\/>setSostenuto(\textcolor{keyword}{false});}
+\DoxyCodeLine{00470\ }
+\DoxyCodeLine{00471\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>sustained()\ \&\&\ !sustain\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}])}
+\DoxyCodeLine{00472\ \ \ \ \ \ \ \ \ \ \ voice-\/>deactivate(sample);}
+\DoxyCodeLine{00473\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00474\ \ \ \ \ \}}
+\DoxyCodeLine{00475\ \ \ \}}
+\DoxyCodeLine{00476\ }
+\DoxyCodeLine{00477\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_ae385ce4f96cced338815457fa8a5b2ad}{VoiceHandler::sustainOnRange}}(\textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel)\ \{}
+\DoxyCodeLine{00478\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ from\_channel;\ i\ <=\ to\_channel;\ ++i)}
+\DoxyCodeLine{00479\ \ \ \ \ \ \ sustain\_[i]\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00480\ \ \ \}}
+\DoxyCodeLine{00481\ }
+\DoxyCodeLine{00482\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_ac28a59d52cd4a3dfa4790d4bd8fb6c2f}{VoiceHandler::sustainOffRange}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel)\ \{}
+\DoxyCodeLine{00483\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ from\_channel;\ i\ <=\ to\_channel;\ ++i)}
+\DoxyCodeLine{00484\ \ \ \ \ \ \ sustain\_[i]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00485\ }
+\DoxyCodeLine{00486\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00487\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ =\ voice-\/>state().channel;}
+\DoxyCodeLine{00488\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>sustained()\ \&\&\ !voice-\/>sostenuto()\ \&\&\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ >=\ from\_channel\ \&\&\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ <=\ to\_channel)}
+\DoxyCodeLine{00489\ \ \ \ \ \ \ \ \ voice-\/>deactivate(sample);}
+\DoxyCodeLine{00490\ \ \ \ \ \}}
+\DoxyCodeLine{00491\ \ \ \}}
+\DoxyCodeLine{00492\ }
+\DoxyCodeLine{00493\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_affbb755df859e914c647911453e7cb5c}{VoiceHandler::sostenutoOnRange}}(\textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel)\ \{}
+\DoxyCodeLine{00494\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ from\_channel;\ i\ <=\ to\_channel;\ ++i)}
+\DoxyCodeLine{00495\ \ \ \ \ \ \ sostenuto\_[i]\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00496\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00497\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ =\ voice-\/>state().channel;}
+\DoxyCodeLine{00498\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ >=\ from\_channel\ \&\&\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ <=\ to\_channel)}
+\DoxyCodeLine{00499\ \ \ \ \ \ \ \ \ voice-\/>setSostenuto(\textcolor{keyword}{true});}
+\DoxyCodeLine{00500\ \ \ \ \ \}}
+\DoxyCodeLine{00501\ \ \ \}}
+\DoxyCodeLine{00502\ }
+\DoxyCodeLine{00503\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a7c3e19cd0303954bbc991ef5bc7d349f}{VoiceHandler::sostenutoOffRange}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel)\ \{}
+\DoxyCodeLine{00504\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ from\_channel;\ i\ <=\ to\_channel;\ ++i)}
+\DoxyCodeLine{00505\ \ \ \ \ \ \ sostenuto\_[i]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00506\ }
+\DoxyCodeLine{00507\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00508\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ =\ voice-\/>state().channel;}
+\DoxyCodeLine{00509\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ >=\ from\_channel\ \&\&\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ <=\ to\_channel)\ \{}
+\DoxyCodeLine{00510\ \ \ \ \ \ \ \ \ voice-\/>setSostenuto(\textcolor{keyword}{false});}
+\DoxyCodeLine{00511\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>sustained()\ \&\&\ !sustain\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}])}
+\DoxyCodeLine{00512\ \ \ \ \ \ \ \ \ \ \ voice-\/>deactivate(sample);}
+\DoxyCodeLine{00513\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00514\ \ \ \ \ \}}
+\DoxyCodeLine{00515\ \ \ \}}
+\DoxyCodeLine{00516\ }
+\DoxyCodeLine{00517\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_ab5cd9adc8d64167bf02b0bc0d2048c24}{VoiceHandler::allSoundsOff}}()\ \{}
+\DoxyCodeLine{00518\ \ \ \ \ \textcolor{comment}{//\ Kills\ all\ voices\ immediately.}}
+\DoxyCodeLine{00519\ \ \ \ \ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_aba8f9a586df82c575dcdb4464d3fe017}{clear}}();}
+\DoxyCodeLine{00520\ }
+\DoxyCodeLine{00521\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00522\ \ \ \ \ \ \ voice-\/>kill(0);}
+\DoxyCodeLine{00523\ \ \ \ \ \ \ voice-\/>markDead();}
+\DoxyCodeLine{00524\ \ \ \ \ \ \ free\_voices\_.push\_back(voice);}
+\DoxyCodeLine{00525\ \ \ \ \ \}}
+\DoxyCodeLine{00526\ }
+\DoxyCodeLine{00527\ \ \ \ \ active\_voices\_.clear();}
+\DoxyCodeLine{00528\ \ \ \}}
+\DoxyCodeLine{00529\ }
+\DoxyCodeLine{00530\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a9c2e023d7557a286b9b1aae83a04ecb3}{VoiceHandler::allNotesOff}}(\textcolor{keywordtype}{int}\ sample)\ \{}
+\DoxyCodeLine{00531\ \ \ \ \ \textcolor{comment}{//\ Deactivates\ all\ voices\ (letting\ them\ release).}}
+\DoxyCodeLine{00532\ \ \ \ \ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_aba8f9a586df82c575dcdb4464d3fe017}{clear}}();}
+\DoxyCodeLine{00533\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)}
+\DoxyCodeLine{00534\ \ \ \ \ \ \ voice-\/>deactivate(sample);}
+\DoxyCodeLine{00535\ \ \ \}}
+\DoxyCodeLine{00536\ }
+\DoxyCodeLine{00537\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a9c2e023d7557a286b9b1aae83a04ecb3}{VoiceHandler::allNotesOff}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ channel)\ \{}
+\DoxyCodeLine{00538\ \ \ \ \ \textcolor{comment}{//\ Deactivates\ all\ voices\ on\ the\ specified\ channel\ only.}}
+\DoxyCodeLine{00539\ \ \ \ \ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_aba8f9a586df82c575dcdb4464d3fe017}{clear}}();}
+\DoxyCodeLine{00540\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00541\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>state().channel\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})}
+\DoxyCodeLine{00542\ \ \ \ \ \ \ \ \ voice-\/>deactivate(sample);}
+\DoxyCodeLine{00543\ \ \ \ \ \}}
+\DoxyCodeLine{00544\ \ \ \}}
+\DoxyCodeLine{00545\ }
+\DoxyCodeLine{00546\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a13a31a0656c6bf3cb177e6464eea323e}{VoiceHandler::allNotesOffRange}}(\textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel)\ \{}
+\DoxyCodeLine{00547\ \ \ \ \ \textcolor{comment}{//\ Deactivates\ all\ voices\ in\ the\ specified\ channel\ range.}}
+\DoxyCodeLine{00548\ \ \ \ \ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_aba8f9a586df82c575dcdb4464d3fe017}{clear}}();}
+\DoxyCodeLine{00549\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00550\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ =\ voice-\/>state().channel;}
+\DoxyCodeLine{00551\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ >=\ from\_channel\ \&\&\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ <=\ to\_channel)}
+\DoxyCodeLine{00552\ \ \ \ \ \ \ \ \ voice-\/>deactivate(sample);}
+\DoxyCodeLine{00553\ \ \ \ \ \}}
+\DoxyCodeLine{00554\ \ \ \}}
+\DoxyCodeLine{00555\ }
+\DoxyCodeLine{00556\ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ \mbox{\hyperlink{classvital_1_1_voice_handler_af9dad893ef3471a4f17d5abbf00d39df}{VoiceHandler::getCurrentVoiceMask}}()\ \{}
+\DoxyCodeLine{00557\ \ \ \ \ \textcolor{comment}{//\ Returns\ the\ mask\ for\ the\ last\ active\ voice\ if\ any\ exist.}}
+\DoxyCodeLine{00558\ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_voices\_.size())\ \{}
+\DoxyCodeLine{00559\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_voices\_.back()-\/>voice\_index())}
+\DoxyCodeLine{00560\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \string~constants\mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{::kFirstMask}};}
+\DoxyCodeLine{00561\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}};}
+\DoxyCodeLine{00562\ \ \ \ \ \}}
+\DoxyCodeLine{00563\ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00564\ \ \ \}}
+\DoxyCodeLine{00565\ }
+\DoxyCodeLine{00566\ \ \ \mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ VoiceHandler::grabVoice()\ \{}
+\DoxyCodeLine{00567\ \ \ \ \ \textcolor{comment}{//\ Finds\ an\ available\ voice\ according\ to\ the\ override\ policy\ and\ state.}}
+\DoxyCodeLine{00568\ }
+\DoxyCodeLine{00569\ \ \ \ \ \textcolor{comment}{//\ If\ we\ still\ have\ capacity\ or\ can\ kill\ a\ voice\ (kKill)\ without\ legato:}}
+\DoxyCodeLine{00570\ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_voices\_.size()\ <\ \mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}}()\ ||\ (voice\_override\_\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5a61e720f06cc7acaa9e67dcccb4f63f80}{kKill}}\ \&\&\ !legato\_))\ \{}
+\DoxyCodeLine{00571\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ parallel\_voice\ =\ grabFreeParallelVoice();}
+\DoxyCodeLine{00572\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!parallel\_voice)}
+\DoxyCodeLine{00573\ \ \ \ \ \ \ \ \ parallel\_voice\ =\ grabFreeVoice();}
+\DoxyCodeLine{00574\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (parallel\_voice)}
+\DoxyCodeLine{00575\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ parallel\_voice;}
+\DoxyCodeLine{00576\ \ \ \ \ \}}
+\DoxyCodeLine{00577\ }
+\DoxyCodeLine{00578\ \ \ \ \ \textcolor{comment}{//\ Attempt\ to\ find\ a\ voice\ in\ kReleased\ state.}}
+\DoxyCodeLine{00579\ \ \ \ \ Voice*\ voice\ =\ grabVoiceOfType(\mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a51465e3ecc4821b033391e7d513c4370}{Voice::kReleased}});}
+\DoxyCodeLine{00580\ \ \ \ \ \textcolor{keywordflow}{if}\ (voice)}
+\DoxyCodeLine{00581\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ voice;}
+\DoxyCodeLine{00582\ }
+\DoxyCodeLine{00583\ \ \ \ \ \textcolor{comment}{//\ Attempt\ to\ find\ a\ voice\ in\ kSustained\ state.}}
+\DoxyCodeLine{00584\ \ \ \ \ voice\ =\ grabVoiceOfType(\mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a84403d9085f1e50cd876da382567839c}{Voice::kSustained}});}
+\DoxyCodeLine{00585\ \ \ \ \ \textcolor{keywordflow}{if}\ (voice)}
+\DoxyCodeLine{00586\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ voice;}
+\DoxyCodeLine{00587\ }
+\DoxyCodeLine{00588\ \ \ \ \ \textcolor{comment}{//\ Attempt\ to\ find\ a\ voice\ in\ kHeld\ state.}}
+\DoxyCodeLine{00589\ \ \ \ \ voice\ =\ grabVoiceOfType(\mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293ad472959f595451e07952956d87e7aef4}{Voice::kHeld}});}
+\DoxyCodeLine{00590\ \ \ \ \ \textcolor{keywordflow}{if}\ (voice)}
+\DoxyCodeLine{00591\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ voice;}
+\DoxyCodeLine{00592\ }
+\DoxyCodeLine{00593\ \ \ \ \ \textcolor{comment}{//\ Attempt\ to\ find\ a\ voice\ in\ kTriggering\ state.}}
+\DoxyCodeLine{00594\ \ \ \ \ voice\ =\ grabVoiceOfType(\mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293ac7a4564b3760a1f70ba7f3b32cf28e19}{Voice::kTriggering}});}
+\DoxyCodeLine{00595\ \ \ \ \ \textcolor{keywordflow}{return}\ voice;}
+\DoxyCodeLine{00596\ \ \ \}}
+\DoxyCodeLine{00597\ }
+\DoxyCodeLine{00598\ \ \ Voice*\ VoiceHandler::grabFreeVoice()\ \{}
+\DoxyCodeLine{00599\ \ \ \ \ \textcolor{comment}{//\ Returns\ the\ top\ of\ free\_voices\_\ or\ nullptr\ if\ empty.}}
+\DoxyCodeLine{00600\ \ \ \ \ Voice*\ voice\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00601\ \ \ \ \ \textcolor{keywordflow}{if}\ (free\_voices\_.size())\ \{}
+\DoxyCodeLine{00602\ \ \ \ \ \ \ voice\ =\ free\_voices\_.front();}
+\DoxyCodeLine{00603\ \ \ \ \ \ \ free\_voices\_.pop\_front();}
+\DoxyCodeLine{00604\ \ \ \ \ \}}
+\DoxyCodeLine{00605\ \ \ \ \ \textcolor{keywordflow}{return}\ voice;}
+\DoxyCodeLine{00606\ \ \ \}}
+\DoxyCodeLine{00607\ }
+\DoxyCodeLine{00608\ \ \ Voice*\ VoiceHandler::grabFreeParallelVoice()\ \{}
+\DoxyCodeLine{00609\ \ \ \ \ \textcolor{comment}{//\ Tries\ to\ find\ an\ AggregateVoice\ that\ already\ has\ at\ least\ one\ active\ voice\ but\ also\ a\ dead\ (free)\ voice.}}
+\DoxyCodeLine{00610\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ aggregate\_voice\ :\ all\_aggregate\_voices\_)\ \{}
+\DoxyCodeLine{00611\ \ \ \ \ \ \ Voice*\ dead\_voice\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00612\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ has\_active\_voice\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00613\ }
+\DoxyCodeLine{00614\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (Voice*\ single\_voice\ :\ aggregate\_voice-\/>voices)\ \{}
+\DoxyCodeLine{00615\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (single\_voice-\/>key\_state()\ ==\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a0c1b5b9b658126a9ccbb6d6101b9cc48}{Voice::kDead}})}
+\DoxyCodeLine{00616\ \ \ \ \ \ \ \ \ \ \ dead\_voice\ =\ single\_voice;}
+\DoxyCodeLine{00617\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00618\ \ \ \ \ \ \ \ \ \ \ has\_active\_voice\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00619\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00620\ }
+\DoxyCodeLine{00621\ \ \ \ \ \ \ \textcolor{comment}{//\ If\ we\ found\ one\ with\ an\ active\ voice\ and\ an\ unused\ dead\ voice,\ reuse\ the\ dead\ one.}}
+\DoxyCodeLine{00622\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (has\_active\_voice\ \&\&\ dead\_voice)\ \{}
+\DoxyCodeLine{00623\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(free\_voices\_.count(dead\_voice));}
+\DoxyCodeLine{00624\ \ \ \ \ \ \ \ \ free\_voices\_.remove(dead\_voice);}
+\DoxyCodeLine{00625\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ dead\_voice;}
+\DoxyCodeLine{00626\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00627\ \ \ \ \ \}}
+\DoxyCodeLine{00628\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00629\ \ \ \}}
+\DoxyCodeLine{00630\ }
+\DoxyCodeLine{00631\ \ \ Voice*\ VoiceHandler::grabVoiceOfType(\mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293}{Voice::KeyState}}\ key\_state)\ \{}
+\DoxyCodeLine{00632\ \ \ \ \ \textcolor{comment}{//\ Search\ through\ active\_voices\_\ for\ a\ voice\ in\ the\ specified\ key\_state\ and\ remove\ it\ from\ active\ list.}}
+\DoxyCodeLine{00633\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\ iter\ =\ active\_voices\_.begin();\ iter\ !=\ active\_voices\_.end();\ ++iter)\ \{}
+\DoxyCodeLine{00634\ \ \ \ \ \ \ Voice*\ voice\ =\ *iter;}
+\DoxyCodeLine{00635\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>key\_state()\ ==\ key\_state)\ \{}
+\DoxyCodeLine{00636\ \ \ \ \ \ \ \ \ active\_voices\_.erase(iter);}
+\DoxyCodeLine{00637\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ voice;}
+\DoxyCodeLine{00638\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00639\ \ \ \ \ \}}
+\DoxyCodeLine{00640\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00641\ \ \ \}}
+\DoxyCodeLine{00642\ }
+\DoxyCodeLine{00643\ \ \ Voice*\ VoiceHandler::getVoiceToKill(\textcolor{keywordtype}{int}\ max\_voices)\ \{}
+\DoxyCodeLine{00644\ \ \ \ \ \textcolor{comment}{//\ Finds\ a\ voice\ that\ can\ be\ forcibly\ killed\ to\ reduce\ the\ active\ voice\ count.}}
+\DoxyCodeLine{00645\ \ \ \ \ \textcolor{keywordtype}{int}\ excess\_voices\ =\ active\_voices\_.size()\ -\/\ max\_voices;}
+\DoxyCodeLine{00646\ \ \ \ \ Voice*\ released\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00647\ \ \ \ \ Voice*\ sustained\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00648\ \ \ \ \ Voice*\ held\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00649\ }
+\DoxyCodeLine{00650\ \ \ \ \ \textcolor{keywordflow}{for}\ (Voice*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00651\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>state().event\ ==\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa34372440894bc740541b0d8b97e54e6c}{kVoiceKill}})}
+\DoxyCodeLine{00652\ \ \ \ \ \ \ \ \ excess\_voices-\/-\/;}
+\DoxyCodeLine{00653\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (!released\ \&\&\ voice-\/>key\_state()\ ==\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a51465e3ecc4821b033391e7d513c4370}{Voice::kReleased}})}
+\DoxyCodeLine{00654\ \ \ \ \ \ \ \ \ released\ =\ voice;}
+\DoxyCodeLine{00655\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (!sustained\ \&\&\ voice-\/>key\_state()\ ==\ \mbox{\hyperlink{classvital_1_1_voice_a5c95d8d2a238105cea9ddeb3613ba293a84403d9085f1e50cd876da382567839c}{Voice::kSustained}})}
+\DoxyCodeLine{00656\ \ \ \ \ \ \ \ \ sustained\ =\ voice;}
+\DoxyCodeLine{00657\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (!held)}
+\DoxyCodeLine{00658\ \ \ \ \ \ \ \ \ held\ =\ voice;}
+\DoxyCodeLine{00659\ \ \ \ \ \}}
+\DoxyCodeLine{00660\ }
+\DoxyCodeLine{00661\ \ \ \ \ \textcolor{keywordflow}{if}\ (excess\_voices\ <=\ 0)}
+\DoxyCodeLine{00662\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00663\ }
+\DoxyCodeLine{00664\ \ \ \ \ \textcolor{keywordflow}{if}\ (released)}
+\DoxyCodeLine{00665\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ released;}
+\DoxyCodeLine{00666\ \ \ \ \ \textcolor{keywordflow}{if}\ (sustained)}
+\DoxyCodeLine{00667\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ sustained;}
+\DoxyCodeLine{00668\ \ \ \ \ \textcolor{keywordflow}{if}\ (held)}
+\DoxyCodeLine{00669\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ held;}
+\DoxyCodeLine{00670\ }
+\DoxyCodeLine{00671\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00672\ \ \ \}}
+\DoxyCodeLine{00673\ }
+\DoxyCodeLine{00674\ \ \ \textcolor{keywordtype}{int}\ VoiceHandler::grabNextUnplayedPressedNote()\ \{}
+\DoxyCodeLine{00675\ \ \ \ \ \textcolor{comment}{//\ Finds\ the\ next\ pressed\ note\ that\ is\ not\ currently\ playing,\ depending\ on\ voice\ priority.}}
+\DoxyCodeLine{00676\ }
+\DoxyCodeLine{00677\ \ \ \ \ \textcolor{keyword}{auto}\ iter\ =\ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_a97aef04ccba42526381cb689574d22c0}{begin}}();}
+\DoxyCodeLine{00678\ }
+\DoxyCodeLine{00679\ \ \ \ \ \textcolor{keywordflow}{if}\ (voice\_priority\_\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5bad88815db67e1315b0ff62a765ba50fd9}{kNewest}})\ \{}
+\DoxyCodeLine{00680\ \ \ \ \ \ \ iter\ =\ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_a75d63545716556918902e7492725fe9c}{end}}();}
+\DoxyCodeLine{00681\ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (iter\ !=\ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_a97aef04ccba42526381cb689574d22c0}{begin}}())\ \{}
+\DoxyCodeLine{00682\ \ \ \ \ \ \ \ \ -\/-\/iter;}
+\DoxyCodeLine{00683\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{classvital_1_1_voice_handler_a53e3a45424bf758ea60616bc381b1b0e}{isNotePlaying}}(getNote(*iter),\ getChannel(*iter)))}
+\DoxyCodeLine{00684\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00685\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00686\ \ \ \ \ \}}
+\DoxyCodeLine{00687\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00688\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (;\ iter\ !=\ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_a75d63545716556918902e7492725fe9c}{end}}();\ ++iter)\ \{}
+\DoxyCodeLine{00689\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{classvital_1_1_voice_handler_a53e3a45424bf758ea60616bc381b1b0e}{isNotePlaying}}(getNote(*iter),\ getChannel(*iter)))}
+\DoxyCodeLine{00690\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00691\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00692\ \ \ \ \ \}}
+\DoxyCodeLine{00693\ }
+\DoxyCodeLine{00694\ \ \ \ \ \textcolor{keywordtype}{int}\ old\_note\_value\ =\ *iter;}
+\DoxyCodeLine{00695\ \ \ \ \ \textcolor{keywordflow}{if}\ (voice\_priority\_\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5ba21491e6bc8b080e87ac7368e988f3f03}{kRoundRobin}})\ \{}
+\DoxyCodeLine{00696\ \ \ \ \ \ \ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_af79416a7c5467e820f6299363688a56a}{erase}}(iter);}
+\DoxyCodeLine{00697\ \ \ \ \ \ \ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_ac1b3b45cf7592af1b34d21600bf66aaa}{push\_back}}(old\_note\_value);}
+\DoxyCodeLine{00698\ \ \ \ \ \}}
+\DoxyCodeLine{00699\ \ \ \ \ \textcolor{keywordflow}{return}\ old\_note\_value;}
+\DoxyCodeLine{00700\ \ \ \}}
+\DoxyCodeLine{00701\ }
+\DoxyCodeLine{00702\ \ \ \textcolor{keywordtype}{void}\ VoiceHandler::sortVoicePriority()\ \{}
+\DoxyCodeLine{00703\ \ \ \ \ \textcolor{comment}{//\ Sorts\ active\ voices\ and\ pressed\ notes\ based\ on\ the\ configured\ priority.}}
+\DoxyCodeLine{00704\ \ \ \ \ \textcolor{keywordflow}{switch}\ (voice\_priority\_)\ \{}
+\DoxyCodeLine{00705\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5ba25f8f497c6f4e71933241b0cc5054ffb}{kHighest}}:}
+\DoxyCodeLine{00706\ \ \ \ \ \ \ \ \ active\_voices\_.sort<voiceCompareLowestFirst>();}
+\DoxyCodeLine{00707\ \ \ \ \ \ \ \ \ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_abfb20ce938589bf0c8f30b95a94abfcb}{sort}}<pressedCompareHighestFirst>();}
+\DoxyCodeLine{00708\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00709\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5baf103c35e836a0c20290c220a7b945ab8}{kLowest}}:}
+\DoxyCodeLine{00710\ \ \ \ \ \ \ \ \ active\_voices\_.sort<voiceCompareHighestFirst>();}
+\DoxyCodeLine{00711\ \ \ \ \ \ \ \ \ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_abfb20ce938589bf0c8f30b95a94abfcb}{sort}}<pressedCompareLowestFirst>();}
+\DoxyCodeLine{00712\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00713\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5ba3f399bffb12929d40eb078bb8802614a}{kOldest}}:}
+\DoxyCodeLine{00714\ \ \ \ \ \ \ \ \ active\_voices\_.sort<voiceCompareNewestFirst>();}
+\DoxyCodeLine{00715\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00716\ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00717\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00718\ \ \ \ \ \}}
+\DoxyCodeLine{00719\ \ \ \}}
+\DoxyCodeLine{00720\ }
+\DoxyCodeLine{00721\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a2b1d804067ab284731a3ed878fd09657}{VoiceHandler::noteOn}}(\textcolor{keywordtype}{int}\ note,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ velocity,\ \textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ channel)\ \{}
+\DoxyCodeLine{00722\ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ >=\ 0\ \&\&\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ <\ \mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{kNumMidiChannels}});}
+\DoxyCodeLine{00723\ }
+\DoxyCodeLine{00724\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ =\ grabVoice();}
+\DoxyCodeLine{00725\ \ \ \ \ \textcolor{keywordflow}{if}\ (!voice)}
+\DoxyCodeLine{00726\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00727\ }
+\DoxyCodeLine{00728\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ tuned\_note\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}};}
+\DoxyCodeLine{00729\ \ \ \ \ \textcolor{keywordflow}{if}\ (tuning\_)}
+\DoxyCodeLine{00730\ \ \ \ \ \ \ tuned\_note\ =\ tuning\_-\/>\mbox{\hyperlink{class_tuning_ab34205c4e40e8dfa6d1eaca84e2253dc}{convertMidiNote}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}});}
+\DoxyCodeLine{00731\ }
+\DoxyCodeLine{00732\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ last\_note\_val\ =\ tuned\_note;}
+\DoxyCodeLine{00733\ \ \ \ \ \textcolor{keywordflow}{if}\ (last\_played\_note\_[0]\ >=\ 0.0f)}
+\DoxyCodeLine{00734\ \ \ \ \ \ \ last\_note\_val\ =\ last\_played\_note\_;}
+\DoxyCodeLine{00735\ \ \ \ \ last\_played\_note\_\ =\ tuned\_note;}
+\DoxyCodeLine{00736\ }
+\DoxyCodeLine{00737\ \ \ \ \ \textcolor{keywordtype}{int}\ note\_value\ =\ combineNoteChannel(\mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}},\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}});}
+\DoxyCodeLine{00738\ \ \ \ \ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_a28c9c9c079978d1b24c5d959ef3e53c6}{remove}}(note\_value);}
+\DoxyCodeLine{00739\ \ \ \ \ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_ac1b3b45cf7592af1b34d21600bf66aaa}{push\_back}}(note\_value);}
+\DoxyCodeLine{00740\ }
+\DoxyCodeLine{00741\ \ \ \ \ total\_notes\_++;}
+\DoxyCodeLine{00742\ \ \ \ \ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_af64002f4176f505d519e3806d4fc4940}{activate}}(\mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}},\ tuned\_note,\ \mbox{\hyperlink{classvital_1_1_voice_handler_a0864b01c35b14dd08f928d9a860c88a0}{velocity}},\ last\_note\_val,}
+\DoxyCodeLine{00743\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_a371d92803753cd8a2fc2d557c49704f1}{size}}(),\ total\_notes\_,\ sample,\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}});}
+\DoxyCodeLine{00744\ \ \ \ \ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_a6d55857129c96e528178c8cd5d9ce774}{setLocalPitchBend}}(pitch\_wheel\_values\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}]);}
+\DoxyCodeLine{00745\ \ \ \ \ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_a8bef635542e9f689b69c37c238eda03f}{setAftertouch}}(pressure\_values\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}]);}
+\DoxyCodeLine{00746\ \ \ \ \ voice-\/>\mbox{\hyperlink{classvital_1_1_voice_acefff861fc10380cd645029289e9b619}{setSlide}}(slide\_values\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}]);}
+\DoxyCodeLine{00747\ \ \ \ \ active\_voices\_.push\_back(voice);}
+\DoxyCodeLine{00748\ }
+\DoxyCodeLine{00749\ \ \ \ \ sortVoicePriority();}
+\DoxyCodeLine{00750\ \ \ \}}
+\DoxyCodeLine{00751\ }
+\DoxyCodeLine{00752\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a797a35d52f58f52d08e2e74fd109e033}{VoiceHandler::noteOff}}(\textcolor{keywordtype}{int}\ note,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ lift,\ \textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ channel)\ \{}
+\DoxyCodeLine{00753\ \ \ \ \ \textcolor{comment}{//\ Removes\ any\ pressing\ of\ the\ note\ from\ the\ pressed\_notes\_\ queue.}}
+\DoxyCodeLine{00754\ \ \ \ \ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_a0375a81ba54559a833dab267acbe5041}{removeAll}}(combineNoteChannel(\mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}},\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}));}
+\DoxyCodeLine{00755\ }
+\DoxyCodeLine{00756\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00757\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>state().midi\_note\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}}\ \&\&\ voice-\/>state().channel\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})\ \{}
+\DoxyCodeLine{00758\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (sustain\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}])\ \{}
+\DoxyCodeLine{00759\ \ \ \ \ \ \ \ \ \ \ voice-\/>sustain();}
+\DoxyCodeLine{00760\ \ \ \ \ \ \ \ \ \ \ voice-\/>setLiftVelocity(\mbox{\hyperlink{classvital_1_1_voice_handler_ad144feadb03921b4e7e1efef2c7fa0e9}{lift}});}
+\DoxyCodeLine{00761\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00762\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00763\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ more\ notes\ are\ pressed\ than\ we\ have\ polyphony,\ reassign\ this\ voice\ immediately.}}
+\DoxyCodeLine{00764\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (polyphony\_\ <=\ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_a371d92803753cd8a2fc2d557c49704f1}{size}}()\ \&\&\ voice-\/>state().event\ !=\ \mbox{\hyperlink{namespacevital_a02bd0e4b763f941913eed52b4f24836fa34372440894bc740541b0d8b97e54e6c}{kVoiceKill}})\ \{}
+\DoxyCodeLine{00765\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ new\_voice\ =\ voice;}
+\DoxyCodeLine{00766\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice\_override\_\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a75d1b623be94d87c31386d358d4f30d5a61e720f06cc7acaa9e67dcccb4f63f80}{kKill}})\ \{}
+\DoxyCodeLine{00767\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ voice-\/>kill();}
+\DoxyCodeLine{00768\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ new\_voice\ =\ grabVoice();}
+\DoxyCodeLine{00769\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00770\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00771\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ active\_voices\_.remove(voice);}
+\DoxyCodeLine{00772\ }
+\DoxyCodeLine{00773\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice\_priority\_\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa0dbe854313bdcff4ccc7466d29efe5bad88815db67e1315b0ff62a765ba50fd9}{kNewest}})}
+\DoxyCodeLine{00774\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ active\_voices\_.push\_front(new\_voice);}
+\DoxyCodeLine{00775\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00776\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ active\_voices\_.push\_back(new\_voice);}
+\DoxyCodeLine{00777\ }
+\DoxyCodeLine{00778\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ old\_note\_value\ =\ grabNextUnplayedPressedNote();}
+\DoxyCodeLine{00779\ }
+\DoxyCodeLine{00780\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ old\_note\ =\ getNote(old\_note\_value);}
+\DoxyCodeLine{00781\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ old\_channel\ =\ getChannel(old\_note\_value);}
+\DoxyCodeLine{00782\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ tuned\_note\ =\ old\_note;}
+\DoxyCodeLine{00783\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (tuning\_)}
+\DoxyCodeLine{00784\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ tuned\_note\ =\ tuning\_-\/>\mbox{\hyperlink{class_tuning_ab34205c4e40e8dfa6d1eaca84e2253dc}{convertMidiNote}}(old\_note);}
+\DoxyCodeLine{00785\ }
+\DoxyCodeLine{00786\ \ \ \ \ \ \ \ \ \ \ \ \ total\_notes\_++;}
+\DoxyCodeLine{00787\ \ \ \ \ \ \ \ \ \ \ \ \ new\_voice-\/>\mbox{\hyperlink{classvital_1_1_voice_af64002f4176f505d519e3806d4fc4940}{activate}}(old\_note,\ tuned\_note,\ voice-\/>state().velocity,}
+\DoxyCodeLine{00788\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ last\_played\_note\_,\ pressed\_notes\_.\mbox{\hyperlink{classvital_1_1_circular_queue_a371d92803753cd8a2fc2d557c49704f1}{size}}()\ +\ 1,}
+\DoxyCodeLine{00789\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ total\_notes\_,\ sample,\ old\_channel);}
+\DoxyCodeLine{00790\ \ \ \ \ \ \ \ \ \ \ \ \ voice-\/>setLocalPitchBend(pitch\_wheel\_values\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}]);}
+\DoxyCodeLine{00791\ \ \ \ \ \ \ \ \ \ \ \ \ voice-\/>setAftertouch(pressure\_values\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}]);}
+\DoxyCodeLine{00792\ \ \ \ \ \ \ \ \ \ \ \ \ voice-\/>setSlide(slide\_values\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}]);}
+\DoxyCodeLine{00793\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00794\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00795\ \ \ \ \ \ \ \ \ \ \ \ \ voice-\/>deactivate(sample);}
+\DoxyCodeLine{00796\ \ \ \ \ \ \ \ \ \ \ \ \ voice-\/>setLiftVelocity(\mbox{\hyperlink{classvital_1_1_voice_handler_ad144feadb03921b4e7e1efef2c7fa0e9}{lift}});}
+\DoxyCodeLine{00797\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00798\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00799\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00800\ \ \ \ \ \}}
+\DoxyCodeLine{00801\ \ \ \ \ sortVoicePriority();}
+\DoxyCodeLine{00802\ \ \ \}}
+\DoxyCodeLine{00803\ }
+\DoxyCodeLine{00804\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a43abdff6282eb0c0c6e70dccde54e76b}{VoiceHandler::setAftertouch}}(\textcolor{keywordtype}{int}\ note,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ aftertouch,\ \textcolor{keywordtype}{int}\ sample,\ \textcolor{keywordtype}{int}\ channel)\ \{}
+\DoxyCodeLine{00805\ \ \ \ \ \textcolor{comment}{//\ Per-\/note\ aftertouch.}}
+\DoxyCodeLine{00806\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00807\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>state().midi\_note\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a146223bc6aa55e38b70365f2b30198b0}{note}}\ \&\&\ voice-\/>state().channel\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}})}
+\DoxyCodeLine{00808\ \ \ \ \ \ \ \ \ voice-\/>setAftertouch(\mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}},\ sample);}
+\DoxyCodeLine{00809\ \ \ \ \ \}}
+\DoxyCodeLine{00810\ \ \ \}}
+\DoxyCodeLine{00811\ }
+\DoxyCodeLine{00812\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a3a6ab79f983b43d55107f229c73dbbd6}{VoiceHandler::setChannelAftertouch}}(\textcolor{keywordtype}{int}\ channel,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ aftertouch,\ \textcolor{keywordtype}{int}\ sample)\ \{}
+\DoxyCodeLine{00813\ \ \ \ \ \textcolor{comment}{//\ Applies\ aftertouch\ to\ all\ held\ voices\ in\ the\ channel.}}
+\DoxyCodeLine{00814\ \ \ \ \ pressure\_values\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}]\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}};}
+\DoxyCodeLine{00815\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00816\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>state().channel\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ \&\&\ voice-\/>held())}
+\DoxyCodeLine{00817\ \ \ \ \ \ \ \ \ voice-\/>setAftertouch(\mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}},\ sample);}
+\DoxyCodeLine{00818\ \ \ \ \ \}}
+\DoxyCodeLine{00819\ \ \ \}}
+\DoxyCodeLine{00820\ }
+\DoxyCodeLine{00821\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_af8ae26a950af9e576f966df306b006b0}{VoiceHandler::setChannelRangeAftertouch}}(\textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ aftertouch,\ \textcolor{keywordtype}{int}\ sample)\ \{}
+\DoxyCodeLine{00822\ \ \ \ \ \textcolor{comment}{//\ Applies\ aftertouch\ to\ all\ held\ voices\ in\ the\ range\ of\ channels.}}
+\DoxyCodeLine{00823\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00824\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ ch\ =\ voice-\/>state().channel;}
+\DoxyCodeLine{00825\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ch\ >=\ from\_channel\ \&\&\ ch\ <=\ to\_channel)}
+\DoxyCodeLine{00826\ \ \ \ \ \ \ \ \ voice-\/>setAftertouch(\mbox{\hyperlink{classvital_1_1_voice_handler_a880366215541e8b4993a7f7ab5f32099}{aftertouch}},\ sample);}
+\DoxyCodeLine{00827\ \ \ \ \ \}}
+\DoxyCodeLine{00828\ \ \ \}}
+\DoxyCodeLine{00829\ }
+\DoxyCodeLine{00830\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_afc55e52e9be6665f43c82ba25cfb4c57}{VoiceHandler::setChannelSlide}}(\textcolor{keywordtype}{int}\ channel,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ slide,\ \textcolor{keywordtype}{int}\ sample)\ \{}
+\DoxyCodeLine{00831\ \ \ \ \ slide\_values\_[\mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}]\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_a462430bd8e71f5fe0a3930c5172052b5}{slide}};}
+\DoxyCodeLine{00832\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00833\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (voice-\/>state().channel\ ==\ \mbox{\hyperlink{classvital_1_1_voice_handler_a431b6edf05e8de9363bd26dc0ac649f1}{channel}}\ \&\&\ voice-\/>held())}
+\DoxyCodeLine{00834\ \ \ \ \ \ \ \ \ voice-\/>setSlide(\mbox{\hyperlink{classvital_1_1_voice_handler_a462430bd8e71f5fe0a3930c5172052b5}{slide}},\ sample);}
+\DoxyCodeLine{00835\ \ \ \ \ \}}
+\DoxyCodeLine{00836\ \ \ \}}
+\DoxyCodeLine{00837\ }
+\DoxyCodeLine{00838\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_afe3f0c1b675b5e681772f7d2cde81763}{VoiceHandler::setChannelRangeSlide}}(\textcolor{keywordtype}{int}\ from\_channel,\ \textcolor{keywordtype}{int}\ to\_channel,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ slide,\ \textcolor{keywordtype}{int}\ sample)\ \{}
+\DoxyCodeLine{00839\ \ \ \ \ \textcolor{comment}{//\ Similar\ logic\ for\ MPE\ "{}slide"{}\ data.}}
+\DoxyCodeLine{00840\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ voice\ :\ active\_voices\_)\ \{}
+\DoxyCodeLine{00841\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ ch\ =\ voice-\/>state().channel;}
+\DoxyCodeLine{00842\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ch\ >=\ from\_channel\ \&\&\ ch\ <=\ to\_channel)}
+\DoxyCodeLine{00843\ \ \ \ \ \ \ \ \ voice-\/>setSlide(\mbox{\hyperlink{classvital_1_1_voice_handler_a462430bd8e71f5fe0a3930c5172052b5}{slide}},\ sample);}
+\DoxyCodeLine{00844\ \ \ \ \ \}}
+\DoxyCodeLine{00845\ \ \ \}}
+\DoxyCodeLine{00846\ }
+\DoxyCodeLine{00847\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a281bb6ca17fb3142dbf6c86460bf137b}{VoiceHandler::setPolyphony}}(\textcolor{keywordtype}{int}\ polyphony)\ \{}
+\DoxyCodeLine{00848\ \ \ \ \ \textcolor{comment}{//\ If\ we\ need\ more\ voices,\ add\ parallel\ voice\ groups\ until\ we\ reach\ that\ count.}}
+\DoxyCodeLine{00849\ \ \ \ \ \textcolor{keywordflow}{while}\ (all\_voices\_.size()\ <\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(\mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}}))}
+\DoxyCodeLine{00850\ \ \ \ \ \ \ addParallelVoices();}
+\DoxyCodeLine{00851\ }
+\DoxyCodeLine{00852\ \ \ \ \ \textcolor{comment}{//\ If\ we\ are\ above\ the\ new\ polyphony,\ forcibly\ kill\ extra\ voices.}}
+\DoxyCodeLine{00853\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_voices\_to\_kill\ =\ active\_voices\_.size()\ -\/\ \mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}};}
+\DoxyCodeLine{00854\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_voices\_to\_kill;\ ++i)\ \{}
+\DoxyCodeLine{00855\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_voice}{Voice}}*\ sacrifice\ =\ getVoiceToKill(\mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}});}
+\DoxyCodeLine{00856\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (sacrifice)}
+\DoxyCodeLine{00857\ \ \ \ \ \ \ \ \ sacrifice-\/>\mbox{\hyperlink{classvital_1_1_voice_a57161f41a8bd58322a916885bd726ab7}{kill}}();}
+\DoxyCodeLine{00858\ \ \ \ \ \}}
+\DoxyCodeLine{00859\ }
+\DoxyCodeLine{00860\ \ \ \ \ polyphony\_\ =\ \mbox{\hyperlink{classvital_1_1_voice_handler_a4ec4ddd7defb859efe4ebe3feddd64c1}{polyphony}};}
+\DoxyCodeLine{00861\ \ \ \}}
+\DoxyCodeLine{00862\ }
+\DoxyCodeLine{00863\ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{mono\_float}}\ \mbox{\hyperlink{classvital_1_1_voice_handler_abfd3ceae67afccbf3eac02d9b12483e0}{VoiceHandler::getLastActiveNote}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00864\ \ \ \ \ \textcolor{comment}{//\ Returns\ the\ tuned\ note\ of\ the\ last\ active\ voice,\ if\ any.}}
+\DoxyCodeLine{00865\ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_voices\_.size())}
+\DoxyCodeLine{00866\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ active\_voices\_.back()-\/>state().tuned\_note;}
+\DoxyCodeLine{00867\ \ \ \ \ \textcolor{keywordflow}{return}\ 0.0f;}
+\DoxyCodeLine{00868\ \ \ \}}
+\DoxyCodeLine{00869\ }
+\DoxyCodeLine{00870\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa462c09a5f03ce4e09697f56b5459e57}{VoiceHandler::addProcessor}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\ \{}
+\DoxyCodeLine{00871\ \ \ \ \ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_ac778f37e9b9e3c1c05fca568e8f8664c}{setSampleRate}}(\mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}());}
+\DoxyCodeLine{00872\ \ \ \ \ voice\_router\_.\mbox{\hyperlink{classvital_1_1_processor_router_af5322ce72a1e53f6d81ce917f07427e7}{addProcessor}}(processor);}
+\DoxyCodeLine{00873\ \ \ \}}
+\DoxyCodeLine{00874\ }
+\DoxyCodeLine{00875\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aa8cb1c88d309cc966904ef3af4f6cd51}{VoiceHandler::addIdleProcessor}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\ \{}
+\DoxyCodeLine{00876\ \ \ \ \ processor-\/>\mbox{\hyperlink{classvital_1_1_processor_ac778f37e9b9e3c1c05fca568e8f8664c}{setSampleRate}}(\mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}());}
+\DoxyCodeLine{00877\ \ \ \ \ voice\_router\_.\mbox{\hyperlink{classvital_1_1_processor_router_a8bc90b699c1ec299b060ed0df32f476c}{addIdleProcessor}}(processor);}
+\DoxyCodeLine{00878\ \ \ \}}
+\DoxyCodeLine{00879\ }
+\DoxyCodeLine{00880\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a609a240662e8d02977b3d78398489b91}{VoiceHandler::removeProcessor}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\ \{}
+\DoxyCodeLine{00881\ \ \ \ \ voice\_router\_.\mbox{\hyperlink{classvital_1_1_processor_router_a2e2a39dff7f95f2faee9421b87133a4f}{removeProcessor}}(processor);}
+\DoxyCodeLine{00882\ \ \ \}}
+\DoxyCodeLine{00883\ }
+\DoxyCodeLine{00884\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a7d8139798f84bc48f799ffcc0b975c61}{VoiceHandler::addGlobalProcessor}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\ \{}
+\DoxyCodeLine{00885\ \ \ \ \ global\_router\_.\mbox{\hyperlink{classvital_1_1_processor_router_af5322ce72a1e53f6d81ce917f07427e7}{addProcessor}}(processor);}
+\DoxyCodeLine{00886\ \ \ \}}
+\DoxyCodeLine{00887\ }
+\DoxyCodeLine{00888\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a0e61973632129c6a2e9fa1f91e3cf5e2}{VoiceHandler::removeGlobalProcessor}}(\mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\ \{}
+\DoxyCodeLine{00889\ \ \ \ \ global\_router\_.\mbox{\hyperlink{classvital_1_1_processor_router_a2e2a39dff7f95f2faee9421b87133a4f}{removeProcessor}}(processor);}
+\DoxyCodeLine{00890\ \ \ \}}
+\DoxyCodeLine{00891\ }
+\DoxyCodeLine{00892\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a2b6195a578e16b6ad1490a8a1d20b1cc}{VoiceHandler::resetFeedbacks}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask)\ \{}
+\DoxyCodeLine{00893\ \ \ \ \ voice\_router\_.\mbox{\hyperlink{classvital_1_1_processor_router_ab064299dac2dfea05f18aeb91c5e22f7}{resetFeedbacks}}(reset\_mask);}
+\DoxyCodeLine{00894\ \ \ \}}
+\DoxyCodeLine{00895\ }
+\DoxyCodeLine{00896\ \ \ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_ac6d558d9f34643e9b79cec8cf8fd4299}{VoiceHandler::registerOutput}}(\mbox{\hyperlink{structvital_1_1_output}{Output}}*\ output)\ \{}
+\DoxyCodeLine{00897\ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(accumulated\_outputs\_.count(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}})\ ==\ 0);}
+\DoxyCodeLine{00898\ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(last\_voice\_outputs\_.count(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}})\ ==\ 0);}
+\DoxyCodeLine{00899\ }
+\DoxyCodeLine{00900\ \ \ \ \ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ new\_output\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{structvital_1_1_output}{Output}}(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}-\/>\mbox{\hyperlink{structvital_1_1_output_a56a8b6494724ac9fc94fb1bc2974ae6d}{buffer\_size}});}
+\DoxyCodeLine{00901\ \ \ \ \ new\_output-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \textcolor{keyword}{this};}
+\DoxyCodeLine{00902\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a26e293db393befbf0b0796bd0823f2cc}{ProcessorRouter::registerOutput}}(new\_output);}
+\DoxyCodeLine{00903\ }
+\DoxyCodeLine{00904\ \ \ \ \ \textcolor{comment}{//\ Decide\ if\ we\ accumulate\ (summing\ across\ voices)\ or\ keep\ individual.}}
+\DoxyCodeLine{00905\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_voice_handler_adf7416833ec7abc5d8b34c604720b969}{shouldAccumulate}}(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}))}
+\DoxyCodeLine{00906\ \ \ \ \ \ \ accumulated\_outputs\_[\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}]\ =\ std::unique\_ptr<Output>(new\_output);}
+\DoxyCodeLine{00907\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00908\ \ \ \ \ \ \ last\_voice\_outputs\_[\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}]\ =\ std::unique\_ptr<Output>(new\_output);}
+\DoxyCodeLine{00909\ \ \ \ \ \ \ nonaccumulated\_outputs\_.ensureCapacity(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(last\_voice\_outputs\_.size()));}
+\DoxyCodeLine{00910\ \ \ \ \ \}}
+\DoxyCodeLine{00911\ \ \ \ \ \textcolor{keywordflow}{return}\ new\_output;}
+\DoxyCodeLine{00912\ \ \ \}}
+\DoxyCodeLine{00913\ }
+\DoxyCodeLine{00914\ \ \ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_ade40a08b9e01e1520ae1d5c18a37036f}{VoiceHandler::registerControlRateOutput}}(\mbox{\hyperlink{structvital_1_1_output}{Output}}*\ output,\ \textcolor{keywordtype}{bool}\ active)\ \{}
+\DoxyCodeLine{00915\ \ \ \ \ \textcolor{comment}{//\ A\ separate\ route\ for\ CR\ outputs\ that\ are\ always\ single-\/sample\ or\ non-\/accumulated.}}
+\DoxyCodeLine{00916\ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(accumulated\_outputs\_.count(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}})\ ==\ 0);}
+\DoxyCodeLine{00917\ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(last\_voice\_outputs\_.count(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}})\ ==\ 0);}
+\DoxyCodeLine{00918\ }
+\DoxyCodeLine{00919\ \ \ \ \ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}*\ new\_output\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{structvital_1_1cr_1_1_output}{cr::Output}}();}
+\DoxyCodeLine{00920\ \ \ \ \ new\_output-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}\ =\ \textcolor{keyword}{this};}
+\DoxyCodeLine{00921\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_a26e293db393befbf0b0796bd0823f2cc}{ProcessorRouter::registerOutput}}(new\_output);}
+\DoxyCodeLine{00922\ }
+\DoxyCodeLine{00923\ \ \ \ \ last\_voice\_outputs\_[\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}]\ =\ std::unique\_ptr<Output>(new\_output);}
+\DoxyCodeLine{00924\ \ \ \ \ nonaccumulated\_outputs\_.ensureCapacity(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(last\_voice\_outputs\_.size()));}
+\DoxyCodeLine{00925\ \ \ \ \ \textcolor{keywordflow}{if}\ (active)}
+\DoxyCodeLine{00926\ \ \ \ \ \ \ nonaccumulated\_outputs\_.push\_back(\{\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}},\ new\_output\ \});}
+\DoxyCodeLine{00927\ \ \ \ \ \textcolor{keywordflow}{return}\ new\_output;}
+\DoxyCodeLine{00928\ \ \ \}}
+\DoxyCodeLine{00929\ }
+\DoxyCodeLine{00930\ \ \ \mbox{\hyperlink{structvital_1_1_output}{Output}}*\ \mbox{\hyperlink{classvital_1_1_voice_handler_ac6d558d9f34643e9b79cec8cf8fd4299}{VoiceHandler::registerOutput}}(\mbox{\hyperlink{structvital_1_1_output}{Output}}*\ output,\ \textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00931\ \ \ \ \ \textcolor{comment}{//\ Not\ supported.\ Asserts\ false.}}
+\DoxyCodeLine{00932\ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00933\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}};}
+\DoxyCodeLine{00934\ \ \ \}}
+\DoxyCodeLine{00935\ }
+\DoxyCodeLine{00936\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classvital_1_1_processor_a6109203f5da8f0c3a7413db829e13381}{VoiceHandler::isPolyphonic}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}*\ processor)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00937\ \ \ \ \ \textcolor{comment}{//\ Voice\ router\ processes\ polyphonic\ data,\ so\ check\ if\ it\ is\ that\ router.}}
+\DoxyCodeLine{00938\ \ \ \ \ \textcolor{keywordflow}{return}\ (processor\ ==\ \&voice\_router\_);}
+\DoxyCodeLine{00939\ \ \ \}}
+\DoxyCodeLine{00940\ }
+\DoxyCodeLine{00941\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_a593542da24c24578fd81da57d585f498}{VoiceHandler::setActiveNonaccumulatedOutput}}(\mbox{\hyperlink{structvital_1_1_output}{Output}}*\ output)\ \{}
+\DoxyCodeLine{00942\ \ \ \ \ \textcolor{keywordflow}{if}\ (last\_voice\_outputs\_.count(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}})\ ==\ 0)}
+\DoxyCodeLine{00943\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00944\ \ \ \ \ std::pair<Output*,\ Output*>\ pair(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}},\ last\_voice\_outputs\_[\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}].get());}
+\DoxyCodeLine{00945\ \ \ \ \ \textcolor{keywordflow}{if}\ (!nonaccumulated\_outputs\_.contains(pair))}
+\DoxyCodeLine{00946\ \ \ \ \ \ \ nonaccumulated\_outputs\_.push\_back(pair);}
+\DoxyCodeLine{00947\ \ \ \}}
+\DoxyCodeLine{00948\ }
+\DoxyCodeLine{00949\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_voice_handler_aba6c7e7efbd63d12efc9f7b46fc212c7}{VoiceHandler::setInactiveNonaccumulatedOutput}}(\mbox{\hyperlink{structvital_1_1_output}{Output}}*\ output)\ \{}
+\DoxyCodeLine{00950\ \ \ \ \ \textcolor{keywordflow}{if}\ (last\_voice\_outputs\_.count(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}})\ ==\ 0)}
+\DoxyCodeLine{00951\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00952\ \ \ \ \ std::pair<Output*,\ Output*>\ pair(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}},\ last\_voice\_outputs\_[\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}].get());}
+\DoxyCodeLine{00953\ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_a23be57085c57f535eb29b1de54525373}{utils::zeroBuffer}}(pair.second-\/>buffer,\ pair.second-\/>buffer\_size);}
+\DoxyCodeLine{00954\ \ \ \ \ nonaccumulated\_outputs\_.remove(pair);}
+\DoxyCodeLine{00955\ \ \ \}}
+\DoxyCodeLine{00956\ }
+\DoxyCodeLine{00957\ \ \ \textcolor{keywordtype}{void}\ VoiceHandler::addParallelVoices()\ \{}
+\DoxyCodeLine{00958\ \ \ \ \ \textcolor{comment}{//\ Creates\ a\ new\ AggregateVoice\ with\ kParallelVoices\ voices,\ each\ referencing\ a\ shared\ processor\ clone.}}
+\DoxyCodeLine{00959\ }
+\DoxyCodeLine{00960\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ voice\_value\ =\ 0.0f;}
+\DoxyCodeLine{00961\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ kParallelVoices;\ ++i)\ \{}
+\DoxyCodeLine{00962\ \ \ \ \ \ \ voice\_value.\mbox{\hyperlink{structvital_1_1poly__float_ae81ddd53c0cc124931d1a82d6ecf90c6}{set}}(2\ *\ i,\ i);}
+\DoxyCodeLine{00963\ \ \ \ \ \ \ voice\_value.\mbox{\hyperlink{structvital_1_1poly__float_ae81ddd53c0cc124931d1a82d6ecf90c6}{set}}(2\ *\ i\ +\ 1,\ i);}
+\DoxyCodeLine{00964\ \ \ \ \ \}}
+\DoxyCodeLine{00965\ }
+\DoxyCodeLine{00966\ \ \ \ \ std::unique\_ptr<AggregateVoice>\ aggregate\_voice\ =\ std::make\_unique<AggregateVoice>();}
+\DoxyCodeLine{00967\ \ \ \ \ aggregate\_voice-\/>processor\ =\ std::unique\_ptr<Processor>(voice\_router\_.\mbox{\hyperlink{classvital_1_1_processor_router_a1451035228a588d309dd1eca909ca6d3}{clone}}());}
+\DoxyCodeLine{00968\ \ \ \ \ aggregate\_voice-\/>processor-\/>process(1);\ \textcolor{comment}{//\ Ensure\ the\ processor\ initializes.}}
+\DoxyCodeLine{00969\ }
+\DoxyCodeLine{00970\ \ \ \ \ aggregate\_voice-\/>voices.reserve(kParallelVoices);}
+\DoxyCodeLine{00971\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ kParallelVoices;\ ++i)\ \{}
+\DoxyCodeLine{00972\ \ \ \ \ \ \ std::unique\_ptr<Voice>\ single\_voice\ =\ std::make\_unique<Voice>(aggregate\_voice.get());}
+\DoxyCodeLine{00973\ \ \ \ \ \ \ single\_voice-\/>setVoiceInfo(i,\ \mbox{\hyperlink{structvital_1_1poly__float_a62737c049e0fe6348bd3f5d2fe4bf02a}{poly\_float::equal}}(voice\_value,\ i));}
+\DoxyCodeLine{00974\ }
+\DoxyCodeLine{00975\ \ \ \ \ \ \ aggregate\_voice-\/>voices.push\_back(single\_voice.get());}
+\DoxyCodeLine{00976\ \ \ \ \ \ \ free\_voices\_.push\_back(single\_voice.get());}
+\DoxyCodeLine{00977\ \ \ \ \ \ \ all\_voices\_.push\_back(std::move(single\_voice));}
+\DoxyCodeLine{00978\ \ \ \ \ \}}
+\DoxyCodeLine{00979\ }
+\DoxyCodeLine{00980\ \ \ \ \ all\_aggregate\_voices\_.push\_back(std::move(aggregate\_voice));}
+\DoxyCodeLine{00981\ \ \ \}}
+\DoxyCodeLine{00982\ }
+\DoxyCodeLine{00983\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

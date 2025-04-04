@@ -1,0 +1,236 @@
+\doxysection{synth\+\_\+plugin.\+cpp}
+\hypertarget{synth__plugin_8cpp_source}{}\label{synth__plugin_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/plugin/synth\_plugin.cpp@{/Users/davidvogel/repos/VitalHelp/src/plugin/synth\_plugin.cpp}}
+\mbox{\hyperlink{synth__plugin_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Summary:}}
+\DoxyCodeLine{00003\ \textcolor{comment}{}}
+\DoxyCodeLine{00004\ \textcolor{comment}{SynthPlugin\ is\ the\ core\ plugin\ class\ handling\ parameter\ management,\ saving/loading\ state,\ preparing\ audio\ processing,\ and\ communicating\ with\ the\ host.\ It\ integrates\ the\ synth\ engine,\ GUI\ interface,\ and\ handles\ parameter\ automation\ through\ ValueBridge\ instances.\ It\ also\ ensures\ that\ parameter\ changes\ and\ preset\ loading\ are\ communicated\ effectively\ to\ the\ GUI\ and\ host.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__plugin_8h}{synth\_plugin.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{plugin_2synth__editor_8h}{synth\_editor.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}sound\_engine.h"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{load__save_8h}{load\_save.h}}"{}}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \mbox{\hyperlink{class_synth_plugin_aec9368025497ff9d72a05c6e7095e262}{SynthPlugin::SynthPlugin}}()\ \{}
+\DoxyCodeLine{00013\ \ \ last\_seconds\_time\_\ =\ 0.0;}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \ \ \textcolor{comment}{//\ Register\ and\ create\ ValueBridges\ for\ all\ parameters.}}
+\DoxyCodeLine{00016\ \ \ \textcolor{keywordtype}{int}\ num\_params\ =\ \mbox{\hyperlink{classvital_1_1_parameters_a81e3d8ee6c25fc91e495137cdc9801e9}{vital::Parameters::getNumParameters}}();}
+\DoxyCodeLine{00017\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_params;\ ++i)\ \{}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1_value_details}{vital::ValueDetails}}*\ details\ =\ \mbox{\hyperlink{classvital_1_1_parameters_add207875d97ce0cabc64a33e86a5ab24}{vital::Parameters::getDetails}}(i);}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_synth_base_a32224edb2a44d2cc44fcd78483a30813}{controls\_}}.count(details-\/>\mbox{\hyperlink{structvital_1_1_value_details_ac39fe3261f5686d17e8208a8199cd278}{name}})\ ==\ 0)}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{comment}{//\ Create\ a\ ValueBridge\ for\ each\ known\ parameter.}}
+\DoxyCodeLine{00023\ \ \ \ \ \mbox{\hyperlink{class_value_bridge}{ValueBridge}}*\ bridge\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_value_bridge}{ValueBridge}}(details-\/>\mbox{\hyperlink{structvital_1_1_value_details_ac39fe3261f5686d17e8208a8199cd278}{name}},\ \mbox{\hyperlink{class_synth_base_a32224edb2a44d2cc44fcd78483a30813}{controls\_}}[details-\/>\mbox{\hyperlink{structvital_1_1_value_details_ac39fe3261f5686d17e8208a8199cd278}{name}}]);}
+\DoxyCodeLine{00024\ \ \ \ \ bridge-\/>\mbox{\hyperlink{class_value_bridge_a90cd2eee0ac35ba37a83702cdecad980}{setListener}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{00025\ \ \ \ \ bridge\_lookup\_[details-\/>\mbox{\hyperlink{structvital_1_1_value_details_ac39fe3261f5686d17e8208a8199cd278}{name}}]\ =\ bridge;}
+\DoxyCodeLine{00026\ \ \ \ \ addParameter(bridge);}
+\DoxyCodeLine{00027\ \ \ \}}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ bypass\_parameter\_\ =\ bridge\_lookup\_[\textcolor{stringliteral}{"{}bypass"{}}];}
+\DoxyCodeLine{00030\ \}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \mbox{\hyperlink{class_synth_plugin_ad0339bceb90808e50c811f6f826f16b9}{SynthPlugin::\string~SynthPlugin}}()\ \{}
+\DoxyCodeLine{00033\ \ \ \mbox{\hyperlink{class_synth_base_a2ebf9323dd1dbed24ffd7947c99f5bb4}{midi\_manager\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00034\ \ \ \mbox{\hyperlink{class_synth_base_a3113f7ca31bb8a40ab403755c596e876}{keyboard\_state\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00035\ \}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ \mbox{\hyperlink{class_synth_plugin_acc09c2778854a5de83c7b3d84c90871c}{SynthPlugin::getGuiInterface}}()\ \{}
+\DoxyCodeLine{00038\ \ \ \textcolor{comment}{//\ Return\ the\ active\ GUI\ interface\ if\ available.}}
+\DoxyCodeLine{00039\ \ \ AudioProcessorEditor*\ editor\ =\ getActiveEditor();}
+\DoxyCodeLine{00040\ \ \ \textcolor{keywordflow}{if}\ (editor)}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\textcolor{keyword}{>}(editor);}
+\DoxyCodeLine{00042\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00043\ \}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_plugin_a668cb7e89143b49dee6216dbdc88085b}{SynthPlugin::beginChangeGesture}}(\textcolor{keyword}{const}\ std::string\&\ name)\ \{}
+\DoxyCodeLine{00046\ \ \ \textcolor{comment}{//\ Begin\ host\ automation\ gesture\ for\ the\ parameter\ if\ available.}}
+\DoxyCodeLine{00047\ \ \ \textcolor{keywordflow}{if}\ (bridge\_lookup\_.count(name))}
+\DoxyCodeLine{00048\ \ \ \ \ bridge\_lookup\_[name]-\/>beginChangeGesture();}
+\DoxyCodeLine{00049\ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_plugin_a0b3d7e2364f1d66cf4457a2cf551accc}{SynthPlugin::endChangeGesture}}(\textcolor{keyword}{const}\ std::string\&\ name)\ \{}
+\DoxyCodeLine{00052\ \ \ \textcolor{comment}{//\ End\ host\ automation\ gesture\ for\ the\ parameter\ if\ available.}}
+\DoxyCodeLine{00053\ \ \ \textcolor{keywordflow}{if}\ (bridge\_lookup\_.count(name))}
+\DoxyCodeLine{00054\ \ \ \ \ bridge\_lookup\_[name]-\/>endChangeGesture();}
+\DoxyCodeLine{00055\ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_plugin_a7c8e6c6d13e1146423526085e017badc}{SynthPlugin::setValueNotifyHost}}(\textcolor{keyword}{const}\ std::string\&\ name,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ value)\ \{}
+\DoxyCodeLine{00058\ \ \ \textcolor{comment}{//\ Sets\ parameter\ value\ and\ notifies\ host\ if\ found.}}
+\DoxyCodeLine{00059\ \ \ \textcolor{keywordflow}{if}\ (bridge\_lookup\_.count(name))\ \{}
+\DoxyCodeLine{00060\ \ \ \ \ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ plugin\_value\ =\ bridge\_lookup\_[name]-\/>convertToPluginValue(value);}
+\DoxyCodeLine{00061\ \ \ \ \ bridge\_lookup\_[name]-\/>setValueNotifyHost(plugin\_value);}
+\DoxyCodeLine{00062\ \ \ \}}
+\DoxyCodeLine{00063\ \}}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \textcolor{keyword}{const}\ CriticalSection\&\ \mbox{\hyperlink{class_synth_plugin_accca7837f31bfa59ebe43ee14b805b50}{SynthPlugin::getCriticalSection}}()\ \{}
+\DoxyCodeLine{00066\ \ \ \textcolor{comment}{//\ Return\ the\ callback\ lock\ for\ thread\ safety.}}
+\DoxyCodeLine{00067\ \ \ \textcolor{keywordflow}{return}\ getCallbackLock();}
+\DoxyCodeLine{00068\ \}}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_plugin_ae407b535ea38eb75a0686612670ac52c}{SynthPlugin::pauseProcessing}}(\textcolor{keywordtype}{bool}\ pause)\ \{}
+\DoxyCodeLine{00071\ \ \ \textcolor{comment}{//\ Suspend\ or\ resume\ processing.}}
+\DoxyCodeLine{00072\ \ \ suspendProcessing(pause);}
+\DoxyCodeLine{00073\ \}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \textcolor{keyword}{const}\ String\ \mbox{\hyperlink{class_synth_plugin_aeac6f4bf20fe1aff0ca18eb905080fa4}{SynthPlugin::getName}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00076\ \ \ \textcolor{keywordflow}{return}\ JucePlugin\_Name;}
+\DoxyCodeLine{00077\ \}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \textcolor{keyword}{const}\ String\ \mbox{\hyperlink{class_synth_plugin_aaae15657b96b8be323ce3b67ac03ecdc}{SynthPlugin::getInputChannelName}}(\textcolor{keywordtype}{int}\ channel\_index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00080\ \ \ \textcolor{keywordflow}{return}\ String(channel\_index\ +\ 1);}
+\DoxyCodeLine{00081\ \}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \textcolor{keyword}{const}\ String\ \mbox{\hyperlink{class_synth_plugin_a3dd98d1c7d5fc94d693c16e1511f34c1}{SynthPlugin::getOutputChannelName}}(\textcolor{keywordtype}{int}\ channel\_index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00084\ \ \ \textcolor{keywordflow}{return}\ String(channel\_index\ +\ 1);}
+\DoxyCodeLine{00085\ \}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_synth_plugin_ab1c205f7b0b79d95bd0dd4466ec67ef9}{SynthPlugin::isInputChannelStereoPair}}(\textcolor{keywordtype}{int}\ index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00088\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00089\ \}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_synth_plugin_ae1c5e5c8ca26e83b961f14f5cc97950f}{SynthPlugin::isOutputChannelStereoPair}}(\textcolor{keywordtype}{int}\ index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00092\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00093\ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_synth_plugin_a2d246d088953544de2df82de6191152b}{SynthPlugin::acceptsMidi}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00096\ \textcolor{preprocessor}{\#if\ JucePlugin\_WantsMidiInput}}
+\DoxyCodeLine{00097\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00098\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00099\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00100\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00101\ \}}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_synth_plugin_a49f4a922202c33ccb5a135681e1f0215}{SynthPlugin::producesMidi}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00104\ \textcolor{preprocessor}{\#if\ JucePlugin\_ProducesMidiOutput}}
+\DoxyCodeLine{00105\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00106\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00107\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00108\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00109\ \}}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_synth_plugin_a3d69417ca163631da1b717bd9473f1c0}{SynthPlugin::silenceInProducesSilenceOut}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00112\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00113\ \}}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{class_synth_plugin_afc155c6bb7bc4a7a098cc984f1962b03}{SynthPlugin::getTailLengthSeconds}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00116\ \ \ \textcolor{keywordflow}{return}\ 0.0;}
+\DoxyCodeLine{00117\ \}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \textcolor{keyword}{const}\ String\ \mbox{\hyperlink{class_synth_plugin_aacecc89b4e396785d2f2ab67868f3b3d}{SynthPlugin::getProgramName}}(\textcolor{keywordtype}{int}\ index)\ \{}
+\DoxyCodeLine{00120\ \ \ \textcolor{comment}{//\ Return\ current\ preset\ name\ if\ GUI\ and\ synth\ are\ available.}}
+\DoxyCodeLine{00121\ \ \ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ editor\ =\ \mbox{\hyperlink{class_synth_plugin_acc09c2778854a5de83c7b3d84c90871c}{getGuiInterface}}();}
+\DoxyCodeLine{00122\ \ \ \textcolor{keywordflow}{if}\ (editor\ ==\ \textcolor{keyword}{nullptr}\ ||\ editor-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \textcolor{keywordflow}{return}\ editor-\/>\mbox{\hyperlink{class_synth_gui_interface_a4e948c6a5558b838582d7476f079251d}{getSynth}}()-\/>\mbox{\hyperlink{class_synth_base_aa3c9dffdaaa6f566e98d9a5f1ce25c49}{getPresetName}}();}
+\DoxyCodeLine{00126\ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_plugin_a16d9f26e0d7e1e7b614664aa48ea88c5}{SynthPlugin::prepareToPlay}}(\textcolor{keywordtype}{double}\ sample\_rate,\ \textcolor{keywordtype}{int}\ buffer\_size)\ \{}
+\DoxyCodeLine{00129\ \ \ \textcolor{comment}{//\ Prepare\ the\ synth\ engine\ and\ managers\ for\ playback.}}
+\DoxyCodeLine{00130\ \ \ \mbox{\hyperlink{class_synth_base_aadcde411867cb9ca0282ecce92e86c89}{engine\_}}-\/>setSampleRate(sample\_rate);}
+\DoxyCodeLine{00131\ \ \ \mbox{\hyperlink{class_synth_base_aadcde411867cb9ca0282ecce92e86c89}{engine\_}}-\/>updateAllModulationSwitches();}
+\DoxyCodeLine{00132\ \ \ \mbox{\hyperlink{class_synth_base_a2ebf9323dd1dbed24ffd7947c99f5bb4}{midi\_manager\_}}-\/>setSampleRate(sample\_rate);}
+\DoxyCodeLine{00133\ \}}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_plugin_a30fdfa2418afe56888b366251aa87406}{SynthPlugin::releaseResources}}()\ \{}
+\DoxyCodeLine{00136\ \ \ \textcolor{comment}{//\ Free\ resources\ if\ needed\ (not\ implemented\ here).}}
+\DoxyCodeLine{00137\ \}}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_plugin_a09f012bef6700ca885e9b61c0ea03853}{SynthPlugin::processBlock}}(AudioSampleBuffer\&\ buffer,\ MidiBuffer\&\ midi\_messages)\ \{}
+\DoxyCodeLine{00140\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{double}\ kSecondsPerMinute\ =\ 60.0f;}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \ \ \textcolor{comment}{//\ Check\ if\ bypassed}}
+\DoxyCodeLine{00143\ \ \ \textcolor{keywordflow}{if}\ (bypass\_parameter\_-\/>\mbox{\hyperlink{class_value_bridge_a595efd8a8aba7dc9eb9b6603a7bfd817}{getValue}}())\ \{}
+\DoxyCodeLine{00144\ \ \ \ \ processBlockBypassed(buffer,\ midi\_messages);}
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00146\ \ \ \}}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \ \textcolor{keywordtype}{int}\ total\_samples\ =\ buffer.getNumSamples();}
+\DoxyCodeLine{00149\ \ \ \textcolor{keywordtype}{int}\ num\_channels\ =\ getTotalNumOutputChannels();}
+\DoxyCodeLine{00150\ \ \ AudioPlayHead*\ play\_head\ =\ getPlayHead();}
+\DoxyCodeLine{00151\ \ \ \textcolor{keywordflow}{if}\ (play\_head)\ \{}
+\DoxyCodeLine{00152\ \ \ \ \ play\_head-\/>getCurrentPosition(position\_info\_);}
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{keywordflow}{if}\ (position\_info\_.bpm)}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_base_aadcde411867cb9ca0282ecce92e86c89}{engine\_}}-\/>setBpm(position\_info\_.bpm);}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordflow}{if}\ (position\_info\_.isPlaying)\ \{}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ bps\ =\ position\_info\_.bpm\ /\ kSecondsPerMinute;}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ last\_seconds\_time\_\ =\ position\_info\_.ppqPosition\ /\ bps;}
+\DoxyCodeLine{00159\ \ \ \ \ \}}
+\DoxyCodeLine{00160\ \ \ \}}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ \ \ \mbox{\hyperlink{class_synth_base_af10ff04dddb8266c56ef978acc713a5d}{processModulationChanges}}();}
+\DoxyCodeLine{00163\ \ \ \textcolor{keywordflow}{if}\ (total\_samples)}
+\DoxyCodeLine{00164\ \ \ \ \ \mbox{\hyperlink{class_synth_base_a0a97b0054a54f9fa8c99b16821e2064f}{processKeyboardEvents}}(midi\_messages,\ total\_samples);}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ \textcolor{keywordtype}{double}\ sample\_time\ =\ 1.0\ /\ AudioProcessor::getSampleRate();}
+\DoxyCodeLine{00167\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ sample\_offset\ =\ 0;\ sample\_offset\ <\ total\_samples;)\ \{}
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_samples\ =\ std::min<int>(total\_samples\ -\/\ sample\_offset,\ \mbox{\hyperlink{namespacevital_a06750949802a065c02cd54062d6a28de}{vital::kMaxBufferSize}});}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \ \ \ \ \mbox{\hyperlink{class_synth_base_aadcde411867cb9ca0282ecce92e86c89}{engine\_}}-\/>correctToTime(last\_seconds\_time\_);}
+\DoxyCodeLine{00171\ \ \ \ \ \mbox{\hyperlink{class_synth_base_a7ff60c6d630fec576706ab6e3d5de426}{processMidi}}(midi\_messages,\ sample\_offset,\ sample\_offset\ +\ num\_samples);}
+\DoxyCodeLine{00172\ \ \ \ \ \mbox{\hyperlink{class_synth_base_a5fc4df19a83cec8921eb291cfe53c40a}{processAudio}}(\&buffer,\ num\_channels,\ num\_samples,\ sample\_offset);}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ \ \ last\_seconds\_time\_\ +=\ num\_samples\ *\ sample\_time;}
+\DoxyCodeLine{00175\ \ \ \ \ sample\_offset\ +=\ num\_samples;}
+\DoxyCodeLine{00176\ \ \ \}}
+\DoxyCodeLine{00177\ \}}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00179\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_synth_plugin_ac7928aad301aee2ea890d20b38551e83}{SynthPlugin::hasEditor}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00180\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00181\ \}}
+\DoxyCodeLine{00182\ }
+\DoxyCodeLine{00183\ AudioProcessorEditor*\ \mbox{\hyperlink{class_synth_plugin_a41f38e27e2afc43d1a44c6dd4a586536}{SynthPlugin::createEditor}}()\ \{}
+\DoxyCodeLine{00184\ \ \ \textcolor{comment}{//\ Create\ the\ main\ GUI\ editor.}}
+\DoxyCodeLine{00185\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_synth_editor}{SynthEditor}}(*\textcolor{keyword}{this});}
+\DoxyCodeLine{00186\ \}}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_plugin_a01980e584a3ec42018728470d6a32e62}{SynthPlugin::parameterChanged}}(std::string\ name,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ value)\ \{}
+\DoxyCodeLine{00189\ \ \ \textcolor{comment}{//\ Parameter\ changed\ from\ an\ external\ source,\ update\ synth\ parameters.}}
+\DoxyCodeLine{00190\ \ \ \mbox{\hyperlink{class_synth_base_a1e2334bcd0dc0e843fd563955f654295}{valueChangedExternal}}(name,\ value);}
+\DoxyCodeLine{00191\ \}}
+\DoxyCodeLine{00192\ }
+\DoxyCodeLine{00193\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_plugin_a764a7374071fec39f645af373ab611dd}{SynthPlugin::getStateInformation}}(MemoryBlock\&\ dest\_data)\ \{}
+\DoxyCodeLine{00194\ \ \ \textcolor{comment}{//\ Save\ current\ state\ to\ JSON\ and\ then\ to\ the\ memory\ block.}}
+\DoxyCodeLine{00195\ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ data\ =\ \mbox{\hyperlink{class_load_save_a8ad6a32d92c20c420079f5f5a55fbc56}{LoadSave::stateToJson}}(\textcolor{keyword}{this},\ getCallbackLock());}
+\DoxyCodeLine{00196\ \ \ data[\textcolor{stringliteral}{"{}tuning"{}}]\ =\ \mbox{\hyperlink{class_synth_base_a2429e59c203939096f05be304acdd5ea}{getTuning}}()-\/>\mbox{\hyperlink{class_tuning_a7f1430ef3f49e9d0d39cb8d67fe185fc}{stateToJson}}();}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \ \ String\ data\_string\ =\ data.dump();}
+\DoxyCodeLine{00199\ \ \ MemoryOutputStream\ stream;}
+\DoxyCodeLine{00200\ \ \ stream.writeString(data\_string);}
+\DoxyCodeLine{00201\ \ \ dest\_data.append(stream.getData(),\ stream.getDataSize());}
+\DoxyCodeLine{00202\ \}}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_synth_plugin_a1121e9a4768e651a61ab7a3d3a667588}{SynthPlugin::setStateInformation}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ data,\ \textcolor{keywordtype}{int}\ size\_in\_bytes)\ \{}
+\DoxyCodeLine{00205\ \ \ \textcolor{comment}{//\ Restore\ plugin\ state\ from\ JSON\ data.}}
+\DoxyCodeLine{00206\ \ \ MemoryInputStream\ stream(data,\ size\_in\_bytes,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00207\ \ \ String\ data\_string\ =\ stream.readEntireStreamAsString();}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00209\ \ \ \mbox{\hyperlink{class_synth_plugin_ae407b535ea38eb75a0686612670ac52c}{pauseProcessing}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00210\ \ \ \textcolor{keywordflow}{try}\ \{}
+\DoxyCodeLine{00211\ \ \ \ \ \mbox{\hyperlink{line__generator_8h_a0c01dbde6677d7e4769b85716c69c491}{json}}\ json\_data\ =\ json::parse(data\_string.toStdString());}
+\DoxyCodeLine{00212\ \ \ \ \ \mbox{\hyperlink{class_load_save_a8f679c977061ed7f475f34b839e2450d}{LoadSave::jsonToState}}(\textcolor{keyword}{this},\ \mbox{\hyperlink{class_synth_base_a6398a976050ddfba59342ea0ca3f03cc}{save\_info\_}},\ json\_data);}
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00214\ \ \ \ \ \textcolor{keywordflow}{if}\ (json\_data.count(\textcolor{stringliteral}{"{}tuning"{}}))}
+\DoxyCodeLine{00215\ \ \ \ \ \ \ \mbox{\hyperlink{class_synth_base_a2429e59c203939096f05be304acdd5ea}{getTuning}}()-\/>\mbox{\hyperlink{class_tuning_af10021a2a5a9aceaf605577314230123}{jsonToState}}(json\_data[\textcolor{stringliteral}{"{}tuning"{}}]);}
+\DoxyCodeLine{00216\ \ \ \}}
+\DoxyCodeLine{00217\ \ \ \textcolor{keywordflow}{catch}\ (\textcolor{keyword}{const}\ json::exception\&\ e)\ \{}
+\DoxyCodeLine{00218\ \ \ \ \ std::string\ error\ =\ \textcolor{stringliteral}{"{}There\ was\ an\ error\ open\ the\ preset.\ Preset\ file\ is\ corrupted."{}};}
+\DoxyCodeLine{00219\ \ \ \ \ AlertWindow::showNativeDialogBox(\textcolor{stringliteral}{"{}Error\ opening\ preset"{}},\ error,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00220\ \ \ \}}
+\DoxyCodeLine{00221\ \ \ \mbox{\hyperlink{class_synth_plugin_ae407b535ea38eb75a0686612670ac52c}{pauseProcessing}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00222\ }
+\DoxyCodeLine{00223\ \ \ \mbox{\hyperlink{class_synth_gui_interface}{SynthGuiInterface}}*\ editor\ =\ \mbox{\hyperlink{class_synth_plugin_acc09c2778854a5de83c7b3d84c90871c}{getGuiInterface}}();}
+\DoxyCodeLine{00224\ \ \ \textcolor{keywordflow}{if}\ (editor)}
+\DoxyCodeLine{00225\ \ \ \ \ editor-\/>\mbox{\hyperlink{class_synth_gui_interface_ae026d18eef053aed9d73797400f236d4}{updateFullGui}}();}
+\DoxyCodeLine{00226\ \}}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00228\ AudioProcessor*\ JUCE\_CALLTYPE\ \mbox{\hyperlink{synth__plugin_8cpp_a6a42963b424a437ac872809903afa10e}{createPluginFilter}}()\ \{}
+\DoxyCodeLine{00229\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{new}\ \mbox{\hyperlink{class_synth_plugin}{SynthPlugin}}();}
+\DoxyCodeLine{00230\ \}}
+
+\end{DoxyCode}

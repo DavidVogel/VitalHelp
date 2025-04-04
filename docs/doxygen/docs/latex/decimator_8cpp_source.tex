@@ -1,0 +1,85 @@
+\doxysection{decimator.\+cpp}
+\hypertarget{decimator_8cpp_source}{}\label{decimator_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/filters/decimator.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/filters/decimator.cpp}}
+\mbox{\hyperlink{decimator_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{decimator_8h}{decimator.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{iir__halfband__decimator_8h}{iir\_halfband\_decimator.h}}"{}}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00014\ \ \ \mbox{\hyperlink{classvital_1_1_decimator_a098bb5faa98dd05593046e5f17bc3106}{Decimator::Decimator}}(\textcolor{keywordtype}{int}\ max\_stages)\ :\ \mbox{\hyperlink{classvital_1_1_processor_router}{ProcessorRouter}}(kNumInputs,\ 1),\ max\_stages\_(max\_stages)\ \{}
+\DoxyCodeLine{00015\ \ \ \ \ num\_stages\_\ =\ -\/1;}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ max\_stages\_;\ ++i)\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_iir_halfband_decimator}{IirHalfbandDecimator}}*\ stage\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{classvital_1_1_iir_halfband_decimator}{IirHalfbandDecimator}}();}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ stage-\/>\mbox{\hyperlink{classvital_1_1_processor_a2684da3687deca092882748cf170eac7}{setOversampleAmount}}(1\ <<\ (max\_stages\_\ -\/\ i\ -\/\ 1));\ \ \textcolor{comment}{//\ e.g.,\ 4x,\ 2x,\ etc.}}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_af5322ce72a1e53f6d81ce917f07427e7}{addProcessor}}(stage);}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ stages\_.push\_back(stage);}
+\DoxyCodeLine{00021\ \ \ \ \ \}}
+\DoxyCodeLine{00022\ \ \ \}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00027\ \ \ \mbox{\hyperlink{classvital_1_1_decimator_a6bddb0b04cd154fa1ed856cdcf6d1750}{Decimator::\string~Decimator}}()\ \{\ \}}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00035\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_decimator_aaffe57557635797408b40e6431e6221f}{Decimator::init}}()\ \{}
+\DoxyCodeLine{00036\ \ \ \ \ stages\_[0]-\/>useInput(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_decimator_a5256657ecc0fcadcf7869ff461f05313a8d352943ab422be7c67f74ab249de20d}{kAudio}}));}
+\DoxyCodeLine{00037\ \ \ \ \ stages\_[0]-\/>useOutput(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}());}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <\ max\_stages\_;\ ++i)\ \{}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ stages\_[i]-\/>plug(stages\_[i\ -\/\ 1],\ \mbox{\hyperlink{classvital_1_1_iir_halfband_decimator_ac07c5857377dea0beef5c17ca59c798baeebf2dc7624e2255b3d127c5b7e29764}{IirHalfbandDecimator::kAudio}});}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ stages\_[i]-\/>useOutput(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}());}
+\DoxyCodeLine{00041\ \ \ \ \ \}}
+\DoxyCodeLine{00042\ \ \ \}}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00049\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_decimator_a4fa81374a28f64e769e8b1667f24b9e4}{Decimator::reset}}(\mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask)\ \{}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ max\_stages\_;\ ++i)}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ stages\_[i]-\/>\mbox{\hyperlink{classvital_1_1_decimator_a4fa81374a28f64e769e8b1667f24b9e4}{reset}}(reset\_mask);}
+\DoxyCodeLine{00052\ \ \ \}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00063\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_decimator_a34d41ac1af675cffbaf04bcc5650033c}{Decimator::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_stages\ =\ 0;}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{comment}{//\ Determine\ how\ many\ decimation\ stages\ are\ needed\ based\ on\ sample\ rates}}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_decimator_a5256657ecc0fcadcf7869ff461f05313a8d352943ab422be7c67f74ab249de20d}{kAudio}})-\/>source-\/>owner)\ \{}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ input\_sample\_rate\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_decimator_a5256657ecc0fcadcf7869ff461f05313a8d352943ab422be7c67f74ab249de20d}{kAudio}})-\/>\mbox{\hyperlink{structvital_1_1_input_adc691b9fd0f8c8c79c2a40e9e3314eaf}{source}}-\/>\mbox{\hyperlink{structvital_1_1_output_a2a95c52370b24f681a552dd9bfa6cc86}{owner}}-\/>\mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}();}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ output\_sample\_rate\ =\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}();}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \textcolor{keywordflow}{while}(input\_sample\_rate\ >\ output\_sample\_rate)\ \{}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ num\_stages++;}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ input\_sample\_rate\ /=\ 2;}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(num\_stages\ <=\ max\_stages\_);}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \mbox{\hyperlink{common_8h_ab6dc6a12600086762731fd406e501cf2}{VITAL\_ASSERT}}(input\_sample\_rate\ ==\ output\_sample\_rate);}
+\DoxyCodeLine{00077\ \ \ \ \ \}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{comment}{//\ If\ no\ decimation\ is\ needed,\ pass\ input\ directly\ to\ output}}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_stages\ ==\ 0)\ \{}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \mbox{\hyperlink{namespacevital_1_1utils_ace66114ab674022cfe117519c0de26ab}{utils::copyBuffer}}(\mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>buffer,\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_decimator_a5256657ecc0fcadcf7869ff461f05313a8d352943ab422be7c67f74ab249de20d}{kAudio}})-\/>source-\/>buffer,\ num\_samples);}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00083\ \ \ \ \ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{comment}{//\ If\ the\ number\ of\ required\ stages\ has\ changed,\ reset\ and\ reconfigure\ them}}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_stages\ !=\ num\_stages\_)\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_stages;\ ++i)}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ stages\_[i]-\/>\mbox{\hyperlink{classvital_1_1_decimator_a4fa81374a28f64e769e8b1667f24b9e4}{reset}}(\mbox{\hyperlink{namespacevital_1_1constants_a0ba15cafa5e21c3a54ff0e6208b860fa}{constants::kFullMask}});}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \ \ \ \ num\_stages\_\ =\ num\_stages;}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \textcolor{comment}{//\ Enable\ or\ disable\ each\ stage\ accordingly}}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ max\_stages\_;\ ++i)\ \{}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_iir_halfband_decimator}{IirHalfbandDecimator}}*\ stage\ =\ stages\_[i];}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ should\_enable\ =\ i\ <\ num\_stages;}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ stage-\/>\mbox{\hyperlink{classvital_1_1_processor_ab5a6caa5b2e9cdfba5cf770363034d98}{enable}}(should\_enable);}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ stage-\/>\mbox{\hyperlink{classvital_1_1_iir_halfband_decimator_a02383f7a0886c47c5044afe9593e29d6}{setSharpCutoff}}(i\ ==\ num\_stages\ -\/\ 1);}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (should\_enable)\ \{}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ oversample\_amount\ =\ 1\ <<\ (num\_stages\ -\/\ i\ -\/\ 1);}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ stage-\/>\mbox{\hyperlink{classvital_1_1_processor_a2684da3687deca092882748cf170eac7}{setOversampleAmount}}(oversample\_amount);}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00104\ \ \ \ \ \}}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{comment}{//\ Execute\ standard\ ProcessorRouter\ processing,\ which\ processes\ all\ sub-\/processors\ in\ order}}
+\DoxyCodeLine{00107\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_router_aeb03f0b2e5c2249dd065f26b8b3f1866}{ProcessorRouter::process}}(num\_samples);}
+\DoxyCodeLine{00108\ \ \ \}}
+\DoxyCodeLine{00109\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

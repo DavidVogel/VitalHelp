@@ -1,0 +1,176 @@
+\doxysection{midi\+\_\+manager.\+h}
+\hypertarget{midi__manager_8h_source}{}\label{midi__manager_8h_source}\index{/Users/davidvogel/repos/VitalHelp/src/common/midi\_manager.h@{/Users/davidvogel/repos/VitalHelp/src/common/midi\_manager.h}}
+\mbox{\hyperlink{midi__manager_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}JuceHeader.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{common_8h}{common.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <map>}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#if\ !defined(JUCE\_AUDIO\_DEVICES\_H\_INCLUDED)}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ Stubs\ for\ JUCE\ classes\ if\ JUCE\_AUDIO\_DEVICES\ is\ not\ included.}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_midi_input}{MidiInput}}\ \{\ \};}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_midi_input_callback}{MidiInputCallback}}\ \{}
+\DoxyCodeLine{00015\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_midi_input_callback_a5636d6d55f23b03b3d443ed42609f566}{\string~MidiInputCallback}}()\ \{\ \}}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_input_callback_a0ebcfca2919879294517fc9c5ab7972f}{handleIncomingMidiMessage}}(\mbox{\hyperlink{class_midi_input}{MidiInput}}\ *source,\ \textcolor{keyword}{const}\ MidiMessage\ \&midi\_message)\ \{\ \}}
+\DoxyCodeLine{00018\ \};}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_midi_message_collector}{MidiMessageCollector}}\ \{}
+\DoxyCodeLine{00021\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_message_collector_a2f42da21b3df42e3fe96d8843a45c8c8}{reset}}(\textcolor{keywordtype}{int}\ sample\_rate)\ \{\ \}}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_message_collector_a261d3f7ab76298f6256bd4be8b97966e}{removeNextBlockOfMessages}}(MidiBuffer\&\ buffer,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{\ \}}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_message_collector_ac68d269a463771156900dd44fbf79473}{addMessageToQueue}}(\textcolor{keyword}{const}\ MidiMessage\ \&midi\_message)\ \{\ \}}
+\DoxyCodeLine{00025\ \};}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_synth_base}{SynthBase}};}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keyword}{class\ }SoundEngine;}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{keyword}{struct\ }ValueDetails;}
+\DoxyCodeLine{00033\ \}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00044\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_midi_manager}{MidiManager}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_midi_input_callback}{MidiInputCallback}}\ \{}
+\DoxyCodeLine{00045\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keyword}{typedef}\ std::map<int,\ std::map<std::string,\ const\ vital::ValueDetails*>>\ \mbox{\hyperlink{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad}{midi\_map}};}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keyword}{enum}\ \mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94}{MidiMainType}}\ \{}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94adf333999c7ba647168be7a6afb727f48}{kNoteOff}}\ =\ 0x80,\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94a6a67d5a204f53166abc1452fde8658bf}{kNoteOn}}\ =\ 0x90,\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94ac2cf7a7c95ee60819dbf4e470262dc40}{kAftertouch}}\ =\ 0xa0,\ \ \ \ \ \ }
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94a20358e2169bc3d65778cda375097ad50}{kController}}\ =\ 0xb0,\ \ \ \ \ \ }
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94a0634eaadc23c90e05907dd12de8eb351}{kProgramChange}}\ =\ 0xc0,\ \ \ }
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94a0f8b503eadaab893f530f312c39bc8df}{kChannelPressure}}\ =\ 0xd0,\ }
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a3342c43e114bc5452fb1f34f3c52ef94a14195a80f407cdd0c964c0333f2211c2}{kPitchWheel}}\ =\ 0xe0,\ \ \ \ \ \ }
+\DoxyCodeLine{00065\ \ \ \ \ \};}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{keyword}{enum}\ \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12}{MidiSecondaryType}}\ \{}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12a3648111321e7eb3717e1340409d8f58d}{kBankSelect}}\ =\ 0x00,}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12ab4a134a32f8090ccddd325a396f3b023}{kModWheel}}\ =\ 0x01,}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12aecde22320a2676cf9e5a728dcd0b6ba2}{kFolderSelect}}\ =\ 0x20,}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12acad3479031cce6f6de79f923216597a0}{kSustainPedal}}\ =\ 0x40,}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12abbb0686e7466c10ff54eb410d0802392}{kSostenutoPedal}}\ =\ 0x42,}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12ae9f680c83ffe23f0fd99b368137844fe}{kSoftPedalOn}}\ =\ 0x43,}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12ac68095622c4095e08feb5b82523809a6}{kSlide}}\ =\ 0x4a,}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12af5e22f8217b4e605fa36898383b1a1f9}{kLsbPressure}}\ =\ 0x66,}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12a48b8096088aee813b581e57ecc67b96e}{kLsbSlide}}\ =\ 0x6a,}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12a5d6d378b3f5a97720bb0393334573550}{kAllSoundsOff}}\ =\ 0x78,}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12a40afe14c68f29bfc6ab34c2db396beb2}{kAllControllersOff}}\ =\ 0x79,}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a0d6806a7e5c44b877a566391adc51a12a265faedcc6d650490d086754d0bf3dec}{kAllNotesOff}}\ =\ 0x7b,}
+\DoxyCodeLine{00083\ \ \ \ \ \};}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_midi_manager_1_1_listener}{Listener}}\ \{}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_midi_manager_1_1_listener_a1b62b4cf325378d9666f6f1cb50d0b27}{\string~Listener}}()\ \{\ \}}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_1_1_listener_a8fab7cfb514739f0a1bd347f083bc4fa}{valueChangedThroughMidi}}(\textcolor{keyword}{const}\ std::string\&\ name,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ value)\ =\ 0;}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_1_1_listener_ada6895a9b1f461ef89f112c3b2069a45}{pitchWheelMidiChanged}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ value)\ =\ 0;}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_1_1_listener_a2a759e09ecfa3cfc1dc28a74dfaf60ff}{modWheelMidiChanged}}(\mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ value)\ =\ 0;}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_1_1_listener_abd4604e48b3cae0fc44b51ca05f84279}{presetChangedThroughMidi}}(File\ preset)\ =\ 0;}
+\DoxyCodeLine{00122\ \ \ \ \ \};}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00132\ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a88fa55d3e11549dd5ac44c46b0e39338}{MidiManager}}(\mbox{\hyperlink{class_synth_base}{SynthBase}}*\ synth,\ MidiKeyboardState*\ keyboard\_state,}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::map<std::string,\ String>*\ gui\_state,\ \mbox{\hyperlink{class_midi_manager_1_1_listener}{Listener}}*\ listener\ =\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00138\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_midi_manager_ade136c979da7caa50a0319b19e9b636f}{\string~MidiManager}}();}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_aa22a30c343529585a1ae750cca2a2183}{armMidiLearn}}(std::string\ name);}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00152\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_af0a7815a13fc5d40bab3b33ec0b99648}{cancelMidiLearn}}();}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_ae112df505ea9ddd2d0f5cadbd0ab4f16}{clearMidiLearn}}(\textcolor{keyword}{const}\ std::string\&\ name);}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00170\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_a1bdc6d99b63c31fd2594e53fc5eb9455}{midiInput}}(\textcolor{keywordtype}{int}\ control,\ \mbox{\hyperlink{namespacevital_afcc17475a10ef776bbd2f11b64c1ddfb}{vital::mono\_float}}\ value);}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_aebdfa63b1bd8394ae891644ca4b8ed13}{processMidiMessage}}(\textcolor{keyword}{const}\ MidiMessage\ \&midi\_message,\ \textcolor{keywordtype}{int}\ sample\_position\ =\ 0);}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00188\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_midi_manager_a5dd7f6c06d50be0f24fa4c9cceb2e139}{isMidiMapped}}(\textcolor{keyword}{const}\ std::string\&\ name)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00195\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_a1221095cbb425fbec1a749947ff0d2c4}{setSampleRate}}(\textcolor{keywordtype}{double}\ sample\_rate);}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00205\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_aae32567d27e712e41ec7d7126cce2c97}{removeNextBlockOfMessages}}(MidiBuffer\&\ buffer,\ \textcolor{keywordtype}{int}\ num\_samples);}
+\DoxyCodeLine{00206\ }
+\DoxyCodeLine{00215\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_a91b3bf2db4b3ea41f0681f8004f428d7}{replaceKeyboardMessages}}(MidiBuffer\&\ buffer,\ \textcolor{keywordtype}{int}\ num\_samples);}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00224\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_a6d432fa39f52f35e4c72637492722066}{processAllNotesOff}}(\textcolor{keyword}{const}\ MidiMessage\&\ midi\_message,\ \textcolor{keywordtype}{int}\ sample\_position,\ \textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00229\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_a644840dab4957dbce5b3ed6f0728a6e6}{processAllSoundsOff}}();}
+\DoxyCodeLine{00230\ }
+\DoxyCodeLine{00238\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_ad62db23461e01bdc43994671cea80084}{processSustain}}(\textcolor{keyword}{const}\ MidiMessage\&\ midi\_message,\ \textcolor{keywordtype}{int}\ sample\_position,\ \textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00239\ }
+\DoxyCodeLine{00247\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_a951bf6bd47fe27635e92d01d3a267872}{processSostenuto}}(\textcolor{keyword}{const}\ MidiMessage\&\ midi\_message,\ \textcolor{keywordtype}{int}\ sample\_position,\ \textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00248\ }
+\DoxyCodeLine{00256\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_a9dbc51f252be19f62f31546251b8abc6}{processPitchBend}}(\textcolor{keyword}{const}\ MidiMessage\&\ midi\_message,\ \textcolor{keywordtype}{int}\ sample\_position,\ \textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00265\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_a55454c73f2a9222e7f296242517e29c7}{processPressure}}(\textcolor{keyword}{const}\ MidiMessage\&\ midi\_message,\ \textcolor{keywordtype}{int}\ sample\_position,\ \textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00274\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_a24e93bcd7294e440665f586bcde362e3}{processSlide}}(\textcolor{keyword}{const}\ MidiMessage\&\ midi\_message,\ \textcolor{keywordtype}{int}\ sample\_position,\ \textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00282\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_midi_manager_a258a7525bea556188df298afe13c1854}{isMpeChannelMasterLowerZone}}(\textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00290\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_midi_manager_a59204068ee8beaf04278ba3d36d0b311}{isMpeChannelMasterUpperZone}}(\textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00291\ }
+\DoxyCodeLine{00293\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_midi_manager_ac1f5827444bc06f86e456789c16a000b}{lowerZoneStartChannel}}()\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_midi_manager_ab9d5a6330ccd9eb3f370be0e44b9cc17}{mpe\_zone\_layout\_}}.getLowerZone().getFirstMemberChannel()\ -\/\ 1;\ \}}
+\DoxyCodeLine{00295\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_midi_manager_ae393100c97ec79780ebde3a09c4fda45}{upperZoneStartChannel}}()\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_midi_manager_ab9d5a6330ccd9eb3f370be0e44b9cc17}{mpe\_zone\_layout\_}}.getUpperZone().getLastMemberChannel()\ -\/\ 1;\ \}}
+\DoxyCodeLine{00297\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_midi_manager_ab235cf3f54a1949de8bc785bb38e1dca}{lowerZoneEndChannel}}()\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_midi_manager_ab9d5a6330ccd9eb3f370be0e44b9cc17}{mpe\_zone\_layout\_}}.getLowerZone().getLastMemberChannel()\ -\/\ 1;\ \}}
+\DoxyCodeLine{00299\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_midi_manager_aec0fb479830da9e00ac71efb9d096bad}{upperZoneEndChannel}}()\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_midi_manager_ab9d5a6330ccd9eb3f370be0e44b9cc17}{mpe\_zone\_layout\_}}.getUpperZone().getFirstMemberChannel()\ -\/\ 1;\ \}}
+\DoxyCodeLine{00301\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_midi_manager_af76be44264f35e11e98c40d840747572}{lowerMasterChannel}}()\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_midi_manager_ab9d5a6330ccd9eb3f370be0e44b9cc17}{mpe\_zone\_layout\_}}.getLowerZone().getMasterChannel()\ -\/\ 1;\ \}}
+\DoxyCodeLine{00303\ \ \ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_midi_manager_a87a04a3b0685a55dc1630f402d2c78c4}{upperMasterChannel}}()\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_midi_manager_ab9d5a6330ccd9eb3f370be0e44b9cc17}{mpe\_zone\_layout\_}}.getUpperZone().getMasterChannel()\ -\/\ 1;\ \}}
+\DoxyCodeLine{00304\ }
+\DoxyCodeLine{00310\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_a4e13079c7920be8b8760ad154370f49e}{setMpeEnabled}}(\textcolor{keywordtype}{bool}\ enabled)\ \{\ \mbox{\hyperlink{class_midi_manager_adc07243583baf15da16265a00c947d5f}{mpe\_enabled\_}}\ =\ enabled;\ \}}
+\DoxyCodeLine{00311\ }
+\DoxyCodeLine{00317\ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad}{midi\_map}}\ \mbox{\hyperlink{class_midi_manager_a12fe402ee3806c82621ea636d9b1b5fa}{getMidiLearnMap}}()\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_midi_manager_ac041947c58a8c1e4b2951717274a7571}{midi\_learn\_map\_}};\ \}}
+\DoxyCodeLine{00318\ }
+\DoxyCodeLine{00324\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_a3463c30e6e4365d36c2832aa57385bcd}{setMidiLearnMap}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad}{midi\_map}}\&\ midi\_learn\_map)\ \{\ \mbox{\hyperlink{class_midi_manager_ac041947c58a8c1e4b2951717274a7571}{midi\_learn\_map\_}}\ =\ midi\_learn\_map;\ \}}
+\DoxyCodeLine{00325\ }
+\DoxyCodeLine{00334\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_a5d4942d12c1009d4c72d75e081208eba}{handleIncomingMidiMessage}}(\mbox{\hyperlink{class_midi_input}{MidiInput}}\ *source,\ \textcolor{keyword}{const}\ MidiMessage\ \&midi\_message)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00335\ }
+\DoxyCodeLine{00341\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_midi_manager_1_1_preset_loaded_callback}{PresetLoadedCallback}}\ :\ \textcolor{keyword}{public}\ CallbackMessage\ \{}
+\DoxyCodeLine{00348\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_midi_manager_1_1_preset_loaded_callback_af26861faaa35593fcc70831e69820997}{PresetLoadedCallback}}(\mbox{\hyperlink{class_midi_manager_1_1_listener}{Listener}}*\ lis,\ File\ pre)\ :\ \mbox{\hyperlink{struct_midi_manager_1_1_preset_loaded_callback_a25147882b3162ac920d40d1ff88f024f}{listener}}(lis),\ \mbox{\hyperlink{struct_midi_manager_1_1_preset_loaded_callback_a59976cb9a5f9c53febf529b6acf1f8e5}{preset}}(std::move(pre))\ \{\ \}}
+\DoxyCodeLine{00349\ }
+\DoxyCodeLine{00353\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{struct_midi_manager_1_1_preset_loaded_callback_ac5ef7a871acba50e177ded5141cd18d3}{messageCallback}}()\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00354\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{struct_midi_manager_1_1_preset_loaded_callback_a25147882b3162ac920d40d1ff88f024f}{listener}})}
+\DoxyCodeLine{00355\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_midi_manager_1_1_preset_loaded_callback_a25147882b3162ac920d40d1ff88f024f}{listener}}-\/>\mbox{\hyperlink{class_midi_manager_1_1_listener_abd4604e48b3cae0fc44b51ca05f84279}{presetChangedThroughMidi}}(\mbox{\hyperlink{struct_midi_manager_1_1_preset_loaded_callback_a59976cb9a5f9c53febf529b6acf1f8e5}{preset}});}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00357\ }
+\DoxyCodeLine{00358\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_midi_manager_1_1_listener}{Listener}}*\ \mbox{\hyperlink{struct_midi_manager_1_1_preset_loaded_callback_a25147882b3162ac920d40d1ff88f024f}{listener}};\ }
+\DoxyCodeLine{00359\ \ \ \ \ \ \ \ \ File\ \mbox{\hyperlink{struct_midi_manager_1_1_preset_loaded_callback_a59976cb9a5f9c53febf529b6acf1f8e5}{preset}};\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00360\ \ \ \ \ \};}
+\DoxyCodeLine{00361\ }
+\DoxyCodeLine{00362\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00368\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_midi_manager_a183844171aefd41b403f26e37aff6b4b}{readMpeMessage}}(\textcolor{keyword}{const}\ MidiMessage\&\ message);}
+\DoxyCodeLine{00369\ }
+\DoxyCodeLine{00370\ \ \ \ \ \mbox{\hyperlink{class_synth_base}{SynthBase}}*\ \mbox{\hyperlink{class_midi_manager_ad60bb87241da093f8f62ecc050230178}{synth\_}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00371\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_sound_engine}{vital::SoundEngine}}*\ \mbox{\hyperlink{class_midi_manager_acb05258645533b3cc067dbaadad5672c}{engine\_}};\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00372\ \ \ \ \ MidiKeyboardState*\ \mbox{\hyperlink{class_midi_manager_adab0619ddc63c8e813d6ab2d0b4dc091}{keyboard\_state\_}};\ \ \ \ \ \ \ }
+\DoxyCodeLine{00373\ \ \ \ \ \mbox{\hyperlink{class_midi_message_collector}{MidiMessageCollector}}\ \mbox{\hyperlink{class_midi_manager_a2af838db46e8dee84f23e5d5725aa55b}{midi\_collector\_}};\ \ \ \ \ }
+\DoxyCodeLine{00374\ \ \ \ \ std::map<std::string,\ String>*\ \mbox{\hyperlink{class_midi_manager_a2fe43ed0aeab4d6ca6f10a8263863bcd}{gui\_state\_}};}
+\DoxyCodeLine{00375\ \ \ \ \ \mbox{\hyperlink{class_midi_manager_1_1_listener}{Listener}}*\ \mbox{\hyperlink{class_midi_manager_a39e9b96c0552ddc1d8ac79a6356ae2a2}{listener\_}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00376\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_midi_manager_a11bb4bbae8395db2f01d99ddd62ca888}{current\_bank\_}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00377\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_midi_manager_ab11a080dba6850eaa9e89ad20d2a982f}{current\_folder\_}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00378\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_midi_manager_a8956953d1ec9f742197348299902ebc4}{current\_preset\_}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00379\ }
+\DoxyCodeLine{00380\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structvital_1_1_value_details}{vital::ValueDetails}}*\ \mbox{\hyperlink{class_midi_manager_a0e615abf6ddff13a41e67fcb9c4565da}{armed\_value\_}};\ \ }
+\DoxyCodeLine{00381\ \ \ \ \ \mbox{\hyperlink{class_midi_manager_a358eaf9b97fdeb8052c3d8c6355f09ad}{midi\_map}}\ \mbox{\hyperlink{class_midi_manager_ac041947c58a8c1e4b2951717274a7571}{midi\_learn\_map\_}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00382\ }
+\DoxyCodeLine{00383\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_midi_manager_ab4aa58c3a90a21bb514d3103c481d833}{msb\_pressure\_values\_}}[\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{vital::kNumMidiChannels}}];\ }
+\DoxyCodeLine{00384\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_midi_manager_a5b0727a7abec4f4735879b7f17b13382}{lsb\_pressure\_values\_}}[\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{vital::kNumMidiChannels}}];\ }
+\DoxyCodeLine{00385\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_midi_manager_aebb756b3c2f209ccc4dc7ac3fb768e1d}{msb\_slide\_values\_}}[\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{vital::kNumMidiChannels}}];\ \ \ \ }
+\DoxyCodeLine{00386\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_midi_manager_a80964f02b5c92db171d1f3a4c0ebead0}{lsb\_slide\_values\_}}[\mbox{\hyperlink{namespacevital_a0982f1b37941a2f22ab97aca08e489e7}{vital::kNumMidiChannels}}];\ \ \ \ }
+\DoxyCodeLine{00387\ }
+\DoxyCodeLine{00388\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_midi_manager_adc07243583baf15da16265a00c947d5f}{mpe\_enabled\_}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00389\ \ \ \ \ MPEZoneLayout\ \mbox{\hyperlink{class_midi_manager_ab9d5a6330ccd9eb3f370be0e44b9cc17}{mpe\_zone\_layout\_}};\ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00390\ \ \ \ \ MidiRPNDetector\ \mbox{\hyperlink{class_midi_manager_aef6969cbca9df751c3c177e79ccdfd29}{rpn\_detector\_}};\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00391\ }
+\DoxyCodeLine{00392\ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(\mbox{\hyperlink{class_midi_manager}{MidiManager}})}
+\DoxyCodeLine{00393\ \};}
+
+\end{DoxyCode}

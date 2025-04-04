@@ -1,0 +1,271 @@
+\doxysection{wave\+\_\+source\+\_\+overlay.\+cpp}
+\hypertarget{wave__source__overlay_8cpp_source}{}\label{wave__source__overlay_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/overlays/wave\_source\_overlay.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/wavetable/overlays/wave\_source\_overlay.cpp}}
+\mbox{\hyperlink{wave__source__overlay_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__source__overlay_8h}{wave\_source\_overlay.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{skin.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{incrementer__buttons_8h}{incrementer\_buttons.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__strings_8h}{synth\_strings.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__look__and__feel_8h}{text\_look\_and\_feel.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{text__selector_8h}{text\_selector.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wave__frame_8h}{wave\_frame.h}}"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00011\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ kNumInterpolationTypes\ =\ 5;}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \ \ \textcolor{keyword}{const}\ std::string\ interpolation\_types[kNumInterpolationTypes]\ =\ \{}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{stringliteral}{"{}None"{}},}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{stringliteral}{"{}Waveform\ Blend"{}},}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{stringliteral}{"{}Spectral\ Blend"{}},}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{stringliteral}{"{}Smooth\ Waveform\ Blend"{}},}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{stringliteral}{"{}Smooth\ Spectral\ Blend"{}},}
+\DoxyCodeLine{00019\ \ \ \};}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \}\ \textcolor{comment}{//\ namespace}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00030\ \mbox{\hyperlink{class_wave_source_overlay_ab8b53399c33d571a91f7db2996b23cbe}{WaveSourceOverlay::WaveSourceOverlay}}()\ :\ \mbox{\hyperlink{class_wavetable_component_overlay}{WavetableComponentOverlay}}(\textcolor{stringliteral}{"{}WAVE\ SOURCE"{}}),\ wave\_source\_(nullptr)\ \{}
+\DoxyCodeLine{00031\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a47ed29cd18951519d5194d42afdce7c1}{current\_frame\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00032\ \ \ \textcolor{keywordtype}{int}\ waveform\_size\ =\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \textcolor{comment}{//\ Create\ and\ configure\ time-\/domain\ editor}}
+\DoxyCodeLine{00035\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}\ =\ std::make\_unique<WaveSourceEditor>(waveform\_size);}
+\DoxyCodeLine{00036\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}-\/>setGrid(\mbox{\hyperlink{class_wave_source_overlay_ab35d3fabf71581dd3547e59591a2dc78}{kDefaultXGrid}},\ \mbox{\hyperlink{class_wave_source_overlay_a3f2baf0cc63e973b0d1bc9426172534d}{kDefaultYGrid}});}
+\DoxyCodeLine{00037\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}-\/>setFill(\textcolor{keyword}{true});}
+\DoxyCodeLine{00038\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}-\/>setEditable(\textcolor{keyword}{true});}
+\DoxyCodeLine{00039\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00040\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}.get());}
+\DoxyCodeLine{00041\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \textcolor{comment}{//\ Create\ and\ configure\ frequency\ amplitude\ editor}}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordtype}{int}\ bar\_size\ =\ \mbox{\hyperlink{classvital_1_1_wave_frame_addeb13945e5fe1e653aa4b2edd487ede}{vital::WaveFrame::kNumRealComplex}};}
+\DoxyCodeLine{00045\ \ \ \mbox{\hyperlink{class_wave_source_overlay_ab0af1f8844429be462aa5b296f61d7b3}{frequency\_amplitudes\_}}\ =\ std::make\_unique<BarEditor>(bar\_size);}
+\DoxyCodeLine{00046\ \ \ \mbox{\hyperlink{class_wave_source_overlay_ab0af1f8844429be462aa5b296f61d7b3}{frequency\_amplitudes\_}}-\/>setSquareScale(\textcolor{keyword}{true});}
+\DoxyCodeLine{00047\ \ \ \mbox{\hyperlink{class_wave_source_overlay_ab0af1f8844429be462aa5b296f61d7b3}{frequency\_amplitudes\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00048\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\mbox{\hyperlink{class_wave_source_overlay_ab0af1f8844429be462aa5b296f61d7b3}{frequency\_amplitudes\_}}.get(),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00049\ \ \ \mbox{\hyperlink{class_wave_source_overlay_ab0af1f8844429be462aa5b296f61d7b3}{frequency\_amplitudes\_}}-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \textcolor{comment}{//\ Create\ and\ configure\ frequency\ phase\ editor}}
+\DoxyCodeLine{00052\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a329b62d6432f5fdd98a64367d53dadd3}{frequency\_phases\_}}\ =\ std::make\_unique<BarEditor>(bar\_size);}
+\DoxyCodeLine{00053\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a329b62d6432f5fdd98a64367d53dadd3}{frequency\_phases\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00054\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a329b62d6432f5fdd98a64367d53dadd3}{frequency\_phases\_}}-\/>setClearValue(\mbox{\hyperlink{class_wave_source_overlay_a9290340bc8d03ed02ec3cefe75119468}{kDefaultPhase}});}
+\DoxyCodeLine{00055\ \ \ \mbox{\hyperlink{class_synth_section_ab9933100200451490f83536ded0ba9f7}{addOpenGlComponent}}(\mbox{\hyperlink{class_wave_source_overlay_a329b62d6432f5fdd98a64367d53dadd3}{frequency\_phases\_}}.get(),\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00056\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a329b62d6432f5fdd98a64367d53dadd3}{frequency\_phases\_}}-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.toFront(\textcolor{keyword}{false});}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \textcolor{comment}{//\ Create\ interpolation\ selector}}
+\DoxyCodeLine{00061\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}\ =\ std::make\_unique<TextSelector>(\textcolor{stringliteral}{"{}Interpolation"{}});}
+\DoxyCodeLine{00062\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}.get());}
+\DoxyCodeLine{00063\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00064\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00065\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}-\/>setRange(0,\ kNumInterpolationTypes\ -\/\ 1);}
+\DoxyCodeLine{00066\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}-\/>setLongStringLookup(interpolation\_types);}
+\DoxyCodeLine{00067\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}-\/>setStringLookup(interpolation\_types);}
+\DoxyCodeLine{00068\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00069\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00070\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \textcolor{comment}{//\ Create\ horizontal\ grid\ slider}}
+\DoxyCodeLine{00073\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}wave\_source\_horizontal\_grid"{}});}
+\DoxyCodeLine{00074\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}-\/>setValue(\mbox{\hyperlink{class_wave_source_overlay_ab35d3fabf71581dd3547e59591a2dc78}{kDefaultXGrid}},\ dontSendNotification);}
+\DoxyCodeLine{00075\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}.get());}
+\DoxyCodeLine{00076\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00077\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00078\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00079\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}-\/>setRange(0,\ \mbox{\hyperlink{class_wavetable_component_overlay_a826bdce644e729570d82f12b54a3e3b1}{WavetableComponentOverlay::kMaxGrid}},\ 1);}
+\DoxyCodeLine{00080\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}-\/>setDoubleClickReturnValue(\textcolor{keyword}{true},\ \mbox{\hyperlink{class_wave_source_overlay_ab35d3fabf71581dd3547e59591a2dc78}{kDefaultXGrid}});}
+\DoxyCodeLine{00081\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00082\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \textcolor{comment}{//\ Create\ horizontal\ grid\ incrementer}}
+\DoxyCodeLine{00085\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a9f957f133719cb90f5f25fc446a7e959}{horizontal\_incrementers\_}}\ =\ std::make\_unique<IncrementerButtons>(\mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}.get());}
+\DoxyCodeLine{00086\ \ \ addAndMakeVisible(\mbox{\hyperlink{class_wave_source_overlay_a9f957f133719cb90f5f25fc446a7e959}{horizontal\_incrementers\_}}.get());}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \textcolor{comment}{//\ Create\ vertical\ grid\ slider}}
+\DoxyCodeLine{00089\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}\ =\ std::make\_unique<SynthSlider>(\textcolor{stringliteral}{"{}wave\_source\_vertical\_grid"{}});}
+\DoxyCodeLine{00090\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}-\/>setValue(\mbox{\hyperlink{class_wave_source_overlay_a3f2baf0cc63e973b0d1bc9426172534d}{kDefaultYGrid}},\ dontSendNotification);}
+\DoxyCodeLine{00091\ \ \ \mbox{\hyperlink{class_synth_section_a181a568bf38b29974c7c18ebc9cb8c04}{addSlider}}(\mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}.get());}
+\DoxyCodeLine{00092\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00093\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}-\/>getImageComponent()-\/>setAlwaysOnTop(\textcolor{keyword}{true});}
+\DoxyCodeLine{00094\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}-\/>addListener(\textcolor{keyword}{this});}
+\DoxyCodeLine{00095\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}-\/>setRange(0,\ \mbox{\hyperlink{class_wavetable_component_overlay_a826bdce644e729570d82f12b54a3e3b1}{WavetableComponentOverlay::kMaxGrid}},\ 1);}
+\DoxyCodeLine{00096\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}-\/>setDoubleClickReturnValue(\textcolor{keyword}{true},\ \mbox{\hyperlink{class_wave_source_overlay_a3f2baf0cc63e973b0d1bc9426172534d}{kDefaultYGrid}});}
+\DoxyCodeLine{00097\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}-\/>setLookAndFeel(\mbox{\hyperlink{class_text_look_and_feel_a3723dc598c94042165d4981963649828}{TextLookAndFeel::instance}}());}
+\DoxyCodeLine{00098\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}-\/>setSliderStyle(Slider::RotaryHorizontalVerticalDrag);}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \textcolor{comment}{//\ Create\ vertical\ grid\ incrementer}}
+\DoxyCodeLine{00101\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a7a1697ea0f2d81b1a45eedf518a859f7}{vertical\_incrementers\_}}\ =\ std::make\_unique<IncrementerButtons>(\mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}.get());}
+\DoxyCodeLine{00102\ \ \ addAndMakeVisible(\mbox{\hyperlink{class_wave_source_overlay_a7a1697ea0f2d81b1a45eedf518a859f7}{vertical\_incrementers\_}}.get());}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \textcolor{comment}{//\ Configure\ background\ controls}}
+\DoxyCodeLine{00105\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_aa2fc0516ff532630f3bfcf5910e453b1}{clearTitles}}();}
+\DoxyCodeLine{00106\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00107\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}GRID\ X"{}});}
+\DoxyCodeLine{00108\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a4a532ad324a0ab5e341ab2d6808969f8}{addTitle}}(\textcolor{stringliteral}{"{}GRID\ Y"{}});}
+\DoxyCodeLine{00109\ \}}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00116\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_overlay_a9bcab6982fdec3ee9fbca6ae684f5349}{WaveSourceOverlay::resized}}()\ \{}
+\DoxyCodeLine{00117\ \ \ \mbox{\hyperlink{class_synth_section_a549f91a2b81b419368a578990cb2e6c2}{WavetableComponentOverlay::resized}}();}
+\DoxyCodeLine{00118\ \ \ \textcolor{keywordflow}{if}\ (findParentComponentOfClass<SynthGuiInterface>()\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ Colour\ line\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca57224e1a8b8454d64ee7092f63b89420}{Skin::kWidgetPrimary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00122\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}-\/>setColor(line\_color);}
+\DoxyCodeLine{00123\ \ \ Colour\ fill\_color1\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127ca759c8acbffc8962e9ee2d8cba9677e73}{Skin::kWidgetSecondary1}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00124\ \ \ Colour\ fill\_color2\ =\ fill\_color1.withMultipliedAlpha(1.0f\ -\/\ \mbox{\hyperlink{class_synth_section_aa01a2cf1cb512707d217490aa89a8b2f}{findValue}}(\mbox{\hyperlink{class_skin_a65ea929118e660a168d02af741c29180a5268c3e135a7b246af15add8577ea3ac}{Skin::kWidgetFillFade}}));}
+\DoxyCodeLine{00125\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}-\/>setFillColors(fill\_color2,\ fill\_color1);}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \ \ Colour\ bar\_color\ =\ findColour(\mbox{\hyperlink{class_skin_a7dc2a5a0b040e6ca38c7e5c236b4127caf0e70a44ed7ab9d5dbef16a856b50cfb}{Skin::kWidgetSecondary2}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00128\ \ \ \mbox{\hyperlink{class_wave_source_overlay_ab0af1f8844429be462aa5b296f61d7b3}{frequency\_amplitudes\_}}-\/>setColor(bar\_color);}
+\DoxyCodeLine{00129\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a329b62d6432f5fdd98a64367d53dadd3}{frequency\_phases\_}}-\/>setColor(bar\_color);}
+\DoxyCodeLine{00130\ \}}
+\DoxyCodeLine{00131\ }
+\DoxyCodeLine{00140\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_overlay_ab527f717b23a19d6e8d8b8eef50e71bc}{WaveSourceOverlay::frameSelected}}(\mbox{\hyperlink{class_wavetable_keyframe}{WavetableKeyframe}}*\ keyframe)\ \{}
+\DoxyCodeLine{00141\ \ \ \textcolor{keywordflow}{if}\ (keyframe\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00142\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00143\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_ab0af1f8844429be462aa5b296f61d7b3}{frequency\_amplitudes\_}}-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00144\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_a329b62d6432f5fdd98a64367d53dadd3}{frequency\_phases\_}}-\/>setVisible(\textcolor{keyword}{false});}
+\DoxyCodeLine{00145\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_a47ed29cd18951519d5194d42afdce7c1}{current\_frame\_}}\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00146\ \ \ \}}
+\DoxyCodeLine{00147\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a568088f16dde91e6f8ae8d0f3fa5b755}{owner}}()\ ==\ \mbox{\hyperlink{class_wave_source_overlay_a725bb02d2f3f62115eebfa034152b25d}{wave\_source\_}})\ \{}
+\DoxyCodeLine{00148\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}-\/>setVisible(\textcolor{keyword}{true});}
+\DoxyCodeLine{00149\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_ab0af1f8844429be462aa5b296f61d7b3}{frequency\_amplitudes\_}}-\/>setVisible(\textcolor{keyword}{true});}
+\DoxyCodeLine{00150\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_a329b62d6432f5fdd98a64367d53dadd3}{frequency\_phases\_}}-\/>setVisible(\textcolor{keyword}{true});}
+\DoxyCodeLine{00151\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_a47ed29cd18951519d5194d42afdce7c1}{current\_frame\_}}\ =\ \mbox{\hyperlink{class_wave_source_overlay_a725bb02d2f3f62115eebfa034152b25d}{wave\_source\_}}-\/>\mbox{\hyperlink{class_wave_source_a63ed7a33886879e253bb602143b026d5}{getWaveFrame}}(keyframe-\/>\mbox{\hyperlink{class_wavetable_keyframe_a1faf74be7dd4b7f3f4ea0e83fa75ce8d}{index}}());}
+\DoxyCodeLine{00152\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}-\/>loadWaveform(\mbox{\hyperlink{class_wave_source_overlay_a47ed29cd18951519d5194d42afdce7c1}{current\_frame\_}}-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}});}
+\DoxyCodeLine{00153\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_a1be8499d8c576e34f084e1f74dcce910}{updateFrequencyDomain}}(\mbox{\hyperlink{class_wave_source_overlay_a47ed29cd18951519d5194d42afdce7c1}{current\_frame\_}}-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}});}
+\DoxyCodeLine{00154\ \ \ \}}
+\DoxyCodeLine{00155\ \}}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00165\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_overlay_af4c246ecbef5bc96ce2e3ffd2c908984}{WaveSourceOverlay::setEditBounds}}(Rectangle<int>\ bounds)\ \{}
+\DoxyCodeLine{00166\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kInterpolationWidthHeightRatio\ =\ 8.0f;}
+\DoxyCodeLine{00167\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kGridWidthHeightRatio\ =\ 2.0f;}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \ \ \textcolor{keywordtype}{int}\ padding\ =\ \mbox{\hyperlink{class_wavetable_component_overlay_a6247819afe1ddce8d34ad500917e3460}{getPadding}}();}
+\DoxyCodeLine{00170\ \ \ \textcolor{keywordtype}{int}\ interpolation\_width\ =\ bounds.getHeight()\ *\ kInterpolationWidthHeightRatio;}
+\DoxyCodeLine{00171\ \ \ \textcolor{keywordtype}{int}\ grid\_width\ =\ bounds.getHeight()\ *\ kGridWidthHeightRatio;}
+\DoxyCodeLine{00172\ \ \ \textcolor{keywordtype}{int}\ total\_width\ =\ interpolation\_width\ +\ 2\ *\ grid\_width\ +\ 2\ *\ padding;}
+\DoxyCodeLine{00173\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a16ea421b63ea56ec8a453dde9b45c7a7}{setControlsWidth}}(total\_width);}
+\DoxyCodeLine{00174\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2b9025728b8627dae45261e3d72814db}{WavetableComponentOverlay::setEditBounds}}(bounds);}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \ \ \textcolor{keywordtype}{int}\ x\ =\ bounds.getX()\ +\ (bounds.getWidth()\ -\/\ total\_width)\ /\ 2;}
+\DoxyCodeLine{00177\ \ \ \textcolor{keywordtype}{int}\ title\_height\ =\ \mbox{\hyperlink{class_wavetable_component_overlay_a54c6e22bd9b774c88c6246d849ce8c56}{WavetableComponentOverlay::kTitleHeightRatio}}\ *\ bounds.getHeight();}
+\DoxyCodeLine{00178\ \ \ \textcolor{keywordtype}{int}\ y\ =\ bounds.getY();}
+\DoxyCodeLine{00179\ \ \ \textcolor{keywordtype}{int}\ y\_title\ =\ y\ +\ title\_height;}
+\DoxyCodeLine{00180\ \ \ \textcolor{keywordtype}{int}\ height\ =\ bounds.getHeight();}
+\DoxyCodeLine{00181\ \ \ \textcolor{keywordtype}{int}\ height\_title\ =\ height\ -\/\ title\_height;}
+\DoxyCodeLine{00182\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}-\/>setBounds(x,\ y,\ interpolation\_width,\ height);}
+\DoxyCodeLine{00183\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}-\/>setTextHeightPercentage(0.4f);}
+\DoxyCodeLine{00184\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}-\/>setBounds(\mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}-\/>getRight()\ +\ padding,\ y\_title,\ grid\_width,\ height\_title);}
+\DoxyCodeLine{00185\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}-\/>setBounds(\mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}-\/>getRight()\ +\ padding,\ y\_title,\ grid\_width,\ height\_title);}
+\DoxyCodeLine{00186\ }
+\DoxyCodeLine{00187\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a9f957f133719cb90f5f25fc446a7e959}{horizontal\_incrementers\_}}-\/>setBounds(\mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}-\/>getRight()\ -\/\ height\_title,\ y\_title,\ height\_title,\ height\_title);}
+\DoxyCodeLine{00188\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a7a1697ea0f2d81b1a45eedf518a859f7}{vertical\_incrementers\_}}-\/>setBounds(\mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}-\/>getRight()\ -\/\ height\_title,\ y\_title,\ height\_title,\ height\_title);}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_af5926c7c594c424bc5f4e62574e85c39}{clearLines}}();}
+\DoxyCodeLine{00191\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(interpolation\_width);}
+\DoxyCodeLine{00192\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_a2a8f4bb987688fe42ad8f6c2fa155114}{controls\_background\_}}.\mbox{\hyperlink{class_wavetable_component_overlay_1_1_controls_background_a7be798ed8da9439994a1764dd7225919}{addLine}}(interpolation\_width\ +\ grid\_width\ +\ padding);}
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}-\/>redoImage();}
+\DoxyCodeLine{00195\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}-\/>redoImage();}
+\DoxyCodeLine{00196\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}-\/>redoImage();}
+\DoxyCodeLine{00197\ \}}
+\DoxyCodeLine{00198\ }
+\DoxyCodeLine{00205\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_wave_source_overlay_a4a547602547161f679c13805baaab7ab}{WaveSourceOverlay::setTimeDomainBounds}}(Rectangle<int>\ bounds)\ \{}
+\DoxyCodeLine{00206\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}-\/>setBounds(bounds);}
+\DoxyCodeLine{00207\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00208\ \}}
+\DoxyCodeLine{00209\ }
+\DoxyCodeLine{00216\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_wave_source_overlay_a3f368660390391fb13df09aeb7d42fe4}{WaveSourceOverlay::setFrequencyAmplitudeBounds}}(Rectangle<int>\ bounds)\ \{}
+\DoxyCodeLine{00217\ \ \ \mbox{\hyperlink{class_wave_source_overlay_ab0af1f8844429be462aa5b296f61d7b3}{frequency\_amplitudes\_}}-\/>setBounds(bounds);}
+\DoxyCodeLine{00218\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00219\ \}}
+\DoxyCodeLine{00220\ }
+\DoxyCodeLine{00227\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_wave_source_overlay_aab8bb2953d7c3b17e0f6ccd09e4991ab}{WaveSourceOverlay::setPhaseBounds}}(Rectangle<int>\ bounds)\ \{}
+\DoxyCodeLine{00228\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a329b62d6432f5fdd98a64367d53dadd3}{frequency\_phases\_}}-\/>setBounds(bounds);}
+\DoxyCodeLine{00229\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00230\ \}}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00240\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_overlay_a1be8499d8c576e34f084e1f74dcce910}{WaveSourceOverlay::updateFrequencyDomain}}(std::complex<float>*\ frequency\_domain)\ \{}
+\DoxyCodeLine{00241\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_addeb13945e5fe1e653aa4b2edd487ede}{vital::WaveFrame::kNumRealComplex}};\ ++i)\ \{}
+\DoxyCodeLine{00242\ \ \ \ \ std::complex<float>\ frequency\ =\ frequency\_domain[i];}
+\DoxyCodeLine{00243\ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\ =\ std::abs(frequency);}
+\DoxyCodeLine{00244\ \ \ \ \ \textcolor{keywordtype}{float}\ phase\ =\ \mbox{\hyperlink{class_wave_source_overlay_a9290340bc8d03ed02ec3cefe75119468}{kDefaultPhase}};}
+\DoxyCodeLine{00245\ \ \ \ \ \textcolor{keywordflow}{if}\ (amplitude)}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ phase\ =\ std::arg(frequency)\ /\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{vital::kPi}};}
+\DoxyCodeLine{00247\ }
+\DoxyCodeLine{00248\ \ \ \ \ \textcolor{keywordtype}{float}\ adjusted\_amplitude\ =\ amplitude\ /\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};}
+\DoxyCodeLine{00249\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_ab0af1f8844429be462aa5b296f61d7b3}{frequency\_amplitudes\_}}-\/>setScaledY(i,\ adjusted\_amplitude);}
+\DoxyCodeLine{00250\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_a329b62d6432f5fdd98a64367d53dadd3}{frequency\_phases\_}}-\/>setY(i,\ phase);}
+\DoxyCodeLine{00251\ \ \ \}}
+\DoxyCodeLine{00252\ \}}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00260\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_overlay_a015464d943586ac0095cd298bac6f195}{WaveSourceOverlay::loadFrequencyDomain}}()\ \{}
+\DoxyCodeLine{00261\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classvital_1_1_wave_frame_addeb13945e5fe1e653aa4b2edd487ede}{vital::WaveFrame::kNumRealComplex}};\ ++i)\ \{}
+\DoxyCodeLine{00262\ \ \ \ \ \textcolor{keywordtype}{float}\ amplitude\ =\ \mbox{\hyperlink{class_wave_source_overlay_ab0af1f8844429be462aa5b296f61d7b3}{frequency\_amplitudes\_}}-\/>scaledYAt(i);}
+\DoxyCodeLine{00263\ \ \ \ \ amplitude\ *=\ \mbox{\hyperlink{classvital_1_1_wave_frame_a6b03ba41138003ebb4ddb158f8984c52}{vital::WaveFrame::kWaveformSize}};}
+\DoxyCodeLine{00264\ \ \ \ \ \textcolor{keywordtype}{float}\ phase\ =\ \mbox{\hyperlink{namespacevital_a8915682aaf0a65ead04759d4e6b8f727}{vital::kPi}}\ *\ \mbox{\hyperlink{class_wave_source_overlay_a329b62d6432f5fdd98a64367d53dadd3}{frequency\_phases\_}}-\/>yAt(i);}
+\DoxyCodeLine{00265\ \ \ \ \ std::complex<float>\ value\ =\ std::polar(amplitude,\ phase);}
+\DoxyCodeLine{00266\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_a47ed29cd18951519d5194d42afdce7c1}{current\_frame\_}}-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}}[i]\ =\ value;}
+\DoxyCodeLine{00267\ \ \ \}}
+\DoxyCodeLine{00268\ }
+\DoxyCodeLine{00269\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a47ed29cd18951519d5194d42afdce7c1}{current\_frame\_}}-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_ab5daac5c0f9262624ec0ffd913585432}{toTimeDomain}}();}
+\DoxyCodeLine{00270\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a47ed29cd18951519d5194d42afdce7c1}{current\_frame\_}}-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_af02e09b935df80488c42c00b47b55f03}{normalize}}();}
+\DoxyCodeLine{00271\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a47ed29cd18951519d5194d42afdce7c1}{current\_frame\_}}-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a55389465c6dd32414e034d10834ff0ee}{toFrequencyDomain}}();}
+\DoxyCodeLine{00272\ \}}
+\DoxyCodeLine{00273\ }
+\DoxyCodeLine{00283\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_overlay_a78c9b5cf520bccfee7f0f1d21fb1ac56}{WaveSourceOverlay::valuesChanged}}(\textcolor{keywordtype}{int}\ start,\ \textcolor{keywordtype}{int}\ end,\ \textcolor{keywordtype}{bool}\ mouse\_up)\ \{}
+\DoxyCodeLine{00284\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wave_source_overlay_a47ed29cd18951519d5194d42afdce7c1}{current\_frame\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00285\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00286\ }
+\DoxyCodeLine{00287\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ start;\ i\ <=\ end;\ ++i)}
+\DoxyCodeLine{00288\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_a47ed29cd18951519d5194d42afdce7c1}{current\_frame\_}}-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}}[i]\ =\ \mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}-\/>valueAt(i);}
+\DoxyCodeLine{00289\ }
+\DoxyCodeLine{00290\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a47ed29cd18951519d5194d42afdce7c1}{current\_frame\_}}-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a55389465c6dd32414e034d10834ff0ee}{toFrequencyDomain}}();}
+\DoxyCodeLine{00291\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a1be8499d8c576e34f084e1f74dcce910}{updateFrequencyDomain}}(\mbox{\hyperlink{class_wave_source_overlay_a47ed29cd18951519d5194d42afdce7c1}{current\_frame\_}}-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a53212ad525f9c40af4b71325f5a94810}{frequency\_domain}});}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00293\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(mouse\_up);}
+\DoxyCodeLine{00294\ \}}
+\DoxyCodeLine{00295\ }
+\DoxyCodeLine{00303\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_overlay_afb8cc0c1c4ea4f563fb028c76a3f7687}{WaveSourceOverlay::sliderValueChanged}}(Slider*\ moved\_slider)\ \{}
+\DoxyCodeLine{00304\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_wave_source_overlay_a725bb02d2f3f62115eebfa034152b25d}{wave\_source\_}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00305\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00306\ }
+\DoxyCodeLine{00307\ \ \ \textcolor{comment}{//\ Grid\ controls}}
+\DoxyCodeLine{00308\ \ \ \textcolor{keywordflow}{if}\ (moved\_slider\ ==\ \mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}.get()\ ||\ moved\_slider\ ==\ \mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}.get())\ \{}
+\DoxyCodeLine{00309\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}-\/>setGrid(\mbox{\hyperlink{class_wave_source_overlay_a11533579a23b8ccbb206c9137874d85b}{horizontal\_grid\_}}-\/>getValue(),\ \mbox{\hyperlink{class_wave_source_overlay_afcbba654183c4f1ce0e56ca419e9eb0a}{vertical\_grid\_}}-\/>getValue());}
+\DoxyCodeLine{00310\ \ \ \}}
+\DoxyCodeLine{00311\ \ \ \textcolor{comment}{//\ Interpolation\ controls}}
+\DoxyCodeLine{00312\ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (moved\_slider\ ==\ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}.get())\ \{}
+\DoxyCodeLine{00313\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_a188637e36deb4834ab05056b054f2e0f}{WaveSource::InterpolationStyle}}\ style\ =\ \mbox{\hyperlink{class_wavetable_component_a188637e36deb4834ab05056b054f2e0fa4f56ea195909304581c33e172d87aa11}{WaveSource::kNone}};}
+\DoxyCodeLine{00314\ \ \ \ \ \mbox{\hyperlink{class_wave_source_add4f921a9aaac5d27e4ae82704779d90}{WaveSource::InterpolationMode}}\ mode\ =\ \mbox{\hyperlink{class_wave_source_add4f921a9aaac5d27e4ae82704779d90a3f08f7d0a764f2af68d8314d8d723197}{WaveSource::kTime}};}
+\DoxyCodeLine{00315\ \ \ \ \ \textcolor{keywordtype}{int}\ value\ =\ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}-\/>getValue();}
+\DoxyCodeLine{00316\ \ \ \ \ \textcolor{keywordflow}{if}\ (value)\ \{}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ style\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_wavetable_component_a188637e36deb4834ab05056b054f2e0f}{WaveSource::InterpolationStyle}}\textcolor{keyword}{>}((value\ +\ 1)\ /\ 2);}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ mode\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{class_wave_source_add4f921a9aaac5d27e4ae82704779d90}{WaveSource::InterpolationMode}}\textcolor{keyword}{>}((value\ +\ 1)\ \%\ 2);}
+\DoxyCodeLine{00319\ \ \ \ \ \}}
+\DoxyCodeLine{00320\ }
+\DoxyCodeLine{00321\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_a725bb02d2f3f62115eebfa034152b25d}{wave\_source\_}}-\/>\mbox{\hyperlink{class_wavetable_component_a8aecf9b5029633a8cc9d62248d104c71}{setInterpolationStyle}}(style);}
+\DoxyCodeLine{00322\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_a725bb02d2f3f62115eebfa034152b25d}{wave\_source\_}}-\/>\mbox{\hyperlink{class_wave_source_a40d5e47c6b99f8c5382dfe6981134c48}{setInterpolationMode}}(mode);}
+\DoxyCodeLine{00323\ }
+\DoxyCodeLine{00324\ \ \ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(\textcolor{keyword}{true});}
+\DoxyCodeLine{00325\ \ \ \}}
+\DoxyCodeLine{00326\ \}}
+\DoxyCodeLine{00327\ }
+\DoxyCodeLine{00336\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_overlay_abcbfda776a6f079ea798caeef943504a}{WaveSourceOverlay::setInterpolationType}}(\mbox{\hyperlink{class_wavetable_component_a188637e36deb4834ab05056b054f2e0f}{WaveSource::InterpolationStyle}}\ style,}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_wave_source_add4f921a9aaac5d27e4ae82704779d90}{WaveSource::InterpolationMode}}\ mode)\ \{}
+\DoxyCodeLine{00338\ \ \ \textcolor{keywordflow}{if}\ (style\ ==\ \mbox{\hyperlink{class_wavetable_component_a188637e36deb4834ab05056b054f2e0fa4f56ea195909304581c33e172d87aa11}{WaveSource::kNone}})}
+\DoxyCodeLine{00339\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}-\/>setValue(0,\ sendNotificationSync);}
+\DoxyCodeLine{00340\ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00341\ \ \ \ \ \mbox{\hyperlink{class_wave_source_overlay_a862733e7f30211c98b69e97efe8cf0d6}{interpolation\_type\_}}-\/>setValue(2\ *\ style\ +\ mode\ -\/\ 1,\ sendNotificationSync);}
+\DoxyCodeLine{00342\ \}}
+\DoxyCodeLine{00343\ }
+\DoxyCodeLine{00354\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_wave_source_overlay_a61237d687ea150c22ca7ba3965b69a38}{WaveSourceOverlay::barsChanged}}(\textcolor{keywordtype}{int}\ start,\ \textcolor{keywordtype}{int}\ end,\ \textcolor{keywordtype}{bool}\ mouse\_up)\ \{}
+\DoxyCodeLine{00355\ \ \ \mbox{\hyperlink{class_wave_source_overlay_a015464d943586ac0095cd298bac6f195}{loadFrequencyDomain}}();}
+\DoxyCodeLine{00356\ }
+\DoxyCodeLine{00357\ \ \ \mbox{\hyperlink{class_wave_source_overlay_afc8e6c7508b75c4970af9741772fd4cb}{oscillator\_}}-\/>loadWaveform(\mbox{\hyperlink{class_wave_source_overlay_a47ed29cd18951519d5194d42afdce7c1}{current\_frame\_}}-\/>\mbox{\hyperlink{classvital_1_1_wave_frame_a8cd461490f5421877ab2846e1f03087d}{time\_domain}});}
+\DoxyCodeLine{00358\ \ \ \mbox{\hyperlink{class_wavetable_component_overlay_af4410e9de408652e5cc612a0d51e38bd}{notifyChanged}}(mouse\_up);}
+\DoxyCodeLine{00359\ \}}
+
+\end{DoxyCode}

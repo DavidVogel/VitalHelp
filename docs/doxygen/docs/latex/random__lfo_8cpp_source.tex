@@ -1,0 +1,253 @@
+\doxysection{random\+\_\+lfo.\+cpp}
+\hypertarget{random__lfo_8cpp_source}{}\label{random__lfo_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/synthesis/modulators/random\_lfo.cpp@{/Users/davidvogel/repos/VitalHelp/src/synthesis/modulators/random\_lfo.cpp}}
+\mbox{\hyperlink{random__lfo_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{random__lfo_8h}{random\_lfo.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__lfo_8h}{synth\_lfo.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{futils_8h}{futils.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{synth__constants_8h}{synth\_constants.h}}"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00009\ \ \ \ \ \textcolor{comment}{//\ Lorenz\ system\ constants:}}
+\DoxyCodeLine{00010\ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kLorenzInitial1\ =\ 0.0f;}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kLorenzInitial2\ =\ 0.0f;}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kLorenzInitial3\ =\ 37.6f;}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kLorenzA\ =\ 10.0f;}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kLorenzB\ =\ 28.0f;}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kLorenzC\ =\ 8.0f\ /\ 3.0f;}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kLorenzTimeScale\ =\ 1.0f;}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kLorenzSize\ =\ 40.0f;}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kLorenzScale\ =\ 1.0f\ /\ kLorenzSize;}
+\DoxyCodeLine{00019\ \}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacevital}{vital}}\ \{}
+\DoxyCodeLine{00022\ \ \ \ \ \mbox{\hyperlink{classvital_1_1_random_lfo_a0a1da8579dad4bb42c99e0af9df4a66a}{RandomLfo::RandomLfo}}()\ :\ \mbox{\hyperlink{classvital_1_1_processor}{Processor}}(kNumInputs,\ 1),\ random\_generator\_(-\/1.0f,\ 1.0f)\ \{}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_random_lfo_a2cbd6d272ed5aeac0c35fbbbda0a27a0}{last\_sync\_}}\ =\ std::make\_shared<double>();}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_random_lfo_a23de265c41166f38ce03102888a6dc57}{sync\_seconds\_}}\ =\ std::make\_shared<double>();}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_random_lfo_a4aaf70f897427d61906f38a5a68b6d8c}{shared\_state\_}}\ =\ std::make\_shared<RandomState>();}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ *\mbox{\hyperlink{classvital_1_1_random_lfo_a23de265c41166f38ce03102888a6dc57}{sync\_seconds\_}}\ =\ 0;}
+\DoxyCodeLine{00027\ \ \ \ \ \}}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_random_lfo_ae62aa5ebf6d3da6b3c8dfb3e1b6af910}{RandomLfo::doReset}}(\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state}{RandomState}}*\ state,\ \textcolor{keywordtype}{bool}\ mono,\ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ frequency)\ \{}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask\ =\ \mbox{\hyperlink{classvital_1_1_processor_a7fed5dc3ae95e104c71f7ce7f570fab4}{getResetMask}}(\mbox{\hyperlink{classvital_1_1_random_lfo_accd84829c27cad4c7d4af322df3857d5a3f83be0814bf3d8ba41983d6181ef9db}{kReset}});}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ no\ reset\ trigger\ or\ if\ sync\ input\ is\ active,\ no\ reset\ is\ performed.}}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (reset\_mask.\mbox{\hyperlink{structvital_1_1poly__int_a2fab54be2efa9a05ed842b91e4bad62d}{anyMask}}()\ ==\ 0\ ||\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_random_lfo_accd84829c27cad4c7d4af322df3857d5a8db28159e26c1ce6e73760d818568c0c}{kSync}})-\/>at(0)[0])}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ sample\_offset\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a29ec8af38789c39515d4b43ee42e9de6}{utils::toFloat}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_random_lfo_accd84829c27cad4c7d4af322df3857d5a3f83be0814bf3d8ba41983d6181ef9db}{kReset}})-\/>source-\/>trigger\_offset);}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ start\_offset\ =\ frequency\ *\ (1.0f\ /\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}())\ *\ sample\_offset;}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_ad530cc8c838aff4693b98854e12f9edb}{offset}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_ad530cc8c838aff4693b98854e12f9edb}{offset}},\ -\/start\_offset,\ reset\_mask);}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ from\_random\ =\ 0.0f;}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ to\_random\ =\ 0.0f;}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Generate\ new\ random\ values\ for\ mono\ or\ stereo\ voices.}}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (mono)\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \ \ \ \ from\_random\ =\ \mbox{\hyperlink{classvital_1_1_random_lfo_a4a53bd3758c369313847f46894a84170}{random\_generator\_}}.\mbox{\hyperlink{classvital_1_1utils_1_1_random_generator_a23a2baa25e5d818c5c2e2ed0b4efc7ef}{polyVoiceNext}}();}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \ \ \ \ to\_random\ =\ \mbox{\hyperlink{classvital_1_1_random_lfo_a4a53bd3758c369313847f46894a84170}{random\_generator\_}}.\mbox{\hyperlink{classvital_1_1utils_1_1_random_generator_a23a2baa25e5d818c5c2e2ed0b4efc7ef}{polyVoiceNext}}();}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ from\_random\ =\ \mbox{\hyperlink{classvital_1_1_random_lfo_a4a53bd3758c369313847f46894a84170}{random\_generator\_}}.\mbox{\hyperlink{classvital_1_1utils_1_1_random_generator_a8d9b4d315ee24f601618b84afcab6d42}{polyNext}}();}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \ \ \ \ to\_random\ =\ \mbox{\hyperlink{classvital_1_1_random_lfo_a4a53bd3758c369313847f46894a84170}{random\_generator\_}}.\mbox{\hyperlink{classvital_1_1utils_1_1_random_generator_a8d9b4d315ee24f601618b84afcab6d42}{polyNext}}();}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a4c6d708bb33172a8815490f41162d95a}{last\_random\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a4c6d708bb33172a8815490f41162d95a}{last\_random\_value}},\ from\_random,\ reset\_mask);}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a9d8f78a1396f0266aa6102b521cd0f56}{next\_random\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a9d8f78a1396f0266aa6102b521cd0f56}{next\_random\_value}},\ to\_random,\ reset\_mask);}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_random_lfo_aca7e15689e68bac0925c9ce1c6349914}{last\_value\_}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(\mbox{\hyperlink{classvital_1_1_random_lfo_aca7e15689e68bac0925c9ce1c6349914}{last\_value\_}},\ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a4c6d708bb33172a8815490f41162d95a}{last\_random\_value}}\ *\ 0.5f\ +\ 0.5f,\ reset\_mask);}
+\DoxyCodeLine{00060\ \ \ \ \ \}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ \mbox{\hyperlink{classvital_1_1_random_lfo_ac884680c2f3185a36db71423c41169bc}{RandomLfo::updatePhase}}(\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state}{RandomState}}*\ state,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ frequency\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_random_lfo_accd84829c27cad4c7d4af322df3857d5a87173afe0716fdb49e74ba4720f30b23}{kFrequency}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ phase\_delta\ =\ frequency\ *\ (1.0f\ /\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}())\ *\ num\_samples;}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ mono\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_random_lfo_accd84829c27cad4c7d4af322df3857d5a130f9b4454e62cb0288b47275d515b66}{kStereo}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0)[0]\ ==\ 0.0f;}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ new\_random\_mask\ =\ 0;}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_random_lfo_accd84829c27cad4c7d4af322df3857d5a8db28159e26c1ce6e73760d818568c0c}{kSync}})-\/>at(0)[0])\ \{}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Sync\ mode:\ If\ external\ sync\ time\ changes,\ adjust\ offset\ accordingly.}}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (*\mbox{\hyperlink{classvital_1_1_random_lfo_a2cbd6d272ed5aeac0c35fbbbda0a27a0}{last\_sync\_}}\ !=\ *\mbox{\hyperlink{classvital_1_1_random_lfo_a23de265c41166f38ce03102888a6dc57}{sync\_seconds\_}})\ \{}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ new\_offset\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a70d1632b7ff25265d67a5b886c5c7410}{utils::getCycleOffsetFromSeconds}}(*\mbox{\hyperlink{classvital_1_1_random_lfo_a23de265c41166f38ce03102888a6dc57}{sync\_seconds\_}},\ frequency);}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ new\_random\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a6d8428e12c1d3e637bbb4da39e8a5a86}{poly\_float::lessThan}}(new\_offset,\ 0.5f)\ \&\ \mbox{\hyperlink{structvital_1_1poly__float_a1bea6a867419c6ea42ffc195f35ec3bc}{poly\_float::greaterThanOrEqual}}(state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_ad530cc8c838aff4693b98854e12f9edb}{offset}},\ 0.5f);}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_ad530cc8c838aff4693b98854e12f9edb}{offset}}\ =\ new\_offset;}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Non-\/sync\ mode:\ normal\ phase\ increment,\ with\ resets\ if\ triggered.}}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ frequency\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_random_lfo_accd84829c27cad4c7d4af322df3857d5a87173afe0716fdb49e74ba4720f30b23}{kFrequency}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_random_lfo_ae62aa5ebf6d3da6b3c8dfb3e1b6af910}{doReset}}(state,\ mono,\ frequency);}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \ \ \ \ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_ad530cc8c838aff4693b98854e12f9edb}{offset}}\ +=\ phase\_delta;}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \ \ \ \ new\_random\_mask\ =\ \mbox{\hyperlink{structvital_1_1poly__float_a1bea6a867419c6ea42ffc195f35ec3bc}{poly\_float::greaterThanOrEqual}}(state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_ad530cc8c838aff4693b98854e12f9edb}{offset}},\ 1.0f);}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \ \ \ \ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_ad530cc8c838aff4693b98854e12f9edb}{offset}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a02cebee05a6ccafbce870a1a18ae0d04}{utils::mod}}(state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_ad530cc8c838aff4693b98854e12f9edb}{offset}});}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ the\ phase\ passed\ 1.0\ (full\ cycle),\ select\ a\ new\ random\ value\ pair.}}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (new\_random\_mask.\mbox{\hyperlink{structvital_1_1poly__int_a2fab54be2efa9a05ed842b91e4bad62d}{anyMask}}())\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ \ \ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a4c6d708bb33172a8815490f41162d95a}{last\_random\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a4c6d708bb33172a8815490f41162d95a}{last\_random\_value}},\ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a9d8f78a1396f0266aa6102b521cd0f56}{next\_random\_value}},\ new\_random\_mask);}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ next\_random\ =\ mono\ ?\ \mbox{\hyperlink{classvital_1_1_random_lfo_a4a53bd3758c369313847f46894a84170}{random\_generator\_}}.\mbox{\hyperlink{classvital_1_1utils_1_1_random_generator_a23a2baa25e5d818c5c2e2ed0b4efc7ef}{polyVoiceNext}}()\ :\ \mbox{\hyperlink{classvital_1_1_random_lfo_a4a53bd3758c369313847f46894a84170}{random\_generator\_}}.\mbox{\hyperlink{classvital_1_1utils_1_1_random_generator_a8d9b4d315ee24f601618b84afcab6d42}{polyNext}}();}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a9d8f78a1396f0266aa6102b521cd0f56}{next\_random\_value}}\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a9d8f78a1396f0266aa6102b521cd0f56}{next\_random\_value}},\ next\_random,\ new\_random\_mask);}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ how\ many\ samples\ until\ wrapping,\ for\ accurate\ timing.}}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(phase\_delta,\ 1.0f,\ \mbox{\hyperlink{structvital_1_1poly__float_acfab69a5f0e722bf24bfa241669954fd}{poly\_float::lessThanOrEqual}}(phase\_delta,\ 0.0f));}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ samples\_to\_wrap\ =\ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_ad530cc8c838aff4693b98854e12f9edb}{offset}}\ /\ delta;}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacevital_1_1utils_a4d84d37be8f005668f7d305e6391714a}{utils::roundToInt}}(samples\_to\_wrap);}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00107\ \ \ \ \ \}}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_random_lfo_a4edf9a69ee74a2a55f09369ec199a646}{RandomLfo::process}}(\textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_random_lfo_accd84829c27cad4c7d4af322df3857d5a8db28159e26c1ce6e73760d818568c0c}{kSync}})-\/>at(0)[0])\ \{}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (*\mbox{\hyperlink{classvital_1_1_random_lfo_a2cbd6d272ed5aeac0c35fbbbda0a27a0}{last\_sync\_}}\ !=\ *\mbox{\hyperlink{classvital_1_1_random_lfo_a23de265c41166f38ce03102888a6dc57}{sync\_seconds\_}})\ \{}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Sync\ changed,\ so\ process\ with\ the\ shared\ state.}}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_random_lfo_a4edf9a69ee74a2a55f09369ec199a646}{process}}(\mbox{\hyperlink{classvital_1_1_random_lfo_a4aaf70f897427d61906f38a5a68b6d8c}{shared\_state\_}}.get(),\ num\_samples);}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ dest\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ update\_samples\ =\ \mbox{\hyperlink{classvital_1_1_processor_a7c412df809f6c84fe54bdd977681fd9a}{isControlRate}}()\ ?\ 1\ :\ num\_samples;}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Stereo\ handling:\ combine\ left\ and\ right\ values\ if\ needed.}}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ update\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value\ =\ dest[i]\ \&\ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}};}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dest[i]\ =\ value\ +\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(value);}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ trigger\_value\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ \&\ \mbox{\hyperlink{namespacevital_1_1constants_a408107fa8a247ec0f97bd353a51e8393}{constants::kFirstMask}};}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ trigger\_value\ +\ \mbox{\hyperlink{namespacevital_1_1utils_ab69168d986d091e670bdf79c53abe7f6}{utils::swapVoices}}(trigger\_value);}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *\mbox{\hyperlink{classvital_1_1_random_lfo_a2cbd6d272ed5aeac0c35fbbbda0a27a0}{last\_sync\_}}\ =\ *\mbox{\hyperlink{classvital_1_1_random_lfo_a23de265c41166f38ce03102888a6dc57}{sync\_seconds\_}};}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_random_lfo_a4edf9a69ee74a2a55f09369ec199a646}{process}}(\&\mbox{\hyperlink{classvital_1_1_random_lfo_af50fad8d8c912bd7d2e3c2436c94c331}{state\_}},\ num\_samples);}
+\DoxyCodeLine{00136\ \ \ \ \ \}}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_random_lfo_a4edf9a69ee74a2a55f09369ec199a646}{RandomLfo::process}}(\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state}{RandomState}}*\ state,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ random\_type\_int\ =\ std::round(\mbox{\hyperlink{namespacevital_1_1utils_a13a19cf68aa11afa58de96f14442003a}{utils::clamp}}(\mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_random_lfo_accd84829c27cad4c7d4af322df3857d5a67d6b49a6c87c684eeb1c23f1c722c55}{kStyle}})-\/>at(0)[0],\ 0.0f,\ \mbox{\hyperlink{classvital_1_1_random_lfo_a8c9e579cabd3f0086a4e07a2b42ee454a8cb4a6861bfb585ddba5313fd0bb9293}{kNumStyles}}\ -\/\ 1.0f));}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_random_lfo_a8c9e579cabd3f0086a4e07a2b42ee454}{RandomType}}\ random\_type\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{classvital_1_1_random_lfo_a8c9e579cabd3f0086a4e07a2b42ee454}{RandomType}}\textcolor{keyword}{>}(random\_type\_int);}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (random\_type\ ==\ \mbox{\hyperlink{classvital_1_1_random_lfo_a8c9e579cabd3f0086a4e07a2b42ee454ad38d52b635dba0a7c42d31b97ca1d40c}{kLorenzAttractor}})\ \{}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_random_lfo_ad6808b1a75060327de6d0cf5ff81d9d6}{processLorenzAttractor}}(state,\ num\_samples);}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (random\_type\ ==\ \mbox{\hyperlink{classvital_1_1_random_lfo_a8c9e579cabd3f0086a4e07a2b42ee454a81554cc4ec4b164adb7cd0a00e8a1980}{kSampleAndHold}})\ \{}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_random_lfo_a9382bbc6af335aaa58194f1894d68dcc}{processSampleAndHold}}(state,\ num\_samples);}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_random_lfo_ac884680c2f3185a36db71423c41169bc}{updatePhase}}(state,\ num\_samples);}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ result;}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (random\_type)\ \{}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classvital_1_1_random_lfo_a8c9e579cabd3f0086a4e07a2b42ee454adc099569216a283f87a2a1e76d44bbc4}{kPerlin}}:}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ result\ =\ \mbox{\hyperlink{namespacevital_1_1utils_aef78600cea7a146003b3e66d5c26947e}{utils::perlinInterpolate}}(state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a4c6d708bb33172a8815490f41162d95a}{last\_random\_value}},\ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a9d8f78a1396f0266aa6102b521cd0f56}{next\_random\_value}},\ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_ad530cc8c838aff4693b98854e12f9edb}{offset}});}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classvital_1_1_random_lfo_a8c9e579cabd3f0086a4e07a2b42ee454a931da8bee284363f2f0539aa6dacd9e2}{kSinInterpolate}}:}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ result\ =\ \mbox{\hyperlink{namespacevital_1_1futils_ab3bd9a7412945b9827536935b3f01c4c}{futils::sinInterpolate}}(state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a4c6d708bb33172a8815490f41162d95a}{last\_random\_value}},\ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a9d8f78a1396f0266aa6102b521cd0f56}{next\_random\_value}},\ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_ad530cc8c838aff4693b98854e12f9edb}{offset}});}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ result\ =\ 0.0f;}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ result\ =\ result\ *\ 0.5f\ +\ 0.5f;\ \textcolor{comment}{//\ Normalize\ from\ [-\/1,\ 1]\ to\ [0,\ 1].}}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ result;}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ dest\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{classvital_1_1_processor_a7c412df809f6c84fe54bdd977681fd9a}{isControlRate}}())\ \{}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Audio-\/rate:\ interpolate\ values\ smoothly\ across\ samples.}}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_value\ =\ \mbox{\hyperlink{classvital_1_1_random_lfo_aca7e15689e68bac0925c9ce1c6349914}{last\_value\_}};}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta\_value\ =\ (result\ -\/\ current\_value)\ *\ (1.0f\ /\ num\_samples);}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ current\_value\ +=\ delta\_value;}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dest[i]\ =\ current\_value;}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \ \ \ \ dest[0]\ =\ result;}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_random_lfo_aca7e15689e68bac0925c9ce1c6349914}{last\_value\_}}\ =\ result;}
+\DoxyCodeLine{00189\ \ \ \ \ \}}
+\DoxyCodeLine{00190\ }
+\DoxyCodeLine{00191\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_random_lfo_a9382bbc6af335aaa58194f1894d68dcc}{RandomLfo::processSampleAndHold}}(\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state}{RandomState}}*\ state,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ last\_random\_value\ =\ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a4c6d708bb33172a8815490f41162d95a}{last\_random\_value}}\ *\ 0.5f\ +\ 0.5f;}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_int}}\ sample\_change\ =\ \mbox{\hyperlink{classvital_1_1_random_lfo_ac884680c2f3185a36db71423c41169bc}{updatePhase}}(state,\ num\_samples);}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ current\_random\_value\ =\ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a4c6d708bb33172a8815490f41162d95a}{last\_random\_value}}\ *\ 0.5f\ +\ 0.5f;}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ dest\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{classvital_1_1_processor_a7c412df809f6c84fe54bdd977681fd9a}{isControlRate}}())\ \{}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ over\ =\ \mbox{\hyperlink{structvital_1_1poly__int_ab6353308ea6f20002bfb7e4410acfbfd}{poly\_int::greaterThan}}(i,\ sample\_change);}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dest[i]\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(last\_random\_value,\ current\_random\_value,\ over);}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \ \ \ \ \ \ dest[0]\ =\ current\_random\_value;}
+\DoxyCodeLine{00211\ }
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ current\_random\_value;}
+\DoxyCodeLine{00213\ \ \ \ \ \}}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00215\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_random_lfo_ad6808b1a75060327de6d0cf5ff81d9d6}{RandomLfo::processLorenzAttractor}}(\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state}{RandomState}}*\ state,\ \textcolor{keywordtype}{int}\ num\_samples)\ \{}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kMaxFrequency\ =\ 0.01f;}
+\DoxyCodeLine{00223\ }
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ mono\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_random_lfo_accd84829c27cad4c7d4af322df3857d5a130f9b4454e62cb0288b47275d515b66}{kStereo}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0)[0]\ ==\ 0.0f;}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ state1\ =\ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a10d66a44f25a4bc8f83d19949a0bd490}{state1}};}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ state2\ =\ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a4d26208a30e93c8ef4fca7baaf4d9a02}{state2}};}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ state3\ =\ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_ac1c56eadbecd76729429d97ad71f94e3}{state3}};}
+\DoxyCodeLine{00228\ }
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__int}{poly\_mask}}\ reset\_mask\ =\ \mbox{\hyperlink{classvital_1_1_processor_a7fed5dc3ae95e104c71f7ce7f570fab4}{getResetMask}}(\mbox{\hyperlink{classvital_1_1_random_lfo_accd84829c27cad4c7d4af322df3857d5a3f83be0814bf3d8ba41983d6181ef9db}{kReset}});}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (reset\_mask.\mbox{\hyperlink{structvital_1_1poly__int_a2fab54be2efa9a05ed842b91e4bad62d}{anyMask}}()\ \&\&\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_random_lfo_accd84829c27cad4c7d4af322df3857d5a8db28159e26c1ce6e73760d818568c0c}{kSync}})-\/>at(0)[0]\ ==\ 0.0f)\ \{}
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ On\ reset,\ re-\/initialize\ states\ with\ random\ offsets\ if\ not\ synced.}}
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (mono)\ \{}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value1\ =\ \mbox{\hyperlink{classvital_1_1_random_lfo_a4a53bd3758c369313847f46894a84170}{random\_generator\_}}.\mbox{\hyperlink{classvital_1_1utils_1_1_random_generator_a23a2baa25e5d818c5c2e2ed0b4efc7ef}{polyVoiceNext}}()\ +\ kLorenzInitial1;}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value2\ =\ \mbox{\hyperlink{classvital_1_1_random_lfo_a4a53bd3758c369313847f46894a84170}{random\_generator\_}}.\mbox{\hyperlink{classvital_1_1utils_1_1_random_generator_a23a2baa25e5d818c5c2e2ed0b4efc7ef}{polyVoiceNext}}()\ +\ kLorenzInitial2;}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value3\ =\ \mbox{\hyperlink{classvital_1_1_random_lfo_a4a53bd3758c369313847f46894a84170}{random\_generator\_}}.\mbox{\hyperlink{classvital_1_1utils_1_1_random_generator_a23a2baa25e5d818c5c2e2ed0b4efc7ef}{polyVoiceNext}}()\ +\ kLorenzInitial3;}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ state1\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(state1,\ value1,\ reset\_mask);}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ state2\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(state2,\ value2,\ reset\_mask);}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ state3\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(state3,\ value3,\ reset\_mask);}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value1\ =\ \mbox{\hyperlink{classvital_1_1_random_lfo_a4a53bd3758c369313847f46894a84170}{random\_generator\_}}.\mbox{\hyperlink{classvital_1_1utils_1_1_random_generator_a8d9b4d315ee24f601618b84afcab6d42}{polyNext}}()\ +\ kLorenzInitial1;}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value2\ =\ \mbox{\hyperlink{classvital_1_1_random_lfo_a4a53bd3758c369313847f46894a84170}{random\_generator\_}}.\mbox{\hyperlink{classvital_1_1utils_1_1_random_generator_a8d9b4d315ee24f601618b84afcab6d42}{polyNext}}()\ +\ kLorenzInitial2;}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ value3\ =\ \mbox{\hyperlink{classvital_1_1_random_lfo_a4a53bd3758c369313847f46894a84170}{random\_generator\_}}.\mbox{\hyperlink{classvital_1_1utils_1_1_random_generator_a8d9b4d315ee24f601618b84afcab6d42}{polyNext}}()\ +\ kLorenzInitial3;}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ state1\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(state1,\ value1,\ reset\_mask);}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ state2\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(state2,\ value2,\ reset\_mask);}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ state3\ =\ \mbox{\hyperlink{namespacevital_1_1utils_ace9619cc7eac91b3abdcd77011b1ecb3}{utils::maskLoad}}(state3,\ value3,\ reset\_mask);}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00249\ }
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (mono)\ \{}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ In\ mono\ mode,\ ensure\ states\ are\ consistent\ across\ stereo\ pairs\ if\ any.}}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ \ \ \ \ state1\ =\ state1\ \&\ \mbox{\hyperlink{namespacevital_1_1constants_aa5dbdca3f4761e46912a986e3c4dfd60}{constants::kLeftMask}};}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ \ \ \ \ \ \ state1\ +=\ \mbox{\hyperlink{namespacevital_1_1utils_af5c60a9d57eb9105808c85d03cc6ae71}{utils::swapStereo}}(state1);}
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \ \ \ \ \ \ state2\ =\ state2\ \&\ \mbox{\hyperlink{namespacevital_1_1constants_aa5dbdca3f4761e46912a986e3c4dfd60}{constants::kLeftMask}};}
+\DoxyCodeLine{00255\ \ \ \ \ \ \ \ \ \ \ \ \ state2\ +=\ \mbox{\hyperlink{namespacevital_1_1utils_af5c60a9d57eb9105808c85d03cc6ae71}{utils::swapStereo}}(state2);}
+\DoxyCodeLine{00256\ \ \ \ \ \ \ \ \ \ \ \ \ state3\ =\ state3\ \&\ \mbox{\hyperlink{namespacevital_1_1constants_aa5dbdca3f4761e46912a986e3c4dfd60}{constants::kLeftMask}};}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \ \ \ \ \ \ state3\ +=\ \mbox{\hyperlink{namespacevital_1_1utils_af5c60a9d57eb9105808c85d03cc6ae71}{utils::swapStereo}}(state3);}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00259\ }
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ frequency\ =\ \mbox{\hyperlink{classvital_1_1_processor_a6785b9361f8b2fd7638c6a02483ec9eb}{input}}(\mbox{\hyperlink{classvital_1_1_random_lfo_accd84829c27cad4c7d4af322df3857d5a87173afe0716fdb49e74ba4720f30b23}{kFrequency}})-\/>\mbox{\hyperlink{structvital_1_1_input_a8b744f4bd880c0262465eceb8d63d268}{at}}(0);}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ t\ =\ \mbox{\hyperlink{namespacevital_1_1utils_a5b6ee09220fec012fc1597235e4c50e3}{utils::min}}(kMaxFrequency,\ frequency\ *\ (0.5f\ /\ \mbox{\hyperlink{classvital_1_1_processor_a70822ba483c1a6528f1809621befd4b8}{getSampleRate}}()));}
+\DoxyCodeLine{00262\ }
+\DoxyCodeLine{00263\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}*\ dest\ =\ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_a1bc2c3a75ee0525ecbfb24fc841b1fe4}{buffer}};}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Integrate\ the\ Lorenz\ system:}}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta1\ =\ (state2\ -\/\ state1)\ *\ kLorenzA;}
+\DoxyCodeLine{00267\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta2\ =\ (-\/state3\ +\ kLorenzB)\ *\ state1\ -\/\ state2;}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structvital_1_1poly__float}{poly\_float}}\ delta3\ =\ state1\ *\ state2\ -\/\ state3\ *\ kLorenzC;}
+\DoxyCodeLine{00269\ \ \ \ \ \ \ \ \ \ \ \ \ state1\ +=\ delta1\ *\ t;}
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \ \ \ \ \ \ state2\ +=\ delta2\ *\ t;}
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \ \ \ \ \ \ state3\ +=\ delta3\ *\ t;}
+\DoxyCodeLine{00272\ }
+\DoxyCodeLine{00273\ \ \ \ \ \ \ \ \ \ \ \ \ dest[i]\ =\ state1\ *\ kLorenzScale\ +\ 0.5f;}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00276\ \ \ \ \ \ \ \ \ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a10d66a44f25a4bc8f83d19949a0bd490}{state1}}\ =\ state1;}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \ \ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a4d26208a30e93c8ef4fca7baaf4d9a02}{state2}}\ =\ state2;}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \ \ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_ac1c56eadbecd76729429d97ad71f94e3}{state3}}\ =\ state3;}
+\DoxyCodeLine{00279\ }
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classvital_1_1_processor_ab09651265a7270548b77e99b1316fde0}{output}}()-\/>\mbox{\hyperlink{structvital_1_1_output_add4bada660da96ee68e1645aaefc9f46}{trigger\_value}}\ =\ state-\/>\mbox{\hyperlink{structvital_1_1_random_lfo_1_1_random_state_a10d66a44f25a4bc8f83d19949a0bd490}{state1}}\ *\ kLorenzScale\ +\ 0.5f;}
+\DoxyCodeLine{00281\ \ \ \ \ \}}
+\DoxyCodeLine{00282\ }
+\DoxyCodeLine{00283\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classvital_1_1_random_lfo_aa19d10e417bbf53de15bf6fdaee0aef5}{RandomLfo::correctToTime}}(\textcolor{keywordtype}{double}\ seconds)\ \{}
+\DoxyCodeLine{00287\ \ \ \ \ \ \ \ \ *\mbox{\hyperlink{classvital_1_1_random_lfo_a23de265c41166f38ce03102888a6dc57}{sync\_seconds\_}}\ =\ seconds;}
+\DoxyCodeLine{00288\ \ \ \ \ \}}
+\DoxyCodeLine{00289\ \}\ \textcolor{comment}{//\ namespace\ vital}}
+
+\end{DoxyCode}

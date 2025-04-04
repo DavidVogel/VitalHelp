@@ -1,0 +1,26 @@
+var classvital_1_1_chorus_module =
+[
+    [ "ChorusModule", "classvital_1_1_chorus_module.html#a88cb0c29febe6c1423518f12c1cfed3d", null ],
+    [ "~ChorusModule", "classvital_1_1_chorus_module.html#a18db736f7155d4988d5d606ebfff4b95", null ],
+    [ "clone", "classvital_1_1_chorus_module.html#a2c60199f15619e285d14a0472c1fef93", null ],
+    [ "correctToTime", "classvital_1_1_chorus_module.html#afcdfaafa40c370cd80f38050d1bab924", null ],
+    [ "enable", "classvital_1_1_chorus_module.html#a6d79135ffe62577114cfdcf54fee6c31", null ],
+    [ "getNextNumVoicePairs", "classvital_1_1_chorus_module.html#aed66961a9d38ce4b617f599df7941888", null ],
+    [ "init", "classvital_1_1_chorus_module.html#a2d815a830dcb4c48e78edce2116dd305", null ],
+    [ "processWithInput", "classvital_1_1_chorus_module.html#a56f6c1fd5cc6f7a1a0015da52b83c1de", null ],
+    [ "beats_per_second_", "classvital_1_1_chorus_module.html#a2835c64c0df6ff78d24d20ecb8b8ca76", null ],
+    [ "delay_frequencies_", "classvital_1_1_chorus_module.html#abdccef1c78ac9378a43bb5a341d4ff76", null ],
+    [ "delay_input_buffer_", "classvital_1_1_chorus_module.html#a7f32081b20f3f136ab50eedf0de89fa5", null ],
+    [ "delay_status_outputs_", "classvital_1_1_chorus_module.html#a6078ec68f5d831c6cfb47d581a3f9c77", null ],
+    [ "delay_time_1_", "classvital_1_1_chorus_module.html#aabe992028d0be0ec628f7e503d9aa1c3", null ],
+    [ "delay_time_2_", "classvital_1_1_chorus_module.html#adbf24f4521e4dae7c77a42c7cff1bd69", null ],
+    [ "delays_", "classvital_1_1_chorus_module.html#a3413eaaf2949e940537896320505657d", null ],
+    [ "dry_", "classvital_1_1_chorus_module.html#a00c05701734598cf728a7131f48fe4d7", null ],
+    [ "frequency_", "classvital_1_1_chorus_module.html#aa981393ef640fe50d20ab37ced39a4f7", null ],
+    [ "last_num_voices_", "classvital_1_1_chorus_module.html#a94279eee25eea081ee9a35f7a0fa3c84", null ],
+    [ "mod_depth_", "classvital_1_1_chorus_module.html#ae601196d34530812c2f92d5c5b447c4f", null ],
+    [ "phase_", "classvital_1_1_chorus_module.html#a129f098eddd8a0918fb259741dc83aa5", null ],
+    [ "voices_", "classvital_1_1_chorus_module.html#a0e4f18ac1e215263b7e106073af98547", null ],
+    [ "wet_", "classvital_1_1_chorus_module.html#ae1b2877231b180a3cf395b36c95fb45b", null ],
+    [ "wet_output_", "classvital_1_1_chorus_module.html#a4f1031c9c9188b36f46755792c9e5e59", null ]
+];

@@ -1,0 +1,500 @@
+\doxysection{open\+\_\+gl\+\_\+line\+\_\+renderer.\+cpp}
+\hypertarget{open__gl__line__renderer_8cpp_source}{}\label{open__gl__line__renderer_8cpp_source}\index{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/open\_gl\_line\_renderer.cpp@{/Users/davidvogel/repos/VitalHelp/src/interface/editor\_components/open\_gl\_line\_renderer.cpp}}
+\mbox{\hyperlink{open__gl__line__renderer_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{open__gl__line__renderer_8h}{open\_gl\_line\_renderer.h}}"{}}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{shaders_8h}{shaders.h}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00007\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kLoopWidth\ =\ 2.001f;}
+\DoxyCodeLine{00008\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kDefaultLineWidth\ =\ 7.0f;}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{float}\ inverseSqrt(\textcolor{keywordtype}{float}\ value)\ \{}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{comment}{//\ Fast\ inverse\ square\ root\ approximation}}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{float}\ kThreeHalves\ =\ 1.5f;}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{keywordtype}{int}\ i;}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{keywordtype}{float}\ x2,\ y;}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ \ \ x2\ =\ value\ *\ 0.5f;}
+\DoxyCodeLine{00017\ \ \ \ \ y\ =\ value;}
+\DoxyCodeLine{00018\ \ \ \ \ i\ =\ *(\textcolor{keywordtype}{int}\ *)\&y;}
+\DoxyCodeLine{00019\ \ \ \ \ i\ =\ 0x5f3759df\ -\/\ (i\ >>\ 1);}
+\DoxyCodeLine{00020\ \ \ \ \ y\ =\ *(\textcolor{keywordtype}{float}\ *)\&i;}
+\DoxyCodeLine{00021\ \ \ \ \ y\ =\ y\ *\ (kThreeHalves\ -\/\ (x2\ *\ y\ *\ y));}
+\DoxyCodeLine{00022\ \ \ \ \ y\ =\ y\ *\ (kThreeHalves\ -\/\ (x2\ *\ y\ *\ y));}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keywordflow}{return}\ y;}
+\DoxyCodeLine{00024\ \ \ \}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ \textcolor{keywordtype}{float}\ inverseMagnitudeOfPoint(Point<float>\ point)\ \{}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keywordflow}{return}\ inverseSqrt(point.x\ *\ point.x\ +\ point.y\ *\ point.y);}
+\DoxyCodeLine{00028\ \ \ \}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ \mbox{\hyperlink{common_8h_ae8c57c7218a376f10cbdf0e50f1189ee}{force\_inline}}\ Point<float>\ normalize(Point<float>\ point)\ \{}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keywordflow}{return}\ point\ *\ inverseMagnitudeOfPoint(point);}
+\DoxyCodeLine{00032\ \ \ \}}
+\DoxyCodeLine{00033\ \}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \mbox{\hyperlink{class_open_gl_line_renderer_aa549f2a3cbd395d4bf00a3a88510b859}{OpenGlLineRenderer::OpenGlLineRenderer}}(\textcolor{keywordtype}{int}\ num\_points,\ \textcolor{keywordtype}{bool}\ loop)\ :}
+\DoxyCodeLine{00036\ \ \ \ \ num\_points\_(num\_points),\ boost\_(0.0f),\ fill\_(false),\ fill\_center\_(0.0f),\ fit\_(false),}
+\DoxyCodeLine{00037\ \ \ \ \ boost\_amount\_(0.0f),\ fill\_boost\_amount\_(0.0f),\ enable\_backward\_boost\_(true),}
+\DoxyCodeLine{00038\ \ \ \ \ index\_(0),\ dirty\_(false),\ last\_drawn\_left\_(false),\ loop\_(loop),\ any\_boost\_value\_(false),}
+\DoxyCodeLine{00039\ \ \ \ \ shader\_(nullptr),\ fill\_shader\_(nullptr)\ \{}
+\DoxyCodeLine{00040\ \ \ \mbox{\hyperlink{class_open_gl_component_a2139561c2dc95b0a7389e65f4cea60f9}{addRoundedCorners}}();}
+\DoxyCodeLine{00041\ \ \ num\_padding\_\ =\ 1;}
+\DoxyCodeLine{00042\ \ \ \textcolor{keywordflow}{if}\ (loop)}
+\DoxyCodeLine{00043\ \ \ \ \ num\_padding\_\ =\ 2;}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ num\_line\_vertices\_\ =\ \mbox{\hyperlink{class_open_gl_line_renderer_a745893be45a933bce219314d203af3f4}{kLineVerticesPerPoint}}\ *\ (num\_points\_\ +\ 2\ *\ num\_padding\_);}
+\DoxyCodeLine{00046\ \ \ num\_fill\_vertices\_\ =\ \mbox{\hyperlink{class_open_gl_line_renderer_a453f1dae9480a77742217cb85661da79}{kFillVerticesPerPoint}}\ *\ (num\_points\_\ +\ 2\ *\ num\_padding\_);}
+\DoxyCodeLine{00047\ \ \ num\_line\_floats\_\ =\ \mbox{\hyperlink{class_open_gl_line_renderer_a2be8078ee23b2c8dbbc70141d42fe169}{kLineFloatsPerVertex}}\ *\ num\_line\_vertices\_;}
+\DoxyCodeLine{00048\ \ \ num\_fill\_floats\_\ =\ \mbox{\hyperlink{class_open_gl_line_renderer_a6f5c07eceee2081527bcb59ba408b28b}{kFillFloatsPerVertex}}\ *\ num\_fill\_vertices\_;}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ line\_width\_\ =\ kDefaultLineWidth;}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ x\_\ =\ std::make\_unique<float[]>(num\_points\_);}
+\DoxyCodeLine{00053\ \ \ y\_\ =\ std::make\_unique<float[]>(num\_points\_);}
+\DoxyCodeLine{00054\ \ \ boost\_left\_\ =\ std::make\_unique<float[]>(num\_points\_);}
+\DoxyCodeLine{00055\ \ \ boost\_right\_\ =\ std::make\_unique<float[]>(num\_points\_);}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ line\_data\_\ =\ std::make\_unique<float[]>(num\_line\_floats\_);}
+\DoxyCodeLine{00058\ \ \ fill\_data\_\ =\ std::make\_unique<float[]>(num\_fill\_floats\_);}
+\DoxyCodeLine{00059\ \ \ indices\_data\_\ =\ std::make\_unique<int[]>(num\_line\_vertices\_);}
+\DoxyCodeLine{00060\ \ \ vertex\_array\_object\_\ =\ 0;}
+\DoxyCodeLine{00061\ \ \ line\_buffer\_\ =\ 0;}
+\DoxyCodeLine{00062\ \ \ fill\_buffer\_\ =\ 0;}
+\DoxyCodeLine{00063\ \ \ indices\_buffer\_\ =\ 0;}
+\DoxyCodeLine{00064\ \ \ last\_negative\_boost\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_line\_vertices\_;\ ++i)}
+\DoxyCodeLine{00067\ \ \ \ \ indices\_data\_[i]\ =\ i;}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_line\_floats\_;\ i\ +=\ 2\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_a2be8078ee23b2c8dbbc70141d42fe169}{kLineFloatsPerVertex}})}
+\DoxyCodeLine{00070\ \ \ \ \ line\_data\_[i\ +\ 2]\ =\ 1.0f;}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_points\_;\ ++i)}
+\DoxyCodeLine{00073\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6a204f01439900c0a1724f7b5d16c04b}{setXAt}}(i,\ 2.0f\ *\ i\ /\ (num\_points\_\ -\/\ 1.0f)\ -\/\ 1.0f);}
+\DoxyCodeLine{00074\ \}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \mbox{\hyperlink{class_open_gl_line_renderer_a5b8b182781964244d7978a0356be766d}{OpenGlLineRenderer::\string~OpenGlLineRenderer}}()\ \{\ \}}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_line_renderer_a0fa1ef67e942cb6dba85c5980cc3c544}{OpenGlLineRenderer::init}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00079\ \ \ \mbox{\hyperlink{class_open_gl_component_ad78b342a43cf1e61d4875b6137ed8127}{OpenGlComponent::init}}(open\_gl);}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenVertexArrays(1,\ \&vertex\_array\_object\_);}
+\DoxyCodeLine{00082\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindVertexArray(vertex\_array\_object\_);}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenBuffers(1,\ \&line\_buffer\_);}
+\DoxyCodeLine{00085\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ line\_buffer\_);}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ GLsizeiptr\ line\_vert\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(num\_line\_floats\_\ *\ \textcolor{keyword}{sizeof}(float));}
+\DoxyCodeLine{00088\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ARRAY\_BUFFER,\ line\_vert\_size,\ line\_data\_.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenBuffers(1,\ \&fill\_buffer\_);}
+\DoxyCodeLine{00091\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ fill\_buffer\_);}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \ GLsizeiptr\ fill\_vert\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(num\_fill\_floats\_\ *\ \textcolor{keyword}{sizeof}(float));}
+\DoxyCodeLine{00094\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ARRAY\_BUFFER,\ fill\_vert\_size,\ fill\_data\_.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glGenBuffers(1,\ \&indices\_buffer\_);}
+\DoxyCodeLine{00097\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ indices\_buffer\_);}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ GLsizeiptr\ line\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(num\_line\_vertices\_\ *\ \textcolor{keyword}{sizeof}(int));}
+\DoxyCodeLine{00100\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ELEMENT\_ARRAY\_BUFFER,\ line\_size,\ indices\_data\_.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ shader\_\ =\ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_af70c9f649bbea5dfd68c376d1e2918ea}{shaders}}-\/>\mbox{\hyperlink{class_shaders_ae4644dfe46dda65994ede40a18e2747a}{getShaderProgram}}(\mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a89d30dfebdd636afa738d39b4d3cd5e5}{Shaders::kLineVertex}},\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45a437755a3dd17f770ef84ee4c440f1c0b}{Shaders::kLineFragment}});}
+\DoxyCodeLine{00103\ \ \ shader\_-\/>use();}
+\DoxyCodeLine{00104\ \ \ color\_uniform\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *shader\_,\ \textcolor{stringliteral}{"{}color"{}});}
+\DoxyCodeLine{00105\ \ \ scale\_uniform\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *shader\_,\ \textcolor{stringliteral}{"{}scale"{}});}
+\DoxyCodeLine{00106\ \ \ boost\_uniform\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *shader\_,\ \textcolor{stringliteral}{"{}boost"{}});}
+\DoxyCodeLine{00107\ \ \ line\_width\_uniform\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *shader\_,\ \textcolor{stringliteral}{"{}line\_width"{}});}
+\DoxyCodeLine{00108\ \ \ position\_\ =\ \mbox{\hyperlink{class_open_gl_component_a59361984d78ce0542bfa722179d57f93}{getAttribute}}(open\_gl,\ *shader\_,\ \textcolor{stringliteral}{"{}position"{}});}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ fill\_shader\_\ =\ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_af70c9f649bbea5dfd68c376d1e2918ea}{shaders}}-\/>\mbox{\hyperlink{class_shaders_ae4644dfe46dda65994ede40a18e2747a}{getShaderProgram}}(\mbox{\hyperlink{class_shaders_a5a11a634d3e9097efb6229fc0ce2af76a7dbc88eb5d2076fd985b3d58294bd013}{Shaders::kFillVertex}},\ \mbox{\hyperlink{class_shaders_a5deb64ed93eaa2d451f5fa1a82c74b45abae4b147ee4a61401e32674d80330a25}{Shaders::kFillFragment}});}
+\DoxyCodeLine{00111\ \ \ fill\_shader\_-\/>use();}
+\DoxyCodeLine{00112\ \ \ fill\_color\_from\_uniform\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *fill\_shader\_,\ \textcolor{stringliteral}{"{}color\_from"{}});}
+\DoxyCodeLine{00113\ \ \ fill\_color\_to\_uniform\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *fill\_shader\_,\ \textcolor{stringliteral}{"{}color\_to"{}});}
+\DoxyCodeLine{00114\ \ \ fill\_center\_uniform\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *fill\_shader\_,\ \textcolor{stringliteral}{"{}center\_position"{}});}
+\DoxyCodeLine{00115\ \ \ fill\_boost\_amount\_uniform\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *fill\_shader\_,\ \textcolor{stringliteral}{"{}boost\_amount"{}});}
+\DoxyCodeLine{00116\ \ \ fill\_scale\_uniform\_\ =\ \mbox{\hyperlink{class_open_gl_component_ad298c28db2e92eb2bd1061169f704cd7}{getUniform}}(open\_gl,\ *fill\_shader\_,\ \textcolor{stringliteral}{"{}scale"{}});}
+\DoxyCodeLine{00117\ \ \ fill\_position\_\ =\ \mbox{\hyperlink{class_open_gl_component_a59361984d78ce0542bfa722179d57f93}{getAttribute}}(open\_gl,\ *fill\_shader\_,\ \textcolor{stringliteral}{"{}position"{}});}
+\DoxyCodeLine{00118\ \}}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_line_renderer_aeee52f77cff2469bca4e64ad7fc8dbef}{OpenGlLineRenderer::boostLeftRange}}(\textcolor{keywordtype}{float}\ start,\ \textcolor{keywordtype}{float}\ end,\ \textcolor{keywordtype}{int}\ buffer\_vertices,\ \textcolor{keywordtype}{float}\ min)\ \{}
+\DoxyCodeLine{00121\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ab885c7fae9b135539ab4e1541097800f}{boostRange}}(boost\_left\_.get(),\ start,\ end,\ buffer\_vertices,\ min);}
+\DoxyCodeLine{00122\ \}}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_line_renderer_a6c752cbfd981b01966693f5120d680e3}{OpenGlLineRenderer::boostRightRange}}(\textcolor{keywordtype}{float}\ start,\ \textcolor{keywordtype}{float}\ end,\ \textcolor{keywordtype}{int}\ buffer\_vertices,\ \textcolor{keywordtype}{float}\ min)\ \{}
+\DoxyCodeLine{00125\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ab885c7fae9b135539ab4e1541097800f}{boostRange}}(boost\_right\_.get(),\ start,\ end,\ buffer\_vertices,\ min);}
+\DoxyCodeLine{00126\ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_line_renderer_ab885c7fae9b135539ab4e1541097800f}{OpenGlLineRenderer::boostRange}}(\textcolor{keywordtype}{float}*\ boosts,\ \textcolor{keywordtype}{float}\ start,\ \textcolor{keywordtype}{float}\ end,\ \textcolor{keywordtype}{int}\ buffer\_vertices,\ \textcolor{keywordtype}{float}\ min)\ \{}
+\DoxyCodeLine{00129\ \ \ any\_boost\_value\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00130\ \ \ dirty\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00131\ }
+\DoxyCodeLine{00132\ \ \ \textcolor{keywordtype}{int}\ active\_points\ =\ num\_points\_\ -\/\ 2\ *\ buffer\_vertices;}
+\DoxyCodeLine{00133\ \ \ \textcolor{keywordtype}{int}\ start\_index\ =\ std::max((\textcolor{keywordtype}{int})std::ceil(start\ *\ (active\_points\ -\/\ 1)),\ 0);}
+\DoxyCodeLine{00134\ \ \ \textcolor{keywordtype}{float}\ end\_position\ =\ end\ *\ (active\_points\ -\/\ 1);}
+\DoxyCodeLine{00135\ \ \ \textcolor{keywordtype}{int}\ end\_index\ =\ std::max(std::ceil(end\_position),\ 0.0f);}
+\DoxyCodeLine{00136\ \ \ \textcolor{keywordtype}{float}\ progress\ =\ end\_position\ -\/\ (int)end\_position;}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ start\_index\ \%=\ active\_points;}
+\DoxyCodeLine{00139\ \ \ end\_index\ \%=\ active\_points;}
+\DoxyCodeLine{00140\ \ \ \textcolor{keywordtype}{int}\ num\_points\ =\ end\_index\ -\/\ start\_index;}
+\DoxyCodeLine{00141\ \ \ \textcolor{keywordtype}{int}\ direction\ =\ 1;}
+\DoxyCodeLine{00142\ \ \ \textcolor{keywordflow}{if}\ (enable\_backward\_boost\_)\ \{}
+\DoxyCodeLine{00143\ \ \ \ \ \textcolor{keywordflow}{if}\ ((num\_points\ <\ 0\ \&\&\ num\_points\ >\ -\/num\_points\_\ /\ 2)\ ||\ (num\_points\ ==\ 0\ \&\&\ last\_negative\_boost\_))\ \{}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ num\_points\ =\ -\/num\_points;}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ direction\ =\ -\/1;}
+\DoxyCodeLine{00146\ \ \ \ \ \}}
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (num\_points\ >\ num\_points\_\ /\ 2)\ \{}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ num\_points\ -\/=\ active\_points;}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ num\_points\ =\ -\/num\_points;}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ direction\ =\ -\/1;}
+\DoxyCodeLine{00151\ \ \ \ \ \}}
+\DoxyCodeLine{00152\ \ \ \}}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \ \ last\_negative\_boost\_\ =\ direction\ <\ 0;}
+\DoxyCodeLine{00155\ \ \ \textcolor{keywordflow}{if}\ (last\_negative\_boost\_)\ \{}
+\DoxyCodeLine{00156\ \ \ \ \ start\_index\ =\ std::max((\textcolor{keywordtype}{int})std::floor(start\ *\ (active\_points\ -\/\ 1)),\ 0);}
+\DoxyCodeLine{00157\ \ \ \ \ end\_index\ =\ std::max(std::floor(end\_position),\ 0.0f);}
+\DoxyCodeLine{00158\ \ \ \ \ start\_index\ \%=\ active\_points;}
+\DoxyCodeLine{00159\ \ \ \ \ end\_index\ \%=\ active\_points;}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00161\ \ \ \ \ num\_points\ =\ start\_index\ -\/\ end\_index;}
+\DoxyCodeLine{00162\ \ \ \ \ progress\ =\ 1.0f\ -\/\ progress;}
+\DoxyCodeLine{00163\ \ \ \}}
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00165\ \ \ \textcolor{keywordtype}{float}\ delta\ =\ (1.0f\ -\/\ min)\ /\ num\_points;}
+\DoxyCodeLine{00166\ \ \ \textcolor{keywordtype}{float}\ val\ =\ min;}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ start\_index;\ i\ !=\ end\_index;\ i\ =\ (i\ +\ active\_points\ +\ direction)\ \%\ active\_points)\ \{}
+\DoxyCodeLine{00169\ \ \ \ \ val\ +=\ delta;}
+\DoxyCodeLine{00170\ \ \ \ \ val\ =\ std::min(1.0f,\ val);}
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{keywordtype}{float}\ last\_value\ =\ boosts[i\ +\ buffer\_vertices];}
+\DoxyCodeLine{00172\ \ \ \ \ boosts[i\ +\ buffer\_vertices]\ =\ std::max(last\_value,\ val);}
+\DoxyCodeLine{00173\ \ \ \}}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ \ \ \textcolor{keywordtype}{float}\ end\_value\ =\ boosts[end\_index\ +\ buffer\_vertices];}
+\DoxyCodeLine{00176\ \ \ boosts[end\_index\ +\ buffer\_vertices]\ =\ std::max(end\_value,\ progress\ *\ progress);}
+\DoxyCodeLine{00177\ \}}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00179\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_line_renderer_ab885c7fae9b135539ab4e1541097800f}{OpenGlLineRenderer::boostRange}}(\mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ start,\ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ end,}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ buffer\_vertices,\ \mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ min)\ \{}
+\DoxyCodeLine{00181\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_aeee52f77cff2469bca4e64ad7fc8dbef}{boostLeftRange}}(start[0],\ end[0],\ buffer\_vertices,\ min[0]);}
+\DoxyCodeLine{00182\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a6c752cbfd981b01966693f5120d680e3}{boostRightRange}}(start[1],\ end[1],\ buffer\_vertices,\ min[1]);}
+\DoxyCodeLine{00183\ \}}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00185\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_line_renderer_a291a3b43c9a3f692ef2fd7989a2a5148}{OpenGlLineRenderer::decayBoosts}}(\mbox{\hyperlink{structvital_1_1poly__float}{vital::poly\_float}}\ mult)\ \{}
+\DoxyCodeLine{00186\ \ \ \textcolor{keywordtype}{bool}\ any\_boost\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00187\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_points\_;\ ++i)\ \{}
+\DoxyCodeLine{00188\ \ \ \ \ boost\_left\_[i]\ *=\ mult[0];}
+\DoxyCodeLine{00189\ \ \ \ \ boost\_right\_[i]\ *=\ mult[1];}
+\DoxyCodeLine{00190\ \ \ \ \ any\_boost\ =\ any\_boost\ ||\ boost\_left\_[i]\ ||\ boost\_right\_[i];}
+\DoxyCodeLine{00191\ \ \ \}}
+\DoxyCodeLine{00192\ }
+\DoxyCodeLine{00193\ \ \ any\_boost\_value\_\ =\ any\_boost;}
+\DoxyCodeLine{00194\ \}}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00196\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_line_renderer_a9c35499e839a2265f1a63ee5a18161b0}{OpenGlLineRenderer::setFillVertices}}(\textcolor{keywordtype}{bool}\ left)\ \{}
+\DoxyCodeLine{00197\ \ \ \textcolor{keywordtype}{float}*\ boosts\ =\ left\ ?\ boost\_left\_.get()\ :\ boost\_right\_.get();}
+\DoxyCodeLine{00198\ \ \ \textcolor{keywordtype}{float}\ x\_adjust\ =\ 2.0f\ /\ getWidth();}
+\DoxyCodeLine{00199\ \ \ \textcolor{keywordtype}{float}\ y\_adjust\ =\ 2.0f\ /\ getHeight();}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_points\_;\ ++i)\ \{}
+\DoxyCodeLine{00202\ \ \ \ \ \textcolor{keywordtype}{int}\ index\_top\ =\ (i\ +\ num\_padding\_)\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_aac0c1d33fb9259ea5cbe733a620f5037}{kFillFloatsPerPoint}};}
+\DoxyCodeLine{00203\ \ \ \ \ \textcolor{keywordtype}{int}\ index\_bottom\ =\ index\_top\ +\ \mbox{\hyperlink{class_open_gl_line_renderer_a6f5c07eceee2081527bcb59ba408b28b}{kFillFloatsPerVertex}};}
+\DoxyCodeLine{00204\ \ \ \ \ \textcolor{keywordtype}{float}\ x\ =\ x\_adjust\ *\ x\_[i]\ -\/\ 1.0f;}
+\DoxyCodeLine{00205\ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ 1.0f\ -\/\ y\_adjust\ *\ y\_[i];}
+\DoxyCodeLine{00206\ \ \ \ \ fill\_data\_[index\_top]\ =\ x;}
+\DoxyCodeLine{00207\ \ \ \ \ fill\_data\_[index\_top\ +\ 1]\ =\ y;}
+\DoxyCodeLine{00208\ \ \ \ \ fill\_data\_[index\_top\ +\ 2]\ =\ boosts[i];}
+\DoxyCodeLine{00209\ \ \ \ \ fill\_data\_[index\_bottom]\ =\ x;}
+\DoxyCodeLine{00210\ \ \ \ \ fill\_data\_[index\_bottom\ +\ 1]\ =\ fill\_center\_;}
+\DoxyCodeLine{00211\ \ \ \ \ fill\_data\_[index\_bottom\ +\ 2]\ =\ boosts[i];}
+\DoxyCodeLine{00212\ \ \ \}}
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00214\ \ \ \textcolor{keywordtype}{int}\ padding\_copy\_size\ =\ num\_padding\_\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_aac0c1d33fb9259ea5cbe733a620f5037}{kFillFloatsPerPoint}}\ *\ \textcolor{keyword}{sizeof}(float);}
+\DoxyCodeLine{00215\ \ \ \textcolor{keywordtype}{int}\ begin\_copy\_source\ =\ num\_padding\_\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_aac0c1d33fb9259ea5cbe733a620f5037}{kFillFloatsPerPoint}};}
+\DoxyCodeLine{00216\ \ \ \textcolor{keywordtype}{int}\ end\_copy\_source\ =\ num\_points\_\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_aac0c1d33fb9259ea5cbe733a620f5037}{kFillFloatsPerPoint}};}
+\DoxyCodeLine{00217\ \ \ \textcolor{keywordflow}{if}\ (loop\_\ \&\&\ num\_points\_\ >=\ 2)\ \{}
+\DoxyCodeLine{00218\ \ \ \ \ memcpy(fill\_data\_.get(),\ fill\_data\_.get()\ +\ end\_copy\_source,\ padding\_copy\_size);}
+\DoxyCodeLine{00219\ \ \ \ \ \textcolor{keywordtype}{int}\ begin\_copy\_dest\ =\ (num\_padding\_\ +\ num\_points\_)\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_aac0c1d33fb9259ea5cbe733a620f5037}{kFillFloatsPerPoint}};}
+\DoxyCodeLine{00220\ \ \ \ \ memcpy(fill\_data\_.get()\ +\ begin\_copy\_dest,\ fill\_data\_.get()\ +\ begin\_copy\_source,\ padding\_copy\_size);}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00222\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_padding\_;\ ++i)\ \{}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ fill\_data\_[i\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_aac0c1d33fb9259ea5cbe733a620f5037}{kFillFloatsPerPoint}}]\ -\/=\ kLoopWidth;}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ fill\_data\_[i\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_aac0c1d33fb9259ea5cbe733a620f5037}{kFillFloatsPerPoint}}\ +\ \mbox{\hyperlink{class_open_gl_line_renderer_a6f5c07eceee2081527bcb59ba408b28b}{kFillFloatsPerVertex}}]\ -\/=\ kLoopWidth;}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ fill\_data\_[begin\_copy\_dest\ +\ i\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_aac0c1d33fb9259ea5cbe733a620f5037}{kFillFloatsPerPoint}}]\ +=\ kLoopWidth;}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ fill\_data\_[begin\_copy\_dest\ +\ i\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_aac0c1d33fb9259ea5cbe733a620f5037}{kFillFloatsPerPoint}}\ +\ \mbox{\hyperlink{class_open_gl_line_renderer_a6f5c07eceee2081527bcb59ba408b28b}{kFillFloatsPerVertex}}]\ +=\ kLoopWidth;}
+\DoxyCodeLine{00227\ \ \ \ \ \}}
+\DoxyCodeLine{00228\ \ \ \}}
+\DoxyCodeLine{00229\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00230\ \ \ \ \ \textcolor{keywordtype}{int}\ end\_copy\_dest\ =\ (num\_padding\_\ +\ num\_points\_)\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_aac0c1d33fb9259ea5cbe733a620f5037}{kFillFloatsPerPoint}};}
+\DoxyCodeLine{00231\ \ \ \ \ memcpy(fill\_data\_.get()\ +\ end\_copy\_dest,\ fill\_data\_.get()\ +\ end\_copy\_source,\ padding\_copy\_size);}
+\DoxyCodeLine{00232\ \ \ \ \ memcpy(fill\_data\_.get(),\ fill\_data\_.get()\ +\ begin\_copy\_source,\ padding\_copy\_size);}
+\DoxyCodeLine{00233\ \ \ \}}
+\DoxyCodeLine{00234\ \}}
+\DoxyCodeLine{00235\ }
+\DoxyCodeLine{00236\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_line_renderer_a8c8448acd851e68cd09dc96b19df68d3}{OpenGlLineRenderer::setLineVertices}}(\textcolor{keywordtype}{bool}\ left)\ \{}
+\DoxyCodeLine{00237\ \ \ \textcolor{keywordtype}{float}*\ boosts\ =\ left\ ?\ boost\_left\_.get()\ :\ boost\_right\_.get();}
+\DoxyCodeLine{00238\ }
+\DoxyCodeLine{00239\ \ \ Point<float>\ prev\_normalized\_delta;}
+\DoxyCodeLine{00240\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_points\_\ -\/\ 1;\ ++i)\ \{}
+\DoxyCodeLine{00241\ \ \ \ \ \textcolor{keywordflow}{if}\ (x\_[i]\ !=\ x\_[i\ +\ 1]\ ||\ y\_[i]\ !=\ y\_[i\ +\ 1])\ \{}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ prev\_normalized\_delta\ =\ normalize(Point<float>(x\_[i\ +\ 1]\ -\/\ x\_[i],\ y\_[i\ +\ 1]\ -\/\ y\_[i]));}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00244\ \ \ \ \ \}}
+\DoxyCodeLine{00245\ \ \ \}}
+\DoxyCodeLine{00246\ }
+\DoxyCodeLine{00247\ \ \ Point<float>\ prev\_delta\_normal(-\/prev\_normalized\_delta.y,\ prev\_normalized\_delta.x);}
+\DoxyCodeLine{00248\ \ \ \textcolor{keywordtype}{float}\ line\_radius\ =\ line\_width\_\ /\ 2.0f\ +\ 0.5f;}
+\DoxyCodeLine{00249\ \ \ \textcolor{keywordtype}{float}\ prev\_magnitude\ =\ line\_radius;}
+\DoxyCodeLine{00250\ }
+\DoxyCodeLine{00251\ \ \ \textcolor{keywordtype}{float}\ x\_adjust\ =\ 2.0f\ /\ getWidth();}
+\DoxyCodeLine{00252\ \ \ \textcolor{keywordtype}{float}\ y\_adjust\ =\ 2.0f\ /\ getHeight();}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_points\_;\ ++i)\ \{}
+\DoxyCodeLine{00255\ \ \ \ \ \textcolor{keywordtype}{float}\ radius\ =\ line\_radius\ *\ (1.0f\ +\ boost\_amount\_\ *\ boosts[i]);}
+\DoxyCodeLine{00256\ \ \ \ \ Point<float>\ point(x\_[i],\ y\_[i]);}
+\DoxyCodeLine{00257\ \ \ \ \ \textcolor{keywordtype}{int}\ next\_index\ =\ i\ +\ 1;}
+\DoxyCodeLine{00258\ \ \ \ \ \textcolor{keywordtype}{int}\ clamped\_next\_index\ =\ std::min(next\_index,\ num\_points\_\ -\/\ 1);}
+\DoxyCodeLine{00259\ }
+\DoxyCodeLine{00260\ \ \ \ \ Point<float>\ next\_point(x\_[clamped\_next\_index],\ y\_[clamped\_next\_index]);}
+\DoxyCodeLine{00261\ \ \ \ \ Point<float>\ delta\ =\ next\_point\ -\/\ point;}
+\DoxyCodeLine{00262\ \ \ \ \ \textcolor{keywordflow}{if}\ (point\ ==\ next\_point)\ \{}
+\DoxyCodeLine{00263\ \ \ \ \ \ \ delta\ =\ prev\_normalized\_delta;}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ next\_point\ =\ point\ +\ delta;}
+\DoxyCodeLine{00265\ \ \ \ \ \}}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00267\ \ \ \ \ \textcolor{keywordtype}{float}\ inverse\_magnitude\ =\ inverseMagnitudeOfPoint(delta);}
+\DoxyCodeLine{00268\ \ \ \ \ \textcolor{keywordtype}{float}\ magnitude\ =\ 1.0f\ /\ std::max(0.00001f,\ inverse\_magnitude);}
+\DoxyCodeLine{00269\ \ \ \ \ Point<float>\ normalized\_delta(delta.x\ *\ inverse\_magnitude,\ delta.y\ *\ inverse\_magnitude);}
+\DoxyCodeLine{00270\ \ \ \ \ Point<float>\ delta\_normal\ =\ Point<float>(-\/normalized\_delta.y,\ normalized\_delta.x);}
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00272\ \ \ \ \ Point<float>\ angle\_bisect\_delta\ =\ normalized\_delta\ -\/\ prev\_normalized\_delta;}
+\DoxyCodeLine{00273\ \ \ \ \ Point<float>\ bisect\_line;}
+\DoxyCodeLine{00274\ \ \ \ \ \textcolor{keywordtype}{bool}\ straight\ =\ angle\_bisect\_delta.x\ <\ 0.001f\ \&\&\ angle\_bisect\_delta.x\ >\ -\/0.001f\ \&\&}
+\DoxyCodeLine{00275\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ angle\_bisect\_delta.y\ <\ 0.001f\ \&\&\ angle\_bisect\_delta.y\ >\ -\/0.001f;}
+\DoxyCodeLine{00276\ \ \ \ \ \textcolor{keywordflow}{if}\ (straight)}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ bisect\_line\ =\ delta\_normal;}
+\DoxyCodeLine{00278\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ bisect\_line\ =\ normalize(angle\_bisect\_delta);}
+\DoxyCodeLine{00280\ }
+\DoxyCodeLine{00281\ \ \ \ \ \textcolor{keywordtype}{float}\ x1,\ x2,\ x3,\ x4,\ x5,\ x6;}
+\DoxyCodeLine{00282\ \ \ \ \ \textcolor{keywordtype}{float}\ y1,\ y2,\ y3,\ y4,\ y5,\ y6;}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00284\ \ \ \ \ \textcolor{keywordtype}{float}\ max\_inner\_radius\ =\ std::max(radius,\ 0.5f\ *\ (magnitude\ +\ prev\_magnitude));}
+\DoxyCodeLine{00285\ \ \ \ \ prev\_magnitude\ =\ magnitude;}
+\DoxyCodeLine{00286\ }
+\DoxyCodeLine{00287\ \ \ \ \ \textcolor{keywordtype}{float}\ bisect\_normal\_dot\_product\ =\ bisect\_line.getDotProduct(delta\_normal);}
+\DoxyCodeLine{00288\ \ \ \ \ \textcolor{keywordtype}{float}\ inner\_mult\ =\ 1.0f\ /\ std::max(0.1f,\ std::fabs(bisect\_normal\_dot\_product));}
+\DoxyCodeLine{00289\ \ \ \ \ Point<float>\ inner\_point\ =\ point\ +\ std::min(inner\_mult\ *\ radius,\ max\_inner\_radius)\ *\ bisect\_line;}
+\DoxyCodeLine{00290\ \ \ \ \ Point<float>\ outer\_point\ =\ point\ -\/\ bisect\_line\ *\ radius;}
+\DoxyCodeLine{00291\ }
+\DoxyCodeLine{00292\ \ \ \ \ \textcolor{keywordflow}{if}\ (bisect\_normal\_dot\_product\ <\ 0.0f)\ \{}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ Point<float>\ outer\_point\_start\ =\ outer\_point;}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ Point<float>\ outer\_point\_end\ =\ outer\_point;}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!straight)\ \{}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \ \ outer\_point\_start\ =\ point\ +\ prev\_delta\_normal\ *\ radius;}
+\DoxyCodeLine{00297\ \ \ \ \ \ \ \ \ outer\_point\_end\ =\ point\ +\ delta\_normal\ *\ radius;}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ x1\ =\ outer\_point\_start.x;}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ y1\ =\ outer\_point\_start.y;}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ x3\ =\ outer\_point.x;}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ y3\ =\ outer\_point.y;}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ x5\ =\ outer\_point\_end.x;}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ y5\ =\ outer\_point\_end.y;}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ x2\ =\ x4\ =\ x6\ =\ inner\_point.x;}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ y2\ =\ y4\ =\ y6\ =\ inner\_point.y;}
+\DoxyCodeLine{00307\ \ \ \ \ \}}
+\DoxyCodeLine{00308\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ Point<float>\ outer\_point\_start\ =\ outer\_point;}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ Point<float>\ outer\_point\_end\ =\ outer\_point;}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!straight)\ \{}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ outer\_point\_start\ =\ point\ -\/\ prev\_delta\_normal\ *\ radius;}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ outer\_point\_end\ =\ point\ -\/\ delta\_normal\ *\ radius;}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ x2\ =\ outer\_point\_start.x;}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ y2\ =\ outer\_point\_start.y;}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ x4\ =\ outer\_point.x;}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ y4\ =\ outer\_point.y;}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ x6\ =\ outer\_point\_end.x;}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ y6\ =\ outer\_point\_end.y;}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ x1\ =\ x3\ =\ x5\ =\ inner\_point.x;}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ y1\ =\ y3\ =\ y5\ =\ inner\_point.y;}
+\DoxyCodeLine{00323\ \ \ \ \ \}}
+\DoxyCodeLine{00324\ }
+\DoxyCodeLine{00325\ \ \ \ \ \textcolor{keywordtype}{int}\ first\ =\ (i\ +\ num\_padding\_)\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_a9ed50e3ea5b795f96d0b648a4c5a6978}{kLineFloatsPerPoint}};}
+\DoxyCodeLine{00326\ \ \ \ \ \textcolor{keywordtype}{int}\ second\ =\ first\ +\ \mbox{\hyperlink{class_open_gl_line_renderer_a2be8078ee23b2c8dbbc70141d42fe169}{kLineFloatsPerVertex}};}
+\DoxyCodeLine{00327\ \ \ \ \ \textcolor{keywordtype}{int}\ third\ =\ second\ +\ \mbox{\hyperlink{class_open_gl_line_renderer_a2be8078ee23b2c8dbbc70141d42fe169}{kLineFloatsPerVertex}};}
+\DoxyCodeLine{00328\ \ \ \ \ \textcolor{keywordtype}{int}\ fourth\ =\ third\ +\ \mbox{\hyperlink{class_open_gl_line_renderer_a2be8078ee23b2c8dbbc70141d42fe169}{kLineFloatsPerVertex}};}
+\DoxyCodeLine{00329\ \ \ \ \ \textcolor{keywordtype}{int}\ fifth\ =\ fourth\ +\ \mbox{\hyperlink{class_open_gl_line_renderer_a2be8078ee23b2c8dbbc70141d42fe169}{kLineFloatsPerVertex}};}
+\DoxyCodeLine{00330\ \ \ \ \ \textcolor{keywordtype}{int}\ sixth\ =\ fifth\ +\ \mbox{\hyperlink{class_open_gl_line_renderer_a2be8078ee23b2c8dbbc70141d42fe169}{kLineFloatsPerVertex}};}
+\DoxyCodeLine{00331\ }
+\DoxyCodeLine{00332\ \ \ \ \ line\_data\_[first]\ =\ x\_adjust\ *\ x1\ -\/\ 1.0f;}
+\DoxyCodeLine{00333\ \ \ \ \ line\_data\_[first\ +\ 1]\ =\ 1.0f\ -\/\ y\_adjust\ *\ y1;}
+\DoxyCodeLine{00334\ }
+\DoxyCodeLine{00335\ \ \ \ \ line\_data\_[second]\ =\ x\_adjust\ *\ x2\ -\/\ 1.0f;}
+\DoxyCodeLine{00336\ \ \ \ \ line\_data\_[second\ +\ 1]\ =\ 1.0f\ -\/\ y\_adjust\ *\ y2;}
+\DoxyCodeLine{00337\ }
+\DoxyCodeLine{00338\ \ \ \ \ line\_data\_[third]\ =\ x\_adjust\ *\ x3\ -\/\ 1.0f;}
+\DoxyCodeLine{00339\ \ \ \ \ line\_data\_[third\ +\ 1]\ =\ 1.0f\ -\/\ y\_adjust\ *\ y3;}
+\DoxyCodeLine{00340\ }
+\DoxyCodeLine{00341\ \ \ \ \ line\_data\_[fourth]\ =\ x\_adjust\ *\ x4\ -\/\ 1.0f;}
+\DoxyCodeLine{00342\ \ \ \ \ line\_data\_[fourth\ +\ 1]\ =\ 1.0f\ -\/\ y\_adjust\ *\ y4;}
+\DoxyCodeLine{00343\ }
+\DoxyCodeLine{00344\ \ \ \ \ line\_data\_[fifth]\ =\ x\_adjust\ *\ x5\ -\/\ 1.0f;}
+\DoxyCodeLine{00345\ \ \ \ \ line\_data\_[fifth\ +\ 1]\ =\ 1.0f\ -\/\ y\_adjust\ *\ y5;}
+\DoxyCodeLine{00346\ }
+\DoxyCodeLine{00347\ \ \ \ \ line\_data\_[sixth]\ =\ x\_adjust\ *\ x6\ -\/\ 1.0f;}
+\DoxyCodeLine{00348\ \ \ \ \ line\_data\_[sixth\ +\ 1]\ =\ 1.0f\ -\/\ y\_adjust\ *\ y6;}
+\DoxyCodeLine{00349\ }
+\DoxyCodeLine{00350\ \ \ \ \ prev\_delta\_normal\ =\ delta\_normal;}
+\DoxyCodeLine{00351\ \ \ \ \ prev\_normalized\_delta\ =\ normalized\_delta;}
+\DoxyCodeLine{00352\ \ \ \}}
+\DoxyCodeLine{00353\ }
+\DoxyCodeLine{00354\ \ \ \textcolor{keywordtype}{int}\ begin\_copy\_dest\ =\ (num\_padding\_\ +\ num\_points\_)\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_a9ed50e3ea5b795f96d0b648a4c5a6978}{kLineFloatsPerPoint}};}
+\DoxyCodeLine{00355\ \ \ \textcolor{keywordflow}{if}\ (loop\_\ \&\&\ num\_points\_\ >=\ 2)\ \{}
+\DoxyCodeLine{00356\ \ \ \ \ \textcolor{keywordtype}{int}\ padding\_copy\_size\ =\ num\_padding\_\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_a9ed50e3ea5b795f96d0b648a4c5a6978}{kLineFloatsPerPoint}}\ *\ \textcolor{keyword}{sizeof}(float);}
+\DoxyCodeLine{00357\ \ \ \ \ \textcolor{keywordtype}{int}\ begin\_copy\_source\ =\ num\_padding\_\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_a9ed50e3ea5b795f96d0b648a4c5a6978}{kLineFloatsPerPoint}};}
+\DoxyCodeLine{00358\ \ \ \ \ \textcolor{keywordtype}{int}\ end\_copy\_source\ =\ num\_points\_\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_a9ed50e3ea5b795f96d0b648a4c5a6978}{kLineFloatsPerPoint}};}
+\DoxyCodeLine{00359\ }
+\DoxyCodeLine{00360\ \ \ \ \ memcpy(line\_data\_.get(),\ line\_data\_.get()\ +\ end\_copy\_source,\ padding\_copy\_size);}
+\DoxyCodeLine{00361\ \ \ \ \ memcpy(line\_data\_.get()\ +\ begin\_copy\_dest,\ line\_data\_.get()\ +\ begin\_copy\_source,\ padding\_copy\_size);}
+\DoxyCodeLine{00362\ }
+\DoxyCodeLine{00363\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_padding\_\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_a745893be45a933bce219314d203af3f4}{kLineVerticesPerPoint}};\ ++i)\ \{}
+\DoxyCodeLine{00364\ \ \ \ \ \ \ line\_data\_[i\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_a2be8078ee23b2c8dbbc70141d42fe169}{kLineFloatsPerVertex}}]\ -\/=\ kLoopWidth;}
+\DoxyCodeLine{00365\ \ \ \ \ \ \ line\_data\_[begin\_copy\_dest\ +\ i\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_a2be8078ee23b2c8dbbc70141d42fe169}{kLineFloatsPerVertex}}]\ +=\ kLoopWidth;}
+\DoxyCodeLine{00366\ \ \ \ \ \}}
+\DoxyCodeLine{00367\ \ \ \}}
+\DoxyCodeLine{00368\ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00369\ \ \ \ \ Point<float>\ delta\_start(\mbox{\hyperlink{class_open_gl_line_renderer_a1644dfc0099065cc79cab659d906626b}{xAt}}(0)\ -\/\ \mbox{\hyperlink{class_open_gl_line_renderer_a1644dfc0099065cc79cab659d906626b}{xAt}}(1),\ \mbox{\hyperlink{class_open_gl_line_renderer_ab1f19abc92d00a41c4b922ec4cf0a94f}{yAt}}(0)\ -\/\ \mbox{\hyperlink{class_open_gl_line_renderer_ab1f19abc92d00a41c4b922ec4cf0a94f}{yAt}}(1));}
+\DoxyCodeLine{00370\ \ \ \ \ Point<float>\ delta\_start\_offset\ =\ normalize(delta\_start)\ *\ line\_radius;}
+\DoxyCodeLine{00371\ \ \ \ \ Point<float>\ delta\_end(\mbox{\hyperlink{class_open_gl_line_renderer_a1644dfc0099065cc79cab659d906626b}{xAt}}(num\_points\_\ -\/\ 1)\ -\/\ \mbox{\hyperlink{class_open_gl_line_renderer_a1644dfc0099065cc79cab659d906626b}{xAt}}(num\_points\_\ -\/\ 2),\ \mbox{\hyperlink{class_open_gl_line_renderer_ab1f19abc92d00a41c4b922ec4cf0a94f}{yAt}}(num\_points\_\ -\/\ 1)\ -\/\ \mbox{\hyperlink{class_open_gl_line_renderer_ab1f19abc92d00a41c4b922ec4cf0a94f}{yAt}}(num\_points\_\ -\/\ 2));}
+\DoxyCodeLine{00372\ \ \ \ \ Point<float>\ delta\_end\_offset\ =\ normalize(delta\_end)\ *\ line\_radius;}
+\DoxyCodeLine{00373\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{class_open_gl_line_renderer_a745893be45a933bce219314d203af3f4}{kLineVerticesPerPoint}};\ ++i)\ \{}
+\DoxyCodeLine{00374\ \ \ \ \ \ \ line\_data\_[i\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_a2be8078ee23b2c8dbbc70141d42fe169}{kLineFloatsPerVertex}}]\ =\ (\mbox{\hyperlink{class_open_gl_line_renderer_a1644dfc0099065cc79cab659d906626b}{xAt}}(0)\ +\ delta\_start\_offset.x)\ *\ x\_adjust\ -\/\ 1.0f;}
+\DoxyCodeLine{00375\ \ \ \ \ \ \ line\_data\_[i\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_a2be8078ee23b2c8dbbc70141d42fe169}{kLineFloatsPerVertex}}\ +\ 1]\ =\ 1.0f\ -\/\ (\mbox{\hyperlink{class_open_gl_line_renderer_ab1f19abc92d00a41c4b922ec4cf0a94f}{yAt}}(0)\ +\ delta\_start\_offset.y)\ *\ y\_adjust;}
+\DoxyCodeLine{00376\ \ \ \ \ \ \ line\_data\_[i\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_a2be8078ee23b2c8dbbc70141d42fe169}{kLineFloatsPerVertex}}\ +\ 2]\ =\ boosts[0];}
+\DoxyCodeLine{00377\ }
+\DoxyCodeLine{00378\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ copy\_index\_start\ =\ begin\_copy\_dest\ +\ i\ *\ \mbox{\hyperlink{class_open_gl_line_renderer_a2be8078ee23b2c8dbbc70141d42fe169}{kLineFloatsPerVertex}};}
+\DoxyCodeLine{00379\ \ \ \ \ \ \ line\_data\_[copy\_index\_start]\ =\ (\mbox{\hyperlink{class_open_gl_line_renderer_a1644dfc0099065cc79cab659d906626b}{xAt}}(num\_points\_\ -\/\ 1)\ +\ delta\_end\_offset.x)\ *\ x\_adjust\ -\/\ 1.0f;}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ line\_data\_[copy\_index\_start\ +\ 1]\ =\ 1.0f\ -\/\ (\mbox{\hyperlink{class_open_gl_line_renderer_ab1f19abc92d00a41c4b922ec4cf0a94f}{yAt}}(num\_points\_\ -\/\ 1)\ +\ delta\_end\_offset.y)\ *\ y\_adjust;}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ line\_data\_[copy\_index\_start\ +\ 2]\ =\ boosts[num\_points\_\ -\/\ 1];}
+\DoxyCodeLine{00382\ \ \ \ \ \}}
+\DoxyCodeLine{00383\ \ \ \}}
+\DoxyCodeLine{00384\ \}}
+\DoxyCodeLine{00385\ }
+\DoxyCodeLine{00386\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_line_renderer_ace33179a7e0636d04f0226f87b7258aa}{OpenGlLineRenderer::drawLines}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ left)\ \{}
+\DoxyCodeLine{00387\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{class_open_gl_component_a0641317fa0d502284c603188bb7da9a7}{setViewPort}}(open\_gl))}
+\DoxyCodeLine{00388\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00389\ }
+\DoxyCodeLine{00390\ \ \ \textcolor{keywordflow}{if}\ (fill\_shader\_\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00391\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a0fa1ef67e942cb6dba85c5980cc3c544}{init}}(open\_gl);}
+\DoxyCodeLine{00392\ }
+\DoxyCodeLine{00393\ \ \ glBlendFunc(GL\_SRC\_ALPHA,\ GL\_ONE\_MINUS\_SRC\_ALPHA);}
+\DoxyCodeLine{00394\ \ \ glEnable(GL\_BLEND);}
+\DoxyCodeLine{00395\ \ \ glEnable(GL\_SCISSOR\_TEST);}
+\DoxyCodeLine{00396\ }
+\DoxyCodeLine{00397\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindVertexArray(vertex\_array\_object\_);}
+\DoxyCodeLine{00398\ }
+\DoxyCodeLine{00399\ \ \ \textcolor{keywordflow}{if}\ (dirty\_\ ||\ last\_drawn\_left\_\ !=\ left)\ \{}
+\DoxyCodeLine{00400\ \ \ \ \ dirty\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00401\ \ \ \ \ last\_drawn\_left\_\ =\ left;}
+\DoxyCodeLine{00402\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a8c8448acd851e68cd09dc96b19df68d3}{setLineVertices}}(left);}
+\DoxyCodeLine{00403\ \ \ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_a9c35499e839a2265f1a63ee5a18161b0}{setFillVertices}}(left);}
+\DoxyCodeLine{00404\ }
+\DoxyCodeLine{00405\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ line\_buffer\_);}
+\DoxyCodeLine{00406\ }
+\DoxyCodeLine{00407\ \ \ \ \ GLsizeiptr\ line\_vert\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(num\_line\_floats\_\ *\ \textcolor{keyword}{sizeof}(float));}
+\DoxyCodeLine{00408\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ARRAY\_BUFFER,\ line\_vert\_size,\ line\_data\_.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00409\ }
+\DoxyCodeLine{00410\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ fill\_buffer\_);}
+\DoxyCodeLine{00411\ }
+\DoxyCodeLine{00412\ \ \ \ \ GLsizeiptr\ fill\_vert\_size\ =\ \textcolor{keyword}{static\_cast<}GLsizeiptr\textcolor{keyword}{>}(num\_fill\_floats\_\ *\ \textcolor{keyword}{sizeof}(float));}
+\DoxyCodeLine{00413\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBufferData(GL\_ARRAY\_BUFFER,\ fill\_vert\_size,\ fill\_data\_.get(),\ GL\_STATIC\_DRAW);}
+\DoxyCodeLine{00414\ }
+\DoxyCodeLine{00415\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ 0);}
+\DoxyCodeLine{00416\ \ \ \}}
+\DoxyCodeLine{00417\ }
+\DoxyCodeLine{00418\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ indices\_buffer\_);}
+\DoxyCodeLine{00419\ }
+\DoxyCodeLine{00420\ \ \ \textcolor{keywordtype}{float}\ x\_shrink\ =\ 1.0f;}
+\DoxyCodeLine{00421\ \ \ \textcolor{keywordtype}{float}\ y\_shrink\ =\ 1.0f;}
+\DoxyCodeLine{00422\ \ \ \textcolor{keywordflow}{if}\ (fit\_)\ \{}
+\DoxyCodeLine{00423\ \ \ \ \ x\_shrink\ =\ 1.0f\ -\/\ 0.33f\ *\ line\_width\_\ /\ getWidth();}
+\DoxyCodeLine{00424\ \ \ \ \ y\_shrink\ =\ 1.0f\ -\/\ 0.33f\ *\ line\_width\_\ /\ getHeight();}
+\DoxyCodeLine{00425\ \ \ \}}
+\DoxyCodeLine{00426\ }
+\DoxyCodeLine{00427\ \ \ \textcolor{keywordflow}{if}\ (fill\_)\ \{}
+\DoxyCodeLine{00428\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ fill\_buffer\_);}
+\DoxyCodeLine{00429\ \ \ \ \ fill\_shader\_-\/>use();}
+\DoxyCodeLine{00430\ \ \ \ \ fill\_color\_from\_uniform\_-\/>set(fill\_color\_from\_.getFloatRed(),\ fill\_color\_from\_.getFloatGreen(),}
+\DoxyCodeLine{00431\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ fill\_color\_from\_.getFloatBlue(),\ fill\_color\_from\_.getFloatAlpha());}
+\DoxyCodeLine{00432\ \ \ \ \ fill\_color\_to\_uniform\_-\/>set(fill\_color\_to\_.getFloatRed(),\ fill\_color\_to\_.getFloatGreen(),}
+\DoxyCodeLine{00433\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ fill\_color\_to\_.getFloatBlue(),\ fill\_color\_to\_.getFloatAlpha());}
+\DoxyCodeLine{00434\ \ \ \ \ fill\_center\_uniform\_-\/>set(fill\_center\_);}
+\DoxyCodeLine{00435\ \ \ \ \ fill\_boost\_amount\_uniform\_-\/>set(fill\_boost\_amount\_);}
+\DoxyCodeLine{00436\ \ \ \ \ fill\_scale\_uniform\_-\/>set(x\_shrink,\ y\_shrink);}
+\DoxyCodeLine{00437\ }
+\DoxyCodeLine{00438\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glVertexAttribPointer(fill\_position\_-\/>attributeID,\ \mbox{\hyperlink{class_open_gl_line_renderer_a6f5c07eceee2081527bcb59ba408b28b}{kFillFloatsPerVertex}},\ GL\_FLOAT,}
+\DoxyCodeLine{00439\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GL\_FALSE,\ \mbox{\hyperlink{class_open_gl_line_renderer_a6f5c07eceee2081527bcb59ba408b28b}{kFillFloatsPerVertex}}\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00440\ \ \ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glEnableVertexAttribArray(fill\_position\_-\/>attributeID);}
+\DoxyCodeLine{00441\ \ \ \ \ glDrawElements(GL\_TRIANGLE\_STRIP,\ num\_fill\_vertices\_,\ GL\_UNSIGNED\_INT,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00442\ \ \ \}}
+\DoxyCodeLine{00443\ }
+\DoxyCodeLine{00444\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ line\_buffer\_);}
+\DoxyCodeLine{00445\ \ \ shader\_-\/>use();}
+\DoxyCodeLine{00446\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glVertexAttribPointer(position\_-\/>attributeID,\ \mbox{\hyperlink{class_open_gl_line_renderer_a2be8078ee23b2c8dbbc70141d42fe169}{kLineFloatsPerVertex}},\ GL\_FLOAT,}
+\DoxyCodeLine{00447\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GL\_FALSE,\ \mbox{\hyperlink{class_open_gl_line_renderer_a2be8078ee23b2c8dbbc70141d42fe169}{kLineFloatsPerVertex}}\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}),\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00448\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glEnableVertexAttribArray(position\_-\/>attributeID);}
+\DoxyCodeLine{00449\ \ \ color\_uniform\_-\/>set(color\_.getFloatRed(),\ color\_.getFloatGreen(),\ color\_.getFloatBlue(),\ color\_.getFloatAlpha());}
+\DoxyCodeLine{00450\ }
+\DoxyCodeLine{00451\ \ \ scale\_uniform\_-\/>set(x\_shrink,\ y\_shrink);}
+\DoxyCodeLine{00452\ \ \ boost\_uniform\_-\/>set(boost\_);}
+\DoxyCodeLine{00453\ \ \ line\_width\_uniform\_-\/>set(line\_width\_);}
+\DoxyCodeLine{00454\ }
+\DoxyCodeLine{00455\ \ \ glDrawElements(GL\_TRIANGLE\_STRIP,\ num\_line\_vertices\_,\ GL\_UNSIGNED\_INT,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00456\ }
+\DoxyCodeLine{00457\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDisableVertexAttribArray(position\_-\/>attributeID);}
+\DoxyCodeLine{00458\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ARRAY\_BUFFER,\ 0);}
+\DoxyCodeLine{00459\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glBindBuffer(GL\_ELEMENT\_ARRAY\_BUFFER,\ 0);}
+\DoxyCodeLine{00460\ \ \ glDisable(GL\_BLEND);}
+\DoxyCodeLine{00461\ \ \ glDisable(GL\_SCISSOR\_TEST);}
+\DoxyCodeLine{00462\ \}}
+\DoxyCodeLine{00463\ }
+\DoxyCodeLine{00464\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_line_renderer_a190b43b9e98973f2bf94d8ba6a240a11}{OpenGlLineRenderer::render}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl,\ \textcolor{keywordtype}{bool}\ animate)\ \{}
+\DoxyCodeLine{00465\ \ \ \mbox{\hyperlink{class_open_gl_line_renderer_ace33179a7e0636d04f0226f87b7258aa}{drawLines}}(open\_gl,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00466\ \}}
+\DoxyCodeLine{00467\ }
+\DoxyCodeLine{00468\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_gl_line_renderer_a1207ac3c34fc00f5b39996a92eb030ae}{OpenGlLineRenderer::destroy}}(\mbox{\hyperlink{struct_open_gl_wrapper}{OpenGlWrapper}}\&\ open\_gl)\ \{}
+\DoxyCodeLine{00469\ \ \ \mbox{\hyperlink{class_open_gl_component_aba2309cf4b3c040f6d25418d1fa2dbd3}{OpenGlComponent::destroy}}(open\_gl);}
+\DoxyCodeLine{00470\ }
+\DoxyCodeLine{00471\ \ \ shader\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00472\ \ \ position\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00473\ \ \ color\_uniform\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00474\ \ \ scale\_uniform\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00475\ \ \ boost\_uniform\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00476\ \ \ line\_width\_uniform\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00477\ }
+\DoxyCodeLine{00478\ \ \ fill\_shader\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00479\ \ \ fill\_color\_from\_uniform\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00480\ \ \ fill\_color\_to\_uniform\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00481\ \ \ fill\_center\_uniform\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00482\ \ \ fill\_boost\_amount\_uniform\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00483\ \ \ fill\_scale\_uniform\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00484\ \ \ fill\_position\_\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00485\ }
+\DoxyCodeLine{00486\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDeleteBuffers(1,\ \&line\_buffer\_);}
+\DoxyCodeLine{00487\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDeleteBuffers(1,\ \&fill\_buffer\_);}
+\DoxyCodeLine{00488\ \ \ open\_gl.\mbox{\hyperlink{struct_open_gl_wrapper_a58a3a5d0b8e43bb989fa7dfac30cfcf2}{context}}.extensions.glDeleteBuffers(1,\ \&indices\_buffer\_);}
+\DoxyCodeLine{00489\ }
+\DoxyCodeLine{00490\ \ \ vertex\_array\_object\_\ =\ 0;}
+\DoxyCodeLine{00491\ \ \ line\_buffer\_\ =\ 0;}
+\DoxyCodeLine{00492\ \ \ fill\_buffer\_\ =\ 0;}
+\DoxyCodeLine{00493\ \ \ indices\_buffer\_\ =\ 0;}
+\DoxyCodeLine{00494\ \}}
+
+\end{DoxyCode}

@@ -1,0 +1,36 @@
+var classvital_1_1_synth_lfo =
+[
+    [ "LfoState", "structvital_1_1_synth_lfo_1_1_lfo_state.html", "structvital_1_1_synth_lfo_1_1_lfo_state" ],
+    [ "SyncType", "classvital_1_1_synth_lfo.html#a9ff196461f651bb7c277c6523dba5ace", [
+      [ "kTrigger", "classvital_1_1_synth_lfo.html#a9ff196461f651bb7c277c6523dba5aceae6d13fd29435f2a82282c52f25fa2834", null ],
+      [ "kSync", "classvital_1_1_synth_lfo.html#a9ff196461f651bb7c277c6523dba5acea765ee0eb550e790ce42deda95a2d36f9", null ],
+      [ "kEnvelope", "classvital_1_1_synth_lfo.html#a9ff196461f651bb7c277c6523dba5acea303458fc9c7cca09b5e9a9c9a63775af", null ],
+      [ "kSustainEnvelope", "classvital_1_1_synth_lfo.html#a9ff196461f651bb7c277c6523dba5acea3e4621da38a094b89a53e82287a56751", null ],
+      [ "kLoopPoint", "classvital_1_1_synth_lfo.html#a9ff196461f651bb7c277c6523dba5aceaca607d5cc7f3a8b9f0c3dcd0d3ad1023", null ],
+      [ "kLoopHold", "classvital_1_1_synth_lfo.html#a9ff196461f651bb7c277c6523dba5aceaec4e192355f4257ad98e459f4a48e62d", null ],
+      [ "kNumSyncTypes", "classvital_1_1_synth_lfo.html#a9ff196461f651bb7c277c6523dba5aceadc45e4354d9df45b4b1698075a6e4366", null ]
+    ] ],
+    [ "SynthLfo", "classvital_1_1_synth_lfo.html#adc06fc3726c6181f23bf320445aea714", null ],
+    [ "clone", "classvital_1_1_synth_lfo.html#a0095aa18df5cb683228e2aed99863d1a", null ],
+    [ "correctToTime", "classvital_1_1_synth_lfo.html#a144ad8e8432db904b59e76fed5e94484", null ],
+    [ "getReleaseMask", "classvital_1_1_synth_lfo.html#a010c388887f81f2522ae185236a96ff5", null ],
+    [ "getValueAtPhase", "classvital_1_1_synth_lfo.html#aaf601c51856a2a33ecf3dc39f2875271", null ],
+    [ "getValueAtPhase", "classvital_1_1_synth_lfo.html#ac61f0a60130f32302cbb5193a4e405cc", null ],
+    [ "process", "classvital_1_1_synth_lfo.html#a121f2af8afbd6db964b8fd1bb96388fe", null ],
+    [ "processAudioRate", "classvital_1_1_synth_lfo.html#a1d865f7458034c4d6d0456a069b045b6", null ],
+    [ "processAudioRateEnvelope", "classvital_1_1_synth_lfo.html#ada21195dee79f216ee82d7f2cd8b8c48", null ],
+    [ "processAudioRateLfo", "classvital_1_1_synth_lfo.html#ae924bd16db8af52e3451348407331f19", null ],
+    [ "processAudioRateLoopHold", "classvital_1_1_synth_lfo.html#aea95b28c86f5212a5c4bf615a59899c0", null ],
+    [ "processAudioRateLoopPoint", "classvital_1_1_synth_lfo.html#a65acc01affd4c7d108be79a09d99e2df", null ],
+    [ "processAudioRateSustainEnvelope", "classvital_1_1_synth_lfo.html#a08279a0a2065c114057fe6ac34d84d02", null ],
+    [ "processControlRate", "classvital_1_1_synth_lfo.html#a761aa70deb09f68ce37bd7e66fe490b1", null ],
+    [ "processTrigger", "classvital_1_1_synth_lfo.html#a05b435039f626a51d50f120c492ebdf7", null ],
+    [ "audio_rate_state_", "classvital_1_1_synth_lfo.html#a07348b24b2b14c308f1827e6d9c3c36a", null ],
+    [ "control_rate_state_", "classvital_1_1_synth_lfo.html#ad04d7f4302c902bb37838051cf617b16", null ],
+    [ "held_mask_", "classvital_1_1_synth_lfo.html#a87d7df1c91650fe8e4d8ab861cd229dc", null ],
+    [ "source_", "classvital_1_1_synth_lfo.html#aa356af7e0087e77a572795346bf83dd5", null ],
+    [ "sync_seconds_", "classvital_1_1_synth_lfo.html#a461d405497bd529d79f2dbac49770a02", null ],
+    [ "trigger_delay_", "classvital_1_1_synth_lfo.html#a0ea2c63fff1ab701676dff4880d6561b", null ],
+    [ "trigger_sample_", "classvital_1_1_synth_lfo.html#a525365c768b97a3a7303df00686462f8", null ],
+    [ "was_control_rate_", "classvital_1_1_synth_lfo.html#ae36c55e17ebfab423aa2867c18692b6f", null ]
+];
